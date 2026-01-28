@@ -1,0 +1,14 @@
+                                   precision    recall  f1-score   support
+
+         0_safe_walkway_violation       0.52      0.69      0.59        32
+      1_unauthorized_intervention       0.23      0.45      0.30        11
+             2_opened_panel_cover       0.00      0.00      0.00         0
+3_carrying_overload_with_forklift       1.00      0.88      0.93         8
+                   4_safe_walkway       0.16      0.12      0.14        25
+        5_authorized_intervention       0.50      0.40      0.44        15
+             6_closed_panel_cover       0.00      0.00      0.00        13
+                  7_safe_carrying       1.00      0.88      0.93         8
+
+                         accuracy                           0.45       112
+                        macro avg       0.43      0.43      0.42       112
+                     weighted avg       0.42      0.45      0.42       112
