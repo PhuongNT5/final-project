@@ -1,5 +1,7 @@
 .DS_Store
-.data/
-.UnsafeNet_Features/
-.UnsafeNet_Training/
 .venv/
+data/
+data.zip
+UnsafeNet_Features/
+UnsafeNet_Training/
+demo_results/
