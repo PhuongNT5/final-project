@@ -8,12 +8,13 @@ from ultralytics import YOLO
 MODEL_PATH = "UnsafeNet_Training/safe_run/weights/best.pt" 
 
 # 2. Path to the input video file (YOU MUST CHANGE THIS)
-INPUT_VIDEO = "data/test/0_safe_walkway_violation/your_video_name.mp4" 
+INPUT_VIDEO = "data/test/6_closed_panel_cover/6_te1.mp4" 
 
 # 3. Path where the result video will be saved
-OUTPUT_VIDEO = "demo_result.mp4"
+OUTPUT_VIDEO = "demo_results/demo_result.mp4"
 
 # 4. Confidence threshold (0.0 to 1.0)
+# Detections below this confidence will be ignored.
 CONF_THRESHOLD = 0.4 
 
 def run_demo():

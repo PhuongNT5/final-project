@@ -1,8 +1,8 @@
-path: ./UnsafeNet_Ready  
+path: ./UnsafeNet_Ready
 train: images/train
-val: images/test         
+val: images/test
 
-nc: 8                 
+nc: 8
 names:
   0: safe_walkway_violation
   1: unauthorized_intervention
