@@ -1,40 +1,38 @@
 import cv2
 import numpy as np
 
-# --- CONFIGURATION ---
-# Replace with your actual video path
-VIDEO_PATH = "data/test/0_safe_walkway_violation/0_te2.mp4" 
+# --- CONFIG ---
+VIDEO_PATH = "data/test/0_safe_walkway_violation/0_te18.mp4" 
 
 points = []
 
 def click_event(event, x, y, flags, params):
     if event == cv2.EVENT_LBUTTONDOWN:
-        print(f"[{x}, {y}],")
         points.append([x, y])
-        
-        # Draw the point on the image
         cv2.circle(img, (x, y), 5, (0, 0, 255), -1)
-        cv2.imshow('Get Coordinates (Press any key to exit)', img)
+        if len(points) > 1:
+            cv2.line(img, tuple(points[-2]), tuple(points[-1]), (0, 0, 255), 2)
+        cv2.imshow('Define Danger Zone', img)
 
-# Read the first frame
 cap = cv2.VideoCapture(VIDEO_PATH)
-ret, img = cap.read()
+ret, frame = cap.read()
 cap.release()
 
 if ret:
-    # Resize is optional, but keep it 1.0 to get accurate pixel coords
-    img = cv2.resize(img, (0,0), fx=1.0, fy=1.0) 
-    
-    cv2.imshow('Get Coordinates (Press any key to exit)', img)
-    cv2.setMouseCallback('Get Coordinates (Press any key to exit)', click_event)
-    
-    print("\n👉 INSTRUCTIONS: Click the 4 corners of the Safe Walkway.")
-    print("The output format will appear below:\n")
-    print("np.array([")
-    
+    img = frame.copy()
+    print("\n-----------------------------------------------------------")
+    print("INSTRUCTIONS:")
+    print("1. Click 4 points to define the DANGER ROAD (The gap between machines and green walkway).")
+    print("2. Make sure to cover the area where the pedestrian walks.")
+    print("3. Press any key to finish and see coordinates.")
+    print("-----------------------------------------------------------\n")
+
+    cv2.imshow('Define Danger Zone', img)
+    cv2.setMouseCallback('Define Danger Zone', click_event)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
     
-    print("], np.int32)")
+    print("\n✅ COPY THIS ARRAY INTO run_inference_final.py:\n")
+    print(f"DANGER_ZONE_POLYGON = np.array({points}, np.int32)")
 else:
-    print(f"❌ Error: Could not read video at {VIDEO_PATH}")
+    print("❌ Error: Could not read video.")
