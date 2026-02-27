@@ -62,6 +62,10 @@ def run_experiment(args=None):
     parser.add_argument('--test_features', type=str, default='')
     parser.add_argument('--best_metric', type=str, default='macro_f1', choices=['macro_f1', 'acc'])
     parser.add_argument('--head_dim', type=int, default=512, help='Transformer model dimension for features mode (input is projected to this dim).')
+    parser.add_argument('--max_t', type=int, default=32, help='Max T supported by token head positional embeddings (features mode tokens).')
+    parser.add_argument('--max_s', type=int, default=64, help='Max S supported by token head positional embeddings (features mode tokens).')
+    parser.add_argument('--use_cls_token', action='store_true', help='Use CLS token pooling for tokenized features (recommended).')
+    parser.add_argument('--focal_gamma', type=float, default=0.0, help='If >0, use focal loss with this gamma (features mode).')
     args = parser.parse_args(args)
 
     config = {
@@ -80,6 +84,10 @@ def run_experiment(args=None):
         'yolo_weights': args.yolo_weights,
         'feature_layer_idx': args.feature_layer_idx,
         'head_dim': int(args.head_dim),
+        'max_t': int(args.max_t),
+        'max_s': int(args.max_s),
+        'use_cls_token': bool(args.use_cls_token),
+        'focal_gamma': float(args.focal_gamma),
     }
     os.makedirs(config['output_dir'], exist_ok=True)
     set_seed(config['seed'])
@@ -88,6 +96,7 @@ def run_experiment(args=None):
     if args.mode == 'features':
         from feature_dataset import PreExtractedFeatureDataset
         from temporal_head import TemporalTransformerHead
+        from spatiotemporal_head import SpatioTemporalTransformerHead
         from torch.utils.data import WeightedRandomSampler
 
         train_set = PreExtractedFeatureDataset(args.train_features)
@@ -114,11 +123,63 @@ def run_experiment(args=None):
         test_loader = DataLoader(test_set, batch_size=config['batch_size'], shuffle=False, num_workers=int(args.num_workers))
 
         x0, _ = train_set[0]
-        in_dim = int(x0.shape[-1])
-        model = TemporalTransformerHead(in_dim=in_dim, model_dim=int(config['head_dim']), num_classes=8, nhead=8, num_layers=4, dropout=0.5).to(config['device'])
+        if x0.dim() == 2:
+            # (T,C) => vector features
+            in_dim = int(x0.shape[-1])
+            model = TemporalTransformerHead(
+                in_dim=in_dim,
+                model_dim=int(config['head_dim']),
+                num_classes=8,
+                nhead=8,
+                num_layers=4,
+                dropout=0.5,
+            ).to(config['device'])
+        elif x0.dim() == 3:
+            # (T,S,C) => token features
+            in_dim = int(x0.shape[-1])
+            model = SpatioTemporalTransformerHead(
+                in_dim=in_dim,
+                model_dim=int(config['head_dim']),
+                num_classes=8,
+                nhead=8,
+                num_layers=4,
+                dropout=0.5,
+                max_t=int(config['max_t']),
+                max_s=int(config['max_s']),
+                use_cls_token=bool(config['use_cls_token']),
+                pool='cls' if bool(config['use_cls_token']) else 'max',
+            ).to(config['device'])
+        else:
+            raise ValueError(f"Unsupported single-item feature shape: {tuple(x0.shape)}")
 
         weights = torch.tensor(config['class_weights'], dtype=torch.float32).to(config['device'])
-        criterion = nn.CrossEntropyLoss(weight=weights, label_smoothing=0.05)
+
+        class FocalLoss(nn.Module):
+            def __init__(self, weight=None, gamma: float = 2.0, label_smoothing: float = 0.0):
+                super().__init__()
+                self.register_buffer('weight', weight if weight is not None else None)
+                self.gamma = float(gamma)
+                self.label_smoothing = float(label_smoothing)
+
+            def forward(self, logits, target):
+                # logits: (B,K), target: (B,)
+                ce = nn.functional.cross_entropy(
+                    logits,
+                    target,
+                    weight=self.weight,
+                    reduction='none',
+                    label_smoothing=self.label_smoothing,
+                )
+                p = torch.softmax(logits, dim=1)
+                pt = p.gather(1, target.view(-1, 1)).squeeze(1).clamp_min(1e-6)
+                loss = ((1.0 - pt) ** self.gamma) * ce
+                return loss.mean()
+
+        if float(config.get('focal_gamma', 0.0)) and float(config['focal_gamma']) > 0:
+            criterion = FocalLoss(weight=weights, gamma=float(config['focal_gamma']), label_smoothing=0.0)
+        else:
+            criterion = nn.CrossEntropyLoss(weight=weights, label_smoothing=0.05)
+
         optimizer = optim.AdamW(model.parameters(), lr=config['learning_rate'], weight_decay=0.02)
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             optimizer, mode='max', factor=0.5, patience=2, threshold=1e-4
