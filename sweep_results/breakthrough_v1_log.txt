@@ -447,3 +447,4 @@ STAGE 2: Binary 0-vs-1 (long training, T32)
       ep 30 acc=76.7% f1=0.724 best=76.7%
       ep 40 acc=79.1% f1=0.746 best=79.1%
       ep 50 acc=83.7% f1=0.779 best=83.7%
+      ep 60 acc=83.7% f1=0.779 best=83.7%

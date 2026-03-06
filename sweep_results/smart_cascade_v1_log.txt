@@ -1,0 +1,325 @@
+Loading features...
+  Test: 64 unsafe, binary: 43 (c0=32, c1=11)
+
+============================================================
+STAGE 1: 4-class MotionHead (T32 + T48)
+============================================================
+
+  Training d4_T32_C_s42
+      Ep 001 | acc=17.2% f1=0.073 (best=17.2%)
+      Ep 010 | acc=29.7% f1=0.332 (best=29.7%)
+      Ep 020 | acc=46.9% f1=0.571 (best=46.9%)
+      Ep 030 | acc=79.7% f1=0.800 (best=79.7%)
+      Ep 040 | acc=84.4% f1=0.857 (best=84.4%)
+      Ep 050 | acc=82.8% f1=0.839 (best=84.4%)
+    -> d4_T32_C_s42: best = 84.4%
+
+  Training d4_T32_C_s123
+      Ep 001 | acc=17.2% f1=0.073 (best=17.2%)
+      Ep 010 | acc=29.7% f1=0.332 (best=29.7%)
+      Ep 020 | acc=68.8% f1=0.734 (best=68.8%)
+      Ep 030 | acc=78.1% f1=0.788 (best=78.1%)
+      Ep 040 | acc=81.2% f1=0.826 (best=81.2%)
+      Ep 050 | acc=81.2% f1=0.826 (best=81.2%)
+    -> d4_T32_C_s123: best = 81.2%
+
+  Training d4_T32_B_s42
+      Ep 001 | acc=17.2% f1=0.073 (best=17.2%)
+      Ep 010 | acc=31.2% f1=0.369 (best=31.2%)
+      Ep 020 | acc=79.7% f1=0.800 (best=79.7%)
+      Ep 030 | acc=81.2% f1=0.826 (best=81.2%)
+      Ep 040 | acc=81.2% f1=0.826 (best=81.2%)
+      Ep 050 | acc=81.2% f1=0.824 (best=81.2%)
+    -> d4_T32_B_s42: best = 81.2%
+
+  Training d4_T32_B_s123
+      Ep 001 | acc=17.2% f1=0.073 (best=17.2%)
+      Ep 010 | acc=34.4% f1=0.430 (best=34.4%)
+      Ep 020 | acc=79.7% f1=0.803 (best=79.7%)
+      Ep 030 | acc=79.7% f1=0.804 (best=81.2%)
+      Ep 040 | acc=79.7% f1=0.806 (best=81.2%)
+      Ep 050 | acc=78.1% f1=0.796 (best=81.2%)
+    -> d4_T32_B_s123: best = 81.2%
+
+  Training d4_T48_C_s42
+      Ep 001 | acc=17.2% f1=0.073 (best=17.2%)
+      Ep 010 | acc=29.7% f1=0.332 (best=29.7%)
+      Ep 020 | acc=67.2% f1=0.706 (best=65.6%)
+      Ep 030 | acc=78.1% f1=0.777 (best=78.1%)
+      Ep 040 | acc=81.2% f1=0.821 (best=82.8%)
+      Ep 050 | acc=81.2% f1=0.832 (best=82.8%)
+    -> d4_T48_C_s42: best = 82.8%
+
+  Training d4_T48_C_s123
+      Ep 001 | acc=17.2% f1=0.073 (best=17.2%)
+      Ep 010 | acc=29.7% f1=0.332 (best=29.7%)
+      Ep 020 | acc=65.6% f1=0.696 (best=65.6%)
+      Ep 030 | acc=78.1% f1=0.776 (best=78.1%)
+      Ep 040 | acc=81.2% f1=0.821 (best=81.2%)
+      Ep 050 | acc=81.2% f1=0.818 (best=81.2%)
+    -> d4_T48_C_s123: best = 81.2%
+
+  Training d4_T48_B_s42
+      Ep 001 | acc=17.2% f1=0.073 (best=17.2%)
+      Ep 010 | acc=37.5% f1=0.472 (best=37.5%)
+      Ep 020 | acc=75.0% f1=0.755 (best=75.0%)
+      Ep 030 | acc=78.1% f1=0.788 (best=79.7%)
+      Ep 040 | acc=79.7% f1=0.816 (best=81.2%)
+      Ep 050 | acc=78.1% f1=0.806 (best=81.2%)
+    -> d4_T48_B_s42: best = 81.2%
+
+  Training d4_T48_B_s123
+      Ep 001 | acc=17.2% f1=0.073 (best=17.2%)
+      Ep 010 | acc=29.7% f1=0.332 (best=29.7%)
+      Ep 020 | acc=76.6% f1=0.765 (best=76.6%)
+      Ep 030 | acc=81.2% f1=0.811 (best=81.2%)
+      Ep 040 | acc=81.2% f1=0.818 (best=81.2%)
+      Ep 050 | acc=82.8% f1=0.841 (best=82.8%)
+    -> d4_T48_B_s123: swa_tta = 84.4%
+
+============================================================
+STAGE 2: Binary 0-vs-1 (T32, T48, Spatial, Scenario-all)
+============================================================
+
+  [1/12] Training bin_T32_S192_s42
+    BinaryDS (scenario_all): 348, c0=228, c1=120
+      Ep 001 | acc=74.4% f1=0.427 (best=74.4%)
+      Ep 010 | acc=65.1% f1=0.622 (best=67.4%)
+      Ep 020 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 030 | acc=76.7% f1=0.711 (best=76.7%)
+      Ep 040 | acc=76.7% f1=0.711 (best=76.7%)
+      Ep 050 | acc=79.1% f1=0.733 (best=79.1%)
+      Ep 060 | acc=83.7% f1=0.779 (best=83.7%)
+      Ep 070 | acc=83.7% f1=0.779 (best=83.7%)
+      Ep 080 | acc=83.7% f1=0.779 (best=83.7%)
+      Ep 090 | acc=83.7% f1=0.779 (best=83.7%)
+      [Early stop ep 90]
+    -> bin_T32_S192_s42: swa_tta = 86.0%
+
+  [2/12] Training bin_T32_S192_s123
+    BinaryDS (scenario_all): 348, c0=228, c1=120
+      Ep 001 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 010 | acc=23.3% f1=0.205 (best=23.3%)
+      Ep 020 | acc=74.4% f1=0.703 (best=74.4%)
+      Ep 030 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 040 | acc=74.4% f1=0.703 (best=76.7%)
+      Ep 050 | acc=74.4% f1=0.703 (best=76.7%)
+      [Early stop ep 58]
+    -> bin_T32_S192_s123: swa_tta = 79.1%
+
+  [3/12] Training bin_T32_S192_s7
+    BinaryDS (scenario_all): 348, c0=228, c1=120
+      Ep 001 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 010 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 020 | acc=74.4% f1=0.703 (best=74.4%)
+      Ep 030 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 040 | acc=79.1% f1=0.746 (best=79.1%)
+      Ep 050 | acc=76.7% f1=0.724 (best=79.1%)
+      Ep 060 | acc=81.4% f1=0.769 (best=81.4%)
+      Ep 070 | acc=83.7% f1=0.792 (best=83.7%)
+      Ep 080 | acc=83.7% f1=0.792 (best=86.0%)
+      Ep 090 | acc=79.1% f1=0.746 (best=86.0%)
+      Ep 100 | acc=79.1% f1=0.746 (best=86.0%)
+    -> bin_T32_S192_s7: best = 86.0%
+
+  [4/12] Training bin_T48_B128_s42
+    BinaryDS (unsafe_only): 275, c0=178, c1=97
+      Ep 001 | acc=74.4% f1=0.427 (best=74.4%)
+      Ep 010 | acc=51.2% f1=0.502 (best=74.4%)
+      Ep 020 | acc=74.4% f1=0.703 (best=74.4%)
+      Ep 030 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 040 | acc=79.1% f1=0.746 (best=79.1%)
+      Ep 050 | acc=76.7% f1=0.711 (best=79.1%)
+      Ep 060 | acc=79.1% f1=0.746 (best=79.1%)
+      Ep 070 | acc=79.1% f1=0.746 (best=79.1%)
+      [Early stop ep 75]
+    -> bin_T48_B128_s42: best = 79.1%
+
+  [5/12] Training bin_T48_B128_s123
+    BinaryDS (unsafe_only): 275, c0=178, c1=97
+      Ep 001 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 010 | acc=23.3% f1=0.189 (best=25.6%)
+      Ep 020 | acc=74.4% f1=0.703 (best=74.4%)
+      Ep 030 | acc=72.1% f1=0.682 (best=76.7%)
+      Ep 040 | acc=79.1% f1=0.746 (best=79.1%)
+      Ep 050 | acc=76.7% f1=0.711 (best=79.1%)
+      Ep 060 | acc=76.7% f1=0.695 (best=79.1%)
+      Ep 070 | acc=76.7% f1=0.695 (best=79.1%)
+      [Early stop ep 75]
+    -> bin_T48_B128_s123: best = 79.1%
+
+  [6/12] Training bin_T48_B128_s7
+    BinaryDS (unsafe_only): 275, c0=178, c1=97
+      Ep 001 | acc=74.4% f1=0.427 (best=74.4%)
+      Ep 010 | acc=58.1% f1=0.562 (best=76.7%)
+      Ep 020 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 030 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 040 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 050 | acc=76.7% f1=0.711 (best=79.1%)
+      Ep 060 | acc=76.7% f1=0.711 (best=79.1%)
+      Ep 070 | acc=79.1% f1=0.733 (best=79.1%)
+      [Early stop ep 76]
+    -> bin_T48_B128_s7: best = 79.1%
+
+  [7/12] Training bin_T48_S192_s42
+    BinaryDS (scenario_all): 348, c0=228, c1=120
+      Ep 001 | acc=74.4% f1=0.427 (best=74.4%)
+      Ep 010 | acc=58.1% f1=0.562 (best=72.1%)
+      Ep 020 | acc=74.4% f1=0.703 (best=74.4%)
+      Ep 030 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 040 | acc=74.4% f1=0.690 (best=76.7%)
+      Ep 050 | acc=74.4% f1=0.690 (best=76.7%)
+      [Early stop ep 56]
+    -> bin_T48_S192_s42: best = 76.7%
+
+  [8/12] Training bin_T48_S192_s123
+    BinaryDS (scenario_all): 348, c0=228, c1=120
+      Ep 001 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 010 | acc=27.9% f1=0.238 (best=27.9%)
+      Ep 020 | acc=69.8% f1=0.662 (best=69.8%)
+      Ep 030 | acc=74.4% f1=0.703 (best=74.4%)
+      Ep 040 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 050 | acc=74.4% f1=0.690 (best=76.7%)
+      Ep 060 | acc=74.4% f1=0.690 (best=76.7%)
+      [Early stop ep 67]
+    -> bin_T48_S192_s123: best = 76.7%
+
+  [9/12] Training bin_T48_S192_s7
+    BinaryDS (scenario_all): 348, c0=228, c1=120
+      Ep 001 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 010 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 020 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 030 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 040 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 050 | acc=76.7% f1=0.724 (best=76.7%)
+      [Early stop ep 55]
+    -> bin_T48_S192_s7: best = 76.7%
+
+  [10/12] Training bin_T32_SP128_s42
+    BinaryDS (unsafe_only): 275, c0=178, c1=97
+      Ep 001 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 010 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 020 | acc=67.4% f1=0.642 (best=67.4%)
+      Ep 030 | acc=67.4% f1=0.642 (best=69.8%)
+      Ep 040 | acc=67.4% f1=0.642 (best=69.8%)
+      Ep 050 | acc=67.4% f1=0.642 (best=69.8%)
+      Ep 060 | acc=72.1% f1=0.693 (best=72.1%)
+      Ep 070 | acc=72.1% f1=0.682 (best=72.1%)
+      Ep 080 | acc=74.4% f1=0.690 (best=76.7%)
+      Ep 090 | acc=74.4% f1=0.690 (best=76.7%)
+      Ep 100 | acc=76.7% f1=0.711 (best=76.7%)
+    -> bin_T32_SP128_s42: best = 76.7%
+
+  [11/12] Training bin_T32_SP128_s123
+    BinaryDS (unsafe_only): 275, c0=178, c1=97
+      Ep 001 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 010 | acc=25.6% f1=0.204 (best=25.6%)
+      Ep 020 | acc=67.4% f1=0.642 (best=67.4%)
+      Ep 030 | acc=67.4% f1=0.642 (best=67.4%)
+      Ep 040 | acc=74.4% f1=0.703 (best=74.4%)
+      Ep 050 | acc=72.1% f1=0.682 (best=74.4%)
+      Ep 060 | acc=76.7% f1=0.724 (best=76.7%)
+      Ep 070 | acc=81.4% f1=0.779 (best=81.4%)
+      Ep 080 | acc=81.4% f1=0.779 (best=81.4%)
+      Ep 090 | acc=81.4% f1=0.779 (best=81.4%)
+      Ep 100 | acc=81.4% f1=0.779 (best=81.4%)
+    -> bin_T32_SP128_s123: best = 81.4%
+
+  [12/12] Training bin_T32_SP128_s7
+    BinaryDS (unsafe_only): 275, c0=178, c1=97
+      Ep 001 | acc=74.4% f1=0.427 (best=74.4%)
+      Ep 010 | acc=39.5% f1=0.395 (best=76.7%)
+      Ep 020 | acc=74.4% f1=0.703 (best=74.4%)
+      Ep 030 | acc=74.4% f1=0.703 (best=74.4%)
+      Ep 040 | acc=79.1% f1=0.746 (best=79.1%)
+      Ep 050 | acc=79.1% f1=0.746 (best=79.1%)
+      Ep 060 | acc=76.7% f1=0.724 (best=79.1%)
+      Ep 070 | acc=76.7% f1=0.724 (best=79.1%)
+      [Early stop ep 74]
+    -> bin_T32_SP128_s7: best = 79.1%
+
+============================================================
+STAGE 3: Smart cascade (aggressive routing + prob fusion)
+============================================================
+
+  Binary models ranked (top 15):
+    1. bin_T32_S192_s42: 86.0%
+    2. bin_T32_S192_s7: 86.0%
+    3. bin_T32_SP128_s123: 81.4%
+    4. bin_T32_S192_s123: 79.1%
+    5. bin_T48_B128_s42: 79.1%
+    6. bin_T48_B128_s123: 79.1%
+    7. bin_T48_B128_s7: 79.1%
+    8. bin_T32_SP128_s7: 79.1%
+    9. bin_T48_S192_s42: 76.7%
+    10. bin_T48_S192_s123: 76.7%
+    11. bin_T48_S192_s7: 76.7%
+    12. bin_T32_SP128_s42: 76.7%
+
+============================================================
+FINAL RESULTS — TOP 30
+============================================================
+   1. d4_T32_C_s42_best+bin_T32_S192_s42_swa_tta_all64_standard: 89.1% (57/64) [?] (bin=86.0%)
+   2. d4_T32_C_s42_best+bin_T32_S192_s42_swa_tta_all64_aggr_c0.0: 89.1% (57/64) [?] (bin=86.0%)
+   3. d4_T32_B_s42_best+bin_T32_S192_s42_swa_tta_all64_standard: 89.1% (57/64) [?] (bin=86.0%)
+   4. d4_T32_B_s42_best+bin_T32_S192_s42_swa_tta_all64_aggr_c0.0: 89.1% (57/64) [?] (bin=86.0%)
+   5. d4_T32_B_s42_best_tta+bin_T32_S192_s42_swa_tta_all64_standard: 89.1% (57/64) [?] (bin=86.0%)
+   6. d4_T32_B_s42_best_tta+bin_T32_S192_s42_swa_tta_all64_aggr_c0.0: 89.1% (57/64) [?] (bin=86.0%)
+   7. d4_T48_C_s42_best+bin_T32_S192_s42_swa_tta_all64_standard: 89.1% (57/64) [?] (bin=86.0%)
+   8. d4_T48_C_s42_best+bin_T32_S192_s42_swa_tta_all64_aggr_c0.0: 89.1% (57/64) [?] (bin=86.0%)
+   9. d4_T48_C_s42_best_tta+bin_T32_S192_s42_swa_tta_all64_standard: 89.1% (57/64) [?] (bin=86.0%)
+  10. d4_T48_C_s42_best_tta+bin_T32_S192_s42_swa_tta_all64_aggr_c0.0: 89.1% (57/64) [?] (bin=86.0%)
+  11. d4_T48_C_s42_swa+bin_T32_S192_s42_swa_tta_all64_standard: 89.1% (57/64) [?] (bin=86.0%)
+  12. d4_T48_C_s42_swa+bin_T32_S192_s42_swa_tta_all64_aggr_c0.0: 89.1% (57/64) [?] (bin=86.0%)
+  13. d4_T48_C_s42_swa+bin_T32_S192_s42_swa_tta_all64_aggr_c0.5: 89.1% (57/64) [?] (bin=86.0%)
+  14. d4_T48_C_s42_swa_tta+bin_T32_S192_s42_swa_tta_all64_standard: 89.1% (57/64) [?] (bin=86.0%)
+  15. d4_T48_C_s42_swa_tta+bin_T32_S192_s42_swa_tta_all64_aggr_c0.0: 89.1% (57/64) [?] (bin=86.0%)
+  16. d4_T48_B_s42_best+bin_T32_S192_s42_swa_tta_all64_standard: 89.1% (57/64) [?] (bin=86.0%)
+  17. d4_T48_B_s42_best+bin_T32_S192_s42_swa_tta_all64_aggr_c0.0: 89.1% (57/64) [?] (bin=86.0%)
+  18. d4_T32_C_s42_best+top1ens_standard: 89.1% (57/64) [?]
+  19. d4_T32_C_s42_best+top1ens_aggr_c0.0: 89.1% (57/64) [?]
+  20. d4_T32_B_s42_best+top1ens_standard: 89.1% (57/64) [?]
+  21. d4_T32_B_s42_best+top1ens_aggr_c0.0: 89.1% (57/64) [?]
+  22. d4_T32_B_s42_best_tta+top1ens_standard: 89.1% (57/64) [?]
+  23. d4_T32_B_s42_best_tta+top1ens_aggr_c0.0: 89.1% (57/64) [?]
+  24. d4_T48_C_s42_best+top1ens_standard: 89.1% (57/64) [?]
+  25. d4_T48_C_s42_best+top1ens_aggr_c0.0: 89.1% (57/64) [?]
+  26. d4_T48_C_s42_best_tta+top1ens_standard: 89.1% (57/64) [?]
+  27. d4_T48_C_s42_best_tta+top1ens_aggr_c0.0: 89.1% (57/64) [?]
+  28. d4_T48_B_s42_best+top1ens_standard: 89.1% (57/64) [?]
+  29. d4_T48_B_s42_best+top1ens_aggr_c0.0: 89.1% (57/64) [?]
+  30. d4_T32_C_s42_best+bin_T32_S192_s7_swa_tta_all64_standard: 87.5% (56/64) [?] (bin=86.0%)
+
+  BEST: d4_T32_C_s42_best+bin_T32_S192_s42_swa_tta_all64_standard = 89.1% (57/64)
+  Paper: 95.81% (62/64)
+  Gap: 6.75pp
+  Previous best: 90.63% (58/64)
+
+  Confusion matrix:
+    WalkwayViol    : [28  2  2  0]
+    UnauthorInt    : [3 8 0 0]
+    OpenedPanel    : [ 0  0 13  0]
+    CarryOverload  : [0 0 0 8]
+
+               precision    recall  f1-score   support
+
+  WalkwayViol      0.903     0.875     0.889        32
+  UnauthorInt      0.800     0.727     0.762        11
+  OpenedPanel      0.867     1.000     0.929        13
+CarryOverload      1.000     1.000     1.000         8
+
+     accuracy                          0.891        64
+    macro avg      0.892     0.901     0.895        64
+ weighted avg      0.890     0.891     0.889        64
+
+
+============================================================
+BINARY ACCURACY BY CONFIG
+============================================================
+  T32_S192: n=3, mean=83.7%, max=86.0%, std=3.3%
+  T32_SP128: n=3, mean=79.1%, max=81.4%, std=1.9%
+  T48_B128: n=3, mean=79.1%, max=79.1%, std=0.0%
+  T48_S192: n=3, mean=76.7%, max=76.7%, std=0.0%
+
+  Total time: 133.3m
+  Results saved to: sweep_results/smart_cascade_v1/
