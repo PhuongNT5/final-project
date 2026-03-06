@@ -5,3 +5,6 @@ venv/
 yolo11n.pt
 yolo11s.pt
 .DS_Store
+features/*.pt
+features/*.zip
+**/best_model.pth

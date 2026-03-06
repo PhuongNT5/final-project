@@ -117,3 +117,114 @@ class SpatioTemporalTransformerHead(nn.Module):
         else:
             x, _ = x.max(dim=1)  # pool over tokens
         return self.fc(x)
+
+
+class FactorizedSTHead(nn.Module):
+    """Factorized Spatial-then-Temporal Transformer head.
+
+    Instead of flattening T*S tokens (quadratic attention cost), this head:
+      1. Spatial stage: per-frame attention over S spatial tokens → per-frame summary (B*T, D)
+      2. Temporal stage: attention over T frame summaries → video-level representation (B, D)
+      3. Classifier: linear head → (B, num_classes)
+
+    This scales linearly with T and S instead of quadratically with T*S,
+    making it feasible for T=32+ on CPU with small datasets.
+    """
+
+    def __init__(
+        self,
+        in_dim: int,
+        num_classes: int = 8,
+        model_dim: int = 512,
+        nhead: int = 8,
+        spatial_layers: int = 2,
+        temporal_layers: int = 2,
+        dropout: float = 0.5,
+        max_t: int = 64,
+        max_s: int = 64,
+    ):
+        super().__init__()
+        self.in_dim = int(in_dim)
+        self.model_dim = int(model_dim)
+        self.max_t = int(max_t)
+        self.max_s = int(max_s)
+
+        # Input projection
+        self.input_proj = (
+            nn.Identity()
+            if self.in_dim == self.model_dim
+            else nn.Sequential(
+                nn.Linear(self.in_dim, self.model_dim),
+                nn.LayerNorm(self.model_dim),
+                nn.ReLU(),
+                nn.Dropout(dropout),
+            )
+        )
+
+        # Ensure nhead divides model_dim
+        nh = int(nhead)
+        if self.model_dim % nh != 0:
+            for h in range(nh, 0, -1):
+                if self.model_dim % h == 0:
+                    nh = h
+                    break
+        self.nhead = nh
+
+        # Spatial stage: per-frame attention over S tokens
+        self.spatial_pos = nn.Embedding(self.max_s, self.model_dim)
+        self.spatial_cls = nn.Parameter(torch.zeros(1, 1, self.model_dim))
+        spatial_enc = nn.TransformerEncoderLayer(
+            d_model=self.model_dim, nhead=self.nhead,
+            dim_feedforward=self.model_dim * 4, dropout=dropout, batch_first=True,
+        )
+        self.spatial_transformer = nn.TransformerEncoder(spatial_enc, num_layers=int(spatial_layers))
+        self.spatial_norm = nn.LayerNorm(self.model_dim)
+
+        # Temporal stage: attention over T frame summaries
+        self.temporal_pos = nn.Embedding(self.max_t, self.model_dim)
+        self.temporal_cls = nn.Parameter(torch.zeros(1, 1, self.model_dim))
+        temporal_enc = nn.TransformerEncoderLayer(
+            d_model=self.model_dim, nhead=self.nhead,
+            dim_feedforward=self.model_dim * 4, dropout=dropout, batch_first=True,
+        )
+        self.temporal_transformer = nn.TransformerEncoder(temporal_enc, num_layers=int(temporal_layers))
+        self.temporal_norm = nn.LayerNorm(self.model_dim)
+
+        # Classifier
+        self.fc = nn.Sequential(
+            nn.Linear(self.model_dim, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
+            nn.Dropout(dropout),
+            nn.Linear(256, num_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: (B, T, S, C)
+        if x.dim() != 4:
+            raise ValueError(f"Expected (B,T,S,C), got {tuple(x.shape)}")
+        b, t, s, _ = x.shape
+
+        x = self.input_proj(x)  # (B, T, S, D)
+
+        # --- Spatial stage: process each frame independently ---
+        x = x.reshape(b * t, s, self.model_dim)  # (BT, S, D)
+        s_pos = self.spatial_pos(torch.arange(s, device=x.device)).unsqueeze(0)  # (1, S, D)
+        x = x + s_pos
+        s_cls = self.spatial_cls.expand(b * t, -1, -1)
+        x = torch.cat([s_cls, x], dim=1)  # (BT, 1+S, D)
+        x = self.spatial_norm(x)
+        x = self.spatial_transformer(x)
+        x = x[:, 0]  # CLS token output: (BT, D)
+
+        # --- Temporal stage: attend over frame summaries ---
+        x = x.reshape(b, t, self.model_dim)  # (B, T, D)
+        t_pos = self.temporal_pos(torch.arange(t, device=x.device)).unsqueeze(0)  # (1, T, D)
+        x = x + t_pos
+        t_cls = self.temporal_cls.expand(b, -1, -1)
+        x = torch.cat([t_cls, x], dim=1)  # (B, 1+T, D)
+        x = self.temporal_norm(x)
+        x = self.temporal_transformer(x)
+        x = x[:, 0]  # CLS output: (B, D)
+
+        return self.fc(x)
