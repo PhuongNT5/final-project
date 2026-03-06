@@ -1,0 +1,34 @@
+============================================================
+CASCADED CLASSIFIER — 4-CLASS UNSAFE CLASSIFICATION
+============================================================
+
+Total time: 161.7m
+Seeds: [42, 123, 7]
+Direct configs: 5
+Binary configs: 5
+
+TOP RESULTS:
+  1. d4_B_s42_best_refined: 90.6% (58/64) [cascade]
+  2. d4_B_s42_best_tta_refined: 90.6% (58/64) [cascade]
+  3. d4_A_s42_best_refined: 89.1% (57/64) [cascade]
+  4. d4_A_s42_best_tta_refined: 89.1% (57/64) [cascade]
+  5. d4_A_s123_best_refined: 89.1% (57/64) [cascade]
+  6. d4_A_s123_best_tta_refined: 89.1% (57/64) [cascade]
+  7. d4_A_s7_best_refined: 89.1% (57/64) [cascade]
+  8. d4_A_s7_best_tta_refined: 89.1% (57/64) [cascade]
+  9. d4_B_s123_best_refined: 89.1% (57/64) [cascade]
+  10. d4_B_s123_best_tta_refined: 89.1% (57/64) [cascade]
+  11. d4_C_s123_best_refined: 89.1% (57/64) [cascade]
+  12. d4_C_s123_best_tta_refined: 89.1% (57/64) [cascade]
+  13. d4_D_s42_best_refined: 89.1% (57/64) [cascade]
+  14. d4_D_s42_best_tta_refined: 89.1% (57/64) [cascade]
+  15. d4_E_s42_best_tta_refined: 89.1% (57/64) [cascade]
+  16. d4_E_s123_best_refined: 89.1% (57/64) [cascade]
+  17. d4_E_s7_best_refined: 89.1% (57/64) [cascade]
+  18. d4_E_s7_best_tta_refined: 89.1% (57/64) [cascade]
+  19. d4_B_s7_best_refined: 87.5% (56/64) [cascade]
+  20. d4_B_s7_best_tta_refined: 87.5% (56/64) [cascade]
+
+BEST: d4_B_s42_best_refined = 90.6% (58/64)
+Paper: 95.81% (62/64)
+Gap: 5.19pp
