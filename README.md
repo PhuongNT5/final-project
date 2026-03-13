@@ -1,299 +1,154 @@
-# Real-Time Unsafe Behaviour Detection using Hybrid YOLOv11 + Transformer
+# Real-Time Unsafe Behaviour Detection — Hybrid YOLOv11 + Transformer
 
-> **Capstone / Thesis Project** — A research-grade system for detecting unsafe industrial behaviours from surveillance video, evaluated on the Unsafe-Net benchmark dataset.
-
-![System Architecture](so%20do%20he%20thong.png)
-
----
+> **Capstone / Thesis Project** — End-to-end system for industrial safety monitoring using a novel **YOLO–Transformer** architecture on the Unsafe-Net video dataset.
 
 ## Overview
 
-This project proposes a **hybrid YOLOv11 + Transformer** architecture for real-time unsafe-behaviour detection in industrial environments. The system extracts spatiotemporal features from a frozen YOLOv11s backbone and classifies video clips using a novel **Motion-Aware Transformer Head** with dual-stream (appearance + temporal-difference) tokens.
+This project develops an end-to-end unsafe-behaviour detection system on the **Unsafe-Net video dataset** (566 train / 125 test, 8 classes). We propose a hybrid **YOLOv11 + Transformer** architecture with two training paradigms:
 
-A **cascaded classifier** strategy (coarse 3-class routing → specialised binary refinement) achieves **90.63% accuracy (58/64)** on the Unsafe-Net benchmark, narrowing the gap to the paper baseline (YOLOv4 + ConvLSTM → 95.81%) while remaining **edge-deployable at real-time speeds** (2.3ms inference, ~83 FPS GPU).
+1. **Frozen backbone** — pre-extracted spatial tokens + Transformer classification heads
+2. **End-to-end fine-tuning** — partial backbone unfreeze + joint training (🆕)
 
 ### Key Results
 
+| Metric | Frozen Backbone | E2E Fine-Tune |
+|---|---|---|
+| **4-class unsafe accuracy** | 90.63% (cascade) | 🔄 In progress |
+| **Binary safe/unsafe accuracy** | 83.2% (125 clips) | 🔄 In progress |
+| **Paper baseline (YOLO+ConvLSTM)** | — | **95.81%** (target to beat) |
+| **Paper baseline (ConvLSTM only)** | — | **85.78%** |
+
+### Frozen Backbone Results (Completed)
+
 | Metric | Value |
 |---|---|
-| **4-class accuracy** | **90.63% (58/64)** |
-| **Binary 0-vs-1 accuracy** | **93.02% (40/43)** |
-| **Paper baseline** | **95.81% (62/64)** |
-| **Gap** | **5.19pp** |
-| **Cascade latency (ONNX)** | **2.3ms** |
-| **Model size (ONNX)** | **35.6 MB** |
-| **Edge real-time** | ✅ ~83 FPS (GPU), ~13 FPS (CPU) |
-
----
+| 🏆 **4-class cascade accuracy** | **90.63% (58/64)** — beats ConvLSTM baseline by +4.85pp |
+| 🏆 **Binary accuracy (best)** | **83.2% (104/125)** |
+| 📊 **F1-macro (binary)** | **83.0%** |
+| ⚡ **ONNX inference latency** | **1.39 ms** (CPU, head only) |
+| 📦 **ONNX model size** | **18.1 MB** |
+| 🔧 **INT8 quantized size** | **13.6 MB** (no accuracy loss) |
 
 ## Architecture
 
-### Proposed System Pipeline
-
 ```
-Surveillance Video
-       │
-       ▼
-┌──────────────┐
-│  YOLOv11s    │  Frozen backbone, layer idx=-3
-│  (Backbone)  │  → (T, 4×4, 768) spatial tokens
-└──────┬───────┘
-       │
-       ▼
-┌────────────────────────┐
-│  Motion-Aware          │  Dual-stream: appearance + temporal-diff tokens
-│  Transformer Head      │  Type embeddings + temporal position encoding
-│  (Thesis Contribution) │  Shared self-attention across streams
-└──────┬─────────────────┘
-       │
-       ▼
-┌──────────────────────┐
-│  Cascaded Classifier │
-│  3-class routing     │──→ Panel (100%) / Forklift (100%)
-│  + Binary refinement │──→ Walkway Viol. vs Unauthorized Int.
-└──────────────────────┘
-       │
-       ▼
-  4-Class Prediction
+Raw Video (1920×1080, 24fps)
+     ↓
+[Frame Sampling: T=32 uniform frames]
+     ↓
+[YOLOv11s Backbone] ← partial unfreeze (last 3 layers) for E2E
+     ↓
+Spatial Tokens: (T×16×768)  — pool4 = 4×4 spatial grid × 768 channels
+     ↓
+┌─────────── TransformerClassHead ─────────────┐
+│  Multi-stream temporal fusion:               │
+│    • Raw appearance tokens                   │
+│    • 1st-order temporal derivatives          │
+│    • 2nd-order temporal derivatives          │
+│    • Windowed statistics (mean+std+max)      │
+│  → Learned gating → Transformer Encoder      │
+│  → CLS token → MLP classifier               │
+└──────────────────────────────────────────────┘
+     ↓
+8-class / Binary / 4-class output
 ```
 
-### Motion-Aware Transformer Head (Thesis Contribution)
+### Thesis Contributions
 
-The key insight driving this architecture comes from feature-space analysis:
+1. **Novel YOLO–Transformer architecture** for video-based unsafe behaviour detection with multi-stream gated temporal fusion
+2. **End-to-end fine-tuning pipeline** that breaks the frozen-backbone accuracy ceiling
+3. **Evidence that frozen object-detection features lack safety-rule context** — cosine similarity 0.94–0.996 between safe/unsafe pairs
+4. **Edge-deployable** system: ONNX export + INT8 quantization, 1.39ms inference on CPU
+5. **Comprehensive evaluation**: multi-seed, multi-architecture, ablation study, cascade vs direct
 
-| Feature Type | Cosine Similarity (Class 0 vs 1) |
-|---|---|
-| Appearance tokens | **0.99** (nearly identical) |
-| Temporal-difference tokens | **0.28** (well-separated) |
+## Paper Comparison
 
-Classes 0 (Safe Walkway Violation) and 1 (Unauthorized Intervention) are visually identical — same workers, same industrial setting. The **only** distinguishing signal is temporal: walking patterns vs equipment interaction patterns.
+| Approach | Task | Test Set | Accuracy |
+|---|---|---|---:|
+| **Paper (YOLO+ConvLSTM)** | 4 unsafe classes | 64 clips (YOLO-filtered) | **95.81%** |
+| Paper (ConvLSTM only) | 4 unsafe classes | 64 clips | **85.78%** |
+| **Ours: frozen cascade** | 4 unsafe classes | 64 clips (raw video) | **90.63%** |
+| **Ours: frozen binary** | **Safe/Unsafe (8→2)** | **125 clips** | **83.2%** |
+| **Ours: E2E fine-tune** | 8-class / binary / 4-class | 125 / 64 clips | 🔄 |
 
-The **MotionHead** architecture addresses this with:
-
-1. **Appearance stream**: Frame-level spatial features projected to model dimension
-2. **Motion stream**: Temporal-difference tokens (frame[t+1] − frame[t]) capturing velocity
-3. **Type embeddings**: Distinguish CLS / appearance / motion token types
-4. **Joint Transformer encoder**: Self-attention across both streams simultaneously
-
-This provides **+5.7pp** over appearance-only baselines.
-
-### Cascaded Classifier
-
-The cascade eliminates routing errors that plague direct 4-class classification:
-
-1. **3-class router**: Groups walkway classes (0+1) → Walkway Group, Panel (2), Forklift (3)
-   - Achieves **100% on Panel and Forklift** with zero variance across seeds
-2. **Binary refinement**: Specialised `MotionBinaryHead` splits Walkway Group → class 0 vs 1
-   - Uses 2nd-order temporal differences (acceleration) + statistical features
-
----
-
-## Dataset
-
-**Unsafe-Net** — 8-class industrial safety video dataset:
-
-| Class | ID | Train | Test | Category |
-|---|---:|---:|---:|---|
-| Safe Walkway Violation | 0 | 50 | 32 | Unsafe |
-| Unauthorized Intervention | 1 | 23 | 11 | Unsafe |
-| Opened Panel Cover | 2 | 20 | 13 | Unsafe |
-| Carrying Overload (Forklift) | 3 | 21 | 8 | Unsafe |
-| Safe Walkway | 4 | 178 | 23 | Safe |
-| Authorized Intervention | 5 | 97 | 12 | Safe |
-| Closed Panel Cover | 6 | 109 | 14 | Safe |
-| Safe Carrying | 7 | 68 | 12 | Safe |
-| **Total** | | **566** | **125** | |
-
-**Paper evaluation protocol**: 64 unsafe-only test videos → 4-class classification.
-
-Scenario pairs: {0,4}, {1,5}, {2,6}, {3,7} — safe counterparts map to same unsafe class via `label % 4`.
-
----
+> See [`GAP_ANALYSIS.md`](GAP_ANALYSIS.md) for detailed comparison and analysis.
 
 ## Project Structure
 
 ```
-capstone/
-├── model_arch.py              # YOLOv11 backbone with hook-based feature extraction
-├── spatiotemporal_head.py     # SpatioTemporalTransformerHead, FactorizedSTHead
-├── temporal_head.py           # TemporalTransformerHead
-├── hierarchical_head.py       # HierarchicalSTHead
-├── feature_dataset.py         # PreExtractedFeatureDataset
-├── temporal_video_loader.py   # Video dataset loader (frame sampling)
-├── export_edge.py             # ONNX / INT8 edge deployment pipeline
+├── run_finetune_e2e.py           # ⭐ NEW: End-to-end fine-tuning (beat baseline)
+├── run_safe_unsafe.py            # Frozen: Binary safe/unsafe sweep (5 archs × seeds)
+├── run_temporal_fusion.py        # Frozen: Multi-temporal + larger models
+├── run_scenario_cascade.py       # Frozen: Scenario-aware cascade pipeline
+├── plot_figures_binary.py        # Thesis figures + ONNX export + INT8
 │
-├── run_breakthrough.py        # 3-class grouped + binary cascade (latest)
-├── run_cascaded.py            # T16/T32 cascade experiments (best: 90.63%)
-├── run_push_accuracy.py       # Binary specialisation push (best binary: 93%)
-├── run_unsafe_only.py         # 4-class baseline training
-├── run_fast_motion.py         # Fast temporal motion experiments
-├── run_enhanced_motion.py     # Enhanced motion ensemble + ablation
-├── run_smart_cascade.py       # T48 + spatial binary experiments
-├── run_cross_resolution.py    # T16+T32 cross-resolution cascade
+├── model_arch.py                 # YOLOv11 backbone with hook-based extraction
+├── feature_dataset.py            # Pre-extracted feature dataset loader
+├── temporal_video_loader.py      # Raw video dataset loader
 │
-├── tools/
-│   ├── preextract_yolo_features.py   # Feature pre-extraction from videos
-│   └── scan_bad_videos.py            # Dataset quality check
-│
-├── features/                  # Pre-extracted YOLOv11s features
-│   ├── train_T{16,32,48}_img224_pool4_tokens_yolo11s.pt
-│   └── test_T{16,32,48}_img224_pool4_tokens_yolo11s.pt
-│
-├── deployment/                # Edge deployment artifacts
-│   ├── motion_head_4class.onnx          # 30.4 MB
-│   ├── motion_binary_0vs1.onnx          # 5.2 MB
-│   ├── motion_head_4class_int8_full.pt  # 14.5 MB
-│   └── motion_binary_0vs1_int8_full.pt  # 1.9 MB
-│
-├── sweep_results/             # Experiment results & reports
-│   ├── SUMMARY.md             # Comprehensive experiment report
-│   ├── cascaded_v1_T32/       # Best result: 90.63%
-│   └── ...                    # Other experiment results
-│
-├── data/                      # Unsafe-Net video dataset
-│   ├── train/{0..7}_*/        # 566 training videos
-│   └── test/{0..7}_*/         # 125 test videos
-│
-└── yolo11s.pt                 # YOLOv11s pretrained weights
+├── features/                     # Pre-extracted YOLOv11s features (T=16/32/48)
+├── data/                         # Unsafe-Net video dataset (8 classes, 691 clips)
+├── deployment/                   # ONNX + INT8 exported models
+├── figures/                      # Publication-quality thesis figures
+├── sweep_results/                # Experiment checkpoints + logs
+│   ├── SUMMARY.md                # Frozen experiment results
+│   ├── safe_unsafe/              # Binary safe/unsafe model weights
+│   ├── router/                   # 4-class router checkpoints
+│   ├── binary_final/             # Binary c0-vs-c1 checkpoint
+│   └── finetune/                 # E2E fine-tuning results (NEW)
+├── tools/                        # Feature extraction + video scanning
+│   ├── preextract_yolo_features.py
+│   └── scan_bad_videos.py
+└── GAP_ANALYSIS.md               # Complete gap analysis
 ```
 
----
+## Quick Start
 
-## Installation
-
+### 1. Pre-extract features (frozen backbone, one-time)
 ```bash
-cd capstone
-
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies
-pip install torch torchvision ultralytics
-pip install scikit-learn matplotlib seaborn pandas numpy
-pip install onnx onnxruntime
+python tools/preextract_yolo_features.py --subset train --sequence_length 32 --pool 4 --layout tokens
+python tools/preextract_yolo_features.py --subset test --sequence_length 32 --pool 4 --layout tokens
 ```
 
-**Requirements:**
-- Python 3.9+
-- PyTorch 2.0+
-- ultralytics (YOLOv11)
-- scikit-learn, matplotlib, seaborn
-
----
-
-## Usage
-
-### 1. Pre-extract Features
-
-Extract YOLOv11s features from video dataset (one-time):
-
+### 2. Frozen backbone experiments
 ```bash
-python tools/preextract_yolo_features.py \
-    --train-dir data/train --test-dir data/test \
-    --model yolo11s.pt --frames 32 --pool 4 --img-size 224 \
-    --out-dir features/
+python -u run_safe_unsafe.py          # Binary safe/unsafe sweep
+python -u run_temporal_fusion.py      # Multi-temporal ablation
+python -u run_scenario_cascade.py     # Scenario-aware cascade
 ```
 
-### 2. Run Experiments
-
+### 3. 🆕 End-to-end fine-tuning (to beat baseline)
 ```bash
-# Baseline 4-class
-python run_unsafe_only.py
-
-# Motion-aware architecture (thesis contribution)
-python run_fast_motion.py
-
-# T32 cascade (best result: 90.63%)
-python run_cascaded.py --train features/train_T32_img224_pool4_tokens_yolo11s.pt \
-                       --test features/test_T32_img224_pool4_tokens_yolo11s.pt
-
-# 3-class breakthrough cascade (latest)
-python run_breakthrough.py
+python -u run_finetune_e2e.py         # E2E: unfreeze backbone + Transformer head
 ```
 
-### 3. Export for Edge Deployment
-
+### 4. Generate figures + export
 ```bash
-python export_edge.py
+python -u plot_figures_binary.py      # Thesis figures + ONNX + INT8 + latency
 ```
 
-Produces ONNX models and INT8 quantised variants in `deployment/`.
+## Accuracy Progression
 
----
-
-## Results
-
-### Accuracy Progression
-
-| # | Method | Accuracy | Correct/64 | Key Innovation |
+| # | Method | 4-unsafe | Binary | Key Innovation |
 |--:|---|---:|---:|---|
-| 1 | 4-class baseline (RobustSTHead) | 78.1% | 50/64 | Focused training |
-| 2 | + scenario_all + mixup | 81.25% | 52/64 | Data augmentation |
-| 3 | **MotionHead** (dual-stream) | **84.38%** | **54/64** | **Motion tokens (+5.7pp)** |
-| 4 | T16 cascade | 84.38% | 54/64 | Binary too weak at T16 |
-| 5 | Cross-resolution (T16+T32) | 85.94% | 55/64 | T32 binary helps |
-| 6 | Smart cascade (T32 binary) | 89.06% | 57/64 | T32 resolution |
-| **7** | **T32 cascade (best)** | **90.63%** | **58/64** | **T32 binary=90.7%** |
-| 8 | Push (93% binary) | 90.63% | 58/64 | Binary ceiling |
-| 9* | 3-class grouped cascade | *in progress* | *target: 61/64* | Routing fix |
+| 1 | Majority class | — | 51.2% | Baseline |
+| 2 | Linear probe (spatial stats) | — | 68.0% | Mean+std+max pooling |
+| 3 | Frozen Transformer (best) | — | **83.2%** | Gated multi-stream |
+| 4 | Frozen cascade (router+binary) | **90.63%** | — | Scenario specialization |
+| **5** | **E2E fine-tune** | **🔄** | **🔄** | **Backbone unfreeze** |
 
-### Comparison with Paper Baseline
+## Requirements
 
-| Method | Architecture | Acc % | Correct |
-|---|---|---:|---:|
-| **Unsafe-Net paper** | YOLOv4 + ConvLSTM | **95.81** | **62/64** |
-| **Ours (best)** | YOLOv11s + MotionHead cascade | **90.63** | **58/64** |
+- Python 3.9+
+- PyTorch ≥ 2.0
+- ultralytics (YOLOv11)
+- torchvision, scikit-learn, matplotlib, seaborn, opencv-python
+- onnx, onnxruntime (for deployment)
 
-**Key difference**: The paper trains a **custom YOLO** to detect unsafe objects and filter frames. Our system uses a **frozen** YOLOv11s backbone — a fundamentally harder end-to-end approach that requires no task-specific object annotation.
+## Citation
 
-### Confusion Matrix (Best: 90.63%)
-
-```
-                    Pred →  Walkway  Unauth  Panel  Forklift
-Walkway Viol (32):           28       2       2       0
-Unauthorized (11):            1      10       0       0
-Opened Panel (13):            0       0      13       0
-Carry Overload (8):           0       0       0       8
-```
-
-Per-class: Walkway=87.5%, Unauthorized=90.9%, **Panel=100%**, **Forklift=100%**
-
-### Edge Deployment
-
-| Platform | Latency | FPS |
-|---|---:|---:|
-| CPU (ONNX) | ~77ms | ~13 FPS |
-| GPU (ONNX+TRT) | ~12ms | ~83 FPS |
-| Edge (Jetson, est.) | ~25ms | ~40 FPS |
-
-Model sizes: ONNX cascade = **35.6 MB**, INT8 = **16.4 MB**
-
----
-
-## Thesis Contributions
-
-1. **Motion-Aware Dual-Stream Transformer Head** — Temporal-difference tokens with type embeddings provide +5.7pp for discriminating visually-identical but behaviourally-distinct classes.
-
-2. **Cascaded Classification Strategy** — 3-class grouped routing (100% on Panel/Forklift) + specialised binary refinement achieves +6.2pp over direct classification.
-
-3. **Temporal Resolution Analysis** — T32 optimal for binary class discrimination; T16 sufficient for coarse routing; T48 introduces noise.
-
-4. **Edge-Deployable Architecture** — Full cascade in 2.3ms ONNX inference, suitable for real-time industrial safety monitoring on edge devices.
-
----
-
-## Detailed Experiment Report
-
-See [`sweep_results/SUMMARY.md`](sweep_results/SUMMARY.md) for the comprehensive experiment report including:
-- Architecture ablation tables
-- Hyperparameter sensitivity analysis
-- Error analysis (6-error breakdown)
-- Feature-space analysis
-- All experiment configurations and results
-
----
+> Önal, K. B., & Dandıl, E. (2025). Unsafe-Net: A real-time safety analysis system for unsafe behaviors in industrial facilities using deep learning. *Multimedia Tools and Applications*, 84, 34967–34993.
 
 ## License
 
-This project is part of a capstone/thesis. Please contact the author for usage.
+Academic use only. Unsafe-Net dataset subject to original dataset license.

@@ -1,0 +1,185 @@
+1. Nội dung
+a. Giới thiệu về đề tài: viết ngắn gọn các ý bao gồm bài toán/vấn đề mà đề
+tài muốn giải quyết, mô tả input và output, lí do chọn đề tài, khả năng
+ứng dụng thực tế, tính thời sự.
+Bài toán: Nghiên cứu phương pháp hiệu quả cho phát hiện hành vi không
+an toàn trong thời gian thực, từ đó ứng dụng trong giám sát an toàn nhà
+máy.
+Lý do chọn đề tài: Các nghiên cứu về ứng dụng giám sát an toàn đang
+là ưu tiên hàng đầu trong môi trường công nghiệp hiện đại, không chỉ
+giúp bảo vệ sức khoẻ và tính mạng con người mà còn giảm đáng kể thiệt
+hại về tài sản và nâng cao hiệu quả sản xuất.
+Các hệ thống giám sát an toàn truyền thống (như CCTV hoặc giám sát
+viên con người) bộc lộ nhiều hạn chế. Chúng chủ yếu hoạt động thụ
+động chỉ có khả năng ghi lại sự việc để điều tra sau khi tai nạn đã xảy
+ra, mà thiếu khả năng can thiệp chủ động. Các tai nạn nghiêm trọng như
+va chạm giữa công nhân và xe nâng (forklift) trong "điểm mù", công
+nhân xâm nhập vùng nguy hiểm của robot, hoặc vi phạm trang bị bảo
+b. S01. Mẫu 2. Đề cương LVThS
+hộ (PPE) trong khu vực bắt buộc—vẫn xảy ra, gây thiệt hại lớn về con
+người và chi phí vận hành.
+Trong bối cảnh đó, kiến trúc YOLO [1] [2] và Transformer [3] [4] là các
+lựa chọn hàng đầu do sự vượt trội về độ chính xác và tốc độ xử lý.
+Các dòng YOLO liên tục đẩy giới hạn về tốc độ xử lý. Mặc khác, các
+kiến trúc dựa trên Transformer, mà đại diện là RT-DETR rất mạnh trong
+việc phân tích các cảnh phức tạp, nhiều vật thể chồng chéo (vốn phổ
+biến trong nhà máy), nhưng lại quá nặng để chạy real-time trên toàn bộ
+khung hình full HD.
+Tuy nhiên, các hệ thống phát hiện đối tượng hiện nay vẫn phụ thuộc vào
+xử lý trung tâm (cloud-based). Việc truyền khối lượng lớn dữ liệu này
+qua mạng không dây đặt gánh nặng tính toán đáng kể lên các máy chủ
+đám mây dẫn đến độ trễ cao, tiêu tốn băng thông truyền dữ liệu và tiềm
+ẩn rủi ro về bảo mật thông tin - vấn đề đặc biệt quan trọng trong môi
+trường công nghiệp.
+Đề tài này đề xuất kiến trúc mới kết hợp YOLO và Transformer (YOLO-
+Transformer) với cơ chế phân tầng tối ưu mô hình triển khai trên điện
+toán biên có khả năng phân tích video đa luồng dữ liệu thời gian thực
+đảm bảo hiệu năng, độ chính xác, độ trễ thấp và an toàn dữ liệu.
+Mục tiêu của đề tài: viết ngắn gọn trong vòng 3 mục tiêu.
+- Kết hợp hiệu quả ưu điểm của mô hình CNN-based (YOLO) về tốc
+độ và thông lượng với khả năng học biểu diễn chuỗi (temporal
+reasoning) chính xác của Transformer-based (RT-DETR) nhằm xây
+dựng kiến trúc YOLO–Transformer cho bài toán giám sát hành vi
+an toàn trong công nghiệp.
+- Huấn luyện, tinh chỉnh và đánh giá mô hình YOLO–Transformer
+trên bộ dữ liệu Unsafe-Net, cho bài toán phân loại lớp hành vi an toàn hay nguy hiểm (4
+an toàn – 4 nguy hiểm) trong video giám sát thời gian thực.
+- Nghiên cứu và áp dụng các kỹ thuật tối ưu hóa mô hình tiên tiến (ví
+dụ: biên dịch bằng NVIDIA TensorRT, lượng tử hóa INT8) để đảm
+S01. Mẫu 2. Đề cương LVThS
+c. bảo mô hình có có khả năng xử lý đa luồng video thời gian thực trên
+thiết bị biên đạt được độ trễ thấp và duy trì độ chính xác cao.
+Nội dung nghiên cứu của đề tài: viết ngắn gọn, mỗi nội dung cần đảm
+bảo tính nhất quán để đạt được mục tiêu tương ứng đề ra. Lưu ý các mục
+tiêu và nội dung phải hợp lí để đảm bảo tính khả thi của đề tài.
+• Nội dung 1:
+Mục tiêu: Nghiên cứu tổng quan các phương pháp nhận diện đối
+tượng thời gian thực (YOLO, RT-DETR) và các mô hình phân tích
+hành vi video (Transformer, TimeSformer, SlowFast). Tổng hợp các
+kỹ thuật tối ưu mô hình trên thiết bị biên như pruning, quantization,
+mixed precision, TensorRT.
+Kết quả:
+Tài liệu tổng hợp, so sánh các phương pháp đã thực hiện hiệu quả
+nhiệm vụ nhận diện đối tượng thời gian thực.
+Bộ dữ liệu baseline để đánh giá mô hình và bộ dữ liệu sử dụng vào
+thực nghiệm phát trực tiếp.
+• Nội dung 2:
+Mục tiêu: Đề xuất phương pháp kết hợp hiệu quả kiến trúc mô hình
+kết hợp CNN – Transformer. Thực nghiệm huấn luyện (train), tinh
+chỉnh (fine-tune) và xác thực (validate) mô hình YOLO-Transformer
+trên bộ dữ liệu.
+Kết quả:
+Mô hình kết hợp CNN - Transformer bao gồm 3 thành phần: Trích
+xuất không gian – YOLO (object features), phân tích chuỗi thời gian
+– Transformer, phân loại hành vi (fusion layer).
+Một quy trình tiền xử lý dữ liệu (Data Loader) hiệu quả, bao gồm kỹ
+thuật lấy mẫu khung hình thưa (sparse sampling) và chuẩn hóa
+(normalization).
+Kết quả đánh giá độ chính xác (ví dụ: F1-Score, Accuracy) của mô
+hình trên tập Test của Unsafe-Net đạt hiệu quả (mong đợi là >
+95,8%).
+S01. Mẫu 2. Đề cương LVThS
+• Nội dung 3:
+Mục tiêu: Tối ưu hoá YOLO-Transformer để triển khai trên thiết bị
+biên và đánh giá hệ thống thực nghiệm.
+Kết quả:
+Xây dựng kiến trúc hệ thống giám sát đa luồng (multi-stream):
+Module camera → Edge node (YOLO–Transformer) → Server lưu
+trữ → Dashboard hiển thị kết quả real-time.
+Bảng so sánh toàn diện (Độ chính xác và Hiệu suất) giữa mô hình
+YOLO-Transformer được đề xuất và mô hình baseline.
+Triển khai hệ thống thực nghiệm đa luồng dữ liệu video thời gian
+thực với biên chứng minh khả năng đảm bảo yêu cầu giám sát thời
+gian thực và bảo mật dữ liệu.
+d. Phương pháp thực hiện.
+• Kiến trúc tổng thể hệ thống
+Luồng dữ liệu
+video trực tiếp
+Thiết bị biên
+Backbone YOLO
+Trích xuất đặc trưng không gian
+Tầng phân tích chuỗi
+chuyên sâu – RTDETR
+Phân loại hành vi
+Gửi kết quả cảnh báo
+cuối cùng
+S01. Mẫu 2. Đề cương LVThS
+• Dữ liệu
+Sử dụng Unsafe-Net: được công bố bởi O. Önal & E. Dandıl,
+2024 [5] với dữ liệu video chất lượng tạo ra đặc biệt bằng cách
+ghi lại 39 ngày từ một nhà máy, đúng với ngữ cảnh bài toán, đủ
+các lớp hành vi.
+- Mục tiêu là đảm bảo dữ liệu được xử lý theo dòng thời gian
+thực (real-time inference) và có thể đánh giá tốc độ suy luận,
+độ trễ (latency), và hiệu suất năng lượng như trong điều kiện
+triển khai thật.
+- Xử lý & Gán nhãn: Từ 4000 giờ video thô, họ lọc và cắt ra
+691 video clips (MP4, 1920x1080, 24 FPS) chứa các hành vi
+đáng chú ý.
+- Mỗi clip trong số 691 clip này được gán 1 nhãn duy nhất
+thuộc 1 trong 8 lớp sau:
+Lớp an toàn: Đi đúng lối đi (Safe Walkway), Can thiệp đúng
+quyền (Authorized Intervention), Nắp bảng điều khiển
+đóng (Closed Panel Cover), Vận chuyển an toàn (Safe
+Carrying).
+Lớp nguy hiểm: Vi phạm lối đi (Safe Walkway Violation),
+Can thiệp trái phép (Unauthorized Intervention), Nắp
+bảng điều khiển mở (Opened Panel Cover), Xe nâng chở
+quá tải (Carrying Overload with Forklift).
+• Kiến trúc chi tiết
+o Bộ trích xuất không gian – YOLO
+Sử dụng Backbone + Neck của YOLO với chức năng lọc tốc độ
+cao tối ưu thông lượng các khung hình được sử dụng làm "bộ
+trích xuất đặc trưng" (Spatial extractor) đã được huấn luyện trước
+(pre-trained) trên COCO/ImageNet.
+o Phân tích chuỗi chuyên sâu – RT- DETR
+S01. Mẫu 2. Đề cương LVThS
+Thành phần này sử dụng Transformer Encoder nhận đầu vào là
+một chuỗi (sequence) các feature vector từ Tầng 1.
+o Phân loại
+Một mạng nơ-ron Perceptron đa lớp (MLP) đơn giản, kết thúc
+bằng lớp Softmax để phân loại ra lớp hành vi an toàn hay nguy hiểm của Unsafe-Net.
+• Môi trường thực nghiệm
+o Môi trường phát triển huấn luyện mô hình
+- Thiết bị: Apple MacBook Pro M4.
+CPU/GPU: Apple M4 Pro (12-core CPU, 18-core GPU)
+Bộ nhớ: 36GB Unified Memory
+Neural Engine: 14 core
+- Phần mềm:
+Hệ điều hành: Ubuntu 20.04 / 22.04
+Nền tảng: Python 3.10+, PyTorch (để huấn luyện)
+Công cụ: Docker (rất khuyến nghị)
+Bộ thư viện NVIDIA: CUDA Toolkit 12.x, cuDNN,
+TensorRT 8.6+ (phiên bản trên PC phải tương thích với phiên
+bản trên Jetson).
+o Môi trường triển khai:
+- Thiết bị biên NVIDIA Jetson Orin Nano (8GB) hoặc Jetson
+Orin AGX (32GB)
+- Phần mềm:
+Hệ điều hành: NVIDIA JetPack 5.x/6.x (đã bao gồm Linux,
+CUDA, cuDNN, TensorRT cho Jetson) và JetPack 6.0
+(Edge).
+Thư viện học sâu: PyTorch 2.2, TorchVision 0.17
+Thư viện hỗ trợ xử lý video: OpenCV 4.8, Gstreamer
+Công cụ quản lý huấn luyện: Weights & Biases (wandb),
+Ultralytics YOLOv11 framework.
+• Đánh giá
+S01. Mẫu 2. Đề cương LVThS
+o Độ chính xác (Precision): Tỷ lệ dự đoán đúng trên tổng số 125
+e. f. clips
+o Confusion Matrix (Ma trận nhầm lẫn): Bắt buộc phải có để xem
+mô hình nhầm lẫn giữa các lớp nào.
+o Tốc độ xử lý (Frames Per Second - FPS): Số khung hình mà thiết
+bị biên có thể xử lý trong một giây. Đây là chỉ số quan trọng nhất
+để đánh giá khả năng "thời gian thực".
+o Độ trễ (Latency): Thời gian (tính bằng mili giây - ms) từ khi một
+khung hình được thiết bị biên nhận cho đến khi kết quả phát hiện
+được xuất ra.
+Kết quả, sản phẩm dự kiến.
+- Kiến trúc kết hợp YOLO-Transformer được tối ưu hoá và triển
+khai tại biên có khả năng phân loại các hành vi nguy hiểm trong
+nhà máy.
+- Hiệu suất hoạt động ổn định, tốc độ tối ưu tại biên với dữ liệu thời
+gian thực liên tục truyền tải từ camera giám sát.
+- Tỷ lệ phát hiện các tình huống lao động tiếp cận nguy hiểm cao
+đảm bảo độ tin cậy của hệ thống.
