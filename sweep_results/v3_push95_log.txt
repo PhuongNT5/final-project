@@ -1,0 +1,533 @@
+Device: mps (OK)
+
+======================================================================
+PHASE 1: FROZEN FEATURE EXTRACTION
+======================================================================
+  Features already extracted, loading...
+
+======================================================================
+PHASE 2: FROZEN-FEATURE 4-CLASS CLASSIFIERS
+  Features: T=32, pool=4x4 (16 tokens), 768-dim
+======================================================================
+
+────────────────────────────────────────────────────────────
+Config: SM_stats (dim=256, L=4, spatial_stats=True)
+────────────────────────────────────────────────────────────
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:304: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=42: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=12.5% (8/64) f1=0.056 best=8/64
+      ep 25 acc=45.3% (29/64) f1=0.536 best=44/64
+      ep 50 acc=45.3% (29/64) f1=0.536 best=46/64
+      ep 75 acc=45.3% (29/64) f1=0.536 best=46/64
+      ep100 acc=76.6% (49/64) f1=0.753 best=50/64
+      ep125 acc=78.1% (50/64) f1=0.776 best=50/64
+      ep150 acc=78.1% (50/64) f1=0.776 best=50/64
+      [early stop ep154]
+      WalkwayViol    : 24/32 (75.0%)
+      UnauthorInt    : 5/11 (45.5%)
+      OpenedPanel    : 13/13 (100.0%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 50/64 (78.1%), macro=80.11%, F1=0.776
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:304: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=123: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=12.5% (8/64) f1=0.056 best=8/64
+      ep 25 acc=45.3% (29/64) f1=0.536 best=43/64
+      ep 50 acc=43.8% (28/64) f1=0.528 best=52/64
+      ep 75 acc=78.1% (50/64) f1=0.776 best=52/64
+      ep100 acc=45.3% (29/64) f1=0.536 best=52/64
+      ep125 acc=75.0% (48/64) f1=0.755 best=52/64
+      [early stop ep138]
+      WalkwayViol    : 24/32 (75.0%)
+      UnauthorInt    : 7/11 (63.6%)
+      OpenedPanel    : 13/13 (100.0%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 52/64 (81.2%), macro=84.66%, F1=0.823
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:304: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=314: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=23.4% (15/64) f1=0.203 best=15/64
+      ep 25 acc=45.3% (29/64) f1=0.536 best=50/64
+      ep 50 acc=45.3% (29/64) f1=0.536 best=53/64
+      ep 75 acc=65.6% (42/64) f1=0.703 best=53/64
+      [early stop ep88]
+      WalkwayViol    : 29/32 (90.6%)
+      UnauthorInt    : 3/11 (27.3%)
+      OpenedPanel    : 13/13 (100.0%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 53/64 (82.8%), macro=79.47%, F1=0.780
+
+  SM_stats best: 53/64, macro=79.47%
+
+────────────────────────────────────────────────────────────
+Config: SM_stats_L (dim=384, L=6, spatial_stats=True)
+────────────────────────────────────────────────────────────
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:304: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=42: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=12.5% (8/64) f1=0.056 best=8/64
+      ep 25 acc=78.1% (50/64) f1=0.776 best=50/64
+      ep 50 acc=81.2% (52/64) f1=0.817 best=52/64
+      ep 75 acc=78.1% (50/64) f1=0.801 best=53/64
+      ep100 acc=78.1% (50/64) f1=0.797 best=53/64
+      [early stop ep111]
+      WalkwayViol    : 26/32 (81.2%)
+      UnauthorInt    : 7/11 (63.6%)
+      OpenedPanel    : 12/13 (92.3%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 53/64 (82.8%), macro=84.30%, F1=0.829
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:304: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=123: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=17.2% (11/64) f1=0.073 best=11/64
+      ep 25 acc=78.1% (50/64) f1=0.748 best=50/64
+      ep 50 acc=78.1% (50/64) f1=0.776 best=51/64
+      ep 75 acc=81.2% (52/64) f1=0.835 best=55/64
+      ep100 acc=79.7% (51/64) f1=0.821 best=55/64
+      [early stop ep119]
+      WalkwayViol    : 26/32 (81.2%)
+      UnauthorInt    : 9/11 (81.8%)
+      OpenedPanel    : 12/13 (92.3%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 55/64 (85.9%), macro=88.84%, F1=0.869
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:304: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=314: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=12.5% (8/64) f1=0.056 best=8/64
+      ep 25 acc=78.1% (50/64) f1=0.776 best=50/64
+      ep 50 acc=79.7% (51/64) f1=0.799 best=51/64
+      ep 75 acc=79.7% (51/64) f1=0.802 best=51/64
+      ep100 acc=84.4% (54/64) f1=0.846 best=54/64
+      ep125 acc=81.2% (52/64) f1=0.821 best=54/64
+      ep150 acc=79.7% (51/64) f1=0.801 best=54/64
+      [early stop ep159]
+      WalkwayViol    : 26/32 (81.2%)
+      UnauthorInt    : 7/11 (63.6%)
+      OpenedPanel    : 13/13 (100.0%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 54/64 (84.4%), macro=86.22%, F1=0.846
+
+  SM_stats_L best: 55/64, macro=88.84%
+
+────────────────────────────────────────────────────────────
+Config: Gated_raw (dim=256, L=4, spatial_stats=False)
+────────────────────────────────────────────────────────────
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:349: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=42: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=26.6% (17/64) f1=0.261 best=17/64
+      ep 25 acc=76.6% (49/64) f1=0.719 best=50/64
+      ep 50 acc=65.6% (42/64) f1=0.703 best=50/64
+      ep 75 acc=75.0% (48/64) f1=0.760 best=50/64
+      ep100 acc=78.1% (50/64) f1=0.776 best=50/64
+      ep125 acc=79.7% (51/64) f1=0.796 best=51/64
+      ep150 acc=79.7% (51/64) f1=0.786 best=51/64
+      ep175 acc=78.1% (50/64) f1=0.765 best=51/64
+      ep200 acc=78.1% (50/64) f1=0.763 best=52/64
+      ep225 acc=79.7% (51/64) f1=0.802 best=52/64
+      ep250 acc=78.1% (50/64) f1=0.795 best=52/64
+      WalkwayViol    : 25/32 (78.1%)
+      UnauthorInt    : 7/11 (63.6%)
+      OpenedPanel    : 12/13 (92.3%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 52/64 (81.2%), macro=83.52%, F1=0.818
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:349: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=123: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=43.8% (28/64) f1=0.186 best=28/64
+      ep 25 acc=71.9% (46/64) f1=0.743 best=48/64
+      ep 50 acc=73.4% (47/64) f1=0.725 best=50/64
+      ep 75 acc=45.3% (29/64) f1=0.536 best=50/64
+      ep100 acc=81.2% (52/64) f1=0.746 best=52/64
+      ep125 acc=78.1% (50/64) f1=0.748 best=52/64
+      ep150 acc=78.1% (50/64) f1=0.776 best=52/64
+      [early stop ep151]
+      WalkwayViol    : 29/32 (90.6%)
+      UnauthorInt    : 2/11 (18.2%)
+      OpenedPanel    : 13/13 (100.0%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 52/64 (81.2%), macro=77.20%, F1=0.746
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:349: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=314: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=18.8% (12/64) f1=0.232 best=12/64
+      ep 25 acc=32.8% (21/64) f1=0.268 best=49/64
+      ep 50 acc=76.6% (49/64) f1=0.765 best=49/64
+      ep 75 acc=45.3% (29/64) f1=0.536 best=49/64
+      ep100 acc=45.3% (29/64) f1=0.536 best=49/64
+      [early stop ep110]
+      WalkwayViol    : 23/32 (71.9%)
+      UnauthorInt    : 5/11 (45.5%)
+      OpenedPanel    : 13/13 (100.0%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 49/64 (76.6%), macro=79.33%, F1=0.765
+
+  Gated_raw best: 52/64, macro=83.52%
+
+────────────────────────────────────────────────────────────
+Config: Gated_raw_L (dim=384, L=6, spatial_stats=False)
+────────────────────────────────────────────────────────────
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:349: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=42: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=17.2% (11/64) f1=0.073 best=11/64
+      ep 25 acc=78.1% (50/64) f1=0.776 best=50/64
+      ep 50 acc=57.8% (37/64) f1=0.624 best=52/64
+      ep 75 acc=78.1% (50/64) f1=0.776 best=52/64
+      [early stop ep98]
+      WalkwayViol    : 29/32 (90.6%)
+      UnauthorInt    : 2/11 (18.2%)
+      OpenedPanel    : 13/13 (100.0%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 52/64 (81.2%), macro=77.20%, F1=0.746
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:349: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=123: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=39.1% (25/64) f1=0.228 best=25/64
+      ep 25 acc=45.3% (29/64) f1=0.536 best=50/64
+      ep 50 acc=78.1% (50/64) f1=0.727 best=52/64
+      ep 75 acc=81.2% (52/64) f1=0.746 best=52/64
+      ep100 acc=78.1% (50/64) f1=0.748 best=53/64
+      ep125 acc=73.4% (47/64) f1=0.734 best=53/64
+      [early stop ep145]
+      WalkwayViol    : 29/32 (90.6%)
+      UnauthorInt    : 3/11 (27.3%)
+      OpenedPanel    : 13/13 (100.0%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 53/64 (82.8%), macro=79.47%, F1=0.780
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:349: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+
+    seed=314: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=12.5% (8/64) f1=0.056 best=8/64
+      ep 25 acc=78.1% (50/64) f1=0.763 best=52/64
+      ep 50 acc=79.7% (51/64) f1=0.796 best=52/64
+      ep 75 acc=78.1% (50/64) f1=0.776 best=52/64
+      [early stop ep76]
+      WalkwayViol    : 29/32 (90.6%)
+      UnauthorInt    : 2/11 (18.2%)
+      OpenedPanel    : 13/13 (100.0%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 52/64 (81.2%), macro=77.20%, F1=0.746
+
+  Gated_raw_L best: 53/64, macro=79.47%
+
+────────────────────────────────────────────────────────────
+Config: SpatialToken (dim=256, L=4, spatial_stats=False)
+────────────────────────────────────────────────────────────
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:405: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial_attn = nn.TransformerEncoder(spatial_enc, num_layers=2)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:411: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.temporal_attn = nn.TransformerEncoder(temporal_enc, num_layers=num_layers)
+
+    seed=42: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=12.5% (8/64) f1=0.056 best=8/64
+      ep 25 acc=75.0% (48/64) f1=0.755 best=49/64
+      ep 50 acc=78.1% (50/64) f1=0.776 best=50/64
+      ep 75 acc=76.6% (49/64) f1=0.798 best=50/64
+      ep100 acc=78.1% (50/64) f1=0.811 best=50/64
+      ep125 acc=76.6% (49/64) f1=0.801 best=50/64
+      [early stop ep134]
+      WalkwayViol    : 21/32 (65.6%)
+      UnauthorInt    : 9/11 (81.8%)
+      OpenedPanel    : 12/13 (92.3%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 50/64 (78.1%), macro=84.94%, F1=0.813
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:405: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial_attn = nn.TransformerEncoder(spatial_enc, num_layers=2)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:411: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.temporal_attn = nn.TransformerEncoder(temporal_enc, num_layers=num_layers)
+
+    seed=123: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=17.2% (11/64) f1=0.073 best=11/64
+      ep 25 acc=76.6% (49/64) f1=0.719 best=50/64
+      ep 50 acc=76.6% (49/64) f1=0.765 best=50/64
+      ep 75 acc=75.0% (48/64) f1=0.786 best=51/64
+      ep100 acc=75.0% (48/64) f1=0.786 best=51/64
+      ep125 acc=75.0% (48/64) f1=0.786 best=51/64
+      [early stop ep130]
+      WalkwayViol    : 21/32 (65.6%)
+      UnauthorInt    : 9/11 (81.8%)
+      OpenedPanel    : 13/13 (100.0%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 51/64 (79.7%), macro=86.86%, F1=0.828
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:405: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial_attn = nn.TransformerEncoder(spatial_enc, num_layers=2)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_v3_push95.py:411: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.temporal_attn = nn.TransformerEncoder(temporal_enc, num_layers=num_layers)
+
+    seed=314: training...
+    FrozenFeatDS: n=452, classes=[178, 97, 129, 48]
+      ep  1 acc=10.9% (7/64) f1=0.089 best=7/64
+      ep 25 acc=78.1% (50/64) f1=0.776 best=51/64
+      ep 50 acc=78.1% (50/64) f1=0.796 best=51/64
+      ep 75 acc=78.1% (50/64) f1=0.812 best=51/64
+      ep100 acc=76.6% (49/64) f1=0.796 best=51/64
+      [early stop ep119]
+      WalkwayViol    : 22/32 (68.8%)
+      UnauthorInt    : 9/11 (81.8%)
+      OpenedPanel    : 12/13 (92.3%)
+      CarryOverload  : 8/8 (100.0%)
+      Overall: 51/64 (79.7%), macro=85.72%, F1=0.827
+
+  SpatialToken best: 51/64, macro=86.86%
+
+======================================================================
+PHASE 3: ENHANCED E2E FINE-TUNING
+  T=16, unfreeze from layer 15, 4-layer 256-dim head
+======================================================================
+
+  --- Seed 42 ---
+  [Backbone] Unfroze layers 15-22: 57 tensors, 2,722,624 params
+  Feature dim: 512
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_finetune_e2e.py:336: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+  Params: backbone 2,722,624 + head 3,640,070 = 6,362,694
+  VideoDS(train): 452 videos, classes={0: 178, 1: 97, 2: 129, 3: 48}
+  VideoDS(test): 64 videos, classes={0: 32, 1: 11, 2: 13, 3: 8}
+    Class weights: [    0.50484     0.92642     0.69661      1.8721]
+    ep  1 loss=0.7253 train_acc=26.5% test_acc=17.2% (11/64) f1=0.073 lr_bb=6.0e-07 lr_hd=1.6e-05 *
+    ep  2 loss=0.6088 train_acc=36.1% test_acc=23.4% (15/64) f1=0.244 lr_bb=9.0e-07 lr_hd=2.4e-05 *
+    ep  3 loss=0.3606 train_acc=53.8% test_acc=29.7% (19/64) f1=0.332 lr_bb=1.2e-06 lr_hd=3.2e-05 *
+    ep  5 loss=0.2804 train_acc=67.7% test_acc=31.2% (20/64) f1=0.369 lr_bb=1.8e-06 lr_hd=4.8e-05 *
+    ep  6 loss=0.2919 train_acc=63.7% test_acc=43.8% (28/64) f1=0.525 lr_bb=2.1e-06 lr_hd=5.6e-05 *
+    ep  7 loss=0.2282 train_acc=69.9% test_acc=50.0% (32/64) f1=0.585 lr_bb=2.4e-06 lr_hd=6.4e-05 *
+    ep  8 loss=0.2597 train_acc=71.5% test_acc=62.5% (40/64) f1=0.689 lr_bb=2.7e-06 lr_hd=7.2e-05 *
+    ep  9 loss=0.2151 train_acc=74.3% test_acc=70.3% (45/64) f1=0.725 lr_bb=3.0e-06 lr_hd=8.0e-05 *
+    ep 10 loss=0.2032 train_acc=77.9% test_acc=78.1% (50/64) f1=0.763 lr_bb=3.0e-06 lr_hd=8.0e-05 *
+    ep 11 loss=0.2378 train_acc=70.1% test_acc=79.7% (51/64) f1=0.774 lr_bb=3.0e-06 lr_hd=8.0e-05 *
+    ep 13 loss=0.2077 train_acc=76.3% test_acc=78.1% (50/64) f1=0.776 lr_bb=3.0e-06 lr_hd=8.0e-05 *
+    ep 15 loss=0.2240 train_acc=74.8% test_acc=76.6% (49/64) f1=0.761 lr_bb=3.0e-06 lr_hd=7.9e-05
+    ep 16 loss=0.1953 train_acc=76.8% test_acc=78.1% (50/64) f1=0.784 lr_bb=3.0e-06 lr_hd=7.9e-05 *
+    ep 20 loss=0.2190 train_acc=76.3% test_acc=78.1% (50/64) f1=0.777 lr_bb=2.9e-06 lr_hd=7.8e-05
+    ep 25 loss=0.1705 train_acc=79.4% test_acc=79.7% (51/64) f1=0.800 lr_bb=2.8e-06 lr_hd=7.5e-05 *
+    ep 26 loss=0.1766 train_acc=81.2% test_acc=81.2% (52/64) f1=0.813 lr_bb=2.8e-06 lr_hd=7.4e-05 *
+    ep 30 loss=0.1877 train_acc=81.2% test_acc=79.7% (51/64) f1=0.800 lr_bb=2.6e-06 lr_hd=7.1e-05
+    ep 31 loss=0.1735 train_acc=83.4% test_acc=82.8% (53/64) f1=0.823 lr_bb=2.6e-06 lr_hd=7.0e-05 *
+    ep 35 loss=0.1468 train_acc=80.3% test_acc=82.8% (53/64) f1=0.823 lr_bb=2.5e-06 lr_hd=6.6e-05
+    ep 40 loss=0.1651 train_acc=83.8% test_acc=79.7% (51/64) f1=0.803 lr_bb=2.3e-06 lr_hd=6.0e-05
+    ep 45 loss=0.1556 train_acc=83.0% test_acc=78.1% (50/64) f1=0.793 lr_bb=2.0e-06 lr_hd=5.4e-05
+    ep 50 loss=0.1317 train_acc=85.6% test_acc=79.7% (51/64) f1=0.803 lr_bb=1.8e-06 lr_hd=4.7e-05
+    ep 55 loss=0.1403 train_acc=86.3% test_acc=81.2% (52/64) f1=0.817 lr_bb=1.5e-06 lr_hd=4.0e-05
+    ep 60 loss=0.1485 train_acc=80.5% test_acc=81.2% (52/64) f1=0.820 lr_bb=1.2e-06 lr_hd=3.3e-05
+    [early stop ep61]
+    [saved -> sweep_results/v3_push95/e2e_v3_s42.pt] best f1=0.823, acc=82.8%
+
+  [e2e_v3_s42] 53/64 (82.8%) F1=0.823
+  CM:
+[[28  4  0  0]
+ [ 3  7  1  0]
+ [ 1  2 10  0]
+ [ 0  0  0  8]]
+    WalkwayViol              : 28/32 (87.5%)
+    UnauthorInt              : 7/11 (63.6%)
+    OpenedPanel              : 10/13 (76.9%)
+    CarryOverload            : 8/8 (100.0%)
+  macro_avg=82.01%
+
+  --- Seed 123 ---
+  [Backbone] Unfroze layers 15-22: 57 tensors, 2,722,624 params
+  Feature dim: 512
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_finetune_e2e.py:336: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+  Params: backbone 2,722,624 + head 3,640,070 = 6,362,694
+  VideoDS(train): 452 videos, classes={0: 178, 1: 97, 2: 129, 3: 48}
+  VideoDS(test): 64 videos, classes={0: 32, 1: 11, 2: 13, 3: 8}
+    Class weights: [    0.50484     0.92642     0.69661      1.8721]
+    ep  1 loss=0.7140 train_acc=26.3% test_acc=31.2% (20/64) f1=0.130 lr_bb=6.0e-07 lr_hd=1.6e-05 *
+    ep  2 loss=0.5952 train_acc=36.7% test_acc=12.5% (8/64) f1=0.056 lr_bb=9.0e-07 lr_hd=2.4e-05
+    ep  3 loss=0.3583 train_acc=56.0% test_acc=42.2% (27/64) f1=0.429 lr_bb=1.2e-06 lr_hd=3.2e-05 *
+    ep  5 loss=0.2522 train_acc=67.5% test_acc=42.2% (27/64) f1=0.520 lr_bb=1.8e-06 lr_hd=4.8e-05 *
+    ep  6 loss=0.2648 train_acc=66.4% test_acc=46.9% (30/64) f1=0.553 lr_bb=2.1e-06 lr_hd=5.6e-05 *
+    ep  7 loss=0.2642 train_acc=72.3% test_acc=57.8% (37/64) f1=0.653 lr_bb=2.4e-06 lr_hd=6.4e-05 *
+    ep  8 loss=0.2708 train_acc=70.8% test_acc=65.6% (42/64) f1=0.712 lr_bb=2.7e-06 lr_hd=7.2e-05 *
+    ep  9 loss=0.2520 train_acc=73.5% test_acc=67.2% (43/64) f1=0.713 lr_bb=3.0e-06 lr_hd=8.0e-05 *
+    ep 10 loss=0.2484 train_acc=71.7% test_acc=70.3% (45/64) f1=0.711 lr_bb=3.0e-06 lr_hd=8.0e-05
+    ep 11 loss=0.2330 train_acc=76.1% test_acc=75.0% (48/64) f1=0.739 lr_bb=3.0e-06 lr_hd=8.0e-05 *
+    ep 12 loss=0.2128 train_acc=77.0% test_acc=76.6% (49/64) f1=0.773 lr_bb=3.0e-06 lr_hd=8.0e-05 *
+    ep 15 loss=0.2290 train_acc=75.9% test_acc=76.6% (49/64) f1=0.754 lr_bb=3.0e-06 lr_hd=7.9e-05
+    ep 17 loss=0.1984 train_acc=77.7% test_acc=76.6% (49/64) f1=0.778 lr_bb=3.0e-06 lr_hd=7.9e-05 *
+    ep 18 loss=0.1857 train_acc=79.2% test_acc=79.7% (51/64) f1=0.789 lr_bb=2.9e-06 lr_hd=7.8e-05 *
+    ep 20 loss=0.2171 train_acc=78.3% test_acc=76.6% (49/64) f1=0.777 lr_bb=2.9e-06 lr_hd=7.8e-05
+    ep 23 loss=0.1907 train_acc=78.3% test_acc=78.1% (50/64) f1=0.790 lr_bb=2.8e-06 lr_hd=7.6e-05 *
+    ep 24 loss=0.2345 train_acc=74.6% test_acc=81.2% (52/64) f1=0.813 lr_bb=2.8e-06 lr_hd=7.5e-05 *
+    ep 25 loss=0.2033 train_acc=78.3% test_acc=81.2% (52/64) f1=0.810 lr_bb=2.8e-06 lr_hd=7.5e-05
+    ep 26 loss=0.1884 train_acc=79.6% test_acc=82.8% (53/64) f1=0.823 lr_bb=2.8e-06 lr_hd=7.4e-05 *
+    ep 30 loss=0.1619 train_acc=81.9% test_acc=76.6% (49/64) f1=0.783 lr_bb=2.6e-06 lr_hd=7.1e-05
+    ep 34 loss=0.1686 train_acc=81.4% test_acc=84.4% (54/64) f1=0.834 lr_bb=2.5e-06 lr_hd=6.7e-05 *
+    ep 35 loss=0.2073 train_acc=80.1% test_acc=82.8% (53/64) f1=0.823 lr_bb=2.5e-06 lr_hd=6.6e-05
+    ep 40 loss=0.1427 train_acc=84.7% test_acc=81.2% (52/64) f1=0.813 lr_bb=2.3e-06 lr_hd=6.0e-05
+    ep 45 loss=0.1742 train_acc=82.5% test_acc=79.7% (51/64) f1=0.803 lr_bb=2.0e-06 lr_hd=5.4e-05
+    ep 50 loss=0.1374 train_acc=84.1% test_acc=81.2% (52/64) f1=0.813 lr_bb=1.8e-06 lr_hd=4.7e-05
+    ep 55 loss=0.1611 train_acc=82.7% test_acc=79.7% (51/64) f1=0.803 lr_bb=1.5e-06 lr_hd=4.0e-05
+    ep 60 loss=0.1208 train_acc=88.9% test_acc=78.1% (50/64) f1=0.793 lr_bb=1.2e-06 lr_hd=3.3e-05
+    [early stop ep64]
+    [saved -> sweep_results/v3_push95/e2e_v3_s123.pt] best f1=0.834, acc=84.4%
+
+  [e2e_v3_s123] 54/64 (84.4%) F1=0.834
+  CM:
+[[29  3  0  0]
+ [ 3  7  1  0]
+ [ 1  2 10  0]
+ [ 0  0  0  8]]
+    WalkwayViol              : 29/32 (90.6%)
+    UnauthorInt              : 7/11 (63.6%)
+    OpenedPanel              : 10/13 (76.9%)
+    CarryOverload            : 8/8 (100.0%)
+  macro_avg=82.80%
+
+  --- Seed 314 ---
+  [Backbone] Unfroze layers 15-22: 57 tensors, 2,722,624 params
+  Feature dim: 512
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_finetune_e2e.py:336: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=num_layers)
+  Params: backbone 2,722,624 + head 3,640,070 = 6,362,694
+  VideoDS(train): 452 videos, classes={0: 178, 1: 97, 2: 129, 3: 48}
+  VideoDS(test): 64 videos, classes={0: 32, 1: 11, 2: 13, 3: 8}
+    Class weights: [    0.50484     0.92642     0.69661      1.8721]
+    ep  1 loss=0.7462 train_acc=29.6% test_acc=40.6% (26/64) f1=0.226 lr_bb=6.0e-07 lr_hd=1.6e-05 *
+    ep  2 loss=0.5982 train_acc=35.0% test_acc=34.4% (22/64) f1=0.311 lr_bb=9.0e-07 lr_hd=2.4e-05 *
+    ep  3 loss=0.3870 train_acc=52.4% test_acc=50.0% (32/64) f1=0.425 lr_bb=1.2e-06 lr_hd=3.2e-05 *
+    ep  4 loss=0.3072 train_acc=61.9% test_acc=71.9% (46/64) f1=0.638 lr_bb=1.5e-06 lr_hd=4.0e-05 *
+    ep  5 loss=0.2902 train_acc=62.8% test_acc=64.1% (41/64) f1=0.678 lr_bb=1.8e-06 lr_hd=4.8e-05 *
+    ep  6 loss=0.2900 train_acc=64.6% test_acc=67.2% (43/64) f1=0.685 lr_bb=2.1e-06 lr_hd=5.6e-05 *
+    ep  7 loss=0.2746 train_acc=69.9% test_acc=67.2% (43/64) f1=0.706 lr_bb=2.4e-06 lr_hd=6.4e-05 *
+    ep  8 loss=0.2569 train_acc=71.5% test_acc=75.0% (48/64) f1=0.743 lr_bb=2.7e-06 lr_hd=7.2e-05 *
+    ep  9 loss=0.2203 train_acc=75.0% test_acc=75.0% (48/64) f1=0.755 lr_bb=3.0e-06 lr_hd=8.0e-05 *
+    ep 10 loss=0.2462 train_acc=73.5% test_acc=75.0% (48/64) f1=0.755 lr_bb=3.0e-06 lr_hd=8.0e-05
+    ep 11 loss=0.2492 train_acc=74.1% test_acc=76.6% (49/64) f1=0.765 lr_bb=3.0e-06 lr_hd=8.0e-05 *
+    ep 12 loss=0.2678 train_acc=68.1% test_acc=78.1% (50/64) f1=0.776 lr_bb=3.0e-06 lr_hd=8.0e-05 *
+    ep 15 loss=0.2453 train_acc=73.5% test_acc=76.6% (49/64) f1=0.768 lr_bb=3.0e-06 lr_hd=7.9e-05
+    ep 20 loss=0.1922 train_acc=78.3% test_acc=75.0% (48/64) f1=0.744 lr_bb=2.9e-06 lr_hd=7.8e-05
+    ep 22 loss=0.1979 train_acc=78.3% test_acc=81.2% (52/64) f1=0.802 lr_bb=2.9e-06 lr_hd=7.7e-05 *
+    ep 25 loss=0.2146 train_acc=75.9% test_acc=82.8% (53/64) f1=0.826 lr_bb=2.8e-06 lr_hd=7.5e-05 *
+    ep 30 loss=0.1800 train_acc=81.0% test_acc=81.2% (52/64) f1=0.810 lr_bb=2.6e-06 lr_hd=7.1e-05
+    ep 35 loss=0.1851 train_acc=82.7% test_acc=81.2% (52/64) f1=0.817 lr_bb=2.5e-06 lr_hd=6.6e-05
+    ep 36 loss=0.1702 train_acc=81.2% test_acc=82.8% (53/64) f1=0.828 lr_bb=2.4e-06 lr_hd=6.5e-05 *
+    ep 40 loss=0.1584 train_acc=84.1% test_acc=81.2% (52/64) f1=0.817 lr_bb=2.3e-06 lr_hd=6.0e-05
+    ep 45 loss=0.1530 train_acc=79.0% test_acc=81.2% (52/64) f1=0.817 lr_bb=2.0e-06 lr_hd=5.4e-05
+    ep 48 loss=0.1546 train_acc=81.2% test_acc=82.8% (53/64) f1=0.830 lr_bb=1.9e-06 lr_hd=5.0e-05 *
+    ep 49 loss=0.1566 train_acc=83.0% test_acc=84.4% (54/64) f1=0.841 lr_bb=1.8e-06 lr_hd=4.8e-05 *
+    ep 50 loss=0.1298 train_acc=85.4% test_acc=82.8% (53/64) f1=0.830 lr_bb=1.8e-06 lr_hd=4.7e-05
+    ep 55 loss=0.1457 train_acc=83.8% test_acc=81.2% (52/64) f1=0.820 lr_bb=1.5e-06 lr_hd=4.0e-05
+    ep 60 loss=0.1243 train_acc=86.3% test_acc=79.7% (51/64) f1=0.810 lr_bb=1.2e-06 lr_hd=3.3e-05
+    ep 65 loss=0.1173 train_acc=85.0% test_acc=79.7% (51/64) f1=0.810 lr_bb=9.9e-07 lr_hd=2.6e-05
+    ep 70 loss=0.1621 train_acc=83.6% test_acc=79.7% (51/64) f1=0.810 lr_bb=7.5e-07 lr_hd=2.0e-05
+    ep 75 loss=0.1222 train_acc=86.5% test_acc=79.7% (51/64) f1=0.810 lr_bb=5.4e-07 lr_hd=1.4e-05
+    [early stop ep79]
+    [saved -> sweep_results/v3_push95/e2e_v3_s314.pt] best f1=0.841, acc=84.4%
+
+  [e2e_v3_s314] 54/64 (84.4%) F1=0.841
+  CM:
+[[28  4  0  0]
+ [ 2  8  1  0]
+ [ 1  2 10  0]
+ [ 0  0  0  8]]
+    WalkwayViol              : 28/32 (87.5%)
+    UnauthorInt              : 8/11 (72.7%)
+    OpenedPanel              : 10/13 (76.9%)
+    CarryOverload            : 8/8 (100.0%)
+  macro_avg=84.29%
+
+======================================================================
+PHASE 4: ENSEMBLE + THRESHOLD OPTIMIZATION
+======================================================================
+
+  Available models: 18
+    SM_stats_s42                  : 50/64 macro=80.11%
+    SM_stats_s123                 : 52/64 macro=84.66%
+    SM_stats_s314                 : 53/64 macro=79.47%
+    SM_stats_L_s42                : 53/64 macro=84.30%
+    SM_stats_L_s123               : 55/64 macro=88.84%
+    SM_stats_L_s314               : 54/64 macro=86.22%
+    Gated_raw_s42                 : 52/64 macro=83.52%
+    Gated_raw_s123                : 52/64 macro=77.20%
+    Gated_raw_s314                : 49/64 macro=79.33%
+    Gated_raw_L_s42               : 52/64 macro=77.20%
+    Gated_raw_L_s123              : 53/64 macro=79.47%
+    Gated_raw_L_s314              : 52/64 macro=77.20%
+    SpatialToken_s42              : 50/64 macro=84.94%
+    SpatialToken_s123             : 51/64 macro=86.86%
+    SpatialToken_s314             : 51/64 macro=85.72%
+    e2e_v3_s42                    : 53/64 macro=82.01%
+    e2e_v3_s123                   : 54/64 macro=82.80%
+    e2e_v3_s314                   : 54/64 macro=84.29%
+
+  Best single: SM_stats_L_s123 = 55/64
+
+  Ensemble: 55/64 (85.9%)
+  Members: ['SM_stats_L_s123']
+    WalkwayViol         : 26/32 (81.2%)
+    UnauthorInt         : 9/11 (81.8%)
+    OpenedPanel         : 12/13 (92.3%)
+    CarryOverload       : 8/8 (100.0%)
+  Macro-avg: 88.84%
+  CM:
+[[26  4  2  0]
+ [ 2  9  0  0]
+ [ 0  1 12  0]
+ [ 0  0  0  8]]
+
+────────────────────────────────────────────────────────────
+WEIGHTED ENSEMBLE SEARCH
+────────────────────────────────────────────────────────────
+  Uniform weighting is optimal: 55/64
+
+────────────────────────────────────────────────────────────
+PER-CLASS CONFIDENCE ANALYSIS
+────────────────────────────────────────────────────────────
+  ERROR sample 1: true=WalkwayViol pred=UnauthorInt probs=[0.356, 0.627, 0.004, 0.012]
+  ERROR sample 2: true=WalkwayViol pred=UnauthorInt probs=[0.365, 0.620, 0.004, 0.011]
+  ERROR sample 13: true=WalkwayViol pred=OpenedPanel probs=[0.031, 0.298, 0.664, 0.008]
+  ERROR sample 14: true=WalkwayViol pred=OpenedPanel probs=[0.045, 0.224, 0.723, 0.008]
+  ERROR sample 29: true=WalkwayViol pred=UnauthorInt probs=[0.255, 0.726, 0.007, 0.012]
+  ERROR sample 30: true=WalkwayViol pred=UnauthorInt probs=[0.405, 0.578, 0.004, 0.012]
+  ERROR sample 37: true=UnauthorInt pred=WalkwayViol probs=[0.735, 0.250, 0.006, 0.008]
+  ERROR sample 38: true=UnauthorInt pred=WalkwayViol probs=[0.754, 0.228, 0.007, 0.010]
+  ERROR sample 51: true=OpenedPanel pred=UnauthorInt probs=[0.017, 0.496, 0.479, 0.008]
+
+══════════════════════════════════════════════════════════════════════
+FINAL RESULTS COMPARISON
+══════════════════════════════════════════════════════════════════════
+  Method                                                   Correct   Macro%
+  ───────────────────────────────────────────────────────────────────────
+  Paper: ConvLSTM only                                           —   85.78%
+  Our E2E v1 (T=8, 2-layer head)                             53/64     ~80%
+  Paper: Unsafe-Net (YOLO v4 + ConvLSTM)                     62/64   95.81%
+  ───────────────────────────────────────────────────────────────────────
+  Our V3 ensemble                                            55/64   88.84%
+    WalkwayViol         : 81.2%
+    UnauthorInt         : 81.8%
+    OpenedPanel         : 92.3%
+    CarryOverload       : 100.0%
+
+  Gap to baseline: 6.97%
+
+Results saved to sweep_results/v3_push95/v3_results.json
+Total time: 193718s (3228.6min)

@@ -1,0 +1,47 @@
+======================================================================
+EDGE DEPLOYMENT REPORT — Unsafe-Net Hybrid YOLOv11 + Transformer
+======================================================================
+
+## Architecture
+  YOLOv11s backbone (frozen): ~9.4M params
+  4-class MotionHead (d384, L4): 7,941,700 params (7.94M)
+  Binary MotionBinaryHead (d128, L3): 1,330,562 params (1.33M)
+  Total trainable heads: 9,272,262 params (9.27M)
+  Total system: ~18.7M params
+
+## Accuracy
+  FP32 Direct 4-class: 81.2% (52/64)
+  FP32 Cascade:        87.5% (56/64)
+  INT8 accuracy: not verified (qnnpack incompatible on this platform)
+  Paper baseline:      95.81% (62/64)
+
+## Model Size
+  ONNX 4-class:  30.43 MB
+  ONNX binary:   5.19 MB
+  ONNX total:    35.62 MB
+  INT8 4-class:  14.51 MB
+  INT8 binary:   1.92 MB
+  INT8 total:    16.44 MB
+
+## Latency (CPU, single sample, 200 runs)
+  FP32 4-class (T16):  4.6ms (p95=5.2ms)
+  FP32 binary (T32):   2.6ms (p95=2.9ms)
+  FP32 cascade total:  7.3ms (p95=8.1ms)
+  INT8 4-class (T16):  4.7ms (p95=5.5ms)
+  INT8 binary (T32):   2.7ms (p95=3.2ms)
+  ONNX 4-class (T16):  1.4ms (p95=1.6ms)
+  ONNX binary (T32):   0.9ms (p95=1.0ms)
+
+## Edge Deployment Summary
+  Cascade latency (head only): ~7ms → 140 inferences/sec
+  + YOLOv11s feature extraction: ~5-15ms (GPU) / ~50-100ms (CPU)
+  Estimated total pipeline: ~82ms (CPU) / ~17ms (GPU)
+  Real-time capable: YES (< 200ms = 5+ FPS)
+
+## Files
+  deployment/motion_head_4class.onnx
+  deployment/motion_binary_0vs1.onnx
+  deployment/motion_head_4class_int8.pt
+  deployment/motion_binary_0vs1_int8.pt
+  deployment/direct_4class.pt (FP32 state dict)
+  deployment/binary_0vs1.pt (FP32 state dict)

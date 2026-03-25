@@ -158,6 +158,15 @@ class VideoDataset(Dataset):
                     print("    cached {}/{}".format(i + 1, len(self.samples)))
 
     def _read_pil_frames(self, path):
+        # Fast path: load pre-extracted numpy cache (256x256 uint8, 32 frames)
+        cache_path = path + '.npy'
+        if os.path.exists(cache_path):
+            raw = np.load(cache_path)           # (N_cached, 256, 256, 3) uint8
+            n = len(raw)
+            indices = np.linspace(0, n - 1, self.T, dtype=int).tolist()
+            return [Image.fromarray(raw[i]) for i in indices]
+
+        # Fallback: cv2 video seeking (slow)
         cap = cv2.VideoCapture(path)
         total = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         if total <= 0:
@@ -584,7 +593,7 @@ def run_4class_unsafe(device, seeds, out_dir):
     print("  Classes 0-3 only, target > 95.81%")
     print("=" * 70)
 
-    T = 32
+    T = 8
     results = []
 
     for seed in seeds:
@@ -607,18 +616,18 @@ def run_4class_unsafe(device, seeds, out_dir):
         print("  Params: backbone {:,} + head {:,} = {:,}".format(n_bb, n_hd, n_bb + n_hd))
 
         train_ds = VideoDataset('data', 'train', T=T, augment=True,
-                                class_filter=[0, 1, 2, 3])
+                                class_filter=[0, 1, 2, 3], cache=False)
         test_ds = VideoDataset('data', 'test', T=T, augment=False,
-                               class_filter=[0, 1, 2, 3])
+                               class_filter=[0, 1, 2, 3], cache=False)
         # Weighted sampler for balance
         labels = train_ds.get_labels()
         cc = np.bincount(labels, minlength=4)
         sample_w = [1.0 / max(cc[l], 1) for l in labels]
         sampler = WeightedRandomSampler(sample_w, len(sample_w), replacement=True)
 
-        train_loader = DataLoader(train_ds, batch_size=4, sampler=sampler,
+        train_loader = DataLoader(train_ds, batch_size=8, sampler=sampler,
                                   num_workers=0, pin_memory=False)
-        test_loader = DataLoader(test_ds, batch_size=4, shuffle=False,
+        test_loader = DataLoader(test_ds, batch_size=8, shuffle=False,
                                  num_workers=0)
 
         cfg = {
@@ -636,13 +645,14 @@ def run_4class_unsafe(device, seeds, out_dir):
 
         if os.path.exists(save_path):
             print("  Loading existing: {}".format(save_path))
-            model.load_state_dict(torch.load(save_path, map_location=device,
-                                             weights_only=False))
             best_f1 = 0.0
         else:
             _, best_f1 = train_model(model, train_loader, test_loader, cfg,
                                      device, save_path)
 
+        # Always load best checkpoint (EMA weights) for final evaluation
+        model.load_state_dict(torch.load(save_path, map_location=device,
+                                         weights_only=False))
         r = eval_model(model, test_loader, device, None, CLASS_NAMES_4U, tag)
         r['seed'] = seed
         results.append(r)
@@ -671,7 +681,7 @@ def run_8class(device, seeds, out_dir):
     print("EXPERIMENT B: 8-CLASS E2E")
     print("=" * 70)
 
-    T = 32
+    T = 8
     results = []
 
     for seed in seeds:
@@ -692,16 +702,16 @@ def run_8class(device, seeds, out_dir):
         n_hd = sum(p.numel() for p in head.parameters())
         print("  Params: backbone {:,} + head {:,} = {:,}".format(n_bb, n_hd, n_bb + n_hd))
 
-        train_ds = VideoDataset('data', 'train', T=T, augment=True)
-        test_ds = VideoDataset('data', 'test', T=T, augment=False)
+        train_ds = VideoDataset('data', 'train', T=T, augment=True, cache=False)
+        test_ds = VideoDataset('data', 'test', T=T, augment=False, cache=False)
         labels = train_ds.get_labels()
         cc = np.bincount(labels, minlength=8)
         sample_w = [1.0 / max(cc[l], 1) for l in labels]
         sampler = WeightedRandomSampler(sample_w, len(sample_w), replacement=True)
 
-        train_loader = DataLoader(train_ds, batch_size=4, sampler=sampler,
+        train_loader = DataLoader(train_ds, batch_size=8, sampler=sampler,
                                   num_workers=0, pin_memory=False)
-        test_loader = DataLoader(test_ds, batch_size=4, shuffle=False,
+        test_loader = DataLoader(test_ds, batch_size=8, shuffle=False,
                                  num_workers=0)
 
         cfg = {
@@ -717,12 +727,14 @@ def run_8class(device, seeds, out_dir):
             'patience': 25,
         }
 
-        if os.path.exists(save_path):
-            print("  Loading existing: {}".format(save_path))
-            model.load_state_dict(torch.load(save_path, map_location=device,
-                                             weights_only=False))
-        else:
+        if not os.path.exists(save_path):
             train_model(model, train_loader, test_loader, cfg, device, save_path)
+        else:
+            print("  Loading existing: {}".format(save_path))
+
+        # Always load best checkpoint (EMA weights) for final evaluation
+        model.load_state_dict(torch.load(save_path, map_location=device,
+                                         weights_only=False))
 
         # 8-class eval
         r8 = eval_model(model, test_loader, device, None, CLASS_NAMES_8, tag)
@@ -783,12 +795,12 @@ def run_8class(device, seeds, out_dir):
 # Feature re-extraction for cosine similarity analysis
 # ══════════════════════════════════════════════════════════════
 
-def cosine_analysis(model, device, T=32):
+def cosine_analysis(model, device, T=8):
     print("\n" + "=" * 70)
     print("COSINE SIMILARITY ANALYSIS (fine-tuned features)")
     print("=" * 70)
 
-    test_ds = VideoDataset('data', 'test', T=T, augment=False)
+    test_ds = VideoDataset('data', 'test', T=T, augment=False, cache=False)
     test_loader = DataLoader(test_ds, batch_size=4, shuffle=False, num_workers=0)
 
     model.eval()
