@@ -1,6 +1,6 @@
 # Real-Time Unsafe Behaviour Detection — Hybrid YOLOv11 + Transformer
 
-> **Capstone / Thesis Project** — End-to-end system for industrial safety monitoring using a novel **YOLO–Transformer** architecture on the Unsafe-Net video dataset.
+> **Capstone / Thesis Project** — End-to-end system for industrial safety monitoring built from a **YOLO–Transformer engineering composition** on the Unsafe-Net video dataset (frozen YOLOv11s spatial encoder + multi-stream gated Transformer head; the contribution is the empirical study and edge-deployable artifact, not a new architectural mechanism — see thesis §3.2.0).
 
 ## Overview
 
@@ -11,23 +11,36 @@ This project develops an end-to-end unsafe-behaviour detection system on the **U
 
 ### Key Results
 
-| Metric | Frozen Backbone | E2E Fine-Tune |
-|---|---|---|
-| **4-class unsafe accuracy** | 90.63% (cascade) | 🔄 In progress |
-| **Binary safe/unsafe accuracy** | 83.2% (125 clips) | 🔄 In progress |
-| **Paper baseline (YOLO+ConvLSTM)** | — | **95.81%** (target to beat) |
-| **Paper baseline (ConvLSTM only)** | — | **85.78%** |
+> **Honest headline.** This thesis is **deployment-led**: the delivered contribution is a
+> measured, open-source, real-time **edge system** (M4 + Jetson). On accuracy, the best zero-bbox
+> configuration — **hybrid (frozen ⊕ detection-finetuned) features + YOLO frame-gate** — reaches
+> **macro parity-to-advantage over the published no-bbox baseline even under the blind protocol**.
 
-### Frozen Backbone Results (Completed)
+| Metric (4-class unsafe subset)        | Blind held-out (honest, hybrid+gate) | Best-case (test-selected) | Paper baselines |
+| ------------------------------------- | ------------------------------------ | ------------------------- | --------------- |
+| **top-1** accuracy                    | **53/64 ≈ 82.8 %**                   | 56/64 = 87.5 % (frozen ens., deployed) | 57/64 no-bbox · 62/64 full-bbox |
+| **macro** accuracy                    | **85.4 %** (≈ baseline parity, blind) | 86.9–89.28 %             | 85.78 % no-bbox · 95.81 % full-bbox |
+| vs no-bbox baseline                   | **macro parity even blind; > baseline best-case**; top-1 below | — | — |
 
-| Metric | Value |
-|---|---|
-| 🏆 **4-class cascade accuracy** | **90.63% (58/64)** — beats ConvLSTM baseline by +4.85pp |
-| 🏆 **Binary accuracy (best)** | **83.2% (104/125)** |
-| 📊 **F1-macro (binary)** | **83.0%** |
-| ⚡ **ONNX inference latency** | **1.39 ms** (CPU, head only) |
-| 📦 **ONNX model size** | **18.1 MB** |
-| 🔧 **INT8 quantized size** | **13.6 MB** (no accuracy loss) |
+> The **"+3.5 pp macro win" is withdrawn** (test-selection artifact, §4.7.11). Honest ladder:
+> best-case 56/64 (89.28 % macro, deployed frozen ensemble) → blind **53/64 (85.4 % macro,
+> hybrid+gate, §4.6.2)**. The corrected paper-mechanism investigation (frame-gate + bbox features at
+> 1,200 frames) confirms the gap to the full-bbox 95.81 % is **data-volume-bound** (needs paper-scale
+> ≥ 2,262 bbox); the hybrid combination is the best zero-bbox config. The deployed Chapter-5 artifact
+> ships the frozen-ensemble checkpoint.
+
+### Frozen Backbone Results (10 experiment tracks, ~100 models)
+
+| Metric                                       | Value                                                         |
+| -------------------------------------------- | ------------------------------------------------------------- |
+| 4-class ensemble **top-1**                   | **56/64 = 87.5 %** — direct4_s314 + scenario × pair cascade (s7); 95 % bootstrap CI [79.7, 95.3] |
+| 4-class ensemble **macro**                   | **89.28 %** — 95 % bootstrap CI [81.3, 96.3]                  |
+| Per-class — OpenedPanel                       | 100 % (13/13); CI [100, 100]; exceeds paper's 92.31 % by +7.69 pp |
+| Per-class — CarryOverload                     | 100 % (8/8); CI [100, 100]; matches paper                     |
+| End-to-end latency (CPU-FP32)                 | 26.8 ms p50 / 28.8 ms p95 / 37.3 FPS                          |
+| ONNX deployed ensemble                        | 156 MB FP32 / 40 MB INT8 (3.8× compression)                   |
+| INT8 accuracy cost                            | 1 sample (55/64 ensemble vs 56/64 FP32)                       |
+| Earlier "57/64 calibrated"                    | **withdrawn** — see thesis §4.7.7 (test-set bias-search tuning; honest train-fit reduces test to 53.4 ± 1.2 / 64) |
 
 ## Architecture
 
@@ -53,25 +66,32 @@ Spatial Tokens: (T×16×768)  — pool4 = 4×4 spatial grid × 768 channels
 8-class / Binary / 4-class output
 ```
 
-### Thesis Contributions
+### Thesis Contributions (deployment-led)
 
-1. **Novel YOLO–Transformer architecture** for video-based unsafe behaviour detection with multi-stream gated temporal fusion
-2. **End-to-end fine-tuning pipeline** that breaks the frozen-backbone accuracy ceiling
-3. **Evidence that frozen object-detection features lack safety-rule context** — cosine similarity 0.94–0.996 between safe/unsafe pairs
-4. **Edge-deployable** system: ONNX export + INT8 quantization, 1.39ms inference on CPU
-5. **Comprehensive evaluation**: multi-seed, multi-architecture, ablation study, cascade vs direct
+1. **Measured, open-source, real-time edge-deployment system (primary, delivered).** Jetson Orin Nano Super TRT-FP16 8.62 ms / 116 FPS; **4-stream zero-drop throughput (88 FPS agg) + 2-stream 36.2-min soak**, 0 drops, 7.0 W; INT8 256-frame calibration; power Pareto; metadata-only privacy boundary; live dashboard. M4 CPU 26.8 ms / 37.3 FPS, INT8 156→40 MB. No published baseline reports edge deployment for this task.
+2. **Corrected paper-mechanism replication + a data-bound diagnosis.** Identified that the paper's YOLO is a *frame filter*, not a feature extractor; replicated it at 1,200 bbox frames. Detection-finetuning regresses (over-specialises the backbone); the **hybrid (frozen ⊕ detection-finetuned) + frame-gate** combination recovers and is best — **blind 53/64 (85.4 % macro) = macro parity with the no-bbox baseline even blind**, best-case 86.9 % > baseline. The ≈54/64 ceiling holds across 12+ tracks (incl. 86 M VideoMAE and the paper's exact mechanism), confirming the gap to full-bbox 95.81 % is **data-volume-bound** (§4.6.2).
+3. **V10 negative result** at 400 frames of behaviour-aware bbox annotation (54/64): evidence suggests the bbox route needs substantially more than a 400-frame pilot (paper-scale).
+4. **YOLO–Transformer engineering composition** (Objective 1, substantially met): frozen YOLOv11s spatial encoder + multi-stream Transformer temporal head; not a new mechanism. The temporal streams show no measurable lift on this dataset (§4.7.8).
+5. **Evaluation-rigor / leakage audit (methodological core).** Blind held-out protocol (epoch + config + seed selected on a train-carved validation slice) removing test-set model-selection leakage; withdrawal of the "57/64 calibrated" figure and the "+3.5 pp macro win"; the pairwise cascade is honestly rejected under blind selection (single direct-4 head best every seed); 5 000-sample bootstrap CIs.
 
 ## Paper Comparison
 
-| Approach | Task | Test Set | Accuracy |
-|---|---|---|---:|
-| **Paper (YOLO+ConvLSTM)** | 4 unsafe classes | 64 clips (YOLO-filtered) | **95.81%** |
-| Paper (ConvLSTM only) | 4 unsafe classes | 64 clips | **85.78%** |
-| **Ours: frozen cascade** | 4 unsafe classes | 64 clips (raw video) | **90.63%** |
-| **Ours: frozen binary** | **Safe/Unsafe (8→2)** | **125 clips** | **83.2%** |
-| **Ours: E2E fine-tune** | 8-class / binary / 4-class | 125 / 64 clips | 🔄 |
+| Approach                                | Task             | Test Set                | Top-1               | Macro             |
+| --------------------------------------- | ---------------- | ----------------------- | ------------------: | ----------------: |
+| Paper (YOLO + ConvLSTM full pipeline)   | 4 unsafe classes | 64 clips (YOLO-filtered) | **96.88 %** (62/64) | **95.81 %**       |
+| Paper (ConvLSTM only, no-bbox baseline) | 4 unsafe classes | 64 clips                | 89.06 % (57/64)     | 85.78 %           |
+| Ours: best-case (test-selected, deployed frozen ens.) | 4 unsafe classes | 64 clips (raw video) | 87.50 % (56/64)     | 89.28 %           |
+| **Ours: hybrid+gate — blind held-out (honest, §4.6.2)** | 4 unsafe classes | 64 clips (raw video) | **82.8 % (53/64)** | **85.4 %** ⭐      |
 
-> See [`GAP_ANALYSIS.md`](GAP_ANALYSIS.md) for detailed comparison and analysis.
+> Under the **blind held-out protocol** the best zero-bbox config (hybrid+gate, §4.6.2) reaches
+> **53/64 (82.8 % top-1, 85.4 % macro)** — **macro parity with the no-bbox ConvLSTM baseline (85.78 %)
+> even blind**, best-case 86.9 % > baseline; top-1 below baseline (53–54 vs 57). The earlier "parity on
+> top-1 + macro lifts +3.50 pp" claim was based on the test-selected 56/64 and is **withdrawn** — it does
+> not survive blind evaluation. At matched (test-selected) protocol the cross-paper comparison is
+> parity-minus-one on top-1 (56/64 vs 57/64; z = −0.27, p = 0.79), reported as a caveat, not a headline.
+> Root cause: paper's YOLO v4 was trained on per-frame bbox annotations encoding zone boundaries; we use
+> frozen COCO features without zone labels. The "57/64 calibrated" figure is also **withdrawn** (§4.7.7).
+
 
 ## Project Structure
 
@@ -129,13 +149,18 @@ python -u plot_figures_binary.py      # Thesis figures + ONNX + INT8 + latency
 
 ## Accuracy Progression
 
-| # | Method | 4-unsafe | Binary | Key Innovation |
-|--:|---|---:|---:|---|
-| 1 | Majority class | — | 51.2% | Baseline |
-| 2 | Linear probe (spatial stats) | — | 68.0% | Mean+std+max pooling |
-| 3 | Frozen Transformer (best) | — | **83.2%** | Gated multi-stream |
-| 4 | Frozen cascade (router+binary) | **90.63%** | — | Scenario specialization |
-| **5** | **E2E fine-tune** | **🔄** | **🔄** | **Backbone unfreeze** |
+| # | Version | Method | 4-unsafe top-1 | Macro | Key Finding |
+|--:|---|---|---:|---:|---|
+| 1 | V3 | Frozen COCO YOLO → Transformer (18-model ensemble) | 55/64 | 88.84% | Beats ConvLSTM-only (+3pp) |
+| 2 | V5 | Multi-scale frozen (layers 15, 19, 22) | 53/64 | 88.77% | Multi-scale ≈ single-layer |
+| 3 | V6-det | COCO detection + scene → cross-attention | 52/64 | 85.36% | Only 27% person detection |
+| 4 | V6-ft | Frame-level fine-tuned YOLO → Transformer | 54/64 | 87.27% | Frame labels too noisy |
+| 5 | VideoMAE | Frozen VideoMAE-base → MLP | 55/64 | 87.00% | 86M-param SOTA, same ceiling |
+| 6 | Final | E2E + 42-model sweep on fine-tuned features | 54/64 | 87.20% | Config search exhausted |
+| 7 | YOLOWorld | YOLO-World relationship + backbone | 55/64 | 89.54% | UnauthorInt=100% |
+| 8 | CrossEns | Cross-ensemble COCO + YOLO-World | 55/64 | 87.71% | Models too correlated |
+| **9** | **Pairwise** | **8-class contrastive + cascade + direct ensemble** | **56/64** | **89.28%** | **Best top-1**; "57/64 calibrated" withdrawn (§4.7.7) |
+| 10 | bbox-FT | YOLOv11s fine-tune on 400 behaviour-class bboxes (V10 negative result) | 54/64 | 84.73% | COCO prior loss > behaviour-signal gain at 400 frames |
 
 ## Requirements
 

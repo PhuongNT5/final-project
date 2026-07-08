@@ -1,0 +1,31 @@
+Accuracy Report — YOLO-Transformer Ensemble on 4-Class Unsafe Subset
+======================================================================
+Date: 2026-04-21 22:56
+Target: 56/64 (87.5%) ensemble top-1
+Note: Matches PyTorch training baseline 56/64 in FP32 (CPU EP & CoreML EP).
+      INT8 drops 1 sample (55/64) from quantization drift — acceptable.
+      Preprocessing uses PIL BILINEAR + ImageNet norm identical to training.
+
+Config: CPU-FP32
+  Direct4  : 55/64
+  Cascade  : 51/64
+  Ensemble : 56/64
+  EPs used : ['CPUExecutionProvider']
+
+Config: CPU-INT8
+  Direct4  : 55/64
+  Cascade  : 51/64
+  Ensemble : 55/64
+  EPs used : ['CPUExecutionProvider']
+
+Config: COREML-FP32
+  Direct4  : 55/64
+  Cascade  : 51/64
+  Ensemble : 56/64
+  EPs used : ['CoreMLExecutionProvider', 'CPUExecutionProvider']
+
+Config: COREML-INT8
+  Direct4  : 55/64
+  Cascade  : 51/64
+  Ensemble : 55/64
+  EPs used : ['CoreMLExecutionProvider', 'CPUExecutionProvider']

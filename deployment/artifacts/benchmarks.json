@@ -1,0 +1,202 @@
+{
+  "machine": "Phgs-Mac.lan",
+  "platform": "macOS-14.6-arm64-arm-64bit-Mach-O",
+  "timestamp": "2026-04-21T22:56:45.433286",
+  "configs": [
+    {
+      "provider": "cpu",
+      "precision": "fp32",
+      "actual_eps": [
+        "CPUExecutionProvider"
+      ],
+      "warmup": 3,
+      "runs": 100,
+      "stages": {
+        "backbone": {
+          "p50": 8.979875499790069,
+          "p95": 10.475430607039014,
+          "p99": 14.134638156829173
+        },
+        "stats_agg": {
+          "p50": 0.1714375030132942,
+          "p95": 0.17937468728632666,
+          "p99": 0.1956421670911376
+        },
+        "direct4_head": {
+          "p50": 4.744687495986,
+          "p95": 5.085086051985854,
+          "p99": 5.720570325938752
+        },
+        "cascade_heads": {
+          "p50": 19.466541001747828,
+          "p95": 28.28786250029225,
+          "p99": 49.80546956925539
+        },
+        "end_to_end": {
+          "p50": 28.800521002267487,
+          "p95": 37.27193306112895,
+          "p99": 58.92965538383581
+        }
+      },
+      "fps": 34.7,
+      "peak_rss_delta_mb": -116.9,
+      "accuracy_4class": {
+        "direct4": "55/64",
+        "cascade": "51/64",
+        "ensemble": "56/64"
+      }
+    },
+    {
+      "provider": "cpu",
+      "precision": "int8",
+      "actual_eps": [
+        "CPUExecutionProvider"
+      ],
+      "warmup": 3,
+      "runs": 100,
+      "stages": {
+        "backbone": {
+          "p50": 20.517145996564068,
+          "p95": 21.65170065127313,
+          "p99": 25.807308665098393
+        },
+        "stats_agg": {
+          "p50": 0.2515419982955791,
+          "p95": 0.30878059988026507,
+          "p99": 0.8155856604571456
+        },
+        "direct4_head": {
+          "p50": 1.9978749915026128,
+          "p95": 2.071687795978505,
+          "p99": 2.154427756904625
+        },
+        "cascade_heads": {
+          "p50": 11.180582994711585,
+          "p95": 13.976828850718448,
+          "p99": 15.017584497400097
+        },
+        "end_to_end": {
+          "p50": 31.991271986044012,
+          "p95": 35.45342703946517,
+          "p99": 38.13982667183156
+        }
+      },
+      "fps": 31.3,
+      "peak_rss_delta_mb": 0.1,
+      "accuracy_4class": {
+        "direct4": "55/64",
+        "cascade": "51/64",
+        "ensemble": "55/64"
+      }
+    },
+    {
+      "provider": "coreml",
+      "precision": "fp32",
+      "actual_eps": [
+        "CoreMLExecutionProvider",
+        "CPUExecutionProvider"
+      ],
+      "warmup": 3,
+      "runs": 100,
+      "stages": {
+        "backbone": {
+          "p50": 1.8441249994793907,
+          "p95": 1.9973964554083066,
+          "p99": 2.1734604169614617
+        },
+        "stats_agg": {
+          "p50": 0.24420800036750734,
+          "p95": 0.2693464426556602,
+          "p99": 0.2831186552066358
+        },
+        "direct4_head": {
+          "p50": 11.989333004748914,
+          "p95": 13.462994396832073,
+          "p99": 14.215047083998806
+        },
+        "cascade_heads": {
+          "p50": 42.6595829994767,
+          "p95": 53.90392500703455,
+          "p99": 68.856921743427
+        },
+        "end_to_end": {
+          "p50": 44.73645799589576,
+          "p95": 56.067760717996855,
+          "p99": 70.9219805897738
+        }
+      },
+      "fps": 22.4,
+      "peak_rss_delta_mb": 3.0,
+      "accuracy_4class": {
+        "direct4": "55/64",
+        "cascade": "51/64",
+        "ensemble": "56/64"
+      }
+    },
+    {
+      "provider": "coreml",
+      "precision": "int8",
+      "actual_eps": [
+        "CoreMLExecutionProvider",
+        "CPUExecutionProvider"
+      ],
+      "warmup": 3,
+      "runs": 100,
+      "stages": {
+        "backbone": {
+          "p50": 34.2233334959019,
+          "p95": 50.851831257750746,
+          "p99": 54.60384632970091
+        },
+        "stats_agg": {
+          "p50": 0.22804200125392526,
+          "p95": 0.25346105176140554,
+          "p99": 0.26532648669672254
+        },
+        "direct4_head": {
+          "p50": 17.378208009176888,
+          "p95": 18.209370503609534,
+          "p99": 18.44714617080172
+        },
+        "cascade_heads": {
+          "p50": 51.72787500487175,
+          "p95": 64.57766460516723,
+          "p99": 69.6429221566359
+        },
+        "end_to_end": {
+          "p50": 86.63174999674084,
+          "p95": 106.47107405529823,
+          "p99": 108.22657366705243
+        }
+      },
+      "fps": 11.5,
+      "peak_rss_delta_mb": 11.5,
+      "accuracy_4class": {
+        "direct4": "55/64",
+        "cascade": "51/64",
+        "ensemble": "55/64"
+      }
+    }
+  ],
+  "skipped": [],
+  "model_sizes_mb": {
+    "pair1-s7-int8.onnx": 2.03,
+    "pair3-s7-fp32.onnx": 7.7,
+    "eight-s7-fp32.onnx": 46.23,
+    "backbone-ft-fp32.onnx": 33.3,
+    "backbone-fp32.onnx": 33.31,
+    "pair0-s7-int8.onnx": 2.03,
+    "pair2-s7-fp32.onnx": 7.7,
+    "direct4-s314-fp32.onnx": 46.23,
+    "scenario-s7-fp32.onnx": 46.23,
+    "scenario-s7-int8.onnx": 11.79,
+    "direct4-s314-int8.onnx": 11.79,
+    "backbone-ft-int8.onnx": 8.66,
+    "eight-s7-int8.onnx": 11.79,
+    "backbone-int8.onnx": 8.66,
+    "pair0-s7-fp32.onnx": 7.7,
+    "pair2-s7-int8.onnx": 2.03,
+    "pair1-s7-fp32.onnx": 7.7,
+    "pair3-s7-int8.onnx": 2.03
+  }
+}

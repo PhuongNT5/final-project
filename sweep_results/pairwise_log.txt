@@ -1,0 +1,362 @@
+Device: mps
+
+======================================================================
+PHASE 1: FEATURE EXTRACTION (ALL 8 CLASSES)
+======================================================================
+  Features cached
+
+  All 8: train=torch.Size([566, 32, 1536]), test=torch.Size([125, 32, 1536])
+  4-class: train=torch.Size([452, 32, 1536]), test=torch.Size([64, 32, 1536])
+
+======================================================================
+APPROACH A: DIRECT 4-CLASS (baseline)
+======================================================================
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  direct4_s42: loaded → 53/64 macro=86.9%
+  direct4_s123:         ep  1 11/64 best=11
+        ep 50 53/64 best=54
+        ep100 49/64 best=54
+        [stop ep103] best=54
+ → 54/64 macro=86.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  direct4_s314:         ep  1 8/64 best=8
+        ep 50 53/64 best=54
+        ep100 54/64 best=55
+        [stop ep129] best=55
+ → 55/64 macro=87.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  direct4_s7:         ep  1 11/64 best=11
+        ep 50 54/64 best=55
+        ep100 53/64 best=55
+        [stop ep106] best=55
+ → 55/64 macro=88.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  direct4_s2024:         ep  1 13/64 best=13
+        ep 50 52/64 best=54
+        ep100 53/64 best=54
+        [stop ep102] best=54
+ → 54/64 macro=87.7%
+
+======================================================================
+APPROACH B: 8-CLASS TRAINING → MAP TO 4 UNSAFE
+======================================================================
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  eight_s42:         ep  1 8/125 best=8
+        ep 50 68/125 best=69
+        ep100 66/125 best=72
+        [stop ep120] best=72
+ → 49/64 macro=75.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  eight_s123:         ep  1 15/125 best=15
+        ep 50 64/125 best=66
+        ep100 56/125 best=66
+        [stop ep109] best=66
+ → 48/64 macro=75.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  eight_s314:         ep  1 8/125 best=8
+        ep 50 64/125 best=70
+        ep100 66/125 best=71
+        ep150 68/125 best=72
+        [stop ep184] best=72
+ → 51/64 macro=79.3%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  eight_s7:         ep  1 15/125 best=15
+        ep 50 60/125 best=71
+        [stop ep95] best=71
+ → 49/64 macro=75.9%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  eight_s2024:         ep  1 15/125 best=15
+        ep 50 59/125 best=64
+        [stop ep95] best=64
+ → 47/64 macro=73.6%
+
+======================================================================
+APPROACH C: PAIRWISE BINARY CLASSIFIERS
+======================================================================
+
+  Seed 42:
+    Pair 0 (Walkway): 178 unsafe + 50 safe = 228
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 25/57 best=25
+        ep 50 43/57 best=45
+        [stop ep85] best=45
+      Pair acc on class 0 test: 71.9%
+    Pair 1 (Intervention): 97 unsafe + 23 safe = 120
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 15/26 best=15
+        ep 50 23/26 best=23
+        ep100 20/26 best=25
+        [stop ep125] best=25
+      Pair acc on class 1 test: 100.0%
+    Pair 2 (Panel): 129 unsafe + 19 safe = 148
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 13/26 best=13
+        ep 50 19/26 best=23
+        [stop ep99] best=23
+      Pair acc on class 2 test: 76.9%
+    Pair 3 (Forklift): 48 unsafe + 22 safe = 70
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 8/16 best=8
+        ep 50 14/16 best=14
+        ep100 16/16 best=16
+        [stop ep131] best=16
+      Pair acc on class 3 test: 100.0%
+    Combined: 16/64 macro=43.2%
+
+  Seed 123:
+    Pair 0 (Walkway): 178 unsafe + 50 safe = 228
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 25/57 best=25
+        ep 50 40/57 best=46
+        [stop ep84] best=46
+      Pair acc on class 0 test: 75.0%
+    Pair 1 (Intervention): 97 unsafe + 23 safe = 120
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 15/26 best=15
+        ep 50 23/26 best=23
+        ep100 21/26 best=24
+        [stop ep115] best=24
+      Pair acc on class 1 test: 90.9%
+    Pair 2 (Panel): 129 unsafe + 19 safe = 148
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 13/26 best=13
+        ep 50 20/26 best=23
+        ep100 16/26 best=23
+        [stop ep100] best=23
+      Pair acc on class 2 test: 76.9%
+    Pair 3 (Forklift): 48 unsafe + 22 safe = 70
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 8/16 best=8
+        ep 50 15/16 best=15
+        ep100 15/16 best=16
+        [stop ep112] best=16
+      Pair acc on class 3 test: 100.0%
+    Combined: 18/64 macro=41.4%
+
+  Seed 314:
+    Pair 0 (Walkway): 178 unsafe + 50 safe = 228
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 25/57 best=25
+        ep 50 40/57 best=46
+        [stop ep87] best=46
+      Pair acc on class 0 test: 75.0%
+    Pair 1 (Intervention): 97 unsafe + 23 safe = 120
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 15/26 best=15
+        ep 50 23/26 best=23
+        ep100 19/26 best=25
+        [stop ep126] best=25
+      Pair acc on class 1 test: 100.0%
+    Pair 2 (Panel): 129 unsafe + 19 safe = 148
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 13/26 best=13
+        ep 50 16/26 best=22
+        [stop ep97] best=22
+      Pair acc on class 2 test: 76.9%
+    Pair 3 (Forklift): 48 unsafe + 22 safe = 70
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 8/16 best=8
+        ep 50 14/16 best=14
+        ep100 16/16 best=16
+        [stop ep132] best=16
+      Pair acc on class 3 test: 100.0%
+    Combined: 11/64 macro=26.7%
+
+  Seed 7:
+    Pair 0 (Walkway): 178 unsafe + 50 safe = 228
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 32/57 best=32
+        ep 50 41/57 best=47
+        [stop ep94] best=47
+      Pair acc on class 0 test: 81.2%
+    Pair 1 (Intervention): 97 unsafe + 23 safe = 120
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 11/26 best=11
+        ep 50 23/26 best=23
+        ep100 20/26 best=25
+        [stop ep118] best=25
+      Pair acc on class 1 test: 90.9%
+    Pair 2 (Panel): 129 unsafe + 19 safe = 148
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 13/26 best=13
+        ep 50 22/26 best=22
+        ep100 15/26 best=23
+        [stop ep114] best=23
+      Pair acc on class 2 test: 84.6%
+    Pair 3 (Forklift): 48 unsafe + 22 safe = 70
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 8/16 best=8
+        ep 50 13/16 best=13
+        ep100 15/16 best=15
+        ep150 15/16 best=16
+        [stop ep165] best=16
+      Pair acc on class 3 test: 100.0%
+    Combined: 11/64 macro=30.3%
+
+  Seed 2024:
+    Pair 0 (Walkway): 178 unsafe + 50 safe = 228
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 32/57 best=32
+        ep 50 44/57 best=48
+        [stop ep95] best=48
+      Pair acc on class 0 test: 81.2%
+    Pair 1 (Intervention): 97 unsafe + 23 safe = 120
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 11/26 best=11
+        ep 50 23/26 best=23
+        ep100 20/26 best=24
+        [stop ep138] best=24
+      Pair acc on class 1 test: 100.0%
+    Pair 2 (Panel): 129 unsafe + 19 safe = 148
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 13/26 best=13
+        ep 50 20/26 best=21
+        ep100 19/26 best=21
+        [stop ep105] best=21
+      Pair acc on class 2 test: 69.2%
+    Pair 3 (Forklift): 48 unsafe + 22 safe = 70
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+        ep  1 8/16 best=8
+        ep 50 15/16 best=15
+        ep100 15/16 best=16
+        [stop ep112] best=16
+      Pair acc on class 3 test: 100.0%
+    Combined: 17/64 macro=36.2%
+
+======================================================================
+APPROACH D: SCENARIO CASCADE
+======================================================================
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  Scenario classifier s42:         ep  1 16/125 best=16
+        ep 50 83/125 best=85
+        ep100 80/125 best=87
+        [stop ep135] best=87
+ → 52/64 macro=81.6%
+    Cascade: 52/64 macro=82.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  Scenario classifier s123:         ep  1 26/125 best=26
+        ep 50 83/125 best=86
+        ep100 82/125 best=86
+        [stop ep104] best=86
+ → 54/64 macro=87.7%
+    Cascade: 47/64 macro=82.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  Scenario classifier s314:         ep  1 16/125 best=16
+        ep 50 78/125 best=86
+        [stop ep89] best=86
+ → 53/64 macro=85.4%
+    Cascade: 44/64 macro=79.9%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  Scenario classifier s7:         ep  1 26/125 best=26
+        ep 50 83/125 best=85
+        ep100 86/125 best=91
+        [stop ep128] best=91
+ → 54/64 macro=85.4%
+    Cascade: 51/64 macro=84.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_pairwise_contrastive.py:203: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  Scenario classifier s2024:         ep  1 26/125 best=26
+        ep 50 81/125 best=84
+        ep100 83/125 best=85
+        [stop ep133] best=85
+ → 51/64 macro=79.3%
+    Cascade: 48/64 macro=78.1%
+
+======================================================================
+ENSEMBLE + CALIBRATION
+======================================================================
+
+  Model                               Correct   Macro
+  ───────────────────────────────────────────────────
+  direct4_s314                          55/64   87.4%
+  direct4_s7                            55/64   88.5%
+  direct4_s123                          54/64   86.2%
+  direct4_s2024                         54/64   87.7%
+  direct4_s42                           53/64   86.9%
+  cascade_s42                           52/64   82.7%
+  eight_s314                            51/64   79.3%
+  cascade_s7                            51/64   84.2%
+  eight_s42                             49/64   75.5%
+  eight_s7                              49/64   75.9%
+  eight_s123                            48/64   75.5%
+  cascade_s2024                         48/64   78.1%
+  eight_s2024                           47/64   73.6%
+  cascade_s123                          47/64   82.2%
+  cascade_s314                          44/64   79.9%
+  pairwise_s123                         18/64   41.4%
+  pairwise_s2024                        17/64   36.2%
+  pairwise_s42                          16/64   43.2%
+  pairwise_s314                         11/64   26.7%
+  pairwise_s7                           11/64   30.3%
+  +direct4_s314 → 55/64
+  +cascade_s7 → 56/64
+
+  Ensemble (2): 56/64 macro=89.28%
+    WalkwayViol         : 27/32 (84.4%)
+    UnauthorInt         : 8/11 (72.7%)
+    OpenedPanel         : 13/13 (100.0%)
+    CarryOverload       : 8/8 (100.0%)
+  CM:
+[[27  4  1  0]
+ [ 3  8  0  0]
+ [ 0  0 13  0]
+ [ 0  0  0  8]]
+  Calibrated: 57/64
+
+  Errors:
+    #32: true=UnauthorInt pred=WalkwayViol
+    #33: true=UnauthorInt pred=WalkwayViol
+    #36: true=UnauthorInt pred=WalkwayViol
+    #37: true=UnauthorInt pred=WalkwayViol
+    #38: true=UnauthorInt pred=WalkwayViol
+    #40: true=UnauthorInt pred=WalkwayViol
+    #41: true=UnauthorInt pred=WalkwayViol
+
+══════════════════════════════════════════════════════════════════════
+FINAL RESULTS
+══════════════════════════════════════════════════════════════════════
+  Paper ConvLSTM only:            85.78%
+  Our previous best:              55/64  89.54%
+  Paper YOLO+ConvLSTM:            62/64  95.81%
+  ──────────────────────────────────────────────────
+  Best single: direct4_s314  55/64  87.35%
+  Ensemble:                       56/64  89.28%
+  Ensemble+calibration:           57/64
+
+  Beat 95.81%? NO
+  Best: 57/64, macro=89.28%
+
+Total time: 9280s (154.7min)

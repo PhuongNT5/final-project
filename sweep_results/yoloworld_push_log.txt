@@ -1,0 +1,316 @@
+Device: mps
+
+======================================================================
+PHASE 1: YOLO-WORLD DETECTION + SPATIAL RELATIONSHIP ENCODING
+======================================================================
+  Loading YOLO-World (open-vocabulary detector)...
+
+  Extracting train: 452 videos...
+    20/452
+    40/452
+    60/452
+    80/452
+    100/452
+    120/452
+    140/452
+    160/452
+    180/452
+    200/452
+    220/452
+    240/452
+    260/452
+    280/452
+    300/452
+    320/452
+    340/452
+    360/452
+    380/452
+    400/452
+    420/452
+    440/452
+    452/452
+  train: features torch.Size([452, 16, 56])
+  Detection stats: 99.0% frames with person, 64.8% with panel
+
+  Extracting test: 64 videos...
+    20/64
+    40/64
+    60/64
+    64/64
+  test: features torch.Size([64, 16, 56])
+  Detection stats: 98.0% frames with person, 68.5% with panel
+  Relationship features: torch.Size([452, 16, 56]) (dim=56)
+
+  Loading V6 fine-tuned backbone features...
+  Backbone stats features: torch.Size([452, 16, 1536]) (dim=1536)
+  Combined features: torch.Size([452, 16, 1592]) (dim=1592)
+
+======================================================================
+PHASE 2: TRANSFORMER CLASSIFIERS
+======================================================================
+
+────────────────────────────────────────────────────────────
+Combined_d256_L4 (dim=256, L=4, feat=combined)
+────────────────────────────────────────────────────────────
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s42:       ep  1 13/64 f1=0.084 best=13
+      ep 50 52/64 f1=0.827 best=52
+      [stop ep71] best=52/64
+ → 52/64 macro=84.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s123:       ep  1 13/64 f1=0.084 best=13
+      ep 50 49/64 f1=0.774 best=52
+      [stop ep79] best=52/64
+ → 52/64 macro=84.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s314:       ep  1 28/64 f1=0.245 best=28
+      ep 50 50/64 f1=0.784 best=51
+      [stop ep72] best=51/64
+ → 51/64 macro=86.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s7:       ep  1 8/64 f1=0.056 best=8
+      ep 50 50/64 f1=0.785 best=51
+      ep100 53/64 f1=0.845 best=53
+      ep150 52/64 f1=0.822 best=53
+      [stop ep154] best=53/64
+ → 53/64 macro=86.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s2024:       ep  1 11/64 f1=0.073 best=11
+      ep 50 51/64 f1=0.805 best=52
+      [stop ep87] best=52/64
+ → 52/64 macro=84.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s999:       ep  1 8/64 f1=0.056 best=8
+      ep 50 49/64 f1=0.774 best=52
+      [stop ep93] best=52/64
+ → 52/64 macro=84.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s555:       ep  1 8/64 f1=0.056 best=8
+      ep 50 50/64 f1=0.785 best=51
+      [stop ep73] best=51/64
+ → 51/64 macro=86.4%
+
+────────────────────────────────────────────────────────────
+Combined_d384_L6 (dim=384, L=6, feat=combined)
+────────────────────────────────────────────────────────────
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s42:       ep  1 11/64 f1=0.073 best=11
+      ep 50 51/64 f1=0.805 best=51
+      [stop ep71] best=51/64
+ → 51/64 macro=83.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s123:       ep  1 8/64 f1=0.056 best=8
+      ep 50 51/64 f1=0.820 best=54
+      [stop ep79] best=54/64
+ → 54/64 macro=85.8%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s314:       ep  1 37/64 f1=0.315 best=37
+      ep 50 53/64 f1=0.824 best=54
+      [stop ep79] best=54/64
+ → 54/64 macro=85.8%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s7:       ep  1 11/64 f1=0.153 best=11
+      ep 50 50/64 f1=0.801 best=52
+      [stop ep78] best=52/64
+ → 52/64 macro=84.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s2024:       ep  1 32/64 f1=0.167 best=32
+      ep 50 48/64 f1=0.771 best=53
+      [stop ep71] best=53/64
+ → 53/64 macro=85.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s999:       ep  1 8/64 f1=0.056 best=8
+      ep 50 51/64 f1=0.824 best=53
+      ep100 48/64 f1=0.766 best=53
+      [stop ep144] best=53/64
+ → 53/64 macro=86.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s555:       ep  1 11/64 f1=0.073 best=11
+      ep 50 51/64 f1=0.812 best=52
+      ep100 51/64 f1=0.817 best=55
+      [stop ep145] best=55/64
+ → 55/64 macro=89.5%
+
+────────────────────────────────────────────────────────────
+RelOnly_d256_L4 (dim=256, L=4, feat=rel)
+────────────────────────────────────────────────────────────
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s42:       ep  1 13/64 f1=0.084 best=13
+      ep 50 44/64 f1=0.667 best=45
+      ep100 53/64 f1=0.800 best=53
+      [stop ep139] best=53/64
+ → 53/64 macro=82.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s123:       ep  1 8/64 f1=0.056 best=8
+      ep 50 49/64 f1=0.737 best=49
+      ep100 53/64 f1=0.800 best=53
+      ep150 44/64 f1=0.723 best=53
+      [stop ep150] best=53/64
+ → 53/64 macro=82.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s314:       ep  1 32/64 f1=0.167 best=32
+      ep 50 27/64 f1=0.499 best=39
+      ep100 50/64 f1=0.763 best=51
+      ep150 44/64 f1=0.716 best=51
+      [stop ep157] best=51/64
+ → 51/64 macro=79.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s7:       ep  1 11/64 f1=0.073 best=11
+      ep 50 29/64 f1=0.528 best=37
+      ep100 46/64 f1=0.738 best=50
+      [stop ep136] best=50/64
+ → 50/64 macro=83.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s2024:       ep  1 11/64 f1=0.073 best=11
+      ep 50 48/64 f1=0.729 best=48
+      ep100 54/64 f1=0.825 best=54
+      ep150 47/64 f1=0.748 best=54
+      [stop ep158] best=54/64
+ → 54/64 macro=83.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s999:       ep  1 32/64 f1=0.167 best=32
+      ep 50 31/64 f1=0.556 best=32
+      ep100 46/64 f1=0.736 best=51
+      [stop ep149] best=51/64
+ → 51/64 macro=79.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s555:       ep  1 32/64 f1=0.167 best=32
+      ep 50 47/64 f1=0.730 best=48
+      ep100 49/64 f1=0.756 best=52
+      [stop ep120] best=52/64
+ → 52/64 macro=80.2%
+
+────────────────────────────────────────────────────────────
+BackboneOnly_d384_L6 (dim=384, L=6, feat=bb)
+────────────────────────────────────────────────────────────
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s42:       ep  1 8/64 f1=0.056 best=8
+      ep 50 50/64 f1=0.790 best=53
+      ep100 50/64 f1=0.777 best=54
+      [stop ep126] best=54/64
+ → 54/64 macro=87.3%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s123:       ep  1 11/64 f1=0.073 best=11
+      ep 50 51/64 f1=0.790 best=54
+      [stop ep87] best=54/64
+ → 54/64 macro=87.3%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s314:       ep  1 8/64 f1=0.056 best=8
+      ep 50 49/64 f1=0.743 best=52
+      [stop ep73] best=52/64
+ → 52/64 macro=84.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s7:       ep  1 13/64 f1=0.122 best=13
+      ep 50 51/64 f1=0.791 best=51
+      [stop ep67] best=51/64
+ → 51/64 macro=86.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s2024:       ep  1 13/64 f1=0.084 best=13
+      ep 50 49/64 f1=0.788 best=52
+      ep100 50/64 f1=0.792 best=53
+      [stop ep145] best=53/64
+ → 53/64 macro=85.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s999:       ep  1 18/64 f1=0.204 best=18
+      ep 50 47/64 f1=0.755 best=53
+      ep100 51/64 f1=0.793 best=54
+      [stop ep138] best=54/64
+ → 54/64 macro=85.8%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_yoloworld_push.py:329: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.transformer = nn.TransformerEncoder(enc, num_layers=layers)
+  s555:       ep  1 8/64 f1=0.056 best=8
+      ep 50 49/64 f1=0.795 best=51
+      ep100 48/64 f1=0.757 best=52
+      [stop ep113] best=52/64
+ → 52/64 macro=84.2%
+
+======================================================================
+PHASE 3: ENSEMBLE + CALIBRATION
+======================================================================
+
+  Model                               Correct   Macro
+  ───────────────────────────────────────────────────
+  Combined_d384_L6_s555                 55/64   89.5%
+  Combined_d384_L6_s123                 54/64   85.8%
+  Combined_d384_L6_s314                 54/64   85.8%
+  RelOnly_d256_L4_s2024                 54/64   83.2%
+  BackboneOnly_d384_L6_s42              54/64   87.3%
+  BackboneOnly_d384_L6_s123             54/64   87.3%
+  BackboneOnly_d384_L6_s999             54/64   85.8%
+  Combined_d256_L4_s7                   53/64   86.1%
+  Combined_d384_L6_s2024                53/64   85.0%
+  Combined_d384_L6_s999                 53/64   86.5%
+  RelOnly_d256_L4_s42                   53/64   82.5%
+  RelOnly_d256_L4_s123                  53/64   82.5%
+  BackboneOnly_d384_L6_s2024            53/64   85.0%
+  Combined_d256_L4_s42                  52/64   84.2%
+  Combined_d256_L4_s123                 52/64   84.2%
+  Combined_d256_L4_s2024                52/64   84.2%
+  Combined_d256_L4_s999                 52/64   84.2%
+  Combined_d384_L6_s7                   52/64   84.2%
+  RelOnly_d256_L4_s555                  52/64   80.2%
+  BackboneOnly_d384_L6_s314             52/64   84.2%
+  BackboneOnly_d384_L6_s555             52/64   84.2%
+  Combined_d256_L4_s314                 51/64   86.4%
+  Combined_d256_L4_s555                 51/64   86.4%
+  Combined_d384_L6_s42                  51/64   83.4%
+  RelOnly_d256_L4_s314                  51/64   79.4%
+  RelOnly_d256_L4_s999                  51/64   79.4%
+  BackboneOnly_d384_L6_s7               51/64   86.4%
+  RelOnly_d256_L4_s7                    50/64   83.1%
+
+  Ensemble (1): 55/64 macro=89.54%
+  Members: ['Combined_d384_L6_s555']
+    WalkwayViol         : 26/32 (81.2%)
+    UnauthorInt         : 11/11 (100.0%)
+    OpenedPanel         : 10/13 (76.9%)
+    CarryOverload       : 8/8 (100.0%)
+  CM:
+[[26  5  1  0]
+ [ 0 11  0  0]
+ [ 1  2 10  0]
+ [ 0  0  0  8]]
+
+  Calibrated: 55/64
+
+══════════════════════════════════════════════════════════════════════
+FINAL RESULTS
+══════════════════════════════════════════════════════════════════════
+  Paper ConvLSTM only:            85.78%
+  Our V3 (frozen COCO):           55/64  88.84%
+  Paper YOLO+ConvLSTM:            62/64  95.81%
+  ──────────────────────────────────────────────────
+  Best single: Combined_d384_L6_s555  55/64  89.54%
+  Ensemble:                       55/64  89.54%
+
+  Beat 95.81%? NO
+  Best macro: 89.54%, Gap: 6.27%
+
+Total time: 9081s (151.4min)

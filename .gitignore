@@ -14,3 +14,20 @@ deployment/*.pt
 deployment/*.onnx
 s11042-024-19276-8.pdf
 .claude/
+annotation_guide/
+
+# UCF-Crime dataset (Phase 05)
+data/ucf_crime/
+
+# Jetson installer / OS images (large binaries, never commit)
+*.iso
+*.img
+*-sd-card-image.zip
+sd-blob*
+deployment/jp*.zip
+deployment/jp*.img
+deployment/jetsoninstaller-*
+deployment/artifacts/
+deployment/features/
+figures/
+sweep_results/finetune_bbox/

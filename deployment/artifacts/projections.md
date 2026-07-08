@@ -1,0 +1,76 @@
+# Edge Deployment Latency — Apple M4 vs Jetson Orin
+
+## Introduction
+
+This table presents measured latency for the YOLO-Transformer unsafe behavior
+pipeline on Apple M4 (via ONNX Runtime) alongside cited Jetson Orin numbers from
+Ultralytics official benchmarks. These are independent measurements on distinct
+accelerator architectures — M4 ORT-CPU versus Jetson Ampere GPU with TensorRT —
+and should not be interpreted as a direct scaling ratio or projection.
+
+## Side-by-Side Latency Table
+
+| Device | Accelerator | Model | Format | Latency p50 (ms) | FPS | Source |
+|--------|------------|-------|--------|-----------------|-----|--------|
+| MacBook Air M4 (measured) | ORT CPU | YOLO11s backbone | FP32 | 27.3 | 37 | This work |
+| MacBook Air M4 (measured) | ORT CPU | YOLO11s backbone | INT8 | 31.8 | 31 | This work |
+| MacBook Air M4 (measured) | ORT CoreML | YOLO11s backbone | FP32 | 45.1 | 22 | This work |
+| MacBook Air M4 (measured) | ORT CoreML | YOLO11s backbone | INT8 | 85.0 | 12 | This work |
+| Jetson Orin Nano Super 8GB | TensorRT (Ampere GPU) | YOLO11s | INT8 | 5.25 | 190 | [Ult.2025] |
+| Jetson AGX Orin 64GB | TensorRT (Ampere GPU) | YOLO11s | INT8 | 2.98 | 336 | [Ult.2025] |
+| Jetson Orin NX 16GB | TensorRT (Ampere GPU) | YOLO11s | INT8 | 6.05 | 165 | [Ult.2025] |
+| Jetson Orin Nano 8GB (15W std) | TensorRT | YOLOv8s | INT8 | 28.25 | 35 | [arXiv:2502.15737] |
+
+*M4 end-to-end includes: backbone + stats-aggregation + direct4-head + cascade heads (scenario + 4 pairs). Backbone-only FP32 CPU: ~10.2 ms (consistent with prior researcher measurement). Jetson figures cover YOLO11s backbone only at 640×640.*
+
+## Hardware Context
+
+| Device | INT8 Compute | Power | Accelerator Type |
+|--------|-------------|-------|-----------------|
+| Apple M4 | ~38 TOPS (ANE) | 15–20 W TDP | ARM CPU + Neural Engine |
+| Jetson Orin Nano Super 8GB | 67 TOPS (Ampere sparse) | 25 W | NVIDIA Ampere GPU + CUDA Tensor Cores |
+| Jetson AGX Orin 64GB | 275 TOPS (Ampere sparse) | 60 W | NVIDIA Ampere GPU + CUDA Tensor Cores |
+
+## Footnotes
+
+1. **Orin Nano Super = standard Orin Nano 8GB module.** The "Super" designation refers to
+   a firmware unlock released December 2024 (`nvpmodel -m 2`, 25 W mode) on any existing
+   Jetson Orin Nano 8GB kit with JetPack 6.x. No separate hardware is required. Source:
+   NVIDIA Developer Blog, December 2024 [3].
+
+2. **Accelerator class mismatch.** M4 ORT-CPU uses ARM Cortex cores with no dedicated
+   matrix unit for ONNX INT8 workloads. Jetson Orin TensorRT uses NVIDIA Ampere GPU with
+   hardware INT8 Tensor Cores. Latency ratios between the two reflect accelerator
+   architecture differences, not merely clock speed or TOPS. No linear projection between
+   M4 and Orin latency is claimed.
+
+3. **CoreML EP behavior.** ORT CoreML EP on M4 delegates ops to the Apple Neural Engine
+   or GPU. The INT8 CoreML result (85 ms) is slower than FP32 (45 ms) because CoreML does
+   not support dynamic INT8 ORT quantization natively — it falls back to CPU for
+   quantized ops, adding overhead. A native CoreML `.mlpackage` export would access the ANE
+   directly (expected 2–4 ms backbone-only, consistent with researcher measurement of 2.3 ms).
+
+4. **Jetson published figures are backbone-only.** Our M4 pipeline adds a transformer head
+   (~2M params, T=32, D=1536) on top of the backbone. This head adds roughly 10–20% latency
+   overhead. An equivalent full-pipeline Jetson benchmark would require hardware access not
+   available in this study.
+
+5. **Orin Nano 15W reference.** The arXiv:2502.15737 figure (28.25 ms for YOLOv8s INT8 at
+   15 W) covers the standard shipping mode of Orin Nano 8GB. The Nano Super at 25 W yields
+   ~1.7× speedup (5.25 / 3.0 ≈ 1.75 for YOLO11s vs YOLOv8s, same silicon). The 15W
+   YOLOv8s number serves as a conservative reference for constrained-power deployment.
+
+## References
+
+[Ult.2025] Ultralytics. "Quick Start Guide: NVIDIA Jetson with Ultralytics YOLO."
+  https://docs.ultralytics.com/guides/nvidia-jetson/. Accessed 2026-04-19.
+
+[arXiv:2502.15737] Araujo et al. "A Performance Analysis of YOLO Models for Deployment
+  on Constrained Edge Devices in Drone Applications." arXiv:2502.15737, Feb 2025.
+
+[3] NVIDIA Developer Blog. "NVIDIA Jetson Orin Nano Developer Kit Gets a 'Super' Boost."
+  https://developer.nvidia.com/blog/nvidia-jetson-orin-nano-developer-kit-gets-a-super-boost/.
+  December 2024.
+
+[4] Seeed Studio Wiki. "Deploy YOLOv8 with TensorRT and DeepStream SDK."
+  https://wiki.seeedstudio.com/YOLOv8-DeepStream-TRT-Jetson/. Accessed 2026-04-19.

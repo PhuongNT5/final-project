@@ -1,0 +1,21 @@
+flowchart LR
+    V[Video File / Webcam]
+    FS[Frame Sampler<br/>32 frames]
+    PP[Preprocess<br/>PIL resize 224x224<br/>ImageNet normalize]
+    BB[YOLOv11s Backbone<br/>ONNX<br/>Nx3x224x224 to Nx16x512]
+    SA[Stats Aggregation<br/>mean, std, max<br/>Tx16x512 to Tx1536]
+    SW[Sliding Window<br/>T=32 buffer<br/>emit every 8 frames]
+    D4[Direct4 Head<br/>1x32x1536 to 1x4]
+    SC[Scenario Head<br/>1x32x1536 to 1x4]
+    PR[Pairwise Heads<br/>4 binary heads<br/>1x32x1536 to 1x2 each]
+    CAS[Cascade<br/>scenario x P_unsafe<br/>L1-normalized]
+    ENS[Ensemble<br/>Direct4 + Cascade / 2<br/>Softmax + top-1]
+
+    V --> FS --> PP --> BB --> SA --> SW
+    SW --> D4
+    SW --> SC
+    SW --> PR
+    SC --> CAS
+    PR --> CAS
+    D4 --> ENS
+    CAS --> ENS
