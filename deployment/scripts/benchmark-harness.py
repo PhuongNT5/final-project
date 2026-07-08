@@ -80,6 +80,19 @@ def benchmark_config(provider, precision, features, labels, warmup, runs):
     sample_feat = features[0:1]  # (1,32,16,512)
     sample_stats = bench_utils.run_stats(sample_feat)  # (1,32,1536)
     dummy_img = np.random.randn(1, 3, 224, 224).astype(np.float32)
+    dummy_bgr = (np.random.rand(1080, 1920, 3) * 255).astype(np.uint8)
+
+    import cv2
+    from PIL import Image
+    _MEAN = np.array([0.485, 0.456, 0.406], dtype=np.float32)
+    _STD = np.array([0.229, 0.224, 0.225], dtype=np.float32)
+
+    def run_preprocess():
+        rgb = cv2.cvtColor(dummy_bgr, cv2.COLOR_BGR2RGB)
+        pil = Image.fromarray(rgb).resize((224, 224), Image.BILINEAR)
+        arr = np.asarray(pil, dtype=np.float32) / 255.0
+        normalized = (arr - _MEAN) / _STD
+        return normalized.transpose(2, 0, 1)[np.newaxis]
 
     def run_bb(): return bb_sess.run(None, {bb_inp: dummy_img})
     def run_stats_fn(): return bench_utils.run_stats(sample_feat)
@@ -94,7 +107,7 @@ def benchmark_config(provider, precision, features, labels, warmup, runs):
 
     print(f"  Warmup ({warmup})...", end=" ", flush=True)
     for _ in range(warmup):
-        run_bb(); run_d4(); run_cascade()
+        run_preprocess(); run_bb(); run_d4(); run_cascade()
     print("done")
 
     def timed(fn, n):
@@ -106,6 +119,7 @@ def benchmark_config(provider, precision, features, labels, warmup, runs):
         return np.array(ts)
 
     rss_before = bench_utils.peak_rss_mb()
+    t_pre = timed(run_preprocess, runs)
     t_bb = timed(run_bb, runs)
     t_st = timed(run_stats_fn, runs)
     t_d4 = timed(run_d4, runs)
@@ -119,6 +133,7 @@ def benchmark_config(provider, precision, features, labels, warmup, runs):
         "provider": provider, "precision": precision, "actual_eps": actual_eps,
         "warmup": warmup, "runs": runs,
         "stages": {
+            "preprocess": bench_utils.percentiles(t_pre),
             "backbone": bench_utils.percentiles(t_bb),
             "stats_agg": bench_utils.percentiles(t_st),
             "direct4_head": bench_utils.percentiles(t_d4),

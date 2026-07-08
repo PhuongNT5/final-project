@@ -1,0 +1,151 @@
+{
+  "protocol": "pooled 691 clips; 4-class subset; per-fold inner-val epoch select; no day metadata available \u2192 clip-level + scene-cluster grouping",
+  "args": {
+    "k": 2,
+    "seeds": [
+      42
+    ],
+    "clusters": 8,
+    "lr": 0.00015,
+    "epochs": 15,
+    "patience": 6,
+    "smoke": true
+  },
+  "runtime_min": 0.8,
+  "results": {
+    "stratified": {
+      "scheme": "strat",
+      "k": 2,
+      "seeds": [
+        42
+      ],
+      "n_clips": 516,
+      "top1_mean": 10.85,
+      "top1_std": 0.0,
+      "top1_per_seed": [
+        10.9
+      ],
+      "macro_mean": 4.9,
+      "macro_std": 0.0,
+      "top1_bootstrap_ci95": [
+        8.3,
+        13.6
+      ],
+      "macro_bootstrap_ci95": [
+        3.8,
+        6.0
+      ],
+      "per_class_recall_mean": [
+        0.0,
+        0.0,
+        0.0,
+        100.0
+      ],
+      "per_class_fnr_mean": [
+        100.0,
+        100.0,
+        100.0,
+        0.0
+      ],
+      "transformer_vs_linear": {
+        "mean_acc_diff_pp": -67.054,
+        "nadeau_bengio_t": -33.294,
+        "p_value": 0.0191,
+        "significant_05": true
+      },
+      "confusion_matrix_seed0": [
+        [
+          0,
+          0,
+          0,
+          210
+        ],
+        [
+          0,
+          0,
+          0,
+          108
+        ],
+        [
+          0,
+          0,
+          0,
+          142
+        ],
+        [
+          0,
+          0,
+          0,
+          56
+        ]
+      ]
+    },
+    "scene_group": {
+      "scheme": "group",
+      "k": 2,
+      "seeds": [
+        42
+      ],
+      "n_clips": 516,
+      "top1_mean": 10.85,
+      "top1_std": 0.0,
+      "top1_per_seed": [
+        10.9
+      ],
+      "macro_mean": 4.9,
+      "macro_std": 0.0,
+      "top1_bootstrap_ci95": [
+        8.3,
+        13.6
+      ],
+      "macro_bootstrap_ci95": [
+        3.8,
+        6.0
+      ],
+      "per_class_recall_mean": [
+        0.0,
+        0.0,
+        0.0,
+        100.0
+      ],
+      "per_class_fnr_mean": [
+        100.0,
+        100.0,
+        100.0,
+        0.0
+      ],
+      "transformer_vs_linear": {
+        "mean_acc_diff_pp": -45.393,
+        "nadeau_bengio_t": -15.383,
+        "p_value": 0.0413,
+        "significant_05": true
+      },
+      "confusion_matrix_seed0": [
+        [
+          0,
+          0,
+          0,
+          210
+        ],
+        [
+          0,
+          0,
+          0,
+          108
+        ],
+        [
+          0,
+          0,
+          0,
+          142
+        ],
+        [
+          0,
+          0,
+          0,
+          56
+        ]
+      ]
+    }
+  }
+}

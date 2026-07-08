@@ -1,0 +1,161 @@
+{
+  "protocol": "pooled 691 clips; 4-class subset; per-fold inner-val epoch select; no day metadata available \u2192 clip-level + scene-cluster grouping",
+  "args": {
+    "k": 5,
+    "seeds": [
+      42,
+      123,
+      314
+    ],
+    "clusters": 24,
+    "lr": 0.00015,
+    "epochs": 300,
+    "patience": 60,
+    "smoke": false
+  },
+  "runtime_min": 302.3,
+  "results": {
+    "stratified": {
+      "scheme": "strat",
+      "k": 5,
+      "seeds": [
+        42,
+        123,
+        314
+      ],
+      "n_clips": 516,
+      "top1_mean": 75.32,
+      "top1_std": 1.23,
+      "top1_per_seed": [
+        73.6,
+        75.8,
+        76.6
+      ],
+      "macro_mean": 77.78,
+      "macro_std": 1.0,
+      "top1_bootstrap_ci95": [
+        73.1,
+        77.5
+      ],
+      "macro_bootstrap_ci95": [
+        76.0,
+        79.6
+      ],
+      "per_class_recall_mean": [
+        67.6,
+        55.2,
+        92.3,
+        100.0
+      ],
+      "per_class_fnr_mean": [
+        32.4,
+        44.8,
+        7.7,
+        0.0
+      ],
+      "transformer_vs_linear": {
+        "mean_acc_diff_pp": -4.651,
+        "nadeau_bengio_t": -3.151,
+        "p_value": 0.0071,
+        "significant_05": true
+      },
+      "confusion_matrix_seed0": [
+        [
+          140,
+          52,
+          18,
+          0
+        ],
+        [
+          32,
+          57,
+          19,
+          0
+        ],
+        [
+          3,
+          12,
+          127,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          56
+        ]
+      ]
+    },
+    "scene_group": {
+      "scheme": "group",
+      "k": 5,
+      "seeds": [
+        42,
+        123,
+        314
+      ],
+      "n_clips": 516,
+      "top1_mean": 71.9,
+      "top1_std": 1.56,
+      "top1_per_seed": [
+        74.0,
+        70.3,
+        71.3
+      ],
+      "macro_mean": 71.84,
+      "macro_std": 0.99,
+      "top1_bootstrap_ci95": [
+        69.7,
+        74.2
+      ],
+      "macro_bootstrap_ci95": [
+        70.0,
+        73.8
+      ],
+      "per_class_recall_mean": [
+        70.6,
+        31.8,
+        93.2,
+        100.0
+      ],
+      "per_class_fnr_mean": [
+        29.4,
+        68.2,
+        6.8,
+        0.0
+      ],
+      "transformer_vs_linear": {
+        "mean_acc_diff_pp": 1.701,
+        "nadeau_bengio_t": 0.75,
+        "p_value": 0.4659,
+        "significant_05": false
+      },
+      "confusion_matrix_seed0": [
+        [
+          158,
+          28,
+          24,
+          0
+        ],
+        [
+          36,
+          35,
+          23,
+          14
+        ],
+        [
+          2,
+          7,
+          133,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          56
+        ]
+      ]
+    }
+  }
+}

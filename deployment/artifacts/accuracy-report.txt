@@ -1,6 +1,6 @@
 Accuracy Report — YOLO-Transformer Ensemble on 4-Class Unsafe Subset
 ======================================================================
-Date: 2026-04-21 22:56
+Date: 2026-06-13 13:24
 Target: 56/64 (87.5%) ensemble top-1
 Note: Matches PyTorch training baseline 56/64 in FP32 (CPU EP & CoreML EP).
       INT8 drops 1 sample (55/64) from quantization drift — acceptable.

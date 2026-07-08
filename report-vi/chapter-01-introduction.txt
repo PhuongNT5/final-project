@@ -1,0 +1,223 @@
+# Chương 1 — Giới thiệu
+
+## 1.1 Bối cảnh và Động lực nghiên cứu
+
+Các cơ sở công nghiệp là môi trường nguy hiểm. Công nhân làm việc cùng không gian với xe nâng đang di chuyển, máy móc quay, tủ điện hở và các ô robot bị hạn chế ra vào. Hệ thống giám sát truyền thống — camera CCTV do người vận hành theo dõi — về cơ bản mang tính **phản ứng** (reactive): nó ghi lại sự cố để xem lại sau nhưng không thể can thiệp trước khi tai nạn xảy ra. Va chạm giữa công nhân và xe nâng ở các điểm mù, xâm nhập trái phép vào ô robot, và vi phạm PPE (thiết bị bảo hộ cá nhân) vẫn tiếp tục gây ra thương tích và tổn thất sản xuất dù đã có camera giám sát.
+
+Deep learning hiện đại cung cấp cơ hội chuyển đổi giám sát thụ động thành hệ thống giám sát an toàn **chủ động** (proactive): một hệ thống nhận biết hành vi không an toàn ngay khi nó đang xảy ra và cảnh báo người vận hành theo thời gian thực. Hai họ mô hình thống trị trạng thái hiện tại của nghệ thuật. **YOLO** [1, 2] cung cấp khả năng phát hiện vật thể thời gian thực với throughput (thông lượng xử lý) tốt nhất trên phần cứng phổ thông. Các kiến trúc dựa trên **Transformer** [3, 4] — bao gồm RT-DETR và các Transformer video như TimeSformer và SlowFast — vượt trội trong việc mô hình hóa ngữ cảnh thời gian và các cảnh phức tạp, lộn xộn điển hình của sàn nhà máy, nhưng lại tốn kém về mặt tính toán.
+
+Không có họ nào đơn lẻ đáp ứng được yêu cầu kết hợp gồm (a) nhận thức theo từng khung hình thời gian thực, (b) suy luận thời gian qua các cửa sổ hành vi dài vài giây, và (c) triển khai trên thiết bị mà không cần kết nối vòng qua đám mây. Suy luận dựa trên đám mây (cloud-based inference) gây ra độ trễ, chi phí băng thông và rủi ro bảo mật dữ liệu — tất cả đều không thể chấp nhận trong các triển khai công nghiệp, nơi độ trễ cảnh báo 500 ms có thể là ranh giới giữa phòng ngừa và thương tích.
+
+Luận văn này nghiên cứu một kiến trúc **YOLO–Transformer** lai kết hợp throughput của một spatial encoder (bộ mã hóa không gian) YOLO với khả năng suy luận thời gian của một sequence encoder (bộ mã hóa chuỗi) Transformer, được tối ưu hóa cho edge deployment (triển khai tại thiết bị biên) trên phần cứng phổ thông.
+
+## 1.2 Phát biểu Bài toán
+
+**Đầu vào.** Luồng video liên tục từ camera giám sát nhà máy (1920×1080 @ 24 FPS).
+
+**Đầu ra.** Với mỗi cửa sổ trượt gồm T = 32 khung hình được lấy mẫu, một phân phối xác suất trên bốn lớp hành vi không an toàn:
+
+| Class ID | Tên lớp                            | Mô tả                                                  |
+| -------: | ---------------------------------- | ------------------------------------------------------ |
+|        0 | Safe-Walkway Violation             | Công nhân đi bộ ra ngoài lối đi được vẽ sơn            |
+|        1 | Unauthorized Intervention          | Công nhân xâm nhập vùng máy bị hạn chế                 |
+|        2 | Opened Panel Cover                 | Tủ điện bị để hở                                       |
+|        3 | Carrying Overload with Forklift    | Xe nâng chở tải trọng không an toàn                    |
+
+Hệ thống phải chạy ở **≥ 30 FPS** trên CPU biên phổ thông và duy trì **nhiều luồng đồng thời** mà không bị mất khung hình.
+
+## 1.3 Mục tiêu Nghiên cứu
+
+Luận văn này theo đuổi ba mục tiêu, được rút ra từ đề cương đã được phê duyệt:
+
+**Mục tiêu 1 — Kiến trúc.** Kết hợp tốc độ của phát hiện dựa trên CNN (họ YOLO) với suy luận thời gian của các sequence encoder dựa trên Transformer thành một pipeline YOLO–Transformer thống nhất để phân loại hành vi trong video.
+
+**Mục tiêu 2 — Huấn luyện & Đánh giá.** Huấn luyện, fine-tuning (tinh chỉnh) và đánh giá YOLO–Transformer trên dataset (tập dữ liệu) **Unsafe-Net** [5] — một benchmark video an toàn công nghiệp tám lớp — và đo độ chính xác so với baseline (đường cơ sở) đã công bố (YOLO v4 + ConvLSTM, 96,88 % top-1 / 95,81 % macro trên tập con unsafe 4 lớp; 95,81 % được báo cáo trong bài báo là giá trị macro của các recall theo từng lớp trong Bảng 7 của [5], trong khi top-1 được phục hồi từ ma trận nhầm lẫn Bảng 6 là 62/64).
+
+**Mục tiêu 3 — Edge Deployment.** Áp dụng các kỹ thuật tối ưu hóa mô hình (xuất ONNX, lượng tử hóa INT8, biên dịch TensorRT nếu có thể) để pipeline đáp ứng các ràng buộc đa luồng thời gian thực trên phần cứng biên (Apple M4 CPU và NVIDIA Jetson Orin Nano Super, cả hai đều được đo đầu cuối).
+
+### 1.3.1 Phạm vi điều chỉnh so với đề cương đã phê duyệt
+
+Ba cam kết trong đề cương đã được phê duyệt đã thay đổi trong quá trình thực hiện. Chúng được trình bày ở đây, ngay từ đầu, để những phát hiện trong Chương 4–6 được hiểu là kết quả khoa học có chủ đích thay vì những khoảng trống cần được khám phá.
+
+| Cam kết trong đề cương | Những gì đã được thực hiện | Lý do thay đổi |
+|---|---|---|
+| YOLO (không gian) → giai đoạn **Transformer suy luận thời gian** → MLP, với encoder được đặt tên là **RT-DETR** | **Về cơ bản đã đáp ứng:** spatial encoder YOLOv11s → temporal-reasoning head (đầu suy luận thời gian) **Transformer encoder** đa luồng → MLP. Giai đoạn Transformer thời gian *đã được* xây dựng; chỉ có encoder *RT-DETR* cụ thể bị loại bỏ. | RT-DETR là *object detector* (bộ phát hiện đối tượng) đầu cuối, không phải là sequence/temporal encoder; đề cương đã nhầm lẫn "Transformer" với "RT-DETR". Một Transformer encoder trên chuỗi khung hình hiện thực hóa trực tiếp mục đích suy luận thời gian. RT-DETR bản thân được pretrain trên COCO và sẽ đạt đến cùng ngưỡng trần bị giới hạn bởi dữ liệu, nên việc xây dựng nó sẽ không thay đổi phát hiện (lập luận trong §6.2). |
+| Độ chính xác kiểm tra **> 95,8 %** | Cấu hình zero-bbox tốt nhất (hybrid+gate, §4.6.2): **blind (mù) 53/64 (82,8 % top-1, 85,4 % macro)** — ngang bằng macro với baseline không-bbox (85,78 %) ngay cả khi blind; trường hợp tốt nhất 86,9–87,7 % macro > baseline; top-1 thấp hơn (53–54 so với 57). Bậc thang: tốt nhất 56/64 → blind 53/64. | Hơn mười hai hướng tiếp cận (bao gồm VideoMAE và cơ chế frame-gate chính xác của bài báo @1.200 bbox) đều hội tụ về ngưỡng trần ≈54/64; khoảng cách đến full-bbox bị **giới hạn bởi khối lượng dữ liệu**, không phải bởi kiến trúc (cosine ≈ 0,83 collapse, §4.6.2). "+3,5 pp macro win" trước đó là một artifact do lựa chọn test-set và bị rút lại (§4.7.11). |
+| Phân loại **8 lớp** (4 safe + 4 unsafe) | Tập con **unsafe 4 lớp** là tiêu đề chính; joint (kết hợp) 8 lớp (~78 %) và binary safe/unsafe được đưa vào phạm vi nghiên cứu tương lai (§6.4) | Tập con 4 lớp cô lập cặp nhầm lẫn WalkwayViol ↔ UnauthorInt là yếu tố chi phối toàn bộ khoảng thiếu hụt, tạo ra một đối tượng nghiên cứu rõ ràng. |
+
+Hệ quả đối với **định vị** là tường minh, và nó xác định xương sống của luận văn này. Đóng góp *không phải* là một cơ chế kiến trúc mới, và *không phải* là một con số độ chính xác cạnh tranh. Đóng góp có hai phần: **(i) một hệ thống edge-deployment thời gian thực đã được triển khai, đo đạc và mã nguồn mở hoàn toàn** (Mục tiêu 3, hoàn thành đầy đủ — Chương 5), và **(ii) một mô tả thực nghiệm nghiêm ngặt về lý do tại sao các đặc trưng phát hiện đối tượng frozen (bị đóng băng) đạt đến ngưỡng trần bị giới hạn bởi dữ liệu trên tác vụ này** (Mục tiêu 1–2, đã tạo ra chẩn đoán ngưỡng trần data-bound và phát hiện về đặc trưng lai — cấu hình zero-bbox tốt nhất đạt được ngang bằng macro với baseline không-bbox ngay cả trong đánh giá blind (§4.6.2) — thay vì con số top-1 cạnh tranh như đề xuất). Độ chính xác được trình bày một cách trung thực là *bằng chứng cho nghiên cứu thực nghiệm*, không phải là một tuyên bố cạnh tranh. Khung định vị dựa trên deployment và trung thực về mặt thực nghiệm này được tuyên bố ở đây, ngay từ đầu, và được duy trì xuyên suốt §1.4, Chương 4, và §6.2 — không được tiết lộ ở cuối.
+
+## 1.4 Đóng góp
+
+Các đóng góp được trình bày theo **thứ tự ưu tiên deployment**, phù hợp với xương sống của luận văn được tuyên bố trong §1.3.1: một mục tiêu (edge deployment) hoàn thành đầy đủ, và hai mục tiêu (kiến trúc, độ chính xác) được tái định hình thành một nghiên cứu thực nghiệm nghiêm ngặt. Độ chính xác được báo cáo trung thực là *bằng chứng cho nghiên cứu đó*, không phải là một tuyên bố cạnh tranh — bài báo gốc [5] vẫn dẫn đầu về độ chính xác, và luận văn này không tranh giành ở góc đó. Những gì nó bổ sung là một hệ thống biên đo lường được, tái tạo được mà bài báo không báo cáo, và một giải thích nhân quả về nơi khoảng cách độ chính xác tồn tại.
+
+1. **Một hệ thống edge-deployment thời gian thực đo lường được, tái tạo được, mã nguồn mở
+   (Mục tiêu 3 — hoàn thành đầy đủ).** Pipeline được huấn luyện chạy đầu cuối trên hai mục tiêu phổ thông, cả hai đều được đo (không dự đoán, không runtime độc quyền). Trên **Jetson Orin Nano Super** (USD 249–499,
+   JetPack 6.2 + TensorRT 10.3): TRT-FP16 **8,62 ms p50 / 116 FPS**
+   luồng đơn; INT8 với 256 khung thực entropy calibration ở độ chính xác FP16; **throughput 4 luồng không mất khung (88 FPS tổng hợp, Bảng 5.5C)
+   và ngâm 2 luồng liên tục trong 36,2 phút với không khung bị mất
+   ở công suất trung bình 7,0 W** (47 % ngân sách 15 W, ≈ 23 °C dưới
+   ngưỡng throttle); Pareto hiệu quả năng lượng trên các cấu hình nvpmodel
+   ; và bảng điều khiển người vận hành trực tiếp với cảnh báo
+   dual-threshold cửa sổ cuộn mà lưu lượng mạng duy nhất là metadata
+   (≈ 50 kbps, *bảo mật quyền riêng tư theo thiết kế* — khung thô không bao giờ rời khỏi
+   biên). Trên **Apple M4 CPU**: 26,8 ms p50 / 37,3 FPS, ONNX + INT8 động
+   nén ensemble (tập hợp mô hình) đã triển khai 156 → 40 MB (3,8×). Không có
+   baseline đã công bố nào cho tác vụ này báo cáo edge deployment, throughput
+   đa luồng, ngâm liên tục hay năng lượng mỗi khung. Đây là đóng góp chính
+   đã được giao. (Chương 5)
+
+2. **Một kết hợp kỹ thuật YOLO–Transformer** hiện thực hóa mục đích kiến trúc
+   của đề cương (Mục tiêu 1, về cơ bản đã đáp ứng): một spatial encoder YOLOv11s frozen
+   kết hợp với một temporal-reasoning head **Transformer encoder** đa luồng
+   trên appearance (ngoại hình), các đạo hàm thời gian bậc 1/2, và các luồng
+   windowed-statistics, kết thúc bằng MLP. Giai đoạn Transformer thời gian
+   hiện thực hóa "suy luận thời gian" mà đề cương hướng đến; encoder RT-DETR cụ thể
+   đã bị loại bỏ trên cơ sở có nguyên tắc (§1.3.1). Kết hợp này tái sử dụng
+   các khối xây dựng có sẵn — đây là một artifact, không phải cơ chế mới — và
+   các luồng thời gian không cho thấy độ tăng độ chính xác đo được trên dataset này (§4.7.8),
+   bản thân đó là một phát hiện về tín hiệu chủ yếu theo từng khung của Unsafe-Net.
+   (Chương 3; §6.2 để đọc trung thực)
+
+3. **Nghiên cứu thực nghiệm toàn diện** về các cách tiếp cận frozen-backbone trên
+   Unsafe-Net spanning 10 hướng thí nghiệm (V3, V5, V6-det, V6-ft,
+   VideoMAE, Final sweep, V7 YOLO-World, V8 CrossEns, V9 Pairwise,
+   V10 bbox-finetune), hơn 100 mô hình được huấn luyện, với ba hướng được báo cáo
+   chi tiết trong Ch4: V7 (macro tốt nhất 89,54 %, UnauthorInt = 100 %), V9
+   (top-1 tốt nhất, 56/64), và V10 (kết quả âm, 54/64). Hơn mười
+   lựa chọn kiến trúc độc lập — bao gồm backbone VideoMAE 86 triệu tham số
+   và fine-tuning đầu cuối — đều hội tụ về cùng
+   ngưỡng trần ≈ 54/64 (blind tốt nhất là 53/64; frozen single-head
+   blind là ≈ 52/64, §4.7.11; đóng góp §1.4 số 5). Việc một backbone video SOTA
+   không đánh bại các đặc trưng YOLO frozen là bằng chứng chính rằng khoảng cách còn lại là **data-bound (bị giới hạn bởi dữ liệu), không phải
+   architecture-bound (bị giới hạn bởi kiến trúc)**. (Chương 4)
+
+4. **Lý do tại sao góc zero-annotation không thể được cải thiện với giám sát bbox ngân sách nhỏ** — một giả thuyết bị bác bỏ (V10) cộng với
+   bài kiểm tra chuyển giao cross-dataset. Tự chú thích 400 khung với
+   các bounding box lớp hành vi và fine-tuning YOLOv11s trên chúng
+   *giảm* xuống 54/64; cross-ensembling (tập hợp chéo) các nhánh frozen và bbox-finetuned
+   chặn ở 55/64. Một **zero-shot transfer probe (thử nghiệm chuyển giao zero-shot) bổ sung
+   trên 267 clip dị thường UCF-Crime (Burglary, Fighting, RoadAccidents)**
+   cho thấy ensemble đã huấn luyện chỉ định tuyến **15,7 %** clip đến
+   *UnauthorInt* — *thấp hơn* mức baseline đồng đều 25 %, tức là head
+   chủ động định tuyến *tránh xa* kết quả khớp ngữ nghĩa gần nhất — và **78 %**
+   đến *CarryOverload* (= lớp huấn luyện nhỏ nhất, không có sự chồng lấp
+   thị giác với trộm cắp, đánh nhau hay tai nạn giao thông), trong khi duy trì
+   độ tin cậy cao (mean max-prob 0,747 so với 0,804 in-domain; **88 %**
+   dự đoán trên 0,5). Kết hợp với
+   cosine probe đặc trưng thô (0,94–0,996 giữa các cặp safe/unsafe giống nhau về thị giác),
+   điều này khoanh vùng thiếu hụt 6 mẫu vào việc thiếu chú thích ranh giới vùng
+   thay vì thiếu năng lực mô hình, và
+   cho thấy head đã học một **bộ phân loại đặc thù cho Unsafe-Net**, không phải là khái niệm
+   hành vi không an toàn chung. Do đó góc của bài báo bị **giới hạn bởi khối lượng chú thích và domain**; nó chỉ thay đổi với
+   dữ liệu ở quy mô bài báo (~lớn hơn một bậc độ lớn) và giám sát bbox đa dạng hơn. (Chương 4 §4.5–§4.6, §4.8.5)
+
+5. **Kiểm toán độ chặt chẽ đánh giá và data leakage (rò rỉ dữ liệu) — lõi phương pháp luận.**
+   Luận văn này áp dụng một **blind held-out protocol (giao thức giữ lại blind)** loại bỏ
+   data leakage lựa chọn mô hình trên test-set có trong pipeline gốc:
+   epoch, cấu hình ensemble và seed đều được chọn trên một lát
+   validation được tách ra từ tập huấn luyện, với tập kiểm tra 64 clip
+   được chạm đúng một lần. Điều này phơi bày ≈4–5 mẫu của 56/64 tốt nhất
+   là optimism do lựa chọn. Trên pipeline frozen single-head,
+   ước tính blind là ≈52/64; **cấu hình zero-bbox tốt nhất
+   (hybrid+gate, §4.6.2) nâng lên blind 53/64 (85,4 % macro)** —
+   ngang bằng macro với baseline không-bbox ngay cả dưới giao thức trung thực.
+   Được báo cáo là một bậc thang minh bạch (tốt nhất 56/64 → blind 53/64). Dưới
+   lựa chọn cấu hình blind, cascade pairwise-contrastive bị
+   loại bỏ trên *mọi* seed — head direct-4 đơn nhất quán
+   tốt nhất — vì vậy cascade được báo cáo trung thực là một thành phần đã thử nhưng không hữu ích,
+   không phải là đóng góp. Kiểm toán cũng **rút lại** con số
+   "57/64 calibrated" được báo cáo ban đầu (điều chỉnh sai lệch test-set; train-fit trung thực
+   giảm test xuống 53,4 ± 1,2 / 64), và báo cáo khoảng tin cậy bootstrap 5.000 mẫu
+   và cosine probe nhúng [CLS] định lượng raw-feature
+   collapse (0,82–0,93) và phục hồi ở cấp head (WalkwayViol ↔
+   UnauthorInt cosine 0,834 → 0,375). (Chương 4 §4.7)
+
+6. **Các artifact mã nguồn mở có thể tái tạo** — tất cả trọng số đã huấn luyện, xuất ONNX, các
+   mô hình INT8-quantized, báo cáo parity, đầu ra JSON ablation, các hình t-SNE,
+   CSV per-clip theo giấy phép CC BY 4.0, và nhật ký benchmark đều
+   được bao gồm trong `deployment/artifacts/`, `sweep_results/ablations/`,
+   và `figures/`, và có thể được thực thi lại đầu cuối từ
+   các script `run_ablation_*.py` và `plot_figures_binary.py`.
+
+## 1.5 Phạm vi và Giới hạn
+
+**Trong phạm vi.** Phân loại hành vi trên tập con unsafe 4 lớp của Unsafe-Net;
+các cách tiếp cận frozen-backbone + trained-head; triển khai ONNX + INT8
+trên Apple M4 CPU; **triển khai TensorRT FP16/INT8 với dữ liệu cross-precision,
+đa luồng và ngâm liên tục 36 phút được đo trên Jetson Orin Nano Super
+(§5.6)**.
+
+**Ngoài phạm vi.** Fine-tuning *ở quy mô bài báo* YOLOv11 trên các chú thích
+bounding box theo từng khung của Unsafe-Net (chế độ huấn luyện của bài báo gốc)
+— các bounding box của Unsafe-Net không được phát hành công khai tại
+thời điểm viết. Một thử nghiệm thí điểm trên 400 khung đã được thực hiện và được
+báo cáo là kết quả âm (V10, §4.6); việc mở rộng nỗ lực đó thêm một bậc độ lớn
+được phác thảo là hướng nghiên cứu tương lai trong Mục 6.2.
+Đặc trưng hóa biên đa SKU (AGX Orin, Orin NX) và chụp camera USB trực tiếp
+trong bảng điều khiển được hoãn lại cho nghiên cứu tương lai.
+
+**Giới hạn chính và định vị.** Luận văn không đạt kết quả full-bbox của bài báo
+(95,81 % macro) và không tuyên bố đạt được. Cấu hình zero-bbox tốt nhất của nó — **pipeline
+frame-gate lai (frozen ⊕ detection-finetuned)** (§4.6.2) — đạt **blind 53/64 (82,8 % top-1,
+85,4 % macro)**: ngang bằng macro với baseline không-bbox đã công bố (85,78 %)
+*ngay cả dưới giao thức blind*, và tốt nhất 86,9–87,7 % macro
+*vượt qua* nó, trong khi vẫn thấp hơn về top-1 (53–54/64 so với 57/64). Khoảng cách
+đến góc full-bbox được chứng minh là **bị giới hạn bởi khối lượng dữ liệu** — ngưỡng trần
+≈54/64 giữ vững trên hơn 12 hướng bao gồm cơ chế frame-gate chính xác của bài báo
+được sao chép tại 1.200 khung bbox (§4.6.2), vì vậy con đường còn lại là chú thích
+ở quy mô bài báo (≥ 2.262 khung), không phải một kiến trúc khác. Giá trị
+đã được giao của luận văn là hệ thống edge-deployment (Mục tiêu 3), chẩn đoán
+cơ chế đã được hiệu chỉnh, và phát hiện đặc trưng lai — một điểm Pareto-optimal
+(cạnh tranh về macro với chi phí bbox bằng không, cộng với edge), không phải một
+con số top-1 cạnh tranh đơn lẻ.
+
+## 1.6 Cấu trúc Luận văn
+
+- **Chương 2 — Các Nghiên cứu Liên quan** khảo sát các bộ phát hiện YOLO, các Transformer video,
+  và các benchmark giám sát an toàn công nghiệp, định vị đóng góp
+  so với các nghiên cứu trước.
+- **Chương 3 — Phương pháp Luận** mô tả dataset Unsafe-Net, kiến trúc
+  YOLO–Transformer, thiết kế temporal fusion đa luồng,
+  pipeline huấn luyện và quy trình ensemble / calibration.
+- **Chương 4 — Thí nghiệm và Kết quả** ghi lại 9 hướng thí nghiệm,
+  phân tích độ chính xác theo từng lớp, phân tích nhầm lẫn và phân tích
+  khoảng cách hỗ trợ kết luận data-not-architecture.
+- **Chương 5 — Edge Deployment** báo cáo xuất ONNX, lượng tử hóa INT8,
+  các benchmark độ trễ M4 CPU, đo lường pipeline đa luồng,
+  và **triển khai Jetson Orin Nano Super được đo** (benchmark cross-precision, throughput
+  4 luồng không mất khung + ngâm liên tục 36,2 phút 2 luồng, Pareto hiệu quả năng lượng,
+  bảng điều khiển người vận hành trực tiếp, và ánh xạ threat-model-to-control).
+- **Chương 6 — Kết luận** tóm tắt bốn phát hiện chính,
+  các giới hạn (kích thước test-set, xác nhận single-dataset, thí điểm bbox 400 khung,
+  các ablation đang chờ retraining, đo lường biên single-SKU),
+  và con đường nghiên cứu tương lai được ưu tiên tập trung vào chú thích bbox
+  ở quy mô bài báo và xác nhận cross-domain.
+
+---
+
+## References
+
+Đánh số theo từng chương; sẽ được hợp nhất thành thư mục tham chiếu thống nhất khi
+biên soạn luận văn cuối cùng.
+
+[1] J. Redmon, S. Divvala, R. Girshick, A. Farhadi, "You Only Look Once:
+    Unified, Real-Time Object Detection," *Proc. IEEE Conf. Computer
+    Vision and Pattern Recognition (CVPR)*, 2016, pp. 779–788.
+    arXiv:1506.02640. DOI: 10.1109/CVPR.2016.91.
+
+[2] Ultralytics, "YOLO11 — Documentation," 2024. [Online]. Available:
+    https://docs.ultralytics.com/models/yolo11/ (accessed 2026-04).
+
+[3] A. Vaswani et al., "Attention Is All You Need," *Advances in Neural
+    Information Processing Systems (NeurIPS)*, vol. 30, 2017.
+    arXiv:1706.03762.
+
+[4] Y. Zhao et al., "DETRs Beat YOLOs on Real-time Object Detection,"
+    *Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR)*,
+    2024, pp. 16965–16974. arXiv:2304.08069.
+
+[5] K. B. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based
+    computer vision system for real-time detection of unsafe behaviours in
+    workplace," *Multimedia Tools and Applications*, vol. 84, pp. 34967–
+    34993, 2025. DOI: 10.1007/s11042-024-19276-8.

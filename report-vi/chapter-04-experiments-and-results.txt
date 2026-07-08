@@ -1,0 +1,803 @@
+# Chương 4 — Thực nghiệm và Kết quả
+
+Mục tiêu 2 của luận văn này là huấn luyện và đánh giá mô hình YOLO–Transformer
+trên tập dữ liệu Unsafe-Net, đồng thời so sánh với kết quả cơ sở 96,88 % top-1 (95,81 % macro) được báo cáo bởi
+Önal & Dandıl (2024) [17]. Chương này ghi lại toàn bộ mười
+lượt thực nghiệm được tiến hành trong suốt quá trình thực hiện đề tài, mỗi lượt là
+một nỗ lực có nguyên tắc nhằm thu hẹp khoảng cách độ chính xác thông qua một giả thuyết
+kiến trúc hoặc huấn luyện khác nhau. Mục 4.1 trình bày giao thức đánh giá.
+Mục 4.2 tóm tắt 10 lượt thực nghiệm và trình bày chi tiết 3 kết quả tốt nhất trong từng nhóm
+(V7 macro tốt nhất, V9 top-1 tốt nhất, V10 kết quả âm tính). Mục 4.3
+báo cáo kết quả tốt nhất (**ensemble 56/64, 89,28 % macro** —
+được chọn theo tập kiểm tra; con số hiệu chỉnh 57/64 đã được báo cáo trước đó được
+phân loại lại trong §4.7.7 là điều chỉnh trên tập kiểm tra), trong khi **§4.7.11 xác lập pipeline single-head đông lạnh (frozen single-head) mù (blind) ở
+≈ 52/64 (≈ 81 % top-1, macro ≈ 84 %); cấu hình zero-bbox tốt nhất
+(hybrid + frame-gate, §4.6.2) nâng kết quả lên 53/64 (82,8 % top-1,
+85,4 % macro) — đây là kết quả chính thức có thể bảo vệ được của luận văn, đạt ngang bằng macro với
+cơ sở không có bbox ngay cả trong điều kiện mù.** Mục 4.4
+trình bày phân tích theo từng lớp và
+phân tích ma trận nhầm lẫn (confusion). Mục 4.5 chẩn đoán các đoạn video bị phân loại sai liên tục
+và lập luận rằng khoảng cách còn lại là do thiếu
+các nhãn bounding-box.
+
+## 4.1 Giao thức Đánh giá
+
+**Tập con kiểm tra.** Tập con 4 lớp không an toàn (64 đoạn video held-out — dữ liệu giữ lại), tương ứng với
+ma trận nhầm lẫn được báo cáo trong Bảng 6 của [17].
+
+**Các chỉ số.**
+- **Độ chính xác top-1**: argmax của phân phối ensemble so với nhãn thực tế.
+- **Độ chính xác macro**: trung bình của các độ chính xác theo từng lớp; được báo cáo vì
+  phân phối lớp không đồng đều (32 / 11 / 13 / 8).
+- **Độ chính xác theo lớp**: `correct_c / total_c` cho mỗi lớp; hữu ích để
+  so sánh trực tiếp với Bảng 7 của bài báo.
+
+**Cấu hình suy luận.** T = 32 khung hình (frame) được lấy mẫu đồng đều mỗi đoạn video,
+độ phân giải 224 × 224, chuẩn hóa ImageNet. Không có tăng cường dữ liệu tại thời điểm kiểm tra (test-time augmentation)
+(hflip đã được đánh giá và loại bỏ — xem §4.2.3). Hiệu chỉnh nhiệt độ (temperature
+calibration) sử dụng một vô hướng T* duy nhất được khớp trên một tập con 12 đoạn video held-out
+từ tập huấn luyện.
+
+**Phần cứng.** Tất cả các thực nghiệm chạy trên Apple MacBook Pro M4 (CPU 12 nhân,
+GPU 18 nhân, 36 GB bộ nhớ hợp nhất, backend MPS). Thời gian huấn luyện mỗi
+thực nghiệm được tóm tắt trong Bảng 4.1.
+
+**Công khai — tái sử dụng tập kiểm tra trong quá trình huấn luyện đầu phân loại.** Tập con kiểm tra
+64 đoạn video không an toàn đã được sử dụng như *tập kiểm định trong quá trình huấn luyện đầu phân loại*:
+mỗi đầu phân loại trong `run_pairwise_contrastive.py` chọn epoch tốt nhất theo
+độ chính xác tập kiểm tra (tiêu chí dừng sớm tại `train_classifier:255`).
+Điều này có nghĩa là *các đầu phân loại riêng lẻ* được tiếp xúc với nhãn kiểm tra để lựa chọn mô hình,
+mặc dù tập kiểm tra không được dùng cho quá trình cập nhật gradient. Hai
+hệ quả được ghi nhận trung thực: (a) độ chính xác theo từng đầu phân loại trong §4.7.1 và
+§4.7.2 là giới hạn trên so với những gì đánh giá held-out mù thực sự sẽ cho kết quả;
+(b) cuộc kiểm toán §4.7.7 về hiệu chỉnh bias hậu kỳ (con số 57/64 đã báo cáo ban đầu)
+là một *lớp* điều chỉnh trên tập kiểm tra riêng biệt chồng lên quá trình lựa chọn mô hình
+theo từng đầu phân loại — và chính lớp bias hậu kỳ này đã bị rút lại (Bảng 4.13a). Con số ensemble tốt nhất 56/64
+kế thừa quá trình điều chỉnh theo từng đầu phân loại nhưng không thêm bước hiệu chỉnh nào nữa.
+**Sự rò rỉ này không chỉ được ghi nhận — mà còn được đo lường và loại bỏ
+trong §4.7.11**, nơi epoch, cấu hình và seed đều được chọn trên một tập
+kiểm định được tách ra từ tập *huấn luyện*: độ chính xác held-out mù trung thực kết quả là ≈ 52/64 (≈ 81 % top-1, macro ≈ 84 %), và
+con số mù đó — chứ không phải 56/64 tốt nhất — là kết quả độ chính xác có thể bảo vệ được của luận văn. Checkpoint 56/64 chỉ được giữ lại vì đó là
+checkpoint được triển khai trong Chương 5.
+
+## 4.2 Các Lượt Thực nghiệm
+
+Hai lượt thực nghiệm tạo ra các chỉ số tiêu đề của luận văn và được báo cáo
+chi tiết trong mục này: **V9 — Ensemble contrastive theo cặp (pairwise contrastive ensemble)** (top-1
+tốt nhất: 56/64 = 87,5 %) và **V7 — Đặc trưng từ từ vựng mở YOLO-World (YOLO-World open-vocabulary features)**
+(macro tốt nhất: 89,54 %, với 100 % trên UnauthorInt). Lượt thứ ba, **V10
+— Fine-tune bbox theo lớp hành vi (Behaviour-class bbox finetune)** (54/64), *không* cải thiện độ chính xác
+nhưng được giữ lại như một kết quả âm tính xác định nguyên nhân của
+khoảng cách còn lại (§4.6). Sáu lượt trước đó (V3, V5, V6-det, V6-ft,
+VideoMAE, Final sweep, CrossEns) đều hội tụ về ngưỡng trần 52–55/64
+và được lưu trữ trong `sweep_results/` và lịch sử git của dự án tại
+commit 854554a; kết luận chính của chúng — rằng không có biến thể backbone đông lạnh nào
+vượt qua ngưỡng 55 mẫu — được tóm tắt trong §4.5
+(bằng chứng bị ràng buộc bởi dữ liệu).
+
+**Bảng 4.1 — Các lượt thực nghiệm được giữ lại**
+
+|  # | Lượt       | Phương pháp                                                          |   Tốt nhất | Macro %  | Phát hiện chính                                              |
+| -: | ----------- | --------------------------------------------------------------- | -----: | -------: | -------------------------------------------------------- |
+|  7 | YOLO-World  | Backbone từ vựng mở YOLO-World-v2 + đầu Transformer       |  55/64 | **89,54** | **Macro tốt nhất**; phát hiện người 99 %, UnauthorInt = 100 %     |
+|  9 | Pairwise    | Contrastive 8 lớp + direct4 + cascade theo cặp kịch bản           | **56/64** | 89,28 | **Top-1 tốt nhất**; lượt duy nhất vượt ngưỡng 55 mẫu |
+| 10 | V10-bbox    | Fine-tune bbox theo lớp hành vi (400 khung hình) + cùng pipeline đầu phân loại |  54/64 |   84,73  | Kết quả âm tính: bị ràng buộc bởi khối lượng dữ liệu (§4.6)                 |
+
+### 4.2.1 V7 — Đặc trưng từ vựng mở YOLO-World (macro tốt nhất 89,54 %)
+
+Giả thuyết: Tính năng nhắc nhở từ vựng mở (open-vocabulary prompting) của YOLO-World cho phép
+phát hiện zero-shot các danh mục ("worker" — công nhân, "forklift" — xe nâng, "restricted zone" — khu vực hạn chế) không
+có trong COCO. Việc thay thế backbone YOLOv11s bằng YOLO-World-v2
+và chạy cùng pipeline đầu Transformer cho kết quả **độ chính xác macro cao nhất trong tất cả các lượt (89,54 %)** và **100 % trên
+lớp UnauthorInt** — lớp phụ thuộc nhiều nhất vào việc phân biệt
+"ai/cái gì đang ở trong khu vực này". Top-1 giữ nguyên ở 55/64, cho thấy
+phát hiện từ vựng mở giúp cân bằng macro theo từng lớp
+nhưng không bổ sung thông tin ranh giới khu vực còn thiếu cần thiết để
+phá vỡ ngưỡng trần 55 mẫu top-1. Backbone YOLO-World được giữ lại
+trong `sweep_results/yoloworld/` như một đầu vào thay thế hoàn toàn tương thích mà
+ensemble trong §4.2.2 có thể kết hợp khi các chỉ số cân bằng macro được
+ưu tiên hơn top-1 thô.
+
+### 4.2.2 V9 — Ensemble contrastive theo cặp (top-1 tốt nhất 56/64, macro 89,28 %)
+
+Lượt cuối cùng kết hợp ba ý tưởng:
+
+1. **Huấn luyện contrastive theo cặp (pairwise contrastive training)** — bốn đầu nhị phân chuyên biệt cho
+   mỗi cặp lớp có nét tương đồng về mặt thị giác (0-1, 0-2, 0-3, 2-3), được huấn luyện với
+   hàm mất mát triplet margin trên các nhúng [CLS].
+2. **Cascade theo cặp kịch bản (Scenario-pair cascade)** — `p_cascade = p_scenario × p_pair`, như
+   được định nghĩa trong §3.5.
+3. **Ensemble trung bình direct4 + cascade** — tổ hợp 0,5 / 0,5 của
+   bộ phân loại 4 lớp trực tiếp và phân phối cascade.
+
+Kết quả: **56/64 top-1 (87,5 %), 89,28 % macro** — chính xác hơn một mẫu
+so với ngưỡng ≈55/64 trước đó và là **lần đầu tiên trong toàn bộ dự án này
+bất kỳ thực nghiệm nào vượt qua ngưỡng 55 mẫu**. Mã nguồn trước đó đã thêm tìm kiếm bias theo lớp cho kết quả 57/64, nhưng
+§4.7.7 (Bảng 4.13a) cho thấy hướng bias đặc thù cho 64 nhãn kiểm tra — việc khớp lại cùng tìm kiếm đó một cách trung thực trên tập huấn luyện
+*làm giảm* độ chính xác kiểm tra xuống 53,4 ± 1,2 / 64. Con số 57/64 bị rút lại; top-1 tốt nhất (được chọn theo tập kiểm tra) là **56/64**, trong khi
+top-1 held-out mù trung thực của pipeline này là **≈ 52/64** (§4.7.11).
+Phân tích theo từng lớp có trong §4.3.
+
+### 4.2.3 Bị loại bỏ: Tăng cường dữ liệu tại thời điểm kiểm tra (hflip)
+
+Một nỗ lực cuối cùng để tăng số mẫu qua TTA (`run_tta_track_a.py`, được commit
+là 97698d1) đã đánh giá ba biến thể: baseline, lật ngang (horizontal flip) và
+dịch chuyển thời gian ±4 khung hình. Biến thể hflip đã **làm giảm** độ chính xác đầu direct4
+từ 55 xuống 34 mẫu đúng. Chẩn đoán: các cảnh giám sát nhà máy
+không có tính đối xứng ngang — hướng đi của công nhân dọc theo hành lang
+là một đặc trưng phân biệt cho lớp WalkwayViol —
+do đó hflip phá hủy thay vì tăng cường dữ liệu. Vì vậy TTA bị loại khỏi
+kết quả tiêu đề.
+
+## 4.3 Kết quả Tiêu đề
+
+> **Đọc bảng này như một giới hạn trên tốt nhất, không phải là độ chính xác tiêu đề.**
+> 56/64 dưới đây là checkpoint *được chọn theo tập kiểm tra* (epoch, seed và thành phần
+> ensemble đều được chọn dựa trên tập kiểm tra 64 đoạn video). **Kết quả tiêu đề trung thực, có thể bảo vệ được của luận văn là 53/64 (82,8 % top-1, 85,4 % macro) cho
+> cấu hình zero-bbox tốt nhất (hybrid + frame-gate, §4.6.2).** Ước tính mù single-head đông lạnh là ≈ 52/64 (≈ 81 % top-1, macro ≈ 84 %), được xác lập trong
+> §4.7.11. Con số 56/64 được giữ lại ở đây vì đó là checkpoint
+> thực sự được triển khai trong Chương 5. "Cải thiện +3,5 pp macro" so với cơ sở không có bbox
+> (Bảng 4.3) **không** tồn tại qua giao thức mù và bị rút lại
+> (§4.7.11).
+
+Các con số tốt nhất được báo cáo (trích từ `sweep_results/pairwise/
+results.json`):
+
+**Bảng 4.2 — Kết quả tốt nhất (ensemble được chọn theo tập kiểm tra: direct4_s314 + cascade_s7)**
+
+| Chỉ số                                | Giá trị                          |
+| ------------------------------------- | ------------------------------ |
+| Top-1 tốt nhất (ensemble, được chọn theo tập kiểm tra) | **56/64 = 87,5 %** (giới hạn trên) |
+| **Single-head đông lạnh mù (pipeline gốc, §4.7.11)** | **≈ 52/64 ≈ 81 %** |
+| **Hybrid+gate mù (cấu hình zero-bbox tốt nhất, §4.6.2) — kết quả tiêu đề trung thực** | **53/64 = 82,8 % top-1 \| 85,4 % macro** |
+| Top-1 với hiệu chỉnh tìm kiếm bias *(bị rút lại — điều chỉnh tập kiểm tra, §4.7.7)* | 57/64 = 89,1 % |
+| Độ chính xác macro (ensemble tốt nhất)   | 89,28 % (mù ≈ 84 %)         |
+| Các thành viên ensemble                      | direct4_s314, scenario_s7 × pair{0-3}_s7 (cascade) |
+
+So sánh với cơ sở của bài báo:
+
+**Bảng 4.3 — So sánh với Önal & Dandıl (2024) [17]**
+
+| Hệ thống                                                    | Top-1 4 lớp                  | Macro %                                       |
+| --------------------------------------------------------- | -----------------------------: | --------------------------------------------: |
+| Bài báo: chỉ ConvLSTM (ma trận nhầm lẫn Bảng 5 của [17])          |  57/64 = **89,06**             | 85,78 (Bảng 7 — trung bình recall theo lớp)   |
+| Bài báo: YOLO v4 + ConvLSTM (ma trận nhầm lẫn Bảng 6 của [17])     |  62/64 = **96,88**             | **95,81** (Bảng 7 — trung bình recall theo lớp) |
+| Của chúng tôi: ensemble (direct4 + cascade) — **tốt nhất (được chọn theo tập kiểm tra)** |  56/64 = 87,50             | 89,28                                     |
+| Của chúng tôi: single-head đông lạnh mù (§4.7.11) |  **≈ 52/64 ≈ 81 %**           | **≈ 84 %**                                |
+| Của chúng tôi: hybrid+gate — **mù (trung thực, §4.6.2)** |  **53/64 = 82,8 %**  | **85,4 % (macro ngang bằng cơ sở không có bbox)**  |
+| Của chúng tôi: ensemble + hiệu chỉnh tìm kiếm bias *(bị rút lại — §4.7.7)* | ~~57/64 = 89,06~~        | —                                             |
+
+## 4.4 Phân tích Theo từng Lớp
+
+**Bảng 4.4 — Độ chính xác theo lớp so với bài báo (Bảng 7 của [17])**
+
+| ID lớp | Tên                 | n | Của chúng tôi (ensemble tốt nhất) — % theo lớp | Bài báo ConvLSTM (Bảng 7) — % theo lớp | Bài báo YOLO+ConvLSTM (Bảng 6) — % theo lớp |
+| -------: | -------------------- | -: | -----------------------: | -----------------------: | -----------------------: |
+|        0 | WalkwayViol          | 32 |    27/32 = 84,38         |    31/32 = 96,88         |    **32/32 = 100,00**    |
+|        1 | UnauthorInt          | 11 |     8/11 = 72,73         |    9/11  = 81,82         |       10/11 = 90,91      |
+|        2 | **OpenedPanel**      | 13 | **13/13 = 100,00**       |   10/13  = 76,92         |       12/13 = 92,31      |
+|        3 | **CarryOverload**    |  8 |  **8/8 = 100,00**        |    7/8   = 87,50         |    **8/8 = 100,00**      |
+|          | **Top-1 (tổng thể)**  | 64 |  **56/64 = 87,50 %**     |   57/64 = 89,06 %         |   **62/64 = 96,88 %**    |
+|          | **Macro (trung bình 4 lớp)** | — |  **89,28 %**             |   85,78 % (báo cáo trong bài báo, Bảng 7) |  **95,81 %** (báo cáo trong bài báo, Bảng 7) |
+
+**Nhận xét.**
+
+- **OpenedPanel và CarryOverload đạt mức bão hòa.** Pipeline backbone đông lạnh
+  cho kết quả phân loại hoàn hảo trên hai lớp này, sánh ngang
+  (CarryOverload) hoặc vượt trội (OpenedPanel +7,69 điểm phần trăm) so với hệ thống
+  YOLO+ConvLSTM của bài báo. Các lớp này bị chi phối bởi các đặc điểm cảnh
+  đặc trưng (một tủ điện mở, một xe nâng chở quá tải) vốn đã
+  nổi bật trong các đặc trưng được huấn luyện trước trên COCO.
+
+- **WalkwayViol và UnauthorInt chiếm toàn bộ khoảng cách.** Bài báo
+  đạt 32/32 và 10/11 trên hai lớp này; luận văn này đạt
+  27/32 và 8/11. Tất cả sáu mẫu bị sai đều đến từ hai lớp này.
+  §4.5 lập luận rằng hai lớp này không thể được phân biệt đáng tin cậy từ
+  các đặc trưng COCO đông lạnh.
+
+## 4.5 Phân tích Lỗi Liên tục
+
+**Bảng 4.5 — 9 đoạn video bị phân loại sai liên tục (ensemble pairwise)**
+
+| # | Lớp thực tế     | Dự đoán   | Độ tin cậy | Chẩn đoán                                                                 |
+| -: | ------------- | ----------- | ---------: | ------------------------------------------------------------------------- |
+|  1 | WalkwayViol   | UnauthorInt |    80–90 % | Công nhân gần thiết bị; đặc trưng truy cập trái phép chiếm ưu thế                  |
+|  2 | WalkwayViol   | UnauthorInt |    80–90 % | (giống #1)                                                              |
+| 14 | WalkwayViol   | OpenedPanel |     56 %   | Cảnh mơ hồ độ tin cậy thấp                                            |
+| 29 | WalkwayViol   | UnauthorInt |    80–90 % | (giống #1)                                                              |
+| 30 | WalkwayViol   | UnauthorInt |    80–90 % | (giống #1)                                                              |
+| 37 | UnauthorInt   | WalkwayViol |    94–96 % | Công nhân đi bộ; đặc trưng lối đi chiếm ưu thế                                     |
+| 38 | UnauthorInt   | WalkwayViol |    94–96 % | (giống #37)                                                             |
+| 44 | OpenedPanel   | WalkwayViol |     67 %   | Công nhân làm nền trước cảnh; bảng điện không nổi bật về mặt thị giác                      |
+| 51 | OpenedPanel   | UnauthorInt |     74 %   | Công nhân đứng gần bảng điện; ý định mơ hồ                              |
+
+**Xu hướng.** Sáu trong chín lỗi (67 %) thuộc về cặp nhầm lẫn
+**WalkwayViol ↔ UnauthorInt** — hai lớp giống hệt nhau
+ở cấp độ token (một công nhân đang có mặt trong khu vực hạn chế). **Yếu tố phân biệt là khu vực hạn chế nào**: ranh giới lối đi
+so với khu vực tiếp cận máy móc. Thông tin này mang tính hình học, không phải quang trắc.
+
+**Bằng chứng về ngưỡng trần bị ràng buộc bởi dữ liệu.**
+
+1. **Tất cả mười lượt thực nghiệm được thực hiện (V3, V5, V6-det, V6-ft,
+   VideoMAE, Final sweep, YOLO-World, CrossEns, Pairwise, V10-bbox)
+   đều hội tụ về ≤56/64.** Hầu hết cho 52–55 mẫu đúng; chỉ V9
+   (Pairwise) vượt qua đúng một mẫu, và V10 (fine-tune bbox, §4.6) *thụt lùi* xuống 54/64 dù thêm 8,6 giờ huấn luyện. Kết quả chi tiết theo từng lượt cho tám lượt không
+   được báo cáo trong §4.2 được lưu trong `sweep_results/`.
+
+2. **Một mô hình lớn hơn 17 lần đạt cùng ngưỡng trần.** VideoMAE-base (86 M
+   tham số, huấn luyện trước tự giám sát Kinetics-400) đạt 55/64 ≈
+   YOLOv11s (5 M tham số) = 55/64. Năng lực mô hình không phải ràng buộc
+   ràng buộc.
+
+3. **Phát hiện từ vựng mở chỉ cải thiện chỉ số macro.**
+   YOLO-World (V7, §4.2.1) đạt 99 % phát hiện người trên Unsafe-Net
+   và nâng macro accuracy lên 89,54 % (UnauthorInt = 100 %), nhưng
+   top-1 giữ nguyên ở 55/64 vì phát hiện "có một người ở đây" không
+   trả lời được câu hỏi "đây là khu vực hạn chế A hay B?"
+
+4. **Độ tương đồng ở cấp độ đặc trưng xác nhận điều này.** Các cặp
+   đoạn video WalkwayViol / UnauthorInt tạo ra độ tương đồng cosine nhúng [CLS]
+   trong khoảng 0,94–0,996 — hai lớp này gần như
+   đồng tuyến (colinear) trong không gian biểu diễn đông lạnh. §4.8.1
+   báo cáo chi tiết hình học.
+
+**Kết luận.** Kết quả 95,81 % của bài báo phụ thuộc vào một tín hiệu huấn luyện không
+có sẵn cho luận văn này: các nhãn bounding-box theo từng khung hình mã hóa
+lớp hành vi như là một lớp detector. Bộ phát hiện YOLO v4 của bài báo là
+nhận thức hành vi (nó phát hiện "WalkwayViolation" như một lớp đối tượng, chứ không phải
+"person" — người); YOLOv11s của chúng tôi không nhận thức hành vi (nó chỉ phát hiện "person").
+§4.6 báo cáo một kiểm tra thực nghiệm trực tiếp về lập luận này.
+
+## 4.6 V10 — Fine-tune bbox nhận thức hành vi (kết quả âm tính)
+
+Để kiểm tra lập luận bị ràng buộc bởi dữ liệu một cách thực nghiệm thay vì dựa vào
+bằng chứng gián tiếp, ~50 khung hình mỗi lớp (400 khung hình, 8 lớp) đã được
+chú thích thủ công với các bounding-box theo lớp hành vi (`annotation_guide/
+annotations/`, định dạng YOLO). YOLOv11s sau đó được fine-tune trên các nhãn
+phát hiện theo lớp hành vi này trong 100 epoch, và cùng pipeline đầu phân loại
+direct4 / scenario / pair / cascade của §3.3–§3.5 được
+huấn luyện lại trên các đặc trưng được trích xuất từ backbone đã fine-tune.
+
+**Mối đe dọa về tính hiệu lực — thiết kế một người chú thích.** Tất cả 400 khung hình bbox
+được chú thích bởi một người duy nhất (tác giả) trong một phiên gán nhãn liên tục,
+không có thống kê thỏa thuận liên rater (inter-rater agreement) hay đánh giá lần hai. Hai thiên kiến hệ thống phát sinh từ đây và được
+công bố để kết quả âm tính không bị diễn giải quá mức:
+(i) quy ước về độ chặt chẽ của hộp và ranh giới giữa WalkwayViol
+và UnauthorInt được giải quyết theo phán đoán của người chú thích, không có
+Cohen's κ; (ii) việc lựa chọn khung hình (~50/lớp) mang tính chủ đích —
+ưu tiên các khung hình rõ ràng hơn về mặt thị giác — điều này
+làm thiên lệch phân phối huấn luyện về phía phần dễ hơn của mỗi lớp.
+Những điểm yếu thiết kế này *củng cố* kết quả âm tính: ngay cả một phân phối chú thích
+thuận lợi cũng không thể nâng V10 lên trên ngưỡng trần frozen-COCO ở khối lượng này,
+do đó một giao thức nghiêm ngặt hơn (nhiều rater, lấy mẫu ngẫu nhiên) khó có thể đảo ngược kết luận rằng
+400 khung hình là không đủ. Tuy nhiên, chúng có nghĩa là V10 không thể được
+coi là một kiểm tra rõ ràng về *ngân sách chú thích tối thiểu khả thi*;
+công việc tương lai về chú thích ở quy mô bài báo (Ch6 §6.4 P1) yêu cầu ít nhất
+hai người chú thích độc lập và κ được báo cáo.
+
+**Cập nhật — Điều tra cơ chế đã được điều chỉnh Giai đoạn 2 (sau khi chương được đóng băng).**
+Hai tinh chỉnh đối với nỗ lực V10 được thực hiện sau bản thảo chương ban đầu và được báo cáo ở đây để hoàn chỉnh. **(a) Điều chỉnh cơ chế.**
+Một lần đọc kỹ lại Bảng 5–7 của bài báo nguồn cho thấy
+rằng YOLO v4 trong Unsafe-Net hoạt động như một *bộ lọc khung hình (frame filter)* — nó chỉ giữ lại
+những khung hình nơi phát hiện đối tượng hành vi không an toàn và loại bỏ phần còn lại,
+truyền chuỗi đã rút gọn cho ConvLSTM — và rằng mức tăng +10 pp của bài báo
+(85,78 % → 95,81 %) là do **bước lọc** này, không phải do
+các đặc trưng không gian từ YOLO. V10 đã triển khai *một cơ chế khác* (YOLO
+đã fine-tune như một backbone trích xuất đặc trưng có đặc trưng thay thế các
+đặc trưng frozen-COCO). Sự lệch lạc kiến trúc này — độc lập với
+khối lượng chú thích — là một giải thích thứ hai, có thể xảy ra cho sự thụt lùi V10,
+và đã thúc đẩy thực nghiệm *frame-gate* đã được điều chỉnh (§6.4 P1).
+**(b) Thỏa thuận liên người chú thích.** Nỗ lực chú thích được mở rộng lên
+1.200 khung hình thí điểm (4 lớp không an toàn; khung hình an toàn làm nền) và một
+người chú thích thứ hai độc lập gán nhãn lại một tập con phân tầng 100 khung hình,
+cho **Cohen's κ = 0,65** (đáng kể — substantial, Landis–Koch; n = 100, 5 nhãn
+= 4 không an toàn + nền; thỏa thuận thô 72 %). Đặc biệt, sự bất đồng ngoài đường chéo
+tập trung ở **ranh giới WalkwayViol ↔ UnauthorInt**
+(6/20 khung hình UnauthorInt được người chú thích thứ hai gọi là WalkwayViol; 7/20
+khung hình nền được gọi là UnauthorInt) — *cùng cặp mà mô hình thất bại*.
+Đây là bằng chứng hội tụ cho chẩn đoán bị ràng buộc bởi dữ liệu: ranh giới này mơ hồ về mặt ngữ nghĩa ở cấp độ khung hình đơn ngay cả với chuyên gia con người. Điều này
+cũng ngụ ý rằng các nhãn 1.200 khung hình của một người chú thích mang ~30 % sự mơ hồ
+trên cặp khó nhất, vì vậy bất kỳ kết quả frame-gate nào trên cặp này nên được đọc như
+một giới hạn dưới. (Tạo tác κ: `plans/.../reports/kappa-result.json`.)
+
+**Bảng 4.6 — Nhánh fine-tune bbox so với nhánh frozen-COCO (4 lớp không an toàn)**
+
+| Nhánh                                 | Đơn tốt nhất | Cascade  | Ensemble | Macro %  |
+| -------------------------------------- | ----------: | -------: | -------: | -------: |
+| **Frozen COCO** (V9 tiêu đề)          |       55/64 |    51/64 | **56/64**|  **89,28** |
+| **Bbox-finetuned** (V10)               |       54/64 |    52/64 |    54/64 |    84,73 |
+| Δ (bbox − frozen)                      |          −1 |       +1 |       −2 |    −4,55 |
+
+*Nguồn: `sweep_results/finetune_bbox/results.json`, huấn luyện 8,6 giờ.*
+
+**Chẩn đoán.** Với chỉ 400 khung hình được chú thích so với
+9,4 M tham số của backbone YOLOv11s, prior quy nạp COCO bị xóa bỏ
+nhanh hơn so với tín hiệu hành vi 4 lớp có thể thay thế. Các đầu phân loại theo cặp,
+vốn phụ thuộc vào các đặc trưng chi tiết mà YOLO đông lạnh đã mã hóa,
+chịu tổn thất nhiều nhất — độ chính xác riêng lẻ của chúng sụp đổ xuống 16–34 / 64
+so với 13–25 / 64 từ nhánh đông lạnh (và cascade tổng thể
+giảm từ 51 xuống 52 / 64, nhưng ensemble mất 2 mẫu ròng).
+
+### 4.6.1 Cross-ensemble giữa nhánh frozen và nhánh bbox
+
+Sự thất bại của nhánh bbox về nguyên tắc có thể được cứu vãn bằng cách ensemble
+giữa các nhánh: nếu hai backbone mắc lỗi không tương quan, ngay cả nhánh bbox
+yếu hơn cũng có thể nâng độ chính xác tổng thể. Cả hai bộ nhớ cache đặc trưng
+(`sweep_results/pairwise/features/all8_test.pt` cho frozen,
+`sweep_results/finetune_bbox/features/bbox_test.pt` cho bbox) và cả hai
+bộ checkpoint đầu phân loại đều tồn tại, vì vậy cross-ensemble được đánh giá
+mà không cần huấn luyện lại (`run_cross_ensemble.py`).
+
+**Bảng 4.6a — Các tổ hợp cross-ensemble, sắp xếp theo top-1**
+
+| Tổ hợp                                            | Đúng | Macro % | Walkway | UnauthorInt | OpenedPanel | CarryOverload |
+| ------------------------------------------------ | ------: | ------: | ------: | ----------: | ----------: | ------------: |
+| Ensemble frozen đơn thuần (baseline)                 |   56/64 |   89,28 |  84,4 % |      72,7 % |     100,0 % |       100,0 % |
+| 0,5·frozen_ens + 0,5·bbox_avg                    |   55/64 |   88,49 |  81,2 % |      72,7 % |     100,0 % |       100,0 % |
+| 0,9·frozen_ens + 0,1·bbox_avg                    |   55/64 |   88,49 |  81,2 % |      72,7 % |     100,0 % |       100,0 % |
+| avg(frozen_d4, frozen_cas, bbox_avg)             |   55/64 |   88,49 |  81,2 % |      72,7 % |     100,0 % |       100,0 % |
+| 0,5·frozen_ens + 0,5·bbox_d4_s7                  |   55/64 |   88,49 |  81,2 % |      72,7 % |     100,0 % |       100,0 % |
+| 0,5·frozen_d4 + 0,5·bbox_avg                     |   52/64 |   83,52 |  78,1 % |      63,6 % |      92,3 % |       100,0 % |
+
+*Nguồn: `sweep_results/ablations/cross_ensemble.json`. `bbox_avg` =
+trung bình của các seed bbox direct4 {s42, s123, s314, s7}.*
+
+**Kết quả.** Không có tổ hợp nào vượt qua baseline chỉ dùng frozen. Ngay cả ở tỷ lệ
+90 % frozen / 10 % bbox, kết quả vẫn ở 55/64 — nghĩa là nhánh
+bbox đảo ngược ít nhất một dự đoán WalkwayViol đúng của frozen với đủ độ tin cậy
+để tồn tại khi bị giảm trọng số mạnh. Lỗi của hai nhánh *không* tương quan —
+cả hai đều thất bại trên WalkwayViol, với nhánh bbox thất bại nhiều hơn.
+
+**Bác bỏ một giả thuyết mạnh hơn.** §4.5 lập luận khoảng cách bị ràng buộc bởi dữ liệu;
+thực nghiệm này tiếp tục cho thấy rằng với ngân sách chú thích cố định, giám sát
+hành vi cụ thể *làm hại* trừ khi giám sát đủ dày đặc
+để thay thế prior COCO. Kết quả 95,81 % của bài báo do đó không chỉ bị ràng buộc bởi dữ liệu mà còn bị ràng buộc bởi khối lượng dữ liệu: nỗ lực chú thích để sánh kịp
+bộ phát hiện YOLO v4 của họ lớn hơn ít nhất một bậc so với
+thí điểm 400 khung hình của luận văn này. Ensemble frozen 56/64 đại diện
+cho ngưỡng trần độ chính xác thực tế trong ngân sách chú thích hiện có.
+
+### 4.6.2 Điều tra cơ chế đã được điều chỉnh ở quy mô 1.200 khung hình (V11)
+
+Sự điều chỉnh cơ chế §4.6 (YOLO là *bộ lọc khung hình*, không phải bộ trích xuất đặc trưng)
+và 1.200 khung hình chú thích được mở rộng đã được đưa vào một thực nghiệm đầy đủ: bộ phát hiện YOLOv11s đã fine-tune (mAP@50 = 0,89 trên 1.200
+khung hình bbox) được sử dụng cả như một **frame-gate** (giữ các khung hình có phát hiện không an toàn
+tự tin, conf ≥ τ; τ được chọn trên một tập kiểm định được tách từ tập huấn luyện)
+và như một **bộ trích xuất đặc trưng**, trên không gian đặc trưng frozen-COCO,
+bbox-finetuned và hybrid (nối ghép — concatenated). Tất cả các con số là
+đầu direct-4, held-out mù (được chọn theo tập kiểm định) và tốt nhất (được chọn theo tập kiểm tra),
+trên tập kiểm tra 64 đoạn video 4 lớp. Nguồn:
+`framegate-result.json`, `feature-sweep-result.json`.
+
+**Bảng 4.6b — Sweep cơ chế đã được điều chỉnh (bộ phát hiện 1.200 khung hình)**
+
+| Cấu hình | Top-1 mù | Macro mù | Top-1 tốt nhất | Macro tốt nhất |
+|---|---|---|---|---|
+| Frozen-COCO (baseline) | 51/64 | 83,1 % | 53/64 | 85,4 % |
+| Frozen + frame-gate | 52/64 | 83,2 % | 52/64 | 83,2 % |
+| Đặc trưng bbox-finetuned | 50/64 | 79,3 % | 50/64 | 80,0 % |
+| Bbox + frame-gate (cơ chế của bài báo) | 49/64 | 75,3 % | 52/64 | 80,9 % |
+| **Hybrid (frozen ⊕ bbox)** | 52/64 | 85,4 % | 53/64 | 85,4 % |
+| **Hybrid + frame-gate** ⭐ | **53/64** | **85,4 %** | 53/64 | **86,9 %** |
+| **Ensemble (frozen ⊕ hybrid)** | — | — | **54/64** | **87,7 %** |
+| *Bài báo — baseline không có bbox* | *57/64* | *85,78 %* | *57/64* | *85,78 %* |
+| *Bài báo — full-bbox* | *62/64* | *95,81 %* | *62/64* | *95,81 %* |
+
+Ba kết quả rút ra, tất cả đều nhất quán với luận điểm bị ràng buộc bởi dữ liệu và cùng nhau là xác nhận mạnh mẽ nhất của nó.
+
+**(i) Fine-tuning phát hiện thụt lùi; frame-gate không cứu vãn được.** Các đặc trưng bbox-finetuned làm giảm macro xuống 79,3 % (so với frozen 83,1 %) vì
+fine-tuning backbone cho *phát hiện* chuyên hóa quá mức lớp 22 và
+loại bỏ biểu diễn COCO tổng quát mà đầu thời gian dựa vào. Frame-gate — cơ chế tăng lợi thực sự của bài báo — chỉ thêm +1 mẫu trên
+các đặc trưng frozen (trong phạm vi nhiễu seed) và *làm hại* trên các đặc trưng bbox. Được tái hiện trung thực ở 1.200 khung hình, cơ chế của bài báo **không** thu hẹp khoảng cách
+ở quy mô chú thích này.
+
+**(ii) Kết hợp hai không gian đặc trưng phục hồi và vượt nhẹ ngưỡng trần.** Hybrid (frozen ⊕ bbox-finetuned, nối ghép) phục hồi
+macro mà nhánh bbox đã mất (85,4 %) và, với frame-gate, cho kết quả
+cấu hình đơn tốt nhất: **mù 53/64 (85,4 % macro)**, tốt nhất 54/64
+(86,9–87,7 % macro). Sự kết hợp vượt trội hơn từng nhánh riêng lẻ — một
+phát hiện nhỏ nhưng thực: các đặc trưng đã fine-tune phát hiện mang
+tín hiệu hành vi *bổ sung* chỉ hữu ích *cùng với* prior COCO,
+không phải như một sự thay thế.
+
+**(iii) So sánh trung thực với baseline không có bbox hiện nay thuận lợi về
+macro, ngay cả khi mù.** Ở ngân sách chú thích zero-bbox đã được khớp, pipeline
+hybrid + frame-gate đạt **macro ngang bằng đến vượt trội** so với
+baseline không có bbox được công bố (mù 85,4 % ≈ 85,78 %; tốt nhất 86,9–87,7 %
+> 85,78 %), trong khi vẫn thấp hơn về top-1 (53–54/64 so với 57/64) và thấp hơn nhiều so
+với 95,81 % full-bbox cascade. Khoảng cách với kết quả full-bbox được
+xác nhận là **bị ràng buộc bởi khối lượng chú thích**: trên 12+ lượt — kể cả
+cơ chế frame-gate chính xác của bài báo ở 1.200 khung hình — ngưỡng trần giữ ở
+≈ 54/64 / 88 % macro. Hybrid + frame-gate được chọn làm cấu hình zero-bbox tốt nhất của luận văn; con đường đến góc full-bbox là
+giám sát bbox ở quy mô bài báo (≥ 2.262 khung hình), được trình bày trong §6.4.
+
+## 4.7 Nghiên cứu loại bỏ thành phần (Ablations)
+
+Phần này trình bày các nghiên cứu có kiểm soát nhằm cô lập đóng góp của từng lựa chọn thiết kế. Tất cả các thí nghiệm loại bỏ thành phần được đánh giá trên tập con 4 lớp không an toàn (n = 64). Khi cùng một checkpoint có thể được đánh giá lại với đầu vào bị nhiễu hoặc quy tắc kết hợp khác nhau, thí nghiệm được thực hiện **chỉ ở giai đoạn suy luận (inference-only)**; khi nghiên cứu yêu cầu huấn luyện lại, điều này được ghi chú rõ ràng. Tất cả số liệu thô được lưu tại `sweep_results/ablations/` (`inference_ablation.json`, `cascade_decomposition.json`, `decorrelation.json`, `calibration.json`, `embedding_probe.json`).
+
+### 4.7.1 Phân tích phân rã cascade (chỉ suy luận)
+
+Ensemble chính tổng hợp đầu direct4 với cascade kịch bản × cặp. Bảng 4.7 cô lập đóng góp riêng lẻ của từng thành phần; Bảng 4.8 kết hợp direct4 với từng thành phần theo thứ tự.
+
+**Bảng 4.7 — Độ chính xác theo từng thành phần**
+
+| Thành phần                        | Top-1 | Macro % | Walkway | UnauthorInt | OpenedPanel | CarryOverload |
+| -------------------------------- | ----: | ------: | ------: | ----------: | ----------: | ------------: |
+| Chỉ direct4                     | 55/64 |   87.35 |  84.4 % |      72.7 % |      92.3 % |       100.0 % |
+| Chỉ kịch bản (probabilistic 4-class) | 54/64 |   85.43 |  84.4 % |      72.7 % |      84.6 % |       100.0 % |
+| Chỉ pair-unsafe (không có kịch bản)   | 11/64 |   30.27 |   0.0 % |      18.2 % |      15.4 % |        87.5 % |
+| cascade (không có pair, chỉ kịch bản) | 54/64 |   85.43 |  84.4 % |      72.7 % |      84.6 % |       100.0 % |
+| cascade (đầy đủ, sc × pair)        | 51/64 |   84.23 |  71.9 % |      72.7 % |      92.3 % |       100.0 % |
+| **ensemble (0.5·direct4 + 0.5·cascade)** | **56/64** |   **89.28** |  **84.4 %** |      **72.7 %** |     **100.0 %** |       **100.0 %** |
+
+**Hai kết quả không hiển nhiên.** Thứ nhất, cascade *đơn lẻ* kém hơn direct4 đơn lẻ (51 so với 55) — các đầu pair không tạo ra bộ phân loại cạnh tranh khi đứng độc lập. Thứ hai, phép chiếu độc lập của các đầu pair vào không gian 4 lớp (lấy xác suất "không an toàn" của mỗi cặp làm điểm lớp) chỉ đạt 11/64 — hầu như không vượt quá mức ngẫu nhiên 25 % trên lớp lớn nhất. Các đầu pair đóng góp *chỉ* thông qua phép nhân cascade, không phải với tư cách là bộ phân loại độc lập.
+
+**Bảng 4.8 — Quét alpha ensemble: α·direct4 + (1−α)·cascade**
+
+| α    | 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | **0.5** | 0.6 | 0.7 | 0.8 | 0.9 | 1.0 |
+| ---: | --: | --: | --: | --: | --: | -------: | --: | --: | --: | --: | --: |
+| Top-1 | 51 | 52 | 53 | 54 | 55 | **56** | **56** | **56** | 55 | 55 | 55 |
+
+Bình nguyên 56/64 trải dài trên α ∈ [0.5, 0.7], xác nhận rằng lựa chọn trọng số bằng nhau trong §3.5.2 không phải là một lựa chọn tinh chỉnh dễ vỡ. Cascade và direct4 tạo ra các tập đúng khác nhau nhưng có chồng lấp; giá trị trung bình của chúng khôi phục đúng một mẫu OpenedPanel mà cascade đơn lẻ phân loại sai (12/13 trong cascade → 13/13 trong ensemble) nhờ độ tin cậy cao hơn của đầu direct4 trên đoạn clip đó.
+
+### 4.7.2 Loại bỏ từng đầu pair (chỉ suy luận)
+
+Để gán sự đóng góp 56/64 của cascade vào các đầu pair cụ thể, từng đầu pair được thay thế bằng giá trị đồng nhất 1.0 theo từng lượt:
+
+**Bảng 4.9 — Cascade loại bỏ từng cặp một**
+
+| Đầu pair bị loại bỏ        | Cascade đơn lẻ | Ensemble (cas + d4) | Δ so với ensemble đầy đủ |
+| ------------------------ | ------------: | ------------------: | -----------------: |
+| Walkway (pair0)          |         54/64 |               56/64 |       0 (không mất)  |
+| **Intervention (pair1)** |     **49/64** |         **52/64**   |     **−4** **(quan trọng)** |
+| Panel (pair2)            |         52/64 |               56/64 |       0 (không mất)  |
+| Forklift (pair3)         |         51/64 |               56/64 |       0 (không mất)  |
+
+Chỉ **pair1 (Intervention)** là quan trọng đối với kết quả chính. Loại bỏ pair1 làm giảm ensemble từ 56 xuống 52 — chính những mẫu UnauthorInt gây nhầm lẫn trong §4.5 là những mẫu mà giám sát nhị phân của pair1 cứu vãn. Ba đầu pair còn lại có thể bị loại bỏ mà không gây ảnh hưởng, cho thấy sự dư thừa đáng kể trong cascade.
+
+### 4.7.3 Độ bền T theo thời gian kiểm tra (chỉ suy luận)
+
+Được huấn luyện tại T = 32, mô hình suy giảm nhẹ nhàng khi T lúc kiểm tra được giảm thông qua lấy mẫu con đều đặn.
+
+**Bảng 4.10 — T kiểm tra được lấy mẫu con**
+
+|  T | direct4 | cascade | Ensemble | Macro % | Walkway | UnauthorInt | OpenedPanel | CarryOverload |
+| -: | ------: | ------: | -------: | ------: | ------: | ----------: | ----------: | ------------: |
+|  8 |   52/64 |   48/64 |   52/64 |   83.17 |  78.1 % |      54.5 % |     100.0 % |       100.0 % |
+| 16 |   52/64 |   51/64 |   51/64 |   83.09 |  75.0 % |      72.7 % |      84.6 % |       100.0 % |
+| 24 |   53/64 |   51/64 |   54/64 |   87.71 |  78.1 % |      72.7 % |     100.0 % |       100.0 % |
+| **32** | **55/64** | **51/64** | **56/64** | **89.28** | **84.4 %** | **72.7 %** | **100.0 %** | **100.0 %** |
+
+Biến thể 24 khung hình chỉ mất 2 mẫu (54 so với 56), cho thấy hệ thống triển khai có thể đánh đổi T để giảm 25 % độ trễ (latency) với độ chính xác gần như tương đương.
+
+### 4.7.4 Lưới pool không gian (chỉ suy luận)
+
+Lưới 4 × 4 gồm 16 token không gian được so sánh với các pool thô hơn được áp dụng chỉ tại thời điểm kiểm tra (đầu được huấn luyện trên 4 × 4):
+
+**Bảng 4.11 — Độ chi tiết của lưới pool không gian**
+
+| Lưới pool | Token | Đúng direct4 | Δ so với 4×4 |
+| --------: | -----: | --------------: | -------: |
+|       1×1 |      1 |           32/64 |      −23 |
+|       2×2 |      4 |           53/64 |       −2 |
+|     **4×4** |  **16** |       **55/64** |       **0** |
+
+Giảm xuống một token toàn cục duy nhất làm sụp đổ độ chính xác xuống 50 % (mức ngẫu nhiên trên Walkway, lớp lớn nhất). Lưới 4 × 4 là lựa chọn đúng; 2 × 2 là tùy chọn nén khả thi cho edge (thiết bị biên) có hạn chế bộ nhớ.
+
+### 4.7.5 Phân tích tương quan ensemble (decorrelation)
+
+Tại sao thêm nhánh fine-tuned bbox lại *không* cải thiện độ chính xác (§4.6.1)? Ma trận tương quan Pearson trên các vector lỗi theo clip lượng hóa mức độ độc lập của các sai lầm của từng thành viên.
+
+**Bảng 4.12 — Ma trận tương quan lỗi theo cặp (ρ trên 64 clip kiểm tra)**
+
+| Thành viên          | frozen_d4 | frozen_cas | bbox_d4_s42 | bbox_d4_s123 | bbox_d4_s314 | bbox_d4_s7 |
+| --------------- | --------: | ---------: | ----------: | -----------: | -----------: | ---------: |
+| frozen_d4       |      1.00 |       0.69 |        0.27 |         0.27 |         0.44 |       0.03 |
+| frozen_cas      |      0.69 |       1.00 |        0.25 |         0.25 |         0.39 |       0.01 |
+| bbox_d4_s42     |      0.27 |       0.25 |        1.00 |         0.79 |         0.13 |       0.48 |
+| bbox_d4_s123    |      0.27 |       0.25 |        0.79 |         1.00 |         0.13 |       0.48 |
+| bbox_d4_s314    |      0.44 |       0.39 |        0.13 |         0.13 |         1.00 |       0.24 |
+| bbox_d4_s7      |      0.03 |       0.01 |        0.48 |         0.48 |         0.24 |       1.00 |
+
+**Nhận xét.** bbox_d4_s7 về cơ bản không tương quan với nhánh frozen (ρ = 0.03 với frozen_d4, 0.01 với frozen_cas). Tuy nhiên bbox_d4_s7 đơn lẻ chỉ đạt 45/64 (macro 74.7 %), và ensemble chéo thất bại (§4.6.1). Đây là trường hợp thất bại ensemble kinh điển: giảm tương quan là điều kiện cần nhưng chưa đủ khi độ chính xác của từng thành viên thấp hơn đáng kể so với thành viên mạnh nhất. Các tương quan trong nhánh (0.69 cho frozen, 0.79 cho bbox seed 42/123) xác nhận lợi ích giảm tương quan đến từ trục *liên nhánh*, nhưng lợi ích đó không thể khắc phục thâm hụt độ chính xác của nhánh bbox.
+
+### 4.7.6 Hiệu chỉnh nhiệt độ (chỉ suy luận)
+
+Số liệu 57/64 được báo cáo trong các bản thảo trước được tạo ra bằng tìm kiếm ngẫu nhiên 20 000 bước trên độ lệch cộng theo lớp trên xác suất tập kiểm tra — một giao thức tinh chỉnh trên tập kiểm tra không thể bảo vệ được như một hiệu chỉnh hợp lệ. Chúng tôi đánh giá lại bằng **điều chỉnh nhiệt độ vô hướng (scalar temperature scaling)** áp dụng cho logit của từng thành phần trước khi kết hợp cascade, quét T ∈ [0.5, 2.0]:
+
+**Bảng 4.13 — Quét nhiệt độ trên ensemble (direct4 + cascade)**
+
+|   T | Top-1 | Macro % |    NLL |   ECE | Độ tin cậy trung bình |
+| --: | ----: | ------: | -----: | ----: | --------------: |
+| 0.5 | 55/64 |   88.49 | 0.4452 | 0.146 |           0.892 |
+| 0.8 | 55/64 |   88.49 | 0.4066 | 0.110 |           0.827 |
+| **1.0** | **56/64** | **89.28** | **0.4200** | **0.114** |     **0.786** |
+| 1.5 | 56/64 |   89.28 | 0.4956 | 0.182 |           0.693 |
+| 2.0 | 56/64 |   89.28 | 0.5845 | 0.257 |           0.618 |
+
+Top-1 bão hòa tại 56/64 với T ≥ 1.0; NLL được tối thiểu hóa tại T ≈ 0.8 (nơi top-1 là 55/64 — sự đánh đổi giữa độ sắc nét và độ chính xác). **Top-1 được chọn trên tập kiểm tra có thể bảo vệ là 56/64**, không phải 57/64 (số liệu mù trung thực là ≈ 52/64, §4.7.11). Hiệu chỉnh tìm kiếm độ lệch trong code gốc hiện được báo cáo như một cảnh báo về phương pháp luận trong §4.7.7.
+
+### 4.7.7 Ghi chú về phương pháp luận đối với 57/64 đã báo cáo trước đây
+
+Con số "57/64 = 89.1 % đã hiệu chỉnh" trước đây bắt nguồn từ tìm kiếm ngẫu nhiên 20 000 bước trên độ lệch cộng theo lớp (`run_pairwise_contrastive.py` dòng 519) được thực hiện ngay trên tập kiểm tra. Phạm vi tìm kiếm là hẹp ([−0.5, +0.5]) và mức tăng chỉ là một mẫu, nhưng giao thức này cấu thành tinh chỉnh trên tập kiểm tra. Để xác minh liệu mẫu +1 phản ánh tín hiệu hiệu chỉnh thực sự có thể tổng quát hóa hay chỉ là ghi nhớ thuần túy 64 nhãn kiểm tra, cùng tìm kiếm độ lệch đó được chạy lại một cách trung thực trên tập huấn luyện thay thế (`run_ablation_calibration_holdout.py`). Kết quả mang tính quyết định (Bảng 4.13a): hướng độ lệch cải thiện độ chính xác huấn luyện *làm giảm* độ chính xác kiểm tra 2–3 mẫu.
+
+**Bảng 4.13a — Thử lại 57/64 trung thực: tìm kiếm độ lệch trên tập con giữ lại trong huấn luyện (sweep_results/ablations/calibration_holdout.json)**
+
+| Chế độ hiệu chỉnh                                        | Khớp trên        | Hướng độ lệch         |   Top-1 kiểm tra | Macro kiểm tra |
+| --------------------------------------------------------- | ------------- | ---------------------- | -----------: | ---------: |
+| Cơ sở — không hiệu chỉnh (chính)                      | n/a           | b = 0                  | **56/64**    | **89.28**  |
+| **Tinh chỉnh tập kiểm tra (mục tiêu kiểm toán)**                        | test (N = 64) | [+0.47, +0.15, −0.03, −0.34] | 57/64  | 90.06    |
+| Khớp trung thực trên toàn bộ huấn luyện 4 lớp (N = 452)                | train         | [+0.36, +0.20, −0.21, +0.27] |  53/64 | 82.36    |
+| Khớp trung thực, 5 seed tìm kiếm ngẫu nhiên, toàn bộ huấn luyện             | train         | trung bình trên 5 seed            | 53.6 ± 0.5 | —      |
+| Khớp trung thực, tập giữ lại phân tầng 5-fold (frac = 0.2/fold)   | train holdout | trung bình trên 5 fold            | 53.4 ± 1.2 (khoảng 51–54) | — |
+
+Ba nhận xét từ bảng: (i) hướng độ lệch tập kiểm tra khác nhau về dấu và độ lớn so với bất kỳ độ lệch nào được khớp trên tập huấn luyện — mẫu +1 trên kiểm tra là đặc thù cho 64 clip đó, không phải là một hiệu chỉnh có thể tổng quát hóa; (ii) mọi biến thể trung thực (toàn bộ huấn luyện, đa seed, k-fold holdout) đều trả về kết quả kiểm tra tệ hơn 56/64 chưa hiệu chỉnh — hiệu chỉnh không thể được bảo vệ; (iii) std từ 0.5–1.2 trên các fold và seed đủ nhỏ để đây không phải là nhiễu. Do đó 57/64 đã báo cáo trước đây *được rút lại*. Trong kiểm toán hiệu chỉnh này, con số có thể bảo vệ thay cho 57/64 đã hiệu chỉnh là **56/64 = 87.5 % chưa hiệu chỉnh, macro 89.28 %** — nhưng lưu ý đây vẫn là một con số *được chọn trên tập kiểm tra*; §4.7.11 loại bỏ rò rỉ lựa chọn mô hình còn lại (epoch/cấu hình/seed) khỏi tập kiểm tra; con số mù trung thực cho pipeline frozen được xác lập ở đó (≈ 52/64), trong khi cấu hình zero-bbox tốt nhất (hybrid+gate) được trình bày trong §4.6.2 (53/64, 85.4 % macro). Phần con này thay thế tuyên bố hiệu chỉnh §3.5.3 rằng hiệu chỉnh "dịch chuyển đúng một mẫu ranh giới từ lớp đa số đúng" — tuyên bố đó đúng khi khớp trên tập kiểm tra nhưng không tổng quát hóa được.
+
+### 4.7.8 Các nghiên cứu loại bỏ kiến trúc và giai đoạn huấn luyện (huấn luyện lại)
+
+Ba nghiên cứu huấn luyện lại được thực hiện trên bộ đệm đặc trưng huấn luyện COCO frozen (566 clip huấn luyện, tất cả 8 lớp, 593 MB) sử dụng `run_ablation_retrain.py`. Mỗi biến thể huấn luyện ba seed (42, 123, 7) trên tập con 4 lớp trong tối đa 200 epoch (dừng sớm sau 40 epoch không cải thiện); cùng focal-γ=2, label-smoothing 0.05, EMA 0.998, lịch cosine và bộ lấy mẫu ngẫu nhiên có trọng số từ §3.4 được áp dụng. Trung bình ± std top-1 được báo cáo. Tất cả các kết quả dưới đây đến từ các đầu được huấn luyện lại với các seed chuẩn này — *không* phải từ các checkpoint seed may mắn được sử dụng trong ensemble chính. Con số chính (56/64 = direct4_s314 + cascade) phản ánh một seed hiệu suất cao được chọn từ lần quét ban đầu; nhóm seed huấn luyện lại ở đây khảo sát hành vi *điển hình* của từng kiến trúc.
+
+**Bảng 4.16 — Đóng góp của các luồng (đầu direct 4 lớp, dim=384, L=6, H=8)**
+
+| Các luồng được sử dụng                                            | Top-1 (trung bình ± std) | Macro-F1 (trung bình ± std) | Độ chính xác theo seed |
+| ------------------------------------------------------- | ------------------ | --------------------- | ------------- |
+| Chỉ ngoại hình (motion bằng không)                         | 53.67 ± 0.47       | 0.854 ± 0.005         | 54, 54, 53    |
+| Chỉ chuyển động (appearance bằng không)                         | 53.00 ± 0.82       | 0.832 ± 0.017         | 52, 54, 53    |
+| Cả hai (cơ sở)                                         | 53.33 ± 0.47       | 0.848 ± 0.007         | 54, 53, 53    |
+
+Ba cấu hình **không thể phân biệt về mặt thống kê** trong nhiễu seed-to-seed. Loại bỏ luồng chuyển động không tốn chi phí nào tính trung bình; loại bỏ luồng ngoại hình tốn ~0.7 mẫu. Thiết kế đa luồng — một đặc điểm kiến trúc trung tâm của đầu — **không tạo ra lợi ích độ chính xác có thể đo lường** ở quy mô tập dữ liệu này. Điều này nhất quán với lập luận bị giới hạn dữ liệu trong §4.5: nút thắt cổ chai là sự sụp đổ cosine của các đặc trưng thô (Bảng 4.19), nằm ở thượng nguồn so với bất kỳ lựa chọn thiết kế luồng thời gian nào.
+
+Kết quả này có hệ quả trực tiếp về cách đặt tên. Trên Unsafe-Net, pipeline hoạt động về thực chất như một **bộ phân loại gộp ở cấp độ khung hình với đường dẫn thời gian không được khen thưởng** — các luồng đạo hàm chuyển động mà đề xuất đóng khung là "lý luận thời gian" không mang tín hiệu phân biệt có thể đo lường ở đây. Đọc một cách trung thực, tín hiệu lớp của Unsafe-Net chủ yếu là ngoại hình theo từng khung hình, không phải động lực chuyển động; bản thân điều này là một phát hiện về nội dung thông tin thời gian của tập dữ liệu. Do đó luận văn này mô tả thành phần như một *đầu tổng hợp đa luồng* thay vì một mô-đun *lý luận thời gian*, và không tuyên bố mô hình hóa thời gian là một đóng góp được chứng minh (xem §1.3.1).
+
+**Bảng 4.17 — Quét độ sâu × số đầu (đầu direct 4 lớp, dim=384, cả hai luồng)**
+
+| (Số lớp L, Số đầu H) | Top-1 (trung bình ± std) | Macro-F1 (trung bình) | Độ chính xác theo seed |
+| ------------------- | ------------------ | --------------- | ------------- |
+| L = 2, H = 4        | 53.67 ± 0.47       | 0.854           | 54, 54, 53    |
+| L = 4, H = 4        | 53.33 ± 0.47       | 0.851           | 54, 53, 53    |
+| L = 4, H = 8        | 52.33 ± 1.25       | 0.796           | 52, 51, 54    |
+| **L = 6, H = 8** (cơ sở) | **53.67 ± 0.47** | 0.837   | 54, 53, 54    |
+| L = 8, H = 8        | 51.33 ± 1.25       | 0.803           | 53, 50, 51    |
+
+Cấu hình nhỏ nhất (L = 2, H = 4) ngang bằng cấu hình sâu nhất cải thiện hiệu suất (L = 6, H = 8). Vượt quá L = 6 *làm giảm* độ chính xác. Đầu Transformer bị **quá tham số hóa** đối với 452 clip huấn luyện sẵn có: phương sai bùng nổ (std 1.25) ở hai cấu hình lớn nhất, và L = 6 cơ sở chỉ được giữ lại vì F1 hiệu chỉnh tốt hơn một chút của lần quét ban đầu trên ensemble đầy đủ — không phải vì sâu hơn có nghĩa là tốt hơn đáng kể.
+
+**Bảng 4.18 — Kết hợp ensemble có cổng (gated) so với không trọng số**
+
+| Quy tắc kết hợp                                          | Top-1 | Theo seed |
+| ---------------------------------------------------- | ----- | -------- |
+| Không trọng số: (direct4 + cascade) / 2 (cơ sở)       | 56    | —        |
+| Cổng (gate) học được theo clip (MLP softmax 2 chiều trên thống kê)     | 55.0 ± 0.0 | 55, 55, 55 |
+
+Cổng học được **kém hơn trung bình không trọng số** đúng một mẫu, một cách tất định trên ba seed. Đây là kết quả trái trực giác nhưng có thể giải thích được: với N_train = 452 clip và chỉ N = 64 clip kiểm tra, hai tham số có thể học thêm của cổng mỗi clip đưa ra nhiều phương sai hơn trên tập giữ lại so với những gì chúng loại bỏ trên tập huấn luyện. Trung bình không trọng số là, trong chế độ này, quy tắc kết hợp tối đa biên trên kiểm tra. Kết quả giảm tương quan từ §4.7.5 (ρ = 0.21) đã đặt (direct4 + cascade) / 2 gần với sự kết hợp tuyến tính tối ưu; gating học được không thể cải thiện hơn mà không overfitting.
+
+**Nhận xét.** Ba nghiên cứu loại bỏ huấn luyện lại độc lập đều trả về cùng một phán quyết: **ở quy mô chú thích này, các lựa chọn cấp kiến trúc — luồng, độ sâu, kết hợp — nằm trong nhiễu seed-to-seed của nhau**. Điều này bổ sung cho các phân tích liên thành phần trong §4.7.1–§4.7.7 và phát hiện hình học trong §4.8: khoảng cách top-1 còn lại bị chi phối bởi sự sụp đổ cosine đặc trưng đầu vào, và không có núm điều chỉnh phía đầu nào trong không gian đã khảo sát thay đổi thực tế đó.
+
+### 4.7.9 Khoảng tin cậy bootstrap trên tập kiểm tra (N = 64)
+
+Tập kiểm tra 64 clip đủ nhỏ để bất kỳ số độ chính xác đơn lẻ nào cũng phải được báo cáo kèm khoảng tin cậy. Khoảng tin cậy bootstrap 95 % (5 000 lần lấy mẫu có thay thế từ tập kiểm tra 64 clip) được trình bày dưới đây:
+
+**Bảng 4.14 — Bootstrap 95 % CI (khoảng tin cậy) trên top-1 và macro-F1**
+
+| Thành phần | Độ chính xác top-1 | 95 % CI | Macro-F1 | 95 % CI |
+| --- | --- | --- | --- | --- |
+| direct4 (s314) | 0.860 | [0.766, 0.938] | 0.861 | [0.771, 0.938] |
+| kịch bản | 0.844 | [0.750, 0.922] | 0.847 | [0.761, 0.926] |
+| cascade (sc × pair) | 0.798 | [0.688, 0.891] | 0.819 | [0.733, 0.899] |
+| **ensemble (d4 + cas)/2** | **0.875** | **[0.797, 0.953]** | **0.879** | **[0.797, 0.950]** |
+
+Các delta bootstrap theo cặp (tập kiểm tra khớp) làm rõ thành phần nào đóng góp có ý nghĩa thống kê:
+
+**Bảng 4.15 — Delta bootstrap theo cặp (95 % CI)**
+
+| So sánh | Δ acc | 95 % CI | P(A > B) |
+| --- | --- | --- | --- |
+| ensemble − direct4 | +0.015 | [+0.000, +0.047] | 0.628 |
+| ensemble − cascade | +0.078 | [+0.016, +0.141] | 0.996 |
+| cascade − direct4 | −0.062 | [−0.141, +0.000] | 0.021 |
+
+**Đọc một cách trung thực.** Mức tăng +1 mẫu của ensemble đầy đủ so với direct4 đơn lẻ (56/64 so với 55/64) *không có ý nghĩa thống kê* trên N = 64 (P = 0.63, giới hạn dưới CI chạm không). Cascade đơn lẻ *tệ hơn* direct4 với độ tin cậy cao (P = 0.98). Ensemble rõ ràng tốt hơn cascade đơn lẻ (P > 0.99) — tức là *đóng góp của direct4 bên trong ensemble* là công việc có thể phát hiện được về mặt thống kê. Chỉ có một tập giữ lại lớn hơn mới có thể giải quyết liệu mức tăng nhỏ của ensemble là thực hay là tạo phẩm mẫu hữu hạn.
+
+Phát hiện này nhất quán với kết quả giảm tương quan §4.7.5: mặc dù direct4 và cascade mắc lỗi không tương quan (ρ = 0.21), độ chính xác tuyệt đối của cascade quá thấp để nhất quán cứu vãn các lỗi của direct4 trong mẫu kiểm tra.
+
+#### 4.7.9.1 Bootstrap CI trên độ chính xác macro và độ chính xác theo lớp
+
+CI top-1 trong §4.7.9 được bổ sung bởi các CI độ chính xác macro và theo lớp. Bootstrap 5 000 mẫu được phân tầng trong mỗi lớp cho các hàng theo lớp để tập được lấy mẫu lại bảo toàn kích thước lớp. (`run_ablation_significance.py` → `sweep_results/ablations/significance.json`.)
+
+**Bảng 4.16a — Bootstrap CI (5 000 lần lấy mẫu lại) trên ensemble chính**
+
+| Chỉ số                  | n  | Ước lượng điểm | Trung bình bootstrap | 95 % CI            | Std    |
+| ----------------------- | -: | -------------: | -------------: | ------------------ | -----: |
+| Top-1 (tổng thể)         | 64 |     87.50 %    | 87.46 %        | [79.69, 95.31]     | 4.04   |
+| **Macro (trung bình 4)**   |  — |   **89.28 %**  | **89.34 %**    | **[81.32, 96.32]** | 3.79   |
+| Theo lớp WalkwayViol   | 32 |     84.38 %    | 84.43 %        | [71.88, 96.88]     | 6.36   |
+| Theo lớp UnauthorInt   | 11 |     72.73 %    | 72.85 %        | [45.45, 100.00]    | 13.53  |
+| Theo lớp OpenedPanel   | 13 |    100.00 %    | 100.00 %       | [100.00, 100.00]   | 0.00   |
+| Theo lớp CarryOverload |  8 |    100.00 %    | 100.00 %       | [100.00, 100.00]   | 0.00   |
+
+Hai lớp bão hòa có CI độ rộng bằng không (mọi lần lấy mẫu lại bootstrap đều đạt 100 %). CI của UnauthorInt trải dài [45, 100] — Δ+ so với bài báo cho lớp này bị chi phối bởi nhiễu kích thước mẫu tại n = 11.
+
+#### 4.7.9.2 Kiểm định z hai tỷ lệ so với bài báo
+
+Kiểm định z hai mẫu không ghép cặp so với các số liệu đã công bố của Önal & Dandıl (2024) [17] (bài báo không công bố dự đoán theo clip, vì vậy kiểm định không ghép cặp là cơ sở bảo thủ; giới hạn McNemar ghép cặp tiếp theo trong §4.7.9.3). *Các kiểm định này sử dụng con số trường hợp tốt nhất (được chọn trên tập kiểm tra) 56/64; ngay cả vậy, mức tăng macro đã không có ý nghĩa thống kê, và trong giao thức mù (§4.7.11) nó biến mất hoàn toàn — hàng dưới đây được giữ lại để ghi lại so sánh trường hợp tốt nhất, không phải để tuyên bố ưu thế macro.*
+
+**Bảng 4.16b — Kiểm định z hai tỷ lệ (không ghép cặp, trường hợp tốt nhất 56/64)**
+
+| So sánh                                 | Δ        |     z   |    p   | Giải thích                  |
+| ------------------------------------------ | -------- | ------: | -----: | ------------------------------- |
+| top-1: của chúng tôi 56/64 so với bài báo 57/64 (không bbox, Bảng 5)  | −1.56 pp | −0.270  | 0.7872 | không có ý nghĩa thống kê trên N = 64 — ngang bằng |
+| top-1: của chúng tôi 56/64 so với bài báo 62/64 (đầy đủ, Bảng 6)     | −9.38 pp | −1.976  | 0.0481 | thâm hụt có ý nghĩa thống kê ở biên  |
+| macro: của chúng tôi 89.28 so với bài báo 85.78 (không bbox, Bảng 7)  | +3.50 pp | +0.599  | 0.5490 | không có ý nghĩa thống kê — mức tăng theo hướng |
+| macro: của chúng tôi 89.28 so với bài báo 95.81 (đầy đủ, Bảng 7)     | −6.53 pp | −1.406  | 0.1596 | không có ý nghĩa thống kê                 |
+
+Cả hai hướng của so sánh đều thất bại ở mức 1 % trên N = 64. Thâm hụt top-1 −1.56 pp so với baseline ConvLSTM không có bbox (một mẫu trên N = 64) không thể được bảo vệ như một thâm hụt *có ý nghĩa thống kê*, và mức tăng macro +3.50 pp so với cùng baseline đó không thể được bảo vệ như một *cải thiện có ý nghĩa thống kê*; ngược lại, thâm hụt macro −6.53 pp so với pipeline đầy đủ của bài báo cũng không thể được bảo vệ như một *thâm hụt có ý nghĩa thống kê*, đơn giản vì N = 64 khiến kiểm định z thiếu năng lực. Đọc một cách trung thực là **tập kiểm tra quá nhỏ cho cả hai tuyên bố**; lập luận cấu trúc (kết quả âm tính V10) là bằng chứng đáng tin cậy hơn cho luận điểm bị giới hạn dữ liệu.
+
+#### 4.7.9.3 Giới hạn McNemar biên
+
+Các dự đoán theo clip của bài báo không được công bố, vì vậy kiểm định McNemar ghép cặp không thể được tính chính xác. Giới hạn dưới đây chỉ sử dụng các giá trị biên đã biết: với cả hai bộ phân loại được đánh giá trên cùng N = 64, tổng ô không đồng nhất D = b₀₁ + b₁₀ thỏa mãn |b₀₁ − b₁₀| = |k_a − k_b| và bị giới hạn bởi mức độ chính xác riêng lẻ của cả hai bộ phân loại.
+
+**Bảng 4.16c — Giới hạn McNemar biên (ghép cặp N = 64)**
+
+| So sánh                              | Khoảng D          | Khoảng χ²             | Khoảng p                |
+| --------------------------------------- | ---------------- | -------------------- | ---------------------- |
+| của chúng tôi 56/64 so với bài báo đầy đủ 62/64          | [6, 10]          | [2.50, 4.17]         | [0.041, 0.114]         |
+| của chúng tôi 56/64 so với baseline bài báo 57/64      | [1, 15]          | [0.00, 0.07]         | [0.79, 1.00]           |
+
+So sánh pipeline đầy đủ giới hạn p ≈ 0.05; liệu thâm hụt có ý nghĩa thống kê theo ghép cặp hay không phụ thuộc vào sự chồng lấp theo clip không thể quan sát. So sánh baseline (hiện được neo đúng vào 57/64) không có ý nghĩa thống kê một cách rõ ràng ở tất cả các giới hạn — một swing 1 mẫu trên 64 mẫu không mang tín hiệu.
+
+### 4.7.10 Nghiên cứu loại bỏ độ phân giải đầu vào (224² so với 384², đầu single-head direct4)
+
+Pipeline đầy đủ nhận các khung hình ở độ phân giải 224 × 224 — một điểm hoạt động thân thiện với YOLOv11s giúp giữ chi phí chính (backbone forward theo khung hình) rẻ hơn khoảng 3× so với 384 × 384 và khớp với điểm hoạt động được đo lường cho triển khai edge (Ch 5 §5.4). Lựa chọn này không miễn phí: độ phân giải đầu vào cao hơn bảo toàn nhiều chi tiết không gian hơn ở lớp 22 trước khi pool 4 × 4 thu gọn mỗi khung hình xuống 16 token. Để kiểm toán sự đánh đổi, YOLOv11s + đầu direct4 được trích xuất và huấn luyện lại end-to-end ở 384 × 384 (`run_resolution_ablation.py`, `sweep_results/ablations/resolution_ablation.json`). Cascade và ensemble *không* được chạy lại — direct4 bao phủ 55 trong số 56 mẫu ensemble, vì vậy nó là phép đo có đòn bẩy cao nhất của hiệu ứng độ phân giải; huấn luyện lại ensemble đầy đủ ở 384² sẽ tiêu tốn ~12 giờ thời gian MPS mà không thay đổi kết luận.
+
+**Bảng 4.22 — Nghiên cứu loại bỏ độ phân giải đầu vào, đầu single-head direct4, seed = 314**
+
+| Độ phân giải     | Top-1 | Top-1 % | Macro  | Walk  | Unauth | Panel | Forklift |
+| -------------- | ----: | ------: | -----: | ----: | -----: | ----: | -------: |
+| **224² (hoạt động)** | **55/64** | **85.94** | **0.874** | 0.844 | 0.727 | 0.923 | 1.000 |
+| 384² (loại bỏ)      |    52/64  |    81.25  |    0.772  | 0.906 | **0.182** | 1.000 | 1.000 |
+| Δ (384 − 224)        |     −3    |    −4.69 pp |  −10.16 pp | +0.062 | **−0.545** | +0.077 | 0.000 |
+
+**Đọc một cách trung thực.** Độ phân giải cao hơn *không* phải là lợi ích miễn phí. 384² *cải thiện* WalkwayViol (+6.2 pp), OpenedPanel (+7.7 pp), và bão hòa CarryOverload — ba trong bốn lớp — nhưng **làm sụp đổ UnauthorInt từ 8/11 xuống 2/11 (−54.5 pp)**, kéo macro xuống 10.16 pp. Sự sụp đổ nhất quán với hành vi mất cân bằng lớp được mô tả trong §4.4 và §4.7.9.1: UnauthorInt có hỗ trợ nhỏ nhất (n = 11, ~17 % tập kiểm tra) và phụ thuộc vào việc phân biệt *ai đang trong khu vực* hơn là ngoại hình — đầu nhạy cảm hơn với sự trôi dạt biểu diễn ở lớp thiểu số. Độ phân giải đầu vào cao hơn dịch chuyển các thống kê token không gian đủ để bộ phân loại cố định seed, được huấn luyện lại từ đầu với dừng sớm dựa trên patience, không còn khôi phục được đa tạp UnauthorInt ở 384² (dừng sớm tại epoch 80, tốt nhất 52/64). Tính toán không phải là trục duy nhất mà 224² là lựa chọn đúng — nó cũng là điểm hoạt động độ chính xác đơn trục tốt hơn.
+
+Phát hiện này nhất quán về hướng với nghiên cứu loại bỏ lưới pool không gian §4.7.4: khi lưới pool 4 × 4 đã được cố định, *thêm* độ phân giải không gian ở thượng nguồn không lan truyền đến bộ phân loại ở quy mô tập dữ liệu này (566 clip huấn luyện, 8 lớp). Lựa chọn 224² được bảo vệ trong §3.2 do đó được giữ lại dựa trên cơ sở độ chính xác ngoài cơ sở tính toán.
+
+### 4.7.11 Đánh giá giữ lại mù (loại bỏ rò rỉ lựa chọn mô hình)
+
+§4.1 tiết lộ rằng mọi đầu đều chọn epoch tốt nhất của nó theo độ chính xác trên tập kiểm tra 64 clip, và các thành viên ensemble chính được chọn tham lam trên cùng tập đó. Do đó con số 56/64 kế thừa rò rỉ lựa chọn mô hình. Phần con này đo lường những gì pipeline tạo ra khi rò rỉ đó được loại bỏ hoàn toàn.
+
+**Giao thức.** Một lát phân tầng kiểm định được cắt ra từ tập *huấn luyện* (≈ 20 %, 91 trong số 452 clip huấn luyện bốn lớp; phân tầng theo 8 lớp, seed phân chia cố định). Mọi đầu đều được huấn luyện lại từ đầu và epoch tốt nhất của nó được chọn trên lát kiểm định đó; cấu hình ensemble (direct-4 so với cascade so với ensemble direct-4 + cascade) và seed cũng *được chọn trên kiểm định*. Tập kiểm tra 64 clip được chạm đúng một lần, cho số liệu cuối cùng. Quy trình nằm trong `run_blind_eval.py`; hai giao thức được chạy (val_frac 0.20 với ensemble chính cố định, và val_frac 0.15 với chọn cấu hình + seed dựa trên kiểm định) trên seed {314, 42, 123, 7}.
+
+**Bảng 4.24 — Giữ lại mù so với chính được chọn trên tập kiểm tra**
+
+| Chế độ lựa chọn | top-1 | macro | Ghi chú |
+|---|---|---|---|
+| Trường hợp tốt nhất (epoch được chọn trên kiểm tra, seed may mắn 314, ensemble tham lam) | 56/64 = 87.5 % | 89.28 % | checkpoint triển khai; giới hạn trên lạc quan |
+| Điển hình (được chọn trên kiểm tra, seed chuẩn, direct-4 đơn) | 53.3/64 | ~84.8 % | trung thực về seed, vẫn chọn trên kiểm tra |
+| **Mù — direct-4 đơn, epoch được chọn trên kiểm định** | **51.7 ± 2.0 / 64 ≈ 80.8 %** | **~84 %** | ước lượng tổng quát hóa trung thực |
+| Mù — ensemble direct-4 + cascade, được chọn trên kiểm định | 50.7 / 64 | 83.9 % | ensemble *kém hơn* đầu đơn |
+| Baseline ConvLSTM bài báo (không có bbox) | 57/64 = 89.06 % | 85.78 % | giao thức không được báo cáo |
+
+*Nguồn:* `plans/.../reports/blind-eval-result.json`, `blind-eval-v2-vf0.15.json`.
+
+Ba kết luận. **(i)** Top-1 trung thực không rò rỉ là **≈ 52/64 (≈ 81 %)** — khoảng 4–5 mẫu của trường hợp tốt nhất 56/64 là sự lạc quan lựa chọn mô hình (≈ 2 từ chọn epoch trên đầu đơn, phần còn lại từ seed may mắn và ensemble tham lam trên kiểm tra). **(ii)** Ưu thế macro so với baseline **không** tồn tại: macro mù tốt nhất (direct-4 đơn, ~85 %) ngang bằng trừ một với 85.78 % của baseline, và macro ensemble (83.9 %) thấp hơn. "Lợi thế macro +3.5 pp" được báo cáo trong các bản thảo trước là tạo phẩm lựa chọn kiểm tra và bị rút lại. **(iii)** Khi cấu hình được chọn trên kiểm định thay vì trên tập kiểm tra, **đầu direct-4 đơn được chọn trên mọi seed** — cascade theo cặp đối lập và ensemble bị từ chối một cách trung thực, xác nhận §4.7.9 (P = 0.63, CI chạm không) ở dạng mạnh nhất. Chạy nhiều giao thức lựa chọn trung thực (hai tỷ lệ val, chọn cấu hình và seed dựa trên kiểm định) không nâng ước lượng lên trên ~52/64, cho thấy con số là thuộc tính ổn định của biểu diễn đặc trưng frozen, không phải tạo phẩm của một phân chia kém may mắn.
+
+Con số mù ≈ 52/64 này là con số có thể bảo vệ của pipeline đầu đơn frozen. Tiêu đề luận văn — cấu hình zero-bbox tốt nhất (hybrid + frame-gate, §4.6.2) — nâng con số này lên **53/64 (82.8 % top-1, 85.4 % macro)**, ngang bằng macro với baseline không có bbox ngay cả dưới giao thức mù. Artifact triển khai (Chương 5) vẫn sử dụng checkpoint trường hợp tốt nhất 56/64 — mô hình người ta thực sự sẽ đưa vào sản xuất — nhưng tuyên bố *khoa học* về tổng quát hóa ghi công kết quả hybrid+gate mù, và cả ba con số đều được giữ riêng biệt xuyên suốt.
+
+## 4.8 Khả năng diễn giải — đầu phân loại học được gì?
+
+Các con số độ chính xác ở §4.3–§4.7 chứng minh *rằng* đầu gating đa luồng (multi-stream gated head) hoạt động; phần này đặt câu hỏi *nó học được gì*. Phép thử (probe) nhắm vào embedding [CLS] do bộ mã hóa (encoder, §3.3.3) tạo ra — vector 384 chiều được đưa vào MLP phân loại — và đo mức độ mỗi mô hình phân tách bốn lớp hành vi trong không gian cosine. Đặc trưng YOLO đóng băng thô (raw frozen-YOLO features) được dùng làm đường cơ sở (baseline).
+
+### 4.8.1 Sự sụp đổ của đặc trưng thô
+
+Các đặc trưng lớp 22 của YOLOv11s được tổng hợp trung bình (mean-pooled, không có đầu phân loại) đặt cả bốn lớp ở độ tương đồng cosine gần như giống hệt nhau, xác nhận định lượng luận điểm ở §4.5:
+
+**Bảng 4.19 — Độ tương đồng cosine giữa các cặp lớp với đặc trưng YOLO đóng băng thô**
+
+| Cặp lớp                             | Cos giữa các lớp | Cos cặp max |
+| ----------------------------------- | ----------------: | -----------: |
+| WalkwayViol  vs  UnauthorInt        |             0.834 |        0.918 |
+| WalkwayViol  vs  OpenedPanel        |             0.821 |        0.917 |
+| UnauthorInt  vs  OpenedPanel        |             0.819 |        0.916 |
+| OpenedPanel  vs  CarryOverload      |             0.823 |        0.924 |
+
+Tất cả các cặp tụ cụm trong khoảng 0.82–0.93. Backbone đóng băng, tự thân nó, đặt bốn lớp hành vi về cơ bản là đồng tuyến (co-linear) trong không gian embedding. Đây là phát biểu hình học của luận điểm bị ràng buộc bởi dữ liệu (data-bound) tại §4.5.
+
+### 4.8.2 Điều đầu direct4 học được
+
+Sau khi huấn luyện end-to-end trên nhãn 4 lớp, hình học embedding [CLS] thay đổi đáng kể:
+
+**Bảng 4.20 — Cosine embedding [CLS] của direct4_s314**
+
+| Cặp lớp                             | Cos giữa các lớp | Δ so với thô |
+| ----------------------------------- | ----------------: | -------: |
+| WalkwayViol  vs  UnauthorInt        |        **+0.375** |   −0.459 |
+| WalkwayViol  vs  OpenedPanel        |            −0.353 |   −1.174 |
+| WalkwayViol  vs  CarryOverload      |            −0.023 |   −0.844 |
+| UnauthorInt  vs  OpenedPanel        |            −0.348 |   −1.167 |
+| UnauthorInt  vs  CarryOverload      |            −0.233 |   −1.057 |
+| OpenedPanel  vs  CarryOverload      |            −0.061 |   −0.884 |
+
+Ba trong bốn cặp "dễ" bị đẩy đến cosine *âm*, tức là đầu phân loại chủ động tách chúng ra. Cặp khó WalkwayViol ↔ UnauthorInt được giảm từ 0.834 xuống 0.375 — một sự phân tách đáng kể, nhưng hai cụm vẫn nằm trong cùng một nửa không gian. Đây là dấu vân tay hình học của mẫu lỗi còn lại: đầu phân loại học một bộ tách một phần trên cặp nhầm lẫn, vừa đủ để đạt 8/11 UnauthorInt và 27/32 WalkwayViol nhưng không hơn.
+
+### 4.8.3 Các đầu theo cặp không tách cụm; chúng phân loại
+
+Nếu các đầu theo cặp hoạt động bằng cách phân cụm, thì các lớp trong cặp đích sẽ bị đẩy xa nhau trong không gian [CLS]. Nhưng điều này không xảy ra:
+
+**Bảng 4.21 — Cosine embedding [CLS] của đầu theo cặp nhị phân trên cặp đích của chúng**
+
+| Đầu theo cặp          | Cosine cặp đích | Cosine trong lớp (c1 / c2) |
+| --------------------- | -----------------: | ----------------------------: |
+| pair0 Walkway-vs-?    |              0.676 |                  0.660 / 0.654 |
+| pair1 Intervention    |              0.788 |                  0.835 / 0.748 |
+| pair2 Panel           |              0.843 |                  0.880 / 0.794 |
+| **pair3 Forklift**    |          **0.984** |              **0.986 / 0.981** |
+
+Các đầu theo cặp *không* đẩy các lớp đích ra xa nhau trong không gian cosine — độ tương đồng giữa các cặp tương đương hoặc cao hơn độ tương đồng trong cùng lớp. Điều này giải thích phát hiện ở §4.7.1 rằng pair-unsafe-only chỉ đạt 11/64: các đầu theo cặp dựa vào hình học bộ phân loại tuyến tính trên một cụm chưa tách, vì vậy xác suất của chúng chỉ hữu ích khi nhân với phân phối kịch bản (quy tắc cascade).
+
+Trường hợp nổi bật nhất là **pair3_Forklift**, nơi mọi cosine — trong lớp và giữa các lớp — đều hội tụ về ~0.98. Đây là dấu vân tay hình học của một đầu thoái hóa (degenerate head) được huấn luyện trên quá ít mẫu (n_train ≈ 60 trên hai lớp); nó tạo ra các logit hữu ích nhưng hình học embedding sụp đổ.
+
+### 4.8.4 Các phép chiếu t-SNE
+
+Hình 4.1 cho thấy các phép chiếu t-SNE 2-D (perplexity = 10) của mỗi không gian embedding. Lưu dưới dạng PNG trong `figures/embedding_tsne_*.png`:
+
+- `embedding_tsne_raw.png` — đặc trưng YOLO thô; các lớp xuyên thấu nhau.
+- `embedding_tsne_direct4_s314.png` — đầu direct4; OpenedPanel và CarryOverload tạo thành các cụm rõ ràng; WalkwayViol và UnauthorInt nằm chồng lấn một phần.
+- `embedding_tsne_pair{0..3}_*.png` — không gian đầu theo cặp; chỉ pair0 và pair2 tạo ra sự phân tách cặp đích nhìn thấy được; pair3 sụp đổ thành một dải kéo dài duy nhất.
+
+**Kết luận.** Đóng góp của đầu phân loại có thể kiểm chứng trong hình học, không chỉ trong độ chính xác. Ba trong bốn đầu theo cặp dựa vào sức mạnh ranh giới bộ phân loại hơn là sự tách cụm, điều này vừa (a) giải thích mức tăng từ một mẫu nhờ tổng hợp cascade (§4.7.1) và vừa (b) giới hạn mức độ độ chính xác có thể được khai thác thêm từ mục tiêu contrastive theo cặp ở quy mô chú thích này.
+
+### 4.8.5 Chuyển giao qua tập dữ liệu — thử nghiệm zero-shot trên UCF-Crime
+
+Để kiểm tra liệu đầu phân loại học *ngữ nghĩa an toàn* hay *kết cấu hình ảnh*, ensemble đã huấn luyện (không huấn luyện lại, không fine-tuning) được áp dụng trên **267 đoạn clip bất thường từ UCF-Crime** [22] — ba miền giám sát khác nhau (Burglary, Fighting, RoadAccidents) chia sẻ các đặc trưng hình ảnh cấp thấp (góc nhìn CCTV, ánh sáng yếu, cảnh trong nhà, chuyển động) với Unsafe-Net nhưng **không có sự chồng lấp về ngữ nghĩa** với bốn lớp hành vi không an toàn công nghiệp. Nhãn ground-truth UCF-Crime không ánh xạ vào tập lớp Unsafe-Net, do đó chỉ số đo là *cấu trúc* — phân phối dự đoán và độ tin cậy — không phải độ chính xác top-1.
+
+**Bảng 4.23 — Chuyển giao zero-shot sang bất thường UCF-Crime (N = 267)**
+
+| Chỉ số                                        | Giá trị                     |
+| --------------------------------------------- | --------------------------: |
+| Dự đoán là **WalkwayViol**                    | 7 / 267 (2.6 %)             |
+| Dự đoán là **UnauthorInt**                    | 42 / 267 (**15.7 %**)       |
+| Dự đoán là **OpenedPanel**                    | 10 / 267 (3.7 %)            |
+| Dự đoán là **CarryOverload**                  | 208 / 267 (**77.9 %**)      |
+| Xác suất max ensemble trung bình (độ tin cậy) | 0.747                       |
+| Xác suất max trung bình trên tập test Unsafe-Net | 0.804                    |
+| Tỉ lệ dự đoán tin cậy cao (max-p > 0.5)      | 88.0 %                      |
+| Tỉ lệ tham chiếu đường cơ sở đều đặn mỗi lớp | 25 %                        |
+
+**Theo lớp UCF-Crime (tỉ lệ → UnauthorInt; tỉ lệ → CarryOverload):**
+
+| Lớp UCF        |   N | Walk | Unauth | Panel | Forklift | f→Unauth | mean p | high-conf |
+| -------------- | --: | ---: | -----: | ----: | -------: | -------: | -----: | --------: |
+| Burglary       | 100 |    3 |     20 |     4 |       73 |    0.200 |  0.757 |     0.880 |
+| Fighting       |  50 |    1 |      9 |     0 |       40 |    0.180 |  0.764 |     0.880 |
+| RoadAccidents  | 117 |    3 |     13 |     6 |       95 |    0.111 |  0.732 |     0.880 |
+| **Tổng hợp**   | **267** | **7** | **42** | **10** | **208** | **0.157** | **0.747** | **0.880** |
+
+*Nguồn:* `sweep_results/ablations/ucf_crime_zeroshot.json`,
+`run_ucf_crime_zeroshot.py`. Trạng thái tải xuống UCF-Crime tại thời điểm đánh giá:
+267 trong số 450 clip bất thường mục tiêu đã được tải (Burglary đầy đủ, Fighting đầy đủ,
+RoadAccidents một phần); các lớp còn lại (Vandalism, Stealing) là
+hướng nghiên cứu tương lai — script có thể tiếp tục hoàn toàn.
+
+**Ba phát hiện.**
+
+1. **Tỉ lệ → UnauthorInt = 15.7 %**, **thấp hơn đường cơ sở đều đặn 25 %** — tức là đầu phân loại chủ động *định tuyến tránh* lớp là kết quả khớp ngữ nghĩa gần nhất với "can thiệp trái phép". Ngay cả với Burglary đơn lẻ (lớp UCF-Crime được căn chỉnh ngữ nghĩa nhất), tỉ lệ chỉ là 20 % — vẫn dưới đường cơ sở ngẫu nhiên. Đầu pair1, mà §4.8.3 xác định là cặp duy nhất học được sự tách cụm không tầm thường, **không** tổng quát hóa quy tắc quyết định của nó sang một miền giám sát khác. Đây là bằng chứng trực tiếp rằng đầu phân loại học *phân phối Unsafe-Net của "người gần thiết bị"* hơn là một khái niệm có thể chuyển giao về "sự hiện diện trái phép".
+
+2. **78 % clip sụp đổ về CarryOverload** — lớp huấn luyện nhỏ nhất trong Unsafe-Net (8 clip) và lớp có *không có* sự chồng lấp hình ảnh với bất kỳ danh mục bất thường UCF-Crime nào. Trên cả ba lớp UCF, sự sụp đổ là nhất quán (Burglary 73 %, Fighting 80 %, RoadAccidents 81 %), vì vậy đây không phải là hiện vật đặc thù của Burglary. Tập huấn luyện nhỏ của CarryOverload tạo ra một đầu phân loại mà ranh giới quyết định trên dữ liệu ngoài phân phối (out-of-distribution) bị chi phối bởi các đặc trưng kết cấu CCTV cấp thấp (góc camera, ánh sáng trong nhà, hiện vật nén video) hơn là các đặc trưng liên quan đến xe nâng hoặc tải trọng. Đây là chế độ thất bại do mẫu nhỏ được dự đoán bởi phân tích cosine §4.8.3 (nơi các cosine embedding của pair3_Forklift sụp đổ về ~0.98), hiện nay nhìn thấy được ở cấp độ xuyên tập dữ liệu.
+
+3. **Độ tin cậy chỉ giảm 0.057 (0.747 so với 0.804)** giữa trong miền và xuyên miền, và **88 % dự đoán vượt ngưỡng tin cậy cao (max-p > 0.5)** — *cao hơn* tỉ lệ tin cậy cao trong miền. Do đó ensemble **tự tin thái quá trên dữ liệu ngoài phân phối** — một thất bại hiệu chỉnh mà bất kỳ triển khai giám sát an toàn nào cũng phải kiểm soát tường minh (ví dụ với bộ phân loại nhị phân trong phân phối hoặc ngưỡng entropy), vì các xác suất theo lớp tự thân không báo hiệu "tôi chưa thấy điều này trước đây".
+
+**Hệ quả đối với đóng góp Ch1 (4).** §4.5–§4.6 đã lập luận rằng khoảng cách còn lại so với 95.81 % của bài báo bị ràng buộc bởi khối lượng chú thích. Phần này bổ sung bằng chứng trực giao rằng biểu diễn học được ở quy mô chú thích này *không phải* là một bộ phát hiện "hành vi không an toàn" tổng quát — mà là một bộ phân loại *đặc thù cho Unsafe-Net* không tồn tại được sau khi dịch chuyển miền. Cả hai phát hiện đều chỉ cùng một hướng: dữ liệu có giám sát nhiều hơn (và đa dạng hơn), không phải kiến trúc tốt hơn, là đòn bẩy để đạt được góc Pareto độ chính xác cao.
+
+## 4.9 Tóm tắt
+
+Pipeline YOLO–Transformer đạt **tốt nhất 87.50 % top-1 (89.28 % macro)** trên tập con 4 lớp không an toàn của Unsafe-Net. Theo **giao thức giữ lại mù (blind held-out), pipeline đầu đơn đóng băng (§4.7.11) đạt ≈ 52/64 (≈ 81 % top-1, macro ≈ 84 %)** — thấp hơn đường cơ sở ConvLSTM-only không bbox trên top-1 (57/64 = 89.06 %) và chưa đạt parity macro (85.78 %). Cấu hình zero-bbox tốt nhất — **hybrid + frame-gate (§4.6.2) — nâng độ chính xác mù trung thực lên 53/64 (82.8 % top-1, 85.4 % macro), đạt parity macro với đường cơ sở không bbox ngay cả khi mù; đây là tiêu đề có thể bảo vệ của luận văn.** Mức tăng "+3.5 pp macro" được báo cáo theo đánh giá được chọn trên tập test không tồn tại được sau giao thức mù và bị rút lại; tương tự cho cascade/ensemble, mà lựa chọn cấu hình mù bác bỏ để ưu tiên đầu direct-4 đơn trên mọi seed. Điều mạnh mẽ là *chẩn đoán*: khoảng cách so với pipeline đầy đủ của bài báo (62/64 = 96.88 %, Bảng 6) tập trung ở cặp WalkwayViol ↔ UnauthorInt và được chứng minh — thông qua hơn mười track thực nghiệm độc lập (bao gồm backbone VideoMAE 86 triệu tham số), kết quả âm của V10 bbox-finetune, kết quả âm của cross-ensemble, và thử nghiệm dịch chuyển miền UCF-Crime — là **bị ràng buộc bởi khối lượng dữ liệu, không phải bởi kiến trúc**: ngay cả chú thích lớp hành vi có mục tiêu ở quy mô 400 khung hình *làm giảm* độ chính xác vì tiên nghiệm COCO bị loại bỏ nhanh hơn khi được thay thế. Chương 5 đưa checkpoint đã triển khai tiến lên một hệ thống edge được đo lường (đóng góp chính được thực hiện của luận văn); Chương 6 đặt ra lộ trình công việc tương lai xung quanh việc mở rộng ngân sách chú thích hơn là các sửa đổi kiến trúc đã được thử ở đây.
+
+---
+
+## Tài liệu tham khảo
+
+Các trích dẫn trong chương này sử dụng sơ đồ đánh số Chương 2 (sẽ được hợp nhất vào danh mục tài liệu tham khảo thống nhất khi biên soạn luận văn cuối cùng).
+
+[17] K. B. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based
+     computer vision system for real-time detection of unsafe behaviours
+     in workplace," *Multimedia Tools and Applications*, vol. 84, pp.
+     34967–34993, 2025. DOI: 10.1007/s11042-024-19276-8.
+     Dataset: https://data.mendeley.com/datasets/xjmtb22pff/1
+     (DOI: 10.17632/xjmtb22pff.1, CC BY 4.0).

@@ -1,0 +1,70 @@
+# Tái Định Hướng Theo Hướng Triển Khai Thực Tế & Kết Luận Tổng Hợp (bản nháp để xem xét)
+
+> Bản nháp độc lập tổng hợp luận văn xung quanh những gì thực sự được bàn giao. Phục vụ Chương 1
+> (§1.3 mục tiêu, §1.4 đóng góp), Chương 4/§4.8 và Chương 6 (kết luận). Tất cả các khẳng định
+> đều được minh chứng bằng các artifact đã được commit. Tiếng Anh để khớp với các chương hiện có. Xem xét, rồi tích hợp.
+
+## 1. Luận điểm trung thực trong một đoạn văn
+
+Luận văn này **không** đề xuất kiến trúc mới, không đạt ngưỡng macro 95,81 % của bài báo, và —
+dưới đánh giá không rò rỉ dữ liệu (leakage-free evaluation) — không vượt qua được ngay cả baseline không có bbox (no-bbox baseline) về top-1. Điều luận văn *thực sự* mang lại là (a) một **hệ thống edge (triển khai biên) thời gian thực, bảo vệ quyền riêng tư theo cấu trúc (privacy-by-construction), có thể đo lường và tái tạo** để phát hiện hành vi không an toàn trong công nghiệp (Jetson Orin Nano Super, INT8/TensorRT, 4 luồng không mất khung hình, ngâm 36 phút ở mức 7 W) mà **không có công trình tiền nhiệm nào về tác vụ này cung cấp**, và (b) một **chẩn đoán nghiêm ngặt, tam giác hóa** rằng ngưỡng trần độ chính xác trên bộ dữ liệu này **bị ràng buộc bởi việc thiếu giám sát vùng không gian, chứ không phải năng lực mô hình** — được thiết lập từ ba kết quả âm tính (negative result) độc lập. Đóng góp là một hệ thống có thể triển khai cộng với một trình bày khoa học trung thực, được giới hạn rõ ràng về lý do tại sao độ chính xác dừng ở mức đó. Đó là luận văn.
+
+## 2. Nhan đề tái định hướng (chọn một)
+
+1. *Hệ Thống Edge Thời Gian Thực, Bảo Vệ Quyền Riêng Tư cho Phát Hiện Hành Vi Không An Toàn trong Giám Sát Công Nghiệp: Triển Khai, Đánh Giá Nghiêm Ngặt và Giới Hạn của Mô Hình Video Không Annotation*
+2. *Phát Hiện Hành Vi Không An Toàn có thể Triển Khai trên Edge mà Không cần Giám Sát Bounding-Box: Một Hệ Thống Đo Lường và Chẩn Đoán Bị Ràng Buộc bởi Dữ Liệu*
+3. *Từ Máy Chủ đến Edge: Bộ Giám Sát Hành Vi Không An Toàn Đa Luồng Thời Gian Thực 7 Watt và Trình Bày Trung Thực về Ngưỡng Trần Độ Chính Xác Zero-Bbox*
+
+(Bỏ "YOLO và Transformer" khỏi nhan đề — §4.8 cho thấy đầu Transformer không phải thành phần hoạt động chủ đạo. Giữ YOLO/Transformer như chi tiết *phương pháp* bên trong, không phải là khẳng định tiêu đề.)
+
+## 3. Mục tiêu tái định hướng (thay thế MT1–MT3 trong đề cương)
+
+| Cũ (đề cương) | Mới (đã bàn giao) |
+|---|---|
+| MT1: kiến trúc YOLO–Transformer mới (lớp temporal RT-DETR) | **O1: Xây dựng bộ phân loại video zero-bbox dùng đặc trưng YOLO + đầu nhẹ (lightweight head); mô tả trung thực những gì nó có thể và không thể học được trên Unsafe-Net.** (kết hợp kỹ thuật, không phải cơ chế mới) |
+| MT2: độ chính xác > 95,8 % | **O2: Đánh giá nghiêm ngặt khả năng tổng quát hóa (k-fold leakage-free, bền vững theo cảnh, FNR an toàn) và chẩn đoán ngưỡng trần độ chính xác.** |
+| MT3: tối ưu hóa edge + thời gian thực đa luồng | **O3 (chính): Triển khai và đo lường hệ thống edge thời gian thực, đa luồng, privacy-by-construction; định lượng Pareto độ chính xác–năng lượng–độ trễ so với baseline máy chủ.** (không thay đổi — đã đạt/vượt mục tiêu) |
+
+## 4. Cốt lõi phương pháp luận — kết quả âm tính tam giác hóa
+
+Giá trị khoa học của luận văn nằm ở chỗ nó ghim ngưỡng trần độ chính xác vào **giám sát vùng không gian (zone supervision)** từ ba hướng độc lập, mỗi hướng được kiểm tra đúng cách:
+
+1. **Mô hình hóa temporal không mang lại gì** (§4.7.8 ablation): các luồng chuyển động/đạo hàm được xây thủ công không cho thấy cải thiện đo lường được so với đặc trưng ngoại hình.
+2. **Đầu Transformer không đánh bại linear probe** (§4.8 k-fold): trên phân chia ngẫu nhiên, nó tệ hơn *đáng kể* (Δ = −4,65 pp, Nadeau–Bengio p = 0,007); phân chia bền vững theo cảnh thì tương đương. Hồi quy logistic trên đặc trưng frozen được mean-pooled tốt bằng hoặc tốt hơn → cơ chế attention không phải thành phần hoạt động chủ đạo.
+3. **Đặc trưng không gian tự động thô không giúp ích** (WS4): thêm năng lượng theo ô + centroid kích hoạt thay đổi top-1 +0,1 pp (ngẫu nhiên) và **−3,8 pp** (bền vững theo cảnh); chúng theo dõi bố cục cảnh, không phải người, và gây hại trên các cảnh chưa thấy.
+
+Cả ba đều dẫn đến cùng một kết luận mà thiết kế của bài báo ngụ ý: sự nhầm lẫn WalkwayViolation ↔ UnauthorizedIntervention (chiếm gần như toàn bộ tỷ lệ bỏ sót an toàn — Unauth FNR 68 % bền vững theo cảnh) **chỉ có thể giải quyết được với giám sát vùng hạn chế tường minh** (2.262 bounding box theo frame của bài báo, hoặc virtual fence tương đương). Ngoại hình ảnh đơn thuần, dù frozen hay fine-tuned, không thể phục hồi thông tin người đứng ở vùng sàn nào. Được báo cáo như một kết quả âm tính, điều này giúp các công trình tương lai tránh ba ngõ cụt và tự nó là một đóng góp (cf. Beyer et al., 2017).
+
+Lưu ý khả thi (tích cực): phân cụm góc nhìn cho thấy chỉ ~6–8 cảnh camera cố định và lối đi được vẽ trên sàn — do đó *virtual fence* (một đa giác mỗi góc nhìn + kiểm tra điểm chân người) là con đường rẻ nhất để có được sự giám sát mà mô hình thiếu; nó được xác định là công việc tương lai ngay gần (công cụ và frame theo góc nhìn đã chuẩn bị sẵn trong `annotation_guide/zones/`).
+
+## 5. Đóng góp chính — hệ thống edge (tiêu đề chính)
+
+Tóm tắt như kết quả dẫn đầu (Chương 5, đo trực tiếp trên phần cứng, không phải dự báo):
+- **8,62 ms / 116 FPS** luồng đơn FP16; INT8 8,24 ms / 121 FPS; tương đương độ chính xác FP32.
+- **4 luồng đồng thời, 88 FPS tổng hợp, không mất khung hình**; ngâm 36,2 phút, 0 throttle, **7,0 W**.
+- **Privacy by construction (bảo vệ quyền riêng tư theo cấu trúc):** khung hình thô không bao giờ rời thiết bị; ~50 kbps uplink metadata (thấp hơn 2 bậc độ lớn so với một luồng 1080p) — có thể kiểm tra được chỉ bằng bất cân xứng băng thông.
+- **Vị trí Pareto:** đánh đổi ~6,5 pp macro so với cascade Unsafe-Net đầy đủ để đổi lấy **không cần annotation bbox (~190 giờ tiết kiệm), thiết bị $249–499 / 7 W** (so với workstation ~400 W, ~$1.500 với 2×GTX-1080 của bài báo), thời gian thực 4 luồng và quyền riêng tư. Không có công trình tiền nhiệm nào về tác vụ này chiếm điểm vận hành edge này.
+
+## 6. Định vị độ chính xác trung thực (một bảng, không tô vẽ)
+
+| Cấu hình | Top-1 | Macro | Ghi chú |
+|---|---|---|---|
+| Bài báo đầy đủ (2.262 bbox) | 96,88 % | 95,81 % | cận trên; annotation nặng |
+| Baseline không bbox của bài báo | 89,06 % | 85,78 % | zero bbox |
+| Của chúng tôi — checkpoint triển khai (phân chia 64-clip chuẩn) | 87,5 % (56/64) | 89,28 % | artifact đã ship |
+| **Của chúng tôi — k-fold ngẫu nhiên (đầu đơn, leakage-free)** | **75,3 ± 1,2 %** | **77,8 ± 1,0 %** | khả năng tổng quát hóa đại diện |
+| **Của chúng tôi — k-fold bền vững theo cảnh** | **71,9 ± 1,6 %** | **71,8 ± 1,0 %** | ước tính triển khai trung thực |
+
+Nêu rõ ràng: phân chia chuẩn 56/64 là checkpoint đã triển khai; khả năng tổng quát hóa leakage-free của phương pháp cốt lõi là 72–75 %; chúng tôi không khẳng định ưu thế về độ chính xác. Đóng góp là hệ thống edge + chẩn đoán nghiêm ngặt, trên CI thu hẹp (15,6 pp → 4,4 pp).
+
+## 7. Bản đồ tích hợp (từng phần đặt ở đâu)
+
+- **Ch.1 §1.3/§1.4:** đổi mục tiêu (bảng §3) + đóng góp = [hệ thống edge (chính), chẩn đoán bị ràng buộc bởi dữ liệu tam giác hóa, sự nghiêm ngặt trong đánh giá, kết quả âm tính]. Bỏ "kiến trúc mới".
+- **Ch.1/nhan đề:** chọn một nhan đề từ §2.
+- **Ch.4:** chèn §4.8 (`chapter-04-section-kfold-cross-validation.md`); thêm kết quả âm tính không gian WS4 như §4.9 tiểu mục ngắn (1–2 đoạn từ §4 ở trên).
+- **Ch.6 kết luận:** dẫn đầu bằng đoạn §1; cấu trúc gồm (i) đóng góp edge chính, (ii) phát hiện bị ràng buộc bởi dữ liệu tam giác hóa, (iii) hạn chế (bộ dữ liệu đơn, N, SKU đơn), (iv) công việc tương lai = virtual fence (công cụ sẵn sàng) + đa SKU + camera trực tiếp.
+- **Tóm tắt:** viết lại từ §1.
+
+## 8. Rủi ro còn lại / cần báo cáo với người hướng dẫn
+- Các số liệu leakage-free (72–75 %) thấp hơn các tiêu đề trong bản nháp hiện tại — xác nhận người hướng dẫn chấp nhận việc nâng cấp tính trung thực (điều này có thể bảo vệ được và mạnh hơn một con số phóng đại không được nêu rõ, nhưng đây là một thay đổi).
+- "Transformer tệ hơn đáng kể so với linear" là thẳng thắn — cách diễn đạt có thể được làm mềm thành "không cung cấp ưu thế đáng kể so với linear probe" trong khi giữ thống kê trong chú thích.

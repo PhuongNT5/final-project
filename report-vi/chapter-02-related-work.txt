@@ -1,0 +1,188 @@
+# Chương 2 — Các Công Trình Liên Quan
+
+Chương này khảo sát ba mảng nghiên cứu tạo nền tảng cho đóng góp của luận văn: (2.1) họ mô hình YOLO dành cho nhận diện đối tượng thời gian thực, (2.2) kiến trúc Transformer và Transformer lai ghép cho phân loại video, và (2.3) các dataset và hệ thống giám sát an toàn công nghiệp dựa trên thị giác máy. Mục 2.4 tóm tắt vị trí định vị của luận văn này.
+
+## 2.1 Nhận Diện Đối Tượng Thời Gian Thực: Họ Mô Hình YOLO
+
+Nhận diện đối tượng thời gian thực bắt nguồn từ công trình **YOLO** của Redmon et al. [1], đề xuất bài toán nhận diện như một bài hồi quy đơn giai đoạn trên lưới không gian dày đặc, đạt tốc độ nhanh hơn nhiều bậc so với nhánh Fast R-CNN trong khi vẫn duy trì mAP cạnh tranh. Các phiên bản tiếp theo dần tích hợp các ý tưởng từ cộng đồng nghiên cứu nhận diện rộng hơn:
+
+- **YOLOv3** [2] giới thiệu các đầu dự đoán đa tỉ lệ theo phong cách FPN và backbone Darknet-53, cải thiện khả năng nhớ lại đối tượng nhỏ.
+- **YOLOv4** [3] — detector được sử dụng trong bài báo Unsafe-Net [17] — bổ sung CSPDarknet, hàm kích hoạt Mish, tăng cường dữ liệu Mosaic, và hàm mất mát CIoU, cân bằng giữa độ chính xác và tốc độ trên GPU thông thường.
+- **YOLOv5–v8** [4, 5] chuẩn hoá kiến trúc xung quanh PyTorch với các đầu anchor-free và các công thức huấn luyện được cải thiện.
+- **YOLOv11** [6] — backbone được sử dụng trong luận văn này — giới thiệu khối C3k2, SPPF spatial pooling, và một neck tinh gọn giúp giảm số tham số trong khi cải thiện throughput trên CPU.
+- **YOLO-World** [7] mở rộng YOLOv8 với khả năng nhắc lệnh văn bản từ vựng mở thông qua căn chỉnh theo phong cách contrastive CLIP, cho phép nhận diện zero-shot các danh mục mới (ví dụ: "người", "xe nâng") mà không cần huấn luyện lại. Luận văn này sử dụng YOLO-World (v2) như một trong các biến thể backbone ở Chương 4.
+
+Một nhánh nhận diện thời gian thực thay thế là **RT-DETR** [8], một detector dựa trên Transformer loại bỏ NMS và đạt tốc độ tương đương YOLO trên GPU T4. Đề xuất ban đầu (Mục 3 của PROPOSAL.txt) dự kiến sử dụng RT-DETR làm temporal encoder; phương pháp luận cuối cùng (Chương 3) thay thế bằng một encoder thuần Transformer nhẹ hơn đặt trên đặc trưng không gian của YOLOv11 bởi vì chuỗi thời gian đã là một lưới token hạng thấp (T × 16 × 512) mà ở đó một decoder cross-attention theo phong cách DETR là không cần thiết.
+
+## 2.2 Mô Hình Hoá Thời Gian Cho Phân Loại Video
+
+Phân loại hành vi video bổ sung một trục thời gian mà các detector tĩnh không thể nắm bắt. Ba họ mô hình có liên quan:
+
+**Hai luồng / hồi quy.** Các công trình đầu tiên kết hợp đặc trưng ngoại hình CNN với đặc trưng chuyển động từ optical flow [9]; các công trình về sau thay thế luồng flow bằng tổng hợp hồi quy. **ConvLSTM** [10] — một biến thể tích chập của LSTM bảo toàn cấu trúc không gian trong trạng thái ẩn — là backbone thời gian của bài báo Unsafe-Net [17] và là baseline trực tiếp của luận văn này. ConvLSTM đạt **85,78 % macro / 89,06 % top-1 (57/64)** trên tập kiểm tra 4 lớp của Unsafe-Net (Bảng 7 macro và Bảng 5 confusion của bài báo); kết hợp với các phát hiện từ YOLO v4, hệ thống kết hợp đạt **95,81 % macro / 96,88 % top-1 (62/64)** (Bảng 6/7). Cột "Overall (%)" trong Bảng 7 của [17] là trung bình macro của các recall theo từng lớp, *không phải* top-1 — một sự phân biệt mà luận văn này duy trì xuyên suốt.
+
+**Tích chập 3D.** I3D [11] và SlowFast [12] mở rộng các tích chập 2D dọc theo trục thời gian và truyền theo các luồng đa tốc độ. Các phương pháp này chính xác trên các dataset quy mô Kinetics nhưng có FLOPs cao cho mỗi clip và chưa được benchmark trên Unsafe-Net.
+
+**Video Transformers.** **TimeSformer** [13] tách rời attention không gian và thời gian; **ViViT** [14] liệt kê các biến thể attention được phân tích thừa số; **VideoMAE** [15] áp dụng tiền huấn luyện masked autoencoding trên Kinetics/Sthv2 và chuyển giao mạnh sang các dataset downstream nhỏ. Luận văn này đánh giá VideoMAE-base như một baseline frozen-backbone trong khảo sát 10 track rộng hơn được tóm tắt ở §4.5 và nhận thấy ngưỡng trần ~55/64 tương tự như với ngăn xếp YOLOv11 + Transformer mặc dù VideoMAE có số lượng tham số lớn hơn 17× (86 M so với 5 M) — bằng chứng cho thấy ngưỡng trần bị chi phối bởi tín hiệu huấn luyện chứ không phải bởi năng lực biểu diễn.
+
+**Mô hình lai YOLO + Transformer.** Các công trình trước đây kết hợp đặc trưng detector với temporal encoder Transformer còn thưa thớt và thường đặc thù cho từng tác vụ (phát hiện sự cố giao thông, phân đoạn hành động). Chưa có công trình nào trước đây áp dụng kết hợp này cho phân loại hành vi không an toàn trong môi trường công nghiệp, vốn là phạm vi nghiên cứu thực nghiệm của luận văn này.
+
+**Phân loại video có giám sát yếu — một hướng mà luận văn này *không* theo đuổi.** Một dòng nghiên cứu song song về **phát hiện bất thường video có giám sát yếu (WS-VAD — weakly-supervised video anomaly detection)** huấn luyện các bộ phân loại ở cấp video chỉ sử dụng nhãn cấp clip (không phải từng khung) — cùng chế độ giám sát như luận văn này. Baseline kinh điển là **Sultani et al. (2018)** [22] trên UCF-Crime, công thức hoá bài toán định vị bất thường như một bài toán xếp hạng multiple-instance-learning (MIL) trên 32 đoạn mỗi video và báo cáo AUC 75,4 %. Các công trình tiếp theo đã thu hẹp khoảng cách so với baseline có giám sát đầy đủ: **RTFM** (Tian et al., 2021) [23] giới thiệu học hàm độ lớn đặc trưng thời gian bền vững và báo cáo AUC 84,30 % trên UCF-Crime; **MSL** (Li et al., 2022) [24] bổ sung Transformer tự huấn luyện trên đầu vào đa chuỗi và nâng lên 85,62 %; **VadCLIP** (Tang et al., 2024) [25] thích nghi đặc trưng thị giác CLIP và một text encoder frozen cho WS-VAD mà không cần huấn luyện lại, một baseline zero-shot có liên quan đến thiết kế frozen-COCO của luận văn này.
+
+Các phương pháp này *không* được sử dụng làm phương pháp chính trong luận văn này vì (a) chúng được công thức hoá như các bộ phân loại nhị phân bình thường-so-bất-thường, không phải bài toán phân loại 4 hướng của Unsafe-Net; (b) công thức MIL yêu cầu nhiều nhãn cấp video dương tính cho mỗi lớp, trong khi Unsafe-Net gán một nhãn cho mỗi clip; (c) giao thức đánh giá WS-VAD là AUC trên điểm bất thường từng khung, không phải top-1/macro trên nhãn clip. Tuy nhiên, chúng là họ phương pháp gần nhất với chế độ frozen-feature của luận văn này và là cơ sở của đánh giá zero-shot xuyên dataset được báo cáo trong Ch4 §4.5.4 — áp dụng các đặc trưng frozen của chúng tôi lên UCF-Crime để kiểm tra xem liệu sự sụp đổ mẫu vùng được ghi lại trong Ch4 §4.8 có cũng giới hạn việc chuyển giao sang một lĩnh vực giám sát khác hay không.
+
+## 2.3 Các Benchmark Giám Sát An Toàn Công Nghiệp
+
+Giám sát an toàn dựa trên thị giác máy từ trước đến nay bị cản trở bởi sự thiếu vắng các benchmark video công khai. Các tài nguyên hiện có bao gồm:
+
+- **CHOKE-D** [16] — phát hiện PPE (thiết bị bảo hộ cá nhân), đơn khung hình, được gán nhãn bounding box. Không phải dataset hành vi video.
+- **MVTec AD / ShanghaiTech Campus** — các benchmark phát hiện bất thường; không giám sát và không phù hợp với bài toán phân loại hành vi đa lớp.
+- **Unsafe-Net** (Önal & Dandıl, 2024) [17] — benchmark được sử dụng trong luận văn này. 691 clip video (1920×1080, 24 FPS) được thu thập trong 39 ngày từ một nhà máy duy nhất, lọc ra từ 4000 giờ dữ liệu thô. Mỗi clip mang một nhãn hành vi duy nhất từ 8 lớp (4 an toàn / 4 không an toàn). Phân chia train/test: 566 train / 125 test. Tập con 4 lớp không an toàn được sử dụng để đánh giá chính bao gồm 64 clip kiểm tra: 32 WalkwayViol, 11 UnauthorInt, 13 OpenedPanel, 8 CarryOverload. Giấy phép: CC BY 4.0.
+
+Bài báo Unsafe-Net [17] báo cáo AP phát hiện YOLO v4 theo từng lớp (Bảng 4 của bài báo — AP 86,30–100% trên 8 lớp) và ma trận nhầm lẫn kết hợp YOLO + ConvLSTM (Bảng 6 — 62/64 top-1 trên tập con 4 lớp không an toàn). Quan trọng là, detector YOLO v4 trong [17] được huấn luyện **với các chú thích bounding box từng khung hình** mã hoá các lớp hành vi dưới dạng danh mục đối tượng. Các chú thích bounding box này không được phát hành công khai, điều này ràng buộc phương pháp luận của luận văn này vào chế độ **frozen-backbone** (trọng số COCO hoặc YOLO-World) kết hợp với huấn luyện Transformer-head. Ràng buộc về tính sẵn có của dữ liệu này là nguyên nhân trực tiếp dẫn đến khoảng cách độ chính xác 6 mẫu được phân tích trong Chương 4.
+
+## 2.4 Triển Khai Mô Hình Video Sâu Trên Thiết Bị Biên (Edge)
+
+Triển khai trên thiết bị biên kết hợp biên soạn phần cứng với nén mô hình:
+
+- **ONNX Runtime** [18] cung cấp một runtime suy luận không phụ thuộc ngôn ngữ với các nhà cung cấp thực thi cắm được (CPU, CUDA, CoreML, TensorRT).
+- **TensorRT** [19] biên dịch các đồ thị ONNX thành các kernel được tối ưu hoá cho NVIDIA với gộp đồ thị, lượng tử hoá FP16/INT8, và batching động, nhắm đến Jetson và GPU trung tâm dữ liệu.
+- **Lượng tử hoá động** (`quantize_dynamic` của ONNX Runtime) áp dụng lượng tử hoá INT8 chỉ trọng số mà không yêu cầu dataset hiệu chỉnh; thông thường bảo toàn độ chính xác trong phạm vi 1 % trên các kiến trúc Transformer trong khi giảm kích thước mô hình 3–4×. Chương 5 của luận văn này áp dụng `quantize_dynamic` cho backbone YOLOv11s và tất cả các Transformer head, báo cáo mức nén 156 → 40 MB (3,8×) với chi phí độ chính xác 1 mẫu.
+- **CoreML Execution Provider** [20] cho phép ONNX Runtime điều phối các đồ thị con được hỗ trợ đến Apple Neural Engine trên Apple Silicon. Trong các phép đo Chương 5, đường dẫn CoreML thực ra chậm hơn đường dẫn CPU thuần tuý (50,6 ms so với 26,8 ms p50) vì các Transformer head phải fallback về CPU và phát sinh chi phí truyền dữ liệu giữa các thiết bị — một lỗi phổ biến được ghi lại trong ghi chú phát hành CoreML EP.
+
+Các công trình trước đây về edge deployment của YOLO (Jetson Nano / Xavier / Orin) báo cáo FPS đơn luồng trong khoảng 25–60 cho YOLOv5s–YOLOv8n ở 640×640 [21]; Chương 5 chiếu pipeline của luận văn này lên Jetson Orin Nano dựa trên tỉ lệ throughput Orin đã công bố thay vì đo lường trực tiếp trên phần cứng, điều này được dành lại cho công việc tương lai.
+
+## 2.5 Định Vị Của Luận Văn Này
+
+So với ba mảng nghiên cứu:
+
+1. **So với họ YOLO.** Luận văn này không đề xuất một detector mới; nó tái sử dụng YOLOv11s / YOLO-World đã được tiền huấn luyện làm spatial encoder frozen, thay thế đầu phân loại từng khung bằng bộ phân loại Transformer ở cấp video.
+
+2. **So với video Transformers.** Không giống VideoMAE hay TimeSformer, vốn hoạt động trên các patch token khung thô, luận văn này hoạt động trên **YOLO spatial-feature tokens** (16 token × 512 kênh mỗi khung sau pooling 4×4 ở lớp 22). Điều này nén chuỗi đầu vào đi ~98 % so với VideoMAE trong khi vẫn bảo toàn lưới không gian từng khung cần thiết cho suy luận nhận biết đối tượng, và nhỏ hơn 17× về số tham số với độ chính xác tương đương (baseline VideoMAE-base trong §4.5).
+
+3. **So với bài báo Unsafe-Net.** Bài báo [17] huấn luyện một detector nhận biết hành vi sử dụng các chú thích bounding box từng khung; luận văn này hoạt động trong điều kiện không có chú thích bbox và do đó dựa vào các detector COCO / YOLO-World sẵn có kết hợp với huấn luyện ở cấp video. Phân tích khoảng cách (Chương 4) xác lập rằng chính ràng buộc này — chứ không phải kiến trúc — là yếu tố hiệu năng ràng buộc.
+
+4. **So với tài liệu edge deployment.** Việc triển khai trong Chương 5 có thể tái tạo đầu-đến-cuối trên CPU laptop thông thường (M4 Apple Silicon) không có GPU và không phụ thuộc cloud. Các phép đo đa luồng (N = 1..4 luồng đồng thời với một backbone pool chia sẻ duy nhất) vận hành hoá yêu cầu "multi-luồng" (multi-stream) của Mục tiêu 3 theo cách có thể chuyển giao trực tiếp sang các triển khai đa camera trong công nghiệp.
+
+---
+
+## References
+
+Per-chapter numbering; to be merged into a unified bibliography at final
+thesis compilation.
+
+[1] J. Redmon, S. Divvala, R. Girshick, A. Farhadi, "You Only Look Once:
+    Unified, Real-Time Object Detection," *Proc. IEEE Conf. Computer
+    Vision and Pattern Recognition (CVPR)*, 2016, pp. 779–788.
+    arXiv:1506.02640. DOI: 10.1109/CVPR.2016.91.
+
+[2] J. Redmon and A. Farhadi, "YOLOv3: An Incremental Improvement,"
+    arXiv:1804.02767, 2018.
+
+[3] A. Bochkovskiy, C.-Y. Wang, H.-Y. M. Liao, "YOLOv4: Optimal Speed and
+    Accuracy of Object Detection," arXiv:2004.10934, 2020.
+
+[4] G. Jocher et al., "YOLOv5 by Ultralytics," 2020. [Online]. Available:
+    https://github.com/ultralytics/yolov5. DOI: 10.5281/zenodo.3908559.
+
+[5] G. Jocher, A. Chaurasia, J. Qiu, "Ultralytics YOLOv8," 2023. [Online].
+    Available: https://github.com/ultralytics/ultralytics.
+
+[6] Ultralytics, "YOLO11 — Documentation," 2024. [Online]. Available:
+    https://docs.ultralytics.com/models/yolo11/ (accessed 2026-04).
+
+[7] T. Cheng, L. Song, Y. Ge, W. Liu, X. Wang, Y. Shan, "YOLO-World:
+    Real-Time Open-Vocabulary Object Detection," *Proc. IEEE/CVF Conf.
+    Computer Vision and Pattern Recognition (CVPR)*, 2024, pp. 16901–
+    16911. arXiv:2401.17270.
+
+[8] Y. Zhao, W. Lv, S. Xu, J. Wei, G. Wang, Q. Dang, Y. Liu, J. Chen,
+    "DETRs Beat YOLOs on Real-time Object Detection," *Proc. IEEE/CVF
+    Conf. Computer Vision and Pattern Recognition (CVPR)*, 2024, pp.
+    16965–16974. arXiv:2304.08069.
+
+[9] K. Simonyan and A. Zisserman, "Two-Stream Convolutional Networks for
+    Action Recognition in Videos," *Advances in Neural Information
+    Processing Systems (NeurIPS)*, vol. 27, 2014. arXiv:1406.2199.
+
+[10] X. Shi, Z. Chen, H. Wang, D.-Y. Yeung, W.-K. Wong, W.-c. Woo,
+     "Convolutional LSTM Network: A Machine Learning Approach for
+     Precipitation Nowcasting," *Advances in Neural Information
+     Processing Systems (NeurIPS)*, vol. 28, 2015. arXiv:1506.04214.
+
+[11] J. Carreira and A. Zisserman, "Quo Vadis, Action Recognition? A New
+     Model and the Kinetics Dataset," *Proc. IEEE Conf. Computer Vision
+     and Pattern Recognition (CVPR)*, 2017, pp. 4724–4733.
+     arXiv:1705.07750. DOI: 10.1109/CVPR.2017.502.
+
+[12] C. Feichtenhofer, H. Fan, J. Malik, K. He, "SlowFast Networks for
+     Video Recognition," *Proc. IEEE/CVF Int. Conf. Computer Vision
+     (ICCV)*, 2019, pp. 6201–6210. arXiv:1812.03982.
+     DOI: 10.1109/ICCV.2019.00630.
+
+[13] G. Bertasius, H. Wang, L. Torresani, "Is Space-Time Attention All You
+     Need for Video Understanding?," *Proc. 38th Int. Conf. Machine
+     Learning (ICML)*, 2021, pp. 813–824. arXiv:2102.05095.
+
+[14] A. Arnab, M. Dehghani, G. Heigold, C. Sun, M. Lučić, C. Schmid,
+     "ViViT: A Video Vision Transformer," *Proc. IEEE/CVF Int. Conf.
+     Computer Vision (ICCV)*, 2021, pp. 6816–6826. arXiv:2103.15691.
+     DOI: 10.1109/ICCV48922.2021.00676.
+
+[15] Z. Tong, Y. Song, J. Wang, L. Wang, "VideoMAE: Masked Autoencoders
+     are Data-Efficient Learners for Self-Supervised Video Pre-Training,"
+     *Advances in Neural Information Processing Systems (NeurIPS)*, vol.
+     35, 2022, pp. 10078–10093. arXiv:2203.12602.
+
+[16] N. D. Nath, A. H. Behzadan, S. G. Paal, "Deep learning for site
+     safety: Real-time detection of personal protective equipment,"
+     *Automation in Construction*, vol. 112, 103085, 2020.
+     DOI: 10.1016/j.autcon.2020.103085.
+
+[17] K. B. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based
+     computer vision system for real-time detection of unsafe behaviours
+     in workplace," *Multimedia Tools and Applications*, vol. 84, pp.
+     34967–34993, 2025. DOI: 10.1007/s11042-024-19276-8.
+     Dataset: https://data.mendeley.com/datasets/xjmtb22pff/1
+     (CC BY 4.0). DOI: 10.17632/xjmtb22pff.1.
+
+[18] Microsoft, "ONNX Runtime," 2024. [Online]. Available:
+     https://onnxruntime.ai/docs/ (accessed 2026-04).
+
+[19] NVIDIA, "TensorRT Developer Guide," version 10.x, 2024. [Online].
+     Available: https://docs.nvidia.com/deeplearning/tensorrt/ (accessed
+     2026-04).
+
+[20] Microsoft, "CoreML Execution Provider," ONNX Runtime documentation,
+     2024. [Online]. Available:
+     https://onnxruntime.ai/docs/execution-providers/CoreML-ExecutionProvider.html
+     (accessed 2026-04).
+
+[21] Ultralytics, "NVIDIA Jetson — YOLO Deployment Guide," 2024.
+     [Online]. Available:
+     https://docs.ultralytics.com/guides/nvidia-jetson/ (accessed
+     2026-04). Published Orin Nano Super (25 W) and AGX Orin (MAXN)
+     YOLOv11s benchmarks at 640 × 640 TensorRT FP16.
+
+[22] W. Sultani, C. Chen, M. Shah, "Real-World Anomaly Detection in
+     Surveillance Videos," *Proc. IEEE/CVF Conf. Computer Vision and
+     Pattern Recognition (CVPR)*, 2018, pp. 6479–6488.
+     arXiv:1801.04264. DOI: 10.1109/CVPR.2018.00678. *Introduces
+     UCF-Crime (1 900 long surveillance videos, 13 anomaly classes
+     + Normal) and the MIL-ranking baseline at 75.4 % AUC.*
+
+[23] Y. Tian, G. Pang, Y. Chen, R. Singh, J. W. Verjans, G.
+     Carneiro, "Weakly-supervised Video Anomaly Detection with
+     Robust Temporal Feature Magnitude Learning (RTFM),"
+     *Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV)*, 2021,
+     pp. 4955–4966. arXiv:2101.10030.
+
+[24] S. Li, F. Liu, L. Jiao, "Self-Training Multi-Sequence Learning
+     with Transformer for Weakly Supervised Video Anomaly Detection
+     (MSL)," *Proc. AAAI Conf. on Artificial Intelligence*, vol. 36,
+     no. 2, pp. 1395–1403, 2022. arXiv:2104.04527.
+
+[25] P. Wu, X. Zhou, G. Pang, Y. Sun, J. Liu, P. Wang, Y. Zhang,
+     "VadCLIP: Adapting Vision-Language Models for Weakly
+     Supervised Video Anomaly Detection," *Proc. AAAI Conf. on
+     Artificial Intelligence*, vol. 38, no. 6, pp. 6074–6082, 2024.
+     arXiv:2308.11681.

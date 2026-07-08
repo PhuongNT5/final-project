@@ -1,0 +1,67 @@
+{
+  "rows": [
+    [
+      "frozen+no-gate",
+      51,
+      83.1,
+      53,
+      85.4
+    ],
+    [
+      "frozen+gate0.15",
+      52,
+      83.2,
+      52,
+      83.2
+    ],
+    [
+      "bbox+no-gate",
+      50,
+      79.3,
+      50,
+      80.0
+    ],
+    [
+      "bbox+gate0.15",
+      51,
+      80.1,
+      52,
+      80.9
+    ],
+    [
+      "hybrid+no-gate",
+      52,
+      85.4,
+      53,
+      85.4
+    ],
+    [
+      "hybrid+gate0.15",
+      53,
+      85.4,
+      53,
+      86.9
+    ],
+    [
+      "ens(frozen+no-gate \u2295 bbox+no-gate)",
+      "-",
+      "-",
+      52,
+      84.7
+    ],
+    [
+      "ens(frozen+gate0.15 \u2295 bbox+no-gate)",
+      "-",
+      "-",
+      52,
+      85.0
+    ],
+    [
+      "ens(frozen+no-gate \u2295 hybrid+no-gate)",
+      "-",
+      "-",
+      54,
+      87.7
+    ]
+  ]
+}

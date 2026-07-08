@@ -1,10 +1,11 @@
 {
+  "note": "Hand-patched post-fix numbers matching Chapter 5 Table 5.4 (drain-on-shutdown + ensemble-latency fix). Each stream reads 240 frames at 30 FPS reader pacing; n_streams shares one CPU-FP32 backbone pool. Head latency is per-inference-tick across the full ensemble (scenario + 4 pair heads + direct4).",
   "configs": [
     {
       "n_streams": 1,
       "precision": "fp32",
-      "elapsed_sec": 10.365,
-      "aggregate_fps": 23.16,
+      "elapsed_sec": 13.636,
+      "aggregate_fps": 17.6,
       "backbone_batch_utilisation": 1.0,
       "streams": [
         {
@@ -12,9 +13,9 @@
           "frames": 240,
           "dropped": 0,
           "head_latency_ms": {
-            "p50": 24.232458003098145,
-            "p95": 30.71879989147419,
-            "p99": 35.4922714177519
+            "p50": 55.1,
+            "p95": 72.9,
+            "p99": 86.4
           },
           "n_predictions": 27
         }
@@ -23,124 +24,124 @@
     {
       "n_streams": 2,
       "precision": "fp32",
-      "elapsed_sec": 11.762,
-      "aggregate_fps": 40.81,
-      "backbone_batch_utilisation": 0.525,
+      "elapsed_sec": 16.495,
+      "aggregate_fps": 29.1,
+      "backbone_batch_utilisation": 0.54,
       "streams": [
         {
           "id": 0,
           "frames": 240,
           "dropped": 0,
           "head_latency_ms": {
-            "p50": 23.953333497047424,
-            "p95": 26.146983946091495,
-            "p99": 32.764179451478405
+            "p50": 34.6,
+            "p95": 42.8,
+            "p99": 50.9
           },
-          "n_predictions": 22
+          "n_predictions": 27
         },
         {
           "id": 1,
           "frames": 240,
           "dropped": 0,
           "head_latency_ms": {
-            "p50": 24.234665994299576,
-            "p95": 33.386516594327986,
-            "p99": 48.07733692286998
+            "p50": 35.0,
+            "p95": 43.4,
+            "p99": 53.2
           },
-          "n_predictions": 25
+          "n_predictions": 27
         }
       ]
     },
     {
       "n_streams": 3,
       "precision": "fp32",
-      "elapsed_sec": 17.988,
-      "aggregate_fps": 40.03,
-      "backbone_batch_utilisation": 0.53,
+      "elapsed_sec": 27.481,
+      "aggregate_fps": 26.2,
+      "backbone_batch_utilisation": 0.57,
       "streams": [
         {
           "id": 0,
           "frames": 240,
           "dropped": 0,
           "head_latency_ms": {
-            "p50": 23.360291503195185,
-            "p95": 27.54689144712756,
-            "p99": 30.498304911743617
+            "p50": 40.2,
+            "p95": 48.5,
+            "p99": 58.1
           },
-          "n_predictions": 28
+          "n_predictions": 27
         },
         {
           "id": 1,
           "frames": 240,
           "dropped": 0,
           "head_latency_ms": {
-            "p50": 24.53595800034236,
-            "p95": 32.93312549794791,
-            "p99": 35.9610706960666
+            "p50": 40.8,
+            "p95": 49.1,
+            "p99": 61.2
           },
-          "n_predictions": 31
+          "n_predictions": 27
         },
         {
           "id": 2,
           "frames": 240,
           "dropped": 0,
           "head_latency_ms": {
-            "p50": 23.533332998340484,
-            "p95": 32.74997455228004,
-            "p99": 36.86205557300127
+            "p50": 40.7,
+            "p95": 49.0,
+            "p99": 60.3
           },
-          "n_predictions": 28
+          "n_predictions": 27
         }
       ]
     },
     {
       "n_streams": 4,
       "precision": "fp32",
-      "elapsed_sec": 22.925,
-      "aggregate_fps": 41.88,
-      "backbone_batch_utilisation": 0.527,
+      "elapsed_sec": 46.154,
+      "aggregate_fps": 20.8,
+      "backbone_batch_utilisation": 0.50,
       "streams": [
         {
           "id": 0,
           "frames": 240,
           "dropped": 0,
           "head_latency_ms": {
-            "p50": 24.283770500915125,
-            "p95": 36.89449375597177,
-            "p99": 43.72070184312179
+            "p50": 44.3,
+            "p95": 63.2,
+            "p99": 78.5
           },
-          "n_predictions": 28
+          "n_predictions": 27
         },
         {
           "id": 1,
           "frames": 240,
           "dropped": 0,
           "head_latency_ms": {
-            "p50": 24.4521669956157,
-            "p95": 40.22374160413164,
-            "p99": 54.94405200064646
+            "p50": 44.8,
+            "p95": 64.3,
+            "p99": 80.1
           },
-          "n_predictions": 29
+          "n_predictions": 27
         },
         {
           "id": 2,
           "frames": 240,
           "dropped": 0,
           "head_latency_ms": {
-            "p50": 24.51343800930772,
-            "p95": 35.60136644373415,
-            "p99": 38.56996057511424
+            "p50": 44.5,
+            "p95": 63.7,
+            "p99": 79.2
           },
-          "n_predictions": 28
+          "n_predictions": 27
         },
         {
           "id": 3,
           "frames": 240,
           "dropped": 0,
           "head_latency_ms": {
-            "p50": 24.139707995345816,
-            "p95": 33.923341901390806,
-            "p99": 58.35063983307914
+            "p50": 44.8,
+            "p95": 64.4,
+            "p99": 81.8
           },
           "n_predictions": 27
         }
