@@ -305,7 +305,7 @@ thesis compilation.
     *Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR)*,
     2024, pp. 16965–16974. arXiv:2304.08069.
 
-[5] K. B. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based
+[5] O. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based
     computer vision system for real-time detection of unsafe behaviours in
-    workplace," *Multimedia Tools and Applications*, vol. 84, pp. 34967–
-    34993, 2025. DOI: 10.1007/s11042-024-19276-8.
+    workplace," *Multimedia Tools and Applications*, vol. 84, no. 29,
+    pp. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.

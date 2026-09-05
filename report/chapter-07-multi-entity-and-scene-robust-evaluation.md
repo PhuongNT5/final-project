@@ -71,13 +71,23 @@ clips are already single-action segments, so the paper's frame-reduction step ha
 
 ## 7.5 Full multi-lens evaluation (best model, 64-clip test)
 
-| Metric | value | Metric | value |
-|---|---|---|---|
-| top-1 | 84.4 % (54/64), BCa CI [71.9, 90.6] | Cohen's κ | 0.775 |
-| macro-recall | 88.4 %, BCa CI [77.8, 94.4] | Matthews MCC | 0.785 |
-| macro-F1 | 85.6 % | ROC-AUC (ovr-macro) | 0.953 |
-| balanced-acc | 88.4 % | PR-AUC (ovr-macro) | 0.874 |
-| ECE (15-bin) | 0.104 | cost (miss×10) | 100 |
+> **Two decision rules, and previously three sources — read the basis column.** Metrics that need only
+> hard predictions are computed from `blind_pred` (the val-selected single seed, **54/64**). Metrics that
+> need probabilities can only be computed from `ens_softmax` (the **seed-averaged ensemble, 52/64**),
+> because the blind seed's own softmax was never persisted (brief.md S4). These are two different
+> predictors and the table must not be read as one model's joint scorecard.
+>
+> **Correction (2026-09-06):** the ROC-AUC (0.953), PR-AUC (0.874) and ECE (0.104) previously printed
+> here were **not from this pipeline at all** — they reproduce `logits_s1a.pt` (≡ `logits_yolo11_baseline.pt`,
+> the YOLO11 track) to four decimals, not `logits_yolo26.pt`. Recomputed from the correct artifact below.
+
+| Metric | value | basis | Metric | value | basis |
+|---|---|---|---|---|---|
+| top-1 | 84.4 % (54/64), BCa CI [71.9, 90.6] | blind | Cohen's κ | 0.775 | blind |
+| macro-recall | 88.4 %, BCa CI [77.8, 94.4] | blind | Matthews MCC | 0.785 | blind |
+| macro-F1 | 85.6 % | blind | ROC-AUC (ovr-macro) | **0.950** | ensemble (52/64) |
+| balanced-acc | 88.4 % | blind | PR-AUC (ovr-macro) | **0.869** | ensemble (52/64) |
+| ECE (15-bin) | **0.101** | ensemble (52/64) | cost (miss×10) | 100 | blind |
 
 Per-class precision / recall / FNR: WalkwayViol 96.2 / 78.1 / 21.9 · UnauthorInt 58.8 / 90.9 / 9.1 ·
 OpenedPanel 84.6 / 84.6 / 15.4 · CarryOverload 100 / 100 / 0. Confusion + reliability figures in
@@ -190,11 +200,11 @@ metrics `sweep_results/relation_tokens/full_eval.json`; reports under
 `plans/2026-07-09-spatial-relation-yolo26-3month/reports/`.
 
 ## Unresolved questions
-1. Would per-view zone calibration lift the cross-camera confusion pair (UnauthorInt LCO 35 %) materially?
+1. Would per-view zone calibration lift the cross-camera confusion pair (UnauthorInt LCO 65.7 %, up from an old 3-seed 35 %) materially?
 2. Does the paper's 95.81 % survive an LCO re-evaluation (requires their per-camera labels — filed as a request)?
 3. Is 2,262 entity frames vs 2,262 behaviour frames a fair head-to-head, or should a behaviour-detector control (S3) be run to bound the scene ceiling under LCO?
 
 ## References
-[1] K. B. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based computer vision system for
+[1] O. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based computer vision system for
 real-time detection of unsafe behaviours in workplace," *Multimedia Tools and Applications*, vol. 84,
-pp. 34967–34993, 2025.
+pp. 34967–34993, 2024.

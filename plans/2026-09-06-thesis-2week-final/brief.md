@@ -304,6 +304,34 @@ with it (block/cluster bootstrap). Call site passes `np.stack(...)` instead of `
 Re-run launched 2026-09-06; **Table 4.8.1's CIs are provisional until it lands and must not be quoted
 until replaced.** The point estimates (75.3 / 77.8 %) are unaffected -- only the intervals move.
 
+**S8 -- Ch7 §7.5 and the abstract printed THREE metrics from the WRONG PIPELINE (found 2026-09-06,
+numerically proven, fixed).** This is a strictly worse version of S4: not a two-basis mix inside P3, but
+**cross-pipeline contamination in the headline chapter's headline table.**
+
+Recomputed every §7.5 cell from `logits_yolo26.pt` and compared against every other `logits_*.pt`:
+
+| §7.5 printed | matches `logits_yolo26.pt`? | actually reproduces | verdict |
+|---|---|---|---|
+| top-1 84.4, macro-recall 88.4, macro-F1 85.6, bal-acc 88.4, kappa 0.775, MCC 0.785 | **yes**, on `blind_pred` | -- | correct |
+| per-class P/R/FNR line (96.2/78.1/21.9 ...) | **yes**, on `blind_pred` (exact) | -- | correct |
+| ROC-AUC **0.953** | no -- yolo26 gives **0.9496** | `logits_s1a.pt` = 0.9533 | **wrong pipeline** |
+| PR-AUC **0.874** | no -- yolo26 gives **0.8691** | `logits_s1a.pt` = 0.8739 | **wrong pipeline** |
+| ECE 15-bin **0.104** | no -- yolo26 gives **0.1009** | `logits_s1a.pt` = 0.1041 | **wrong pipeline** |
+
+`logits_s1a.pt` is byte-identical to `logits_yolo11_baseline.pt` (test-touch log, section A) -- i.e. the
+**YOLO11 track**, not P3. All three wrong values reproduce it to four decimals; chance agreement is nil.
+This is the same error the 2026-09-02 scorecard was corrected for (its "ECE 0.101" came from a P1
+artifact) -- the error class survived the scorecard fix and re-appeared in Ch7 **and the abstract**.
+
+**Corrected and applied** to `report/chapter-07-...md` §7.5 and `report/abstract.md`:
+ROC-AUC **0.950**, PR-AUC **0.869**, ECE **0.101** -- all three on the **ensemble (52/64)** basis, which
+is forced: the blind seed's softmax was never persisted. §7.5 now carries a per-metric `basis` column and
+both files carry an explicit basis note. Also fixed: Ch7:203 stale "UnauthorInt LCO 35 %" -> 65.7 %.
+
+**Rule this establishes:** a metric's *value* is not evidence of its *provenance*. Every probability-based
+figure must be re-derived from the named artifact before it is printed, because a plausible number from
+the wrong file is indistinguishable by eye from the right one.
+
 **S7 -- the origin paper's citation was wrong in three fields; year 2025 was MY error and is reversed
 (verified 2026-09-06 against Crossref).** The publisher record for DOI `10.1007/s11042-024-19276-8`
 (queried via `api.crossref.org` + DOI content negotiation, APA rendering) is:

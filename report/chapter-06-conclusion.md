@@ -261,10 +261,10 @@ same pipeline. The system is ready; the data is the remaining work.
 
 Per-chapter numbering; merged at final compilation.
 
-[1] K. B. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based
+[1] O. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based
     computer vision system for real-time detection of unsafe behaviours
-    in workplace," *Multimedia Tools and Applications*, vol. 84, pp.
-    34967–34993, 2025.
+    in workplace," *Multimedia Tools and Applications*, vol. 84, no. 29,
+    pp. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
 
 [2] N. Carion et al., "End-to-End Object Detection with Transformers,"
     *Proc. ECCV*, 2020. arXiv:2005.12872.
