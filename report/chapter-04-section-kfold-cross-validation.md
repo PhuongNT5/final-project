@@ -1,10 +1,18 @@
-# §4.8 Cross-Validated Generalisation (Leakage-Free k-Fold)
+# §4.9 Cross-Validated Generalisation (Leakage-Free k-Fold)
 
-> **Status:** standalone draft section for review, intended to slot into Chapter 4 after
-> the single-split analysis (§4.6–4.7). Numbering (§4.8) is provisional. All numbers are
+> **Status:** standalone draft section for review; slots into Chapter 4 after §4.8
+> (Interpretability) and before the chapter summary, which is renumbered §4.10 accordingly.
+>
+> **Pipeline: P1** (frozen-COCO YOLO → multi-stream Transformer). These are *not* P3 numbers —
+> the P3 k-fold at N = 516 is Ch7 §7.7.1 (fold-mean 80.8 ± 4.0 % top-1, macro 84.2 %,
+> Nadeau–Bengio p = 0.0600 n.s.). See the attribution banner at the head of Chapter 4.
+>
+> **Renumbered 2026-09-06** from §4.8, which collided with Chapter 4's own §4.8
+> (Interpretability, incl. §4.8.5 UCF-Crime, the target of the Ch1 and Ch2 cross-references).
+> Working reports written before that date cite these tables as 4.8.1 / 4.8.2. All numbers are
 > reproducible from `run_kfold_eval.py` → `plans/260628-thesis-improvement-strategy/reports/kfold-eval.json`.
 
-## 4.8.1 Motivation
+## 4.9.1 Motivation
 
 Every accuracy figure reported so far rests on a single held-out test split of 64 four-class
 clips. On a sample this small the 95% bootstrap confidence interval on top-1 accuracy spans
@@ -30,7 +38,7 @@ into 24 visual groups, and a *grouped* k-fold guarantees that all clips from one
 fall in the same fold. A model that relies on background memorisation will lose accuracy under
 this protocol relative to a random split; the size of that drop quantifies the scene dependence.
 
-## 4.8.2 Protocol
+## 4.9.2 Protocol
 
 All 691 clips are pooled and restricted to the four unsafe classes, giving N = 516 clips
 (WalkwayViolation 210, UnauthorizedIntervention 108, OpenedPanel 142, CarryOverload 56). Two
@@ -48,7 +56,7 @@ and the single head was best on every seed. Confidence intervals are 5,000-sampl
 pooled cross-validated predictions; per-class results report both recall and false-negative rate
 (FNR), the safety-relevant miss rate.
 
-## 4.8.3 Results
+## 4.9.3 Results
 
 > **⚠ INTERVALS PROVISIONAL — DO NOT QUOTE THE CI₉₅ COLUMNS (2026-09-06).** The intervals below
 > were produced by a percentile bootstrap that resampled **1548 rows = 516 clips × 3 seeds**, i.e. it
@@ -59,7 +67,7 @@ pooled cross-validated predictions; per-class results report both recall and fal
 > columns are replaced when it lands. **The point estimates (75.3 / 71.9 / 77.8 / 71.8 %) are
 > unaffected** — only the intervals move. See `plans/2026-09-06-thesis-2week-final/brief.md` (S6).
 
-**Table 4.8.1 — Cross-validated accuracy (4-class unsafe, N = 516).**
+**Table 4.9.1 — Cross-validated accuracy (4-class unsafe, N = 516).**
 
 | Protocol | Top-1 (mean ± std) | Top-1 CI₉₅ *(provisional)* | Macro-F1 (mean ± std) | Macro CI₉₅ *(provisional)* |
 |---|---|---|---|---|
@@ -90,7 +98,7 @@ with a logistic-regression probe on the time-averaged frozen features, and the t
 with the Nadeau–Bengio corrected resampled t-test (the correct test for k-fold comparisons, which
 accounts for the dependence between overlapping training sets).
 
-**Table 4.8.2 — Transformer head vs. linear probe (same folds).**
+**Table 4.9.2 — Transformer head vs. linear probe (same folds).**
 
 | Protocol | Δ top-1 (head − probe) | Nadeau–Bengio t | p | Verdict |
 |---|---|---|---|---|
@@ -99,7 +107,7 @@ accounts for the dependence between overlapping training sets).
 
 *Test details (audited 2026-09-06).* The differences are accumulated over seeds **and** folds, so
 n = 3 × 5 = 15 paired measurements and df = 14; the Nadeau–Bengio variance inflation uses
-ρ = n_test/n_train = 0.25. This is **not** affected by the Table 4.8.1 bootstrap defect, which
+ρ = n_test/n_train = 0.25. This is **not** affected by the Table 4.9.1 bootstrap defect, which
 concerns a different estimator. At df = 14, t = −3.15 gives p = 0.0071 as reported. The one caveat
 is power: n = 15 here against n = 50 in the repeated-k-fold runs of Chapter 7, so this p-value is
 less precisely estimated than those — but the sign and magnitude of the effect are as measured.
@@ -115,7 +123,7 @@ literature recognises as a substantive contribution that spares future work a kn
 
 ### Finding 2 — the safety risk is concentrated in two zone-ambiguous classes
 
-**Table 4.8.3 — Per-class false-negative (miss) rate.**
+**Table 4.9.3 — Per-class false-negative (miss) rate.**
 
 | Class | FNR (random) | FNR (scene-robust) |
 |---|---|---|
@@ -149,11 +157,11 @@ swap (52 + 32 clips), exactly the error mode diagnosed on the 64-clip split in �
 confirmed at the full 516-clip scale. CarryOverload, which is defined by a distinct object
 (an overloaded forklift) rather than a zone relationship, is perfectly separable.
 
-## 4.8.4 Limitations of this evaluation
+## 4.9.4 Limitations of this evaluation
 
 Three caveats are stated explicitly. **First**, the k-fold protocol evaluates the *single*
 Direct-4 head, not the deployed ensemble-plus-cascade-plus-gate pipeline; the figures in
-Table 4.8.1 should not be read as the accuracy of the shipped system, for which the canonical-split
+Table 4.9.1 should not be read as the accuracy of the shipped system, for which the canonical-split
 56/64 remains the reference. **Second**, the scene clusters are a k-means proxy for recording
 sessions, not ground-truth day labels, which the public dataset does not provide; the 3.4-point
 leakage estimate is therefore a lower bound subject to clustering quality. **Third**, N = 516 is
@@ -161,7 +169,7 @@ still a modest sample, and although the cross-validated intervals are far tighte
 single-split interval, individual per-class FNR figures (especially CarryOverload at n = 56)
 retain non-trivial uncertainty.
 
-## 4.8.5 Summary
+## 4.9.5 Summary
 
 Leakage-free k-fold cross-validation reduces the headline accuracy uncertainty from a 15.6-point
 to a 4.4-point interval and yields an honest generalisation estimate of **71.9 ± 1.6% top-1 /

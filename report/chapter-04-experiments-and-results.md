@@ -1142,7 +1142,7 @@ that does not survive a domain shift. Both findings point in the same
 direction: more (and more diverse) supervised data, not a better
 architecture, is the lever that moves the high-accuracy Pareto corner.
 
-## 4.9 Summary
+## 4.10 Summary
 
 The YOLO–Transformer pipeline reaches a **best-case 87.50 % top-1
 (89.28 % macro)** on the Unsafe-Net 4-class unsafe subset. Under the
