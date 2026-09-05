@@ -50,15 +50,26 @@ pooled cross-validated predictions; per-class results report both recall and fal
 
 ## 4.8.3 Results
 
+> **⚠ INTERVALS PROVISIONAL — DO NOT QUOTE THE CI₉₅ COLUMNS (2026-09-06).** The intervals below
+> were produced by a percentile bootstrap that resampled **1548 rows = 516 clips × 3 seeds**, i.e. it
+> treated the same 516 clips re-predicted under three seeds as three independent draws. That is
+> pseudo-replication and makes the intervals roughly **1.7× too narrow** (clip-level bootstrap on 516
+> gives [71.7, 79.1] where the table reports [73.1, 77.5]). `bootstrap_ci()` in `run_kfold_eval.py` has
+> been fixed to a clip-level block bootstrap and the fold re-run is in flight; this table's interval
+> columns are replaced when it lands. **The point estimates (75.3 / 71.9 / 77.8 / 71.8 %) are
+> unaffected** — only the intervals move. See `plans/2026-09-06-thesis-2week-final/brief.md` (S6).
+
 **Table 4.8.1 — Cross-validated accuracy (4-class unsafe, N = 516).**
 
-| Protocol | Top-1 (mean ± std) | Top-1 CI₉₅ | Macro-F1 (mean ± std) | Macro CI₉₅ |
+| Protocol | Top-1 (mean ± std) | Top-1 CI₉₅ *(provisional)* | Macro-F1 (mean ± std) | Macro CI₉₅ *(provisional)* |
 |---|---|---|---|---|
 | Stratified k-fold (random) | **75.3 ± 1.2%** | [73.1, 77.5] | **77.8 ± 1.0%** | [76.0, 79.6] |
 | Scene-group k-fold (leakage-robust) | **71.9 ± 1.6%** | [69.7, 74.2] | **71.8 ± 1.0%** | [70.0, 73.8] |
 
-The cross-validated interval is **~4.4 points wide, against 15.6 points for the single split** —
-the central methodological gain of this section. The scene-group protocol costs **3.4 points of
+The cross-validated interval is substantially tighter than the 15.6-point interval of the single
+split — the central methodological gain of this section. (The exact width is restated once the
+corrected bootstrap lands; on the clip-level estimate it is ~7.4 rather than ~4.4 points, still less
+than half the single-split width, so the gain survives the correction.) The scene-group protocol costs **3.4 points of
 top-1 and 6.0 points of macro** relative to the random split: scene dependence is real but modest,
 not the catastrophic background-memorisation that wide scene leakage would produce. We therefore
 take the scene-robust figure (**71.9 ± 1.6% top-1, 71.8 ± 1.0% macro**) as the honest estimate of
@@ -85,6 +96,13 @@ accounts for the dependence between overlapping training sets).
 |---|---|---|---|---|
 | Stratified | **−4.65 pp** (≈75.3% vs ≈80.0%) | −3.15 | **0.007** | Head **significantly worse** |
 | Scene-group | +1.70 pp (≈71.9% vs ≈70.2%) | 0.75 | 0.47 | No significant difference |
+
+*Test details (audited 2026-09-06).* The differences are accumulated over seeds **and** folds, so
+n = 3 × 5 = 15 paired measurements and df = 14; the Nadeau–Bengio variance inflation uses
+ρ = n_test/n_train = 0.25. This is **not** affected by the Table 4.8.1 bootstrap defect, which
+concerns a different estimator. At df = 14, t = −3.15 gives p = 0.0071 as reported. The one caveat
+is power: n = 15 here against n = 50 in the repeated-k-fold runs of Chapter 7, so this p-value is
+less precisely estimated than those — but the sign and magnitude of the effect are as measured.
 
 On the random split the logistic-regression probe is **significantly more accurate** than the
 Transformer head (p = 0.007); under the scene-robust split the two are statistically

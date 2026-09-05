@@ -1,5 +1,24 @@
 # Chapter 5 — Edge Deployment
 
+> ### Pipeline attribution — read before citing any number in this chapter
+>
+> This project evolved through **three non-interchangeable pipelines** (full map:
+> `docs/system-architecture.md`). Chapters were written at different points in that evolution, so
+> their headline accuracies are **not** competing estimates of one system — they describe different
+> systems, and mixing them is the single most common error this project has made internally.
+>
+> | | Pipeline | Best cited | Blind/honest | Protocol |
+> |---|---|---|---|---|
+> | Ch1, Ch3, Ch4 | **P1** frozen-COCO YOLO -> multi-stream Transformer | 56/64 (87.5 %) | **53/64** (82.8 %) | same-dist, N=64 |
+> | Ch5 | **P1** as exported to Jetson | 55/64 (TRT engine, as recorded in `benchmarks-jetson-*.json`) | **53/64** | same-dist, N=64 |
+> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 %, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+>
+> **The thesis headline is P3 (Ch7).** P1's 56/64 is **test-selected** (the ensemble was chosen
+> using the test clips) and must never be presented as the result; its honest blind counterpart is
+> 53/64. P3 is the only pipeline with evidence beyond N=64, which is why it leads.
+> Chapters 1-6 are retained as the experimental record of how the design was arrived at, not as
+> the final claim.
+
 ## 5.1 Introduction
 
 Objective 3 of this thesis is to demonstrate that the trained hybrid pipeline

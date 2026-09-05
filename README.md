@@ -12,7 +12,7 @@ This project develops an end-to-end unsafe-behaviour detection system on the **U
 ### Key Results
 
 > **Honest headline.** This thesis is **deployment-led**: the delivered contribution is a
-> measured, open-source, real-time **edge system** (M4 + Jetson). On accuracy, the best zero-bbox
+> measured, open-source, real-time **edge system** (M4 + Jetson, **P1 pipeline**; P3 accuracy-headline re-benchmark pending). On accuracy, the best zero-bbox
 > configuration — **hybrid (frozen ⊕ detection-finetuned) features + YOLO frame-gate** — reaches
 > **macro parity-to-advantage over the published no-bbox baseline even under the blind protocol**.
 
@@ -68,7 +68,7 @@ Spatial Tokens: (T×16×768)  — pool4 = 4×4 spatial grid × 768 channels
 
 ### Thesis Contributions (deployment-led)
 
-1. **Measured, open-source, real-time edge-deployment system (primary, delivered).** Jetson Orin Nano Super TRT-FP16 8.62 ms / 116 FPS; **4-stream zero-drop throughput (88 FPS agg) + 2-stream 36.2-min soak**, 0 drops, 7.0 W; INT8 256-frame calibration; power Pareto; metadata-only privacy boundary; live dashboard. M4 CPU 26.8 ms / 37.3 FPS, INT8 156→40 MB. No published baseline reports edge deployment for this task.
+1. **Measured, open-source, real-time edge-deployment system (primary, delivered).** All figures below are for the **P1 pipeline** (frozen-COCO detector + multi-stream Transformer), the model currently on the device — **not** the P3 accuracy headline, whose Jetson re-measurement is scheduled for Lane B. Jetson Orin Nano Super TRT-FP16 8.62 ms / 116 FPS; **4-stream zero-drop throughput (88 FPS agg) + 2-stream 36.2-min soak**, 0 drops, 7.0 W; INT8 256-frame calibration; power Pareto; metadata-only privacy boundary; live dashboard. M4 CPU 26.8 ms / 37.3 FPS, INT8 156→40 MB. No published baseline reports edge deployment for this task.
 2. **Corrected paper-mechanism replication + a data-bound diagnosis.** Identified that the paper's YOLO is a *frame filter*, not a feature extractor; replicated it at 1,200 bbox frames. Detection-finetuning regresses (over-specialises the backbone); the **hybrid (frozen ⊕ detection-finetuned) + frame-gate** combination recovers and is best — **blind 53/64 (85.4 % macro) = macro parity with the no-bbox baseline even blind**, best-case 86.9 % > baseline. The ≈54/64 ceiling holds across 12+ tracks (incl. 86 M VideoMAE and the paper's exact mechanism), confirming the gap to full-bbox 95.81 % is **data-volume-bound** (§4.6.2).
 3. **V10 negative result** at 400 frames of behaviour-aware bbox annotation (54/64): evidence suggests the bbox route needs substantially more than a 400-frame pilot (paper-scale).
 4. **YOLO–Transformer engineering composition** (Objective 1, substantially met): frozen YOLOv11s spatial encoder + multi-stream Transformer temporal head; not a new mechanism. The temporal streams show no measurable lift on this dataset (§4.7.8).
@@ -172,7 +172,20 @@ python -u plot_figures_binary.py      # Thesis figures + ONNX + INT8 + latency
 
 ## Citation
 
-> Önal, K. B., & Dandıl, E. (2025). Unsafe-Net: A real-time safety analysis system for unsafe behaviors in industrial facilities using deep learning. *Multimedia Tools and Applications*, 84, 34967–34993.
+> Önal, O., & Dandıl, E. (2024). Unsafe-Net: YOLO v4 and ConvLSTM based computer vision system for
+> real-time detection of unsafe behaviours in workplace. *Multimedia Tools and Applications*, 84(29),
+> 34967–34993. https://doi.org/10.1007/s11042-024-19276-8
+>
+> *(Verified 2026-09-06 against the Crossref record for DOI 10.1007/s11042-024-19276-8 — the registration
+> agency's own APA rendering, which is authoritative here because `paper/paper.txt` begins at
+> "1 Introduction" and carries no title page. Three things were corrected: the **first author's initial**
+> (was "K. B."; the registered name is **Oğuzhan Önal**), the **year** (was 2025; Crossref records
+> `issued`/`published-online` = 2024-05-04 and its APA string reads "(2024)"), and the **issue number**
+> (84(29), previously omitted). The article does appear in a 2025-dated issue of volume 84, which is why
+> 2025 was inferred earlier — but the publisher's registered publication year is 2024, and that is what
+> the citation follows. An earlier README also gave the title "A real-time safety analysis system for
+> unsafe behaviors in industrial facilities using deep learning"; that title is wrong and is not
+> associated with this DOI.)*
 
 ## License
 
