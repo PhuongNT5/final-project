@@ -290,7 +290,10 @@ best-case uncalibrated figure is **56/64 = 87.5 %**; the defensible
 epoch/config/seed selection is also moved off the test set, is the blind
 held-out **≈ 52/64** of §4.7.11. The best zero-bbox configuration
 (hybrid + frame-gate, §4.6.2) raises this to **53/64 (85.4 % macro)**,
-which is the thesis headline accuracy.
+which is the best honest accuracy **of the P1 pipeline described in this
+chapter**. It is *not* the thesis headline: that is P3's blind 54/64
+(84.4 % top-1, 88.4 % macro, Ch7), the only pipeline carrying evidence
+beyond N = 64. See the pipeline-attribution banner in Ch4.
 
 ## 3.6 Reproducibility
 

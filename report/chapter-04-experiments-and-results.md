@@ -32,8 +32,9 @@ test-selected; the previously reported 57/64 calibrated figure is
 re-classified in §4.7.7 as test-set tuning), while **§4.7.11 establishes the frozen single-head pipeline blind at
 ≈ 52/64 (≈ 81 % top-1, macro ≈ 84 %); the best zero-bbox configuration
 (hybrid + frame-gate, §4.6.2) lifts this to 53/64 (82.8 % top-1,
-85.4 % macro) — the thesis's defensible headline, at macro parity with the
-no-bbox baseline even blind.** Section 4.4
+85.4 % macro) — this chapter's (P1's) defensible best, at macro parity with the
+no-bbox baseline even blind. The *thesis* headline is P3's 54/64 (Ch7); see the
+banner above.** Section 4.4
 presents per-class breakdown and
 confusion analysis. Section 4.5 diagnoses the persistent error clips
 and argues that the residual gap is attributable to missing
@@ -78,8 +79,8 @@ step. **This leakage is not merely flagged — it is measured and removed
 in §4.7.11**, where epoch, configuration, and seed are all selected on a
 validation slice carved from the *training* set: the resulting honest
 blind held-out accuracy is ≈ 52/64 (≈ 81 % top-1, macro ≈ 84 %), and that
-blind number — not the best-case 56/64 — is the thesis's defensible
-accuracy claim. The 56/64 checkpoint is retained only because it is the
+blind number — not the best-case 56/64 — is this pipeline's defensible
+accuracy claim (the thesis headline is P3's 54/64, Ch7). The 56/64 checkpoint is retained only because it is the
 one deployed in Chapter 5.
 
 ## 4.2 Experiment Tracks
@@ -159,9 +160,10 @@ the headline result.
 
 > **Read this table as a best-case upper bound, not the headline accuracy.**
 > The 56/64 below is the *test-selected* checkpoint (epoch, seed, and ensemble
-> composition all chosen with reference to the 64-clip test set). The thesis's
-> **honest, defensible headline is 53/64 (82.8 % top-1, 85.4 % macro) for the
-> best zero-bbox config (hybrid + frame-gate, §4.6.2).** The frozen single-head
+> composition all chosen with reference to the 64-clip test set). P1's
+> **honest, defensible best is 53/64 (82.8 % top-1, 85.4 % macro) for the
+> best zero-bbox config (hybrid + frame-gate, §4.6.2)**; the *thesis* headline
+> is P3's blind 54/64 (Ch7). The frozen single-head
 > blind estimate is ≈ 52/64 (≈ 81 % top-1, macro ≈ 84 %), established in
 > §4.7.11. The 56/64 figure is retained here because it is the checkpoint
 > actually deployed in Chapter 5. The "+3.5 pp macro win" over the no-bbox
@@ -947,7 +949,7 @@ estimate above ~52/64, which indicates the number is a stable property of
 the frozen-feature representation, not an artifact of one unlucky split.
 
 This blind ≈ 52/64 is the frozen single-head pipeline's defensible number.
-The thesis's headline — the best zero-bbox configuration (hybrid + frame-gate,
+P1's best — the best zero-bbox configuration (hybrid + frame-gate,
 §4.6.2) — lifts this to **53/64 (82.8 % top-1, 85.4 % macro)**, at macro
 parity with the no-bbox baseline even under the blind protocol. The deployed
 artifact (Chapter 5) still uses the best-case 56/64 checkpoint — the model
@@ -1149,8 +1151,8 @@ The YOLO–Transformer pipeline reaches a **best-case 87.50 % top-1
 baseline on top-1 (57/64 = 89.06 %) and short of macro parity (85.78 %).
 The best zero-bbox configuration — **hybrid + frame-gate (§4.6.2) — lifts
 the blind honest accuracy to 53/64 (82.8 % top-1, 85.4 % macro), reaching
-macro parity with the no-bbox baseline even blind; this is the thesis's
-defensible headline.** The
+macro parity with the no-bbox baseline even blind; this is P1's defensible
+best, superseded as the thesis headline by P3's 54/64 (Ch7).** The
 "+3.5 pp macro win" reported under test-selected evaluation does not
 survive the blind protocol and is withdrawn; so is the cascade/ensemble,
 which a blind configuration-selection rejects in favour of the single

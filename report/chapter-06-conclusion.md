@@ -104,9 +104,12 @@ requires (the evidence suggests) substantially more than a 400-frame
 pilot.
 
 On the accuracy number the thesis is deliberately, and unusually,
-transparent. The honest headline is the **blind held-out estimate of the
-best zero-bbox configuration — hybrid (frozen ⊕ detection-finetuned)
-features + frame-gate (§4.6.2): 53/64 (82.8 % top-1, 85.4 % macro)** —
+transparent. The thesis headline is **P3's blind 54/64 (84.4 % top-1,
+88.4 % macro, Ch7)** — the only pipeline evaluated beyond N = 64. Within the
+P1 line of work documented in Ch4, the honest best is the **blind held-out
+estimate of the best zero-bbox configuration — hybrid (frozen ⊕
+detection-finetuned) features + frame-gate (§4.6.2): 53/64 (82.8 % top-1,
+85.4 % macro)** —
 obtained by selecting epoch, configuration, threshold, and seed on a
 validation slice carved from the training set, never on the 64 test clips.
 This is at **macro parity with the no-bbox baseline (85.78 %) even under the
@@ -139,7 +142,8 @@ selected with reference to the test set; §4.7.11 measures and removes
 this leakage with a train-carved validation slice, establishing the
 frozen single-head honest blind at ≈ 52/64. The best zero-bbox
 configuration (hybrid + frame-gate, §4.6.2) raises this to 53/64 (85.4 %
-macro) — the thesis's defensible accuracy headline. A larger dataset
+macro) — P1's defensible best; the thesis headline remains P3's 54/64 (Ch7).
+A larger dataset
 permitting a permanent held-out validation split would remove the need
 for this correction entirely.
 
@@ -232,28 +236,67 @@ changes required.
 
 ## 6.5 Closing Remarks
 
-The contribution of this thesis is a **Pareto-optimal point**, not a single
-competitive top-1 number. The best zero-bbox configuration (hybrid + frame-
-gate) reaches **macro parity with the no-bbox baseline even under blind
-evaluation (85.4 % vs 85.78 %)** and exceeds it best-case — at zero bbox
-annotation cost and with an edge deployment the baseline lacks. The
-contribution is three-fold. First, a **delivered, measured, open-source
-real-time edge-deployment system**: the trained pipeline sustains 4-stream
-zero-drop throughput and a 2-stream 36.2-minute soak at 30 FPS on a
-USD 249–499 Jetson at 7 W, keeps raw video on the device, and reproduces
-from a clean clone — a capability no published baseline for this task
-demonstrates. Second, the **corrected-mechanism replication and hybrid-
-feature finding**: identifying that the paper's YOLO is a frame filter (not
-a feature extractor), replicating it at 1,200 bbox frames, and showing that
-combining frozen and detection-finetuned features recovers what either alone
-loses. Third, the **causal isolation of the accuracy gap**: across twelve-plus
-tracks — including an SOTA video backbone and the paper's exact mechanism —
-the ≈ 54/64 ceiling holds, so the gap to the full-bbox 95.81 % is shown to
-be **data-volume-bound**, not architecture-bound. The working system, the
-mechanistic diagnosis, and the macro-competitive zero-bbox result are the
-deliverables; the next milestone, set out in §6.4, is to scale the bbox
-annotation budget to paper scale and re-run the
-same pipeline. The system is ready; the data is the remaining work.
+> **Scope note.** §§6.1–6.4 conclude the **P1** line of work (frozen-COCO YOLO →
+> multi-stream Transformer) that Chapters 1–5 document. This section closes the
+> thesis as a whole and therefore also carries **P3** (Ch7), the pipeline that
+> supplies the headline and the only evidence beyond N = 64.
+
+The contribution of this thesis is a **Pareto-optimal point and a measurement
+result**, not a competitive top-1 number. We state the negative plainly: on the
+paper's own same-distribution 64-clip metric we do **not** beat Önal & Dandıl's
+full-bbox 62/64, and we show that at N = 64 *no* system could demonstrate that it
+had — an exact McNemar test is underpowered even at 64/64 (§7.4). Against their
+no-bbox baseline the difference is Δ = −4.7 pp, **p = 0.435, a statistical tie**.
+What the thesis offers instead is evidence on axes the original work never
+measured. Four contributions.
+
+**First, the scene confound — the finding that reframes the benchmark.** Under
+random k-fold every camera appears in training, and a *scene-only* baseline that
+ignores behaviour entirely already reaches **77.1 %**; our model adds
+**+3.7 pp, Nadeau–Bengio p = 0.0600 over 50 folds — not significant**. We report
+this against our own interest, because the complement is the point: under
+leave-camera-out, where camera identity is structurally unavailable, the same
+model leads a transferable scene-appearance baseline by **+16.9 pp macro, 95 %
+bootstrap CI [+12.5, +21.2]** (81.2 % vs 64.4 %). The mechanism is visible
+per-class — object-visible behaviours *tie* (OpenedPanel 88.7/88.0,
+CarryOverload 100/100) while the spatially-defined pair separates
+(WalkwayViol 70.5/17.6, UnauthorInt 65.7/51.9). Same-distribution accuracy on
+this dataset substantially rewards camera memorisation; only cross-camera
+evaluation isolates behaviour. This is a claim about the *protocol*, not a
+prediction about their system, which cannot be run (weights unreleased).
+
+**Second, evaluation at a scale and a standard the benchmark lacked.** P3 is
+estimated over **516 clips** by k-fold (fold-mean 80.8 ± 4.0 % top-1, macro
+84.2 %, Nadeau–Bengio corrected) rather than a single 64-clip point with no
+interval — roughly a 3.5× tighter estimate. To it we add a safety-oriented
+multi-lens battery the paper reports none of: per-class miss-rate,
+cost-sensitive scoring that penalises misses over false alarms, ROC-AUC 0.951,
+PR-AUC 0.880, calibration ECE 0.097, and BCa/Wilson/McNemar statistics
+throughout — all computed on **one** predictor, the blind 54/64 rule
+(84.4 % top-1, 88.4 % macro).
+
+**Third, a delivered, measured, open-source real-time edge system.** The
+pipeline sustains 4-stream zero-drop throughput and a 2-stream 36.2-minute soak
+at 30 FPS on a USD 249–499 Jetson at 7 W, keeps raw video on the device, and
+reproduces from a clean clone — a capability no published baseline for this task
+demonstrates.
+
+**Fourth, the corrected-mechanism replication and the causal isolation of the
+gap.** We identify that the paper's YOLO stage is a frame *filter*, not a feature
+extractor; replicate it at 1,200 bbox frames; show that combining frozen and
+detection-finetuned features recovers what either alone loses (P1's best
+zero-bbox blind result, 53/64 / 85.4 % macro, at macro parity with the no-bbox
+baseline); and demonstrate across twelve-plus tracks — including an SOTA video
+backbone and the paper's exact mechanism — that the ceiling holds, so the
+remaining gap to the full-bbox 95.81 % is **data-volume-bound, not
+architecture-bound**.
+
+The reproducible system, the measured scene confound, and the honest interval
+estimates are the deliverables. The next milestone, set out in §6.4, is to scale
+the bbox annotation budget to paper scale and re-run the same pipeline; and,
+because the confound is now measured rather than suspected, to report
+cross-camera results alongside same-distribution ones as a matter of course. The
+system is ready; the data — and the protocol — are the remaining work.
 
 ---
 
