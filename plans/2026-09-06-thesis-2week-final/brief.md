@@ -271,6 +271,30 @@ the **52/64 ensemble rule**. Either re-persist the blind rule's softmax and reco
 explicit basis label on every such figure. **Do not pair 54/64 with ECE 0.1009 in one row** — that is
 the exact mistake the old scorecard made across pipelines, repeated within one pipeline.
 
+> **S4 CLOSED (2026-09-06) — the first option was taken: the blind softmax was recovered, not labelled
+> around.** The unlogged generating command was re-derived by pre-registered reproduction (run
+> `bacckkzbm`, four candidate configs, decision rule committed as `cb4254c` *before* launching):
+> `run_relation_transformer.py --tag yolo26app_ --seeds 5 --aux_w 0.5 --epochs 120`, blind seed 1.
+> It reproduces the stored artifact **bit-for-bit** — `blind_pred` element-wise identical and
+> `ens_softmax` max abs difference exactly **0.00e+00**. `blind_softmax`, `blind_seed` and
+> `per_seed_softmax` were added to `logits_yolo26.pt` (pre-existing tensors asserted unchanged before
+> and after the write; backup in scratchpad). `run_full_eval.py` now prefers `blind_softmax` when
+> present and records `pred_basis` + `source_provenance` in its JSON.
+>
+> Blind-basis values, replacing the ensemble ones everywhere: **ROC-AUC 0.951** (was 0.950),
+> **PR-AUC 0.880** (was 0.869), **ECE(15) 0.097** (was 0.101), McNemar vs scene-only **p = 0.804**
+> (was 0.815). §7.5 and the abstract now describe one predictor. Note the direction: every corrected
+> figure moved *slightly in the thesis's favour*, which is precisely why the reproduction was
+> pre-registered — the outcome was fixed before the numbers were visible.
+>
+> **Two caveats kept on the record.** (i) The pre-registered rule said "exactly one candidate reproduces
+> `blind_pred`"; **two** did (both select seed 1, so `blind_pred` cannot discriminate seed count). On its
+> letter that is branch 3 — record all, claim none. The tie was broken by `ens_softmax`, a second tensor
+> in the *same frozen artifact* whose comparison was computable before the run; the rule was
+> under-specified, not the result over-fitted. (ii) Side effect worth having: P3 is demonstrably
+> bit-reproducible on this stack, and `w2-number-integrity-fixes.md` unresolved #1 (provenance known
+> only from file mtimes) is closed.
+
 **S5 — no test-touch log ever existed.** Section 4h.3 requires `reports/test-touch-log.md`; it exists
 nowhere in the repo, so **no artifact in this project has a verifiable pre-registration**, including
 `yoloroi` (blind 55/64, higher than the headline). `yoloroi` was traced to an Aug-16 YOLO11-track
@@ -576,3 +600,32 @@ previous plan's fiction of five simultaneous training workers.
 4. Every failed run gets a control before it gets an explanation.
 5. The deployment chapter contains **only measured numbers from our pipeline on our hardware**.
    Literature figures, if used at all, are labelled as context and never as our result.
+
+
+**S9 — an artifact was overwritten in place, silently invalidating three verified reports (found
+2026-09-06 via a failing test, not via review).** `eval_utils/tests/test_real_artifacts.py::
+test_reproduces_brief_kfold_516_headline` failed asserting pooled `417/516`; the file
+`sweep_results/relation_tokens/kfold_oof_softmax_yolo26app_.pt` now yields **421/516 (81.59 %), macro
+84.24 %**. Nothing is corrupt: the canonical `--repeats 10` run (`canonical/
+kfold_repeats10_yolo26app_HEADLINE.log`, mtime Sep 6 03:22) legitimately regenerated the OOF selection
+set — **under the same filename**. The superseded single-repeat run's 417/516 is simply gone.
+
+Two distinct defects, and the second is the instructive one:
+
+1. **Stale pins.** `qa1-adversarial-review-and-defence.md` (row 1), `t1-objectives-audit.md` (L97),
+   `f1-metric-suite.md` (L189) and `w2-number-integrity-fixes.md` (L307) each record 417/516 as
+   *independently verified against this exact path*. Every one of those verifications was correct when
+   written and is now unreproducible from the path it cites. They are dated reports and are left as
+   written; this entry is the pointer that supersedes them. **Nothing in `report/` quotes 417/516** —
+   verified by grep — so the thesis text is unaffected.
+2. **A quantity conflation the coincidence hid.** "80.8 % (417/516)" pairs a **fold-mean** percentage
+   with a **pooled** count. These are different estimators. They agreed numerically only because the old
+   pooled value (80.81 %) happened to land on the new canonical fold-mean (80.8 %). Canonically they
+   separate: fold-mean **80.8 ± 4.0 %** (NB-corrected, the number with the CI) vs pooled
+   **421/516 = 81.6 %**. The test now asserts the pooled value and carries a docstring naming both.
+
+**Rule this establishes:** a result file regenerated under an existing filename destroys the evidence
+base of every report that cited it, and no review catches this — only a pinned test does. Prefer
+run-tagged filenames; where a path must be reused, the pinned test *is* the tripwire. Note the failure
+mode is silent in the flattering direction too: 421/516 is *higher* than 417/516, so the discrepancy
+would never have announced itself as a problem.

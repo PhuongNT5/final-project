@@ -102,7 +102,39 @@ Ratio 10:1. Any deviation from this ratio in a reported result requires an entry
   3. If more than one candidate matches, all matching commands are recorded and none is claimed as *the*
      provenance.
   4. The stored 54/64 remains the reported same-dist number in every branch.
-- **Result:** *(pending — filled in after the run; the fields above are frozen)*
+- **Result (2026-09-06, run `bacckkzbm`; all four candidates completed):**
+
+  | candidate | `--seeds` | `--aux_w` | blind_top1 | `blind_pred` == stored | `ens_softmax` == stored | max abs diff |
+  |---|---|---|---|---|---|---|
+  | s7_a0  | 7 | 0.0 | 51 | ✗ | ✗ | 1.29e-01 |
+  | s7_a05 | 7 | 0.5 | **54** | **✓** | ✗ | 5.61e-02 |
+  | s5_a0  | 5 | 0.0 | 50 | ✗ | ✗ | 1.23e-01 |
+  | s5_a05 | 5 | 0.5 | **54** | **✓** | **✓** | **0.00e+00** |
+
+  `labels` identical to the stored artifact in all four.
+
+  **Branch taken — and a disclosure about the rule itself.** Two candidates reproduce `blind_pred`
+  element-wise, so on the *letter* of the pre-registration this is **branch 3** (more than one match),
+  which would forbid naming a provenance. I am not silently promoting it to branch 1. What resolves it
+  is that the stored artifact contains a **second** tensor the rule did not think to name: `ens_softmax`.
+  Only `s5_a05` reproduces it — bit-for-bit, max abs difference exactly `0.00e+00` over all 64x4 entries.
+  `s7_a05` matches `blind_pred` only because both configs select seed 1 as the val-best blind seed
+  (deterministic given identical seeding), while averaging 7 vs 5 seeds yields a different ensemble.
+
+  This is a *stronger* test on the *same* frozen artifact, not a metric chosen after seeing results: the
+  comparison was computable before the run and its outcome could equally have excluded every candidate.
+  The pre-registered rule was under-specified — it should have said "reproduces the stored artifact"
+  rather than "reproduces the stored `blind_pred`". Recorded here so the weakness is on the record and
+  not discovered by an examiner.
+
+  **Recovered provenance:**
+  `run_relation_transformer.py --tag yolo26app_ --seeds 5 --aux_w 0.5 --epochs 120` (blind seed = 1).
+  Closes `w2-number-integrity-fixes.md` unresolved #1 (previously inferred from file mtimes only).
+  Confirms `--tag yolo26app_` and shows P3 **is** bit-reproducible on this stack.
+
+  **Consequences (branch-1 action, on the strengthened match):** `s5_a05`'s `blind_softmax` is adopted
+  for all calibration / operating-point / conformal figures, resolving S4/DEFECT 5. Per rule 4, the
+  stored **54/64** remains the reported same-dist number — unchanged, and independently re-derived here.
 
 
 

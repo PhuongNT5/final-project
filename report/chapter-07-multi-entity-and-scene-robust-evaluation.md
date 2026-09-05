@@ -71,23 +71,34 @@ clips are already single-action segments, so the paper's frame-reduction step ha
 
 ## 7.5 Full multi-lens evaluation (best model, 64-clip test)
 
-> **Two decision rules, and previously three sources — read the basis column.** Metrics that need only
-> hard predictions are computed from `blind_pred` (the val-selected single seed, **54/64**). Metrics that
-> need probabilities can only be computed from `ens_softmax` (the **seed-averaged ensemble, 52/64**),
-> because the blind seed's own softmax was never persisted (brief.md S4). These are two different
-> predictors and the table must not be read as one model's joint scorecard.
+> **One decision rule — resolved 2026-09-06.** Every metric below is now computed from the **same
+> predictor**: the val-selected single seed (`blind_pred` / `blind_softmax`, **54/64**). This was not
+> previously possible. Two defects had to be closed first:
 >
-> **Correction (2026-09-06):** the ROC-AUC (0.953), PR-AUC (0.874) and ECE (0.104) previously printed
-> here were **not from this pipeline at all** — they reproduce `logits_s1a.pt` (≡ `logits_yolo11_baseline.pt`,
-> the YOLO11 track) to four decimals, not `logits_yolo26.pt`. Recomputed from the correct artifact below.
+> 1. **Wrong artifact.** The ROC-AUC (0.953), PR-AUC (0.874) and ECE (0.104) printed here until
+>    2026-09-06 were **not from this pipeline at all** — they reproduced `logits_s1a.pt` (≡ the YOLO11
+>    track) to four decimals, not `logits_yolo26.pt`.
+> 2. **Wrong predictor.** After correcting (1), the probability metrics still had to come from
+>    `ens_softmax` (the seed-*averaged* ensemble, which scores 52/64), because the blind seed's own
+>    softmax had never been persisted — so the calibration row described a different model from the
+>    accuracy row.
+>
+> Defect 2 is now closed. The generating command was recovered and verified to reproduce the stored
+> artifact **bit-for-bit** (`--tag yolo26app_ --seeds 5 --aux_w 0.5 --epochs 120`, blind seed 1; max abs
+> difference on `ens_softmax` exactly 0.00e+00 — see `reports/test-touch-log.md`), which yields the blind
+> seed's own probabilities. The table is therefore a single model's joint scorecard.
 
-| Metric | value | basis | Metric | value | basis |
-|---|---|---|---|---|---|
-| top-1 | 84.4 % (54/64), BCa CI [71.9, 90.6] | blind | Cohen's κ | 0.775 | blind |
-| macro-recall | 88.4 %, BCa CI [77.8, 94.4] | blind | Matthews MCC | 0.785 | blind |
-| macro-F1 | 85.6 % | blind | ROC-AUC (ovr-macro) | **0.950** | ensemble (52/64) |
-| balanced-acc | 88.4 % | blind | PR-AUC (ovr-macro) | **0.869** | ensemble (52/64) |
-| ECE (15-bin) | **0.101** | ensemble (52/64) | cost (miss×10) | 100 | blind |
+| Metric | value | Metric | value |
+|---|---|---|---|
+| top-1 | 84.4 % (54/64), BCa CI [71.9, 90.6] | Cohen's κ | 0.775 |
+| macro-recall | 88.4 %, BCa CI [77.8, 94.4] | Matthews MCC | 0.785 |
+| macro-F1 | 85.6 % | ROC-AUC (ovr-macro) | **0.951** |
+| balanced-acc | 88.4 % | PR-AUC (ovr-macro) | **0.880** |
+| ECE (15-bin) | **0.097** | cost (miss×10) | 100 |
+
+All rows: blind rule, 54/64, `logits_yolo26.pt`. For reference the superseded ensemble-basis values were
+ROC-AUC 0.950 / PR-AUC 0.869 / ECE 0.101; the blind seed is very slightly better separated and better
+calibrated than the 5-seed average, but the point of the change is *coherence*, not the third decimal.
 
 Per-class precision / recall / FNR: WalkwayViol 96.2 / 78.1 / 21.9 · UnauthorInt 58.8 / 90.9 / 9.1 ·
 OpenedPanel 84.6 / 84.6 / 15.4 · CarryOverload 100 / 100 / 0. Confusion + reliability figures in
@@ -96,7 +107,7 @@ Transformer classifier runs at **0.9 ms/clip**; the full detector+classifier pip
 on an M3 (detector-bound), vs the paper's 0.14 s on a 2×GTX-1080 workstation.
 
 Two statistics are decisive and honest: **McNemar vs a scene-only baseline is not significant**
-(p = 0.815) and **vs the paper's no-bbox baseline Δ = −4.7 pp is not significant** (p = 0.435). i.e. on
+(p = 0.804, blind basis; 0.815 on the superseded ensemble basis) and **vs the paper's no-bbox baseline Δ = −4.7 pp is not significant** (p = 0.435). i.e. on
 the *same-distribution* protocol our model is statistically indistinguishable from camera-guessing — which
 motivates §7.7.
 

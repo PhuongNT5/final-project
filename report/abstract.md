@@ -29,12 +29,11 @@ factory-safety system requires. We do **not** claim the paper's own model would 
 weights and per-clip predictions are unreleased, so it cannot be run under this protocol. The claim is
 about the *metric*, not about their system. The work is supported by a full multi-lens evaluation (macro-F1,
 balanced accuracy, Cohen's κ = 0.775, MCC = 0.785, per-class miss-rate and cost-sensitive safety
-metrics, one-vs-rest ROC-AUC = 0.950, PR-AUC = 0.869, ECE = 0.101, and BCa/Wilson/McNemar statistics)
-and an edge-deployment characterisation (YOLO26 + Jetson TensorRT-INT8). *Basis note:* the
-probability-based figures (ROC-AUC, PR-AUC, ECE) are necessarily computed on the **seed-averaged
-ensemble rule (52/64)**, a related but distinct predictor from the **54/64 blind rule** that produces
-the top-1, macro, κ and MCC above — the blind seed's own softmax was not persisted. The two are
-reported separately rather than merged.
+metrics, one-vs-rest ROC-AUC = 0.951, PR-AUC = 0.880, ECE = 0.097, and BCa/Wilson/McNemar statistics)
+and an edge-deployment characterisation (YOLO26 + Jetson TensorRT-INT8). Every figure quoted here comes
+from the **same predictor** — the val-selected blind rule scoring 54/64 — including the probability-based
+ones; earlier drafts had to compute those on a seed-averaged ensemble (52/64) because the blind seed's
+softmax had not been persisted, and that mismatch is now resolved (§7.5).
 
 ---
 
