@@ -640,3 +640,33 @@ here as history-rewriting operations, which is the right default and was not wor
 commits are unpushed, so a maintainer can still fix them with an interactive rebase if desired.
 **Going forward, write "sec 7.5" rather than "§7.5" in commit messages**, or pass the message with
 `-F <file>`, which preserves the byte.
+
+**S6 CLOSED (2026-09-06) — the k-fold re-run landed, and it contradicted part of my own banner.**
+Full re-run under the clip-level block bootstrap (`--k 5 --seeds 42 123 314 --clusters 24`, 204 min):
+
+| Protocol | top-1 | top-1 CI₉₅ | macro | macro CI₉₅ |
+|---|---|---|---|---|
+| Stratified | 75.3 ± 0.2 % | [71.8, 78.6] | 77.6 ± 0.3 % | [74.7, 80.4] |
+| Scene-group | 70.5 ± 1.9 % | [66.9, 74.0] | 72.5 ± 1.0 % | [69.5, 75.4] |
+
+Three things worth keeping:
+
+1. **The provisional banner was wrong twice, and both are recorded in the chapter rather than
+   quietly overwritten.** It claimed "the point estimates are unaffected — only the intervals move";
+   the scene-group point estimates moved (71.9 → 70.5 top-1, 71.8 → 72.5 macro). It also projected
+   the corrected interval as [71.7, 79.1]; the actual is [71.8, 78.6].
+2. **The old numbers cannot be reconciled — their artifact no longer exists.**
+   `plans/260628-thesis-improvement-strategy/reports/kfold-eval.json` was deleted in commit
+   `a93a997`; the re-run recreated it. This is **S9's failure mode again, from the other direction**:
+   S9 was an artifact silently *overwritten*, this is one silently *deleted*, and in both cases the
+   published claim outlived the evidence for it. KMeans grouping is seeded (`random_state=0`), so
+   clustering is not the cause.
+3. **The scene-group scheme is unstable and must be quoted as such.** Fold 2 scores
+   **53.5 / 51.5 / 69.3 %** across the three seeds — a 17.8-point swing on one fold — giving the
+   scheme's mean roughly ±1.1 pp of standard error. A 1.4-point shift between runs is ordinary noise
+   for it. The stratified scheme reproduced to 0.04 pp and is solid.
+
+**Net effect on the thesis claim:** the interval-width gain is real but smaller than advertised —
+15.6 → **6.8** points, not 4.4. Table 4.9.2's verdicts are unchanged (head significantly worse than a
+linear probe under the random split, p 0.007 → 0.015; indistinguishable under scene-group), and the
+stratified effect size reproduced at −4.65 → −4.72 pp. The negative finding stands.
