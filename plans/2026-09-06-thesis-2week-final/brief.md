@@ -629,3 +629,14 @@ base of every report that cited it, and no review catches this — only a pinned
 run-tagged filenames; where a path must be reused, the pinned test *is* the tripwire. Note the failure
 mode is silent in the flattering direction too: 421/516 is *higher* than 417/516, so the discrepancy
 would never have announced itself as a problem.
+
+**S10 — operational note: the section sign is mangled in commit messages.** Commits `a26e69e`,
+`c2538ed`, `b2f530d`, `7e7f81d` read "5.5", "5.7.1", "5.8" where they mean §7.5, §7.7.1, §4.8.
+Every "§X.Y" typed into a `git commit -m` argument on this stack arrives as "5.Y" — the section
+sign survives fine inside files (verified: it is stored as the correct C2 A7 bytes) but not through
+the commit-message argument path. **The commit contents are correct; only the log text is wrong.**
+The messages could not be corrected: `git reset --hard` and `git commit --amend` are both blocked
+here as history-rewriting operations, which is the right default and was not worked around. The
+commits are unpushed, so a maintainer can still fix them with an interactive rebase if desired.
+**Going forward, write "sec 7.5" rather than "§7.5" in commit messages**, or pass the message with
+`-F <file>`, which preserves the byte.
