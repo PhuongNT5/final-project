@@ -126,8 +126,50 @@ architectural deficiency — S1a (adding frame-level supervision) recovered grou
 The dataset has **8 fixed cameras**, and camera view strongly predicts behaviour (3 of 8 views are
 single-class). A **scene-only baseline** — predict the behaviour from the camera view alone, ignoring the
 video — scores **52/64 = 81.2 %** on the test set. A **whole-frame classifier** (frozen features + probe,
-the paper's scene-dependent style) scores **81.2 %** same-distribution — *identical* to camera-guessing,
-i.e. it adds nothing over knowing the camera.
+the paper's scene-dependent style) scores **53/64 = 82.8 %** same-distribution (macro 79.5 %) — **one clip
+above camera-guessing**, i.e. all that training buys over simply knowing which camera you are looking at
+is a single test clip, and it is *worse* on macro.
+
+### 7.7.1 Random k-fold at N = 516 — the confound measured from the inside
+
+Before turning to cross-camera evaluation, the confound can be measured *within* the standard protocol,
+at eight times the test size. We pool the 516 four-class clips and run **stratified 5-fold × 10 repeats
+(50 folds)**, comparing the entity-relation model against a **per-view-majority scene-only baseline**
+(predict each clip from its camera's training-majority class). Under random k-fold every camera appears
+in training, so this baseline is informative rather than trivial.
+
+| | fold-mean top-1 | pooled OOF | macro | macro-F1 | κ | MCC |
+|---|---:|---:|---:|---:|---:|---:|
+| **entity-relation (YOLO26, headline)** | **80.8 ± 4.0 %** | 421/516 = 81.6 % | 84.2 % | 83.5 % | 0.741 | 0.744 |
+| entity-relation (YOLO11, ablation) | 80.7 ± 3.6 % | 421/516 = 81.6 % | 85.1 % | 83.9 % | 0.744 | 0.749 |
+| scene-only (per-view majority) | 77.1 ± 2.5 % | — | — | — | — | — |
+
+**The behaviour model's advantage over camera-guessing is +3.7 pp and is _not_ statistically
+significant: Nadeau–Bengio corrected resampled *t* = 1.93, df = 49, p = 0.0600.** The YOLO11 ablation
+independently gives +3.6 pp, t = 1.95, p = 0.0574 — also n.s. We report this against our own interest.
+It is the direct measurement of the claim in §7.1: on a benchmark whose protocol lets every camera into
+training, a model that ignores behaviour entirely is already within noise of one that models it.
+
+Two methodological points travel with this table.
+
+*Nadeau–Bengio is not optional here.* Folds share training data, so fold scores are positively
+correlated and the naive standard error is badly anti-conservative: on the headline run naive
+SE = 0.58 pp versus **NB-corrected SE = 2.12 pp**, a factor of 3.7. The uncorrected interval would have
+made the same +3.7 pp look comfortably significant. Corrected 95 % CI: **76.7–85.0 %**.
+
+*Fold-mean and pooled top-1 are different estimators* and are reported separately above rather than
+merged: the fold-mean (80.8 %) is the quantity the NB interval attaches to, while the pooled
+out-of-fold count (421/516 = 81.6 %) scores every clip once. An earlier draft quoted "80.8 % (417/516)",
+which silently paired one with the other; they agreed only by numerical coincidence in a superseded
+single-repeat run.
+
+*Detector generation is not the bottleneck.* YOLO26 (80.8 ± 4.0 %) and YOLO11 (80.7 ± 3.6 %) are
+indistinguishable across 50 folds each with overlapping NB intervals, so the ceiling documented in
+Chapter 4 is not detector-limited. Canonical runs:
+`sweep_results/relation_tokens/canonical/kfold_repeats10_yolo26app_HEADLINE.log` and
+`…/kfold_repeats10_yoloapp_YOLO11.log`.
+
+### 7.7.2 Leave-camera-out — the confound measured from the outside
 
 We therefore evaluate all methods under a **leave-camera-out (LCO)** protocol — train on some cameras,
 test on held-out cameras — the honest test of behaviour generalisation:
@@ -135,7 +177,7 @@ test on held-out cameras — the honest test of behaviour generalisation:
 | Method | same-distribution top-1 | **leave-camera-out top-1** | LCO macro |
 |---|---:|---:|---:|
 | scene-appearance (trained, transferable) | — | 53.1 % | 64.4 % |
-| whole-frame (paper-style, trained) | 81.2 % | 52.5 % | 60.3 % |
+| whole-frame (paper-style, trained) | 82.8 % | 52.5 % | 60.3 % |
 | **entity-relation (ours)** | 84.4 % | **77.7 %** | **81.2 %** |
 | *prior / constant floor (not a model)* | *—* | *16.5 %* | *10.1 %* |
 
@@ -174,8 +216,10 @@ cannot be run, and asserting its outcome would be speculation dressed as a resul
 critique; leave their number alone. (ii) The entity ontology's real payoff is **scene-agnostic,
 cross-camera generalisation** - the property a deployable factory-safety system needs, since cameras are
 added, moved, and re-aimed. Same-distribution top-1 is the wrong metric on this benchmark; scene-robust
-accuracy is the right one, and there our approach leads the trained whole-frame baseline by +23.1 pp
-(provisional, pending the canonical run).
+accuracy is the right one, and there our approach leads the trained whole-frame baseline by **+20.9 pp
+macro (81.2 % vs 60.3 %) and +25.2 pp top-1 (77.7 % vs 52.5 %)**. Both sides of that comparison are now
+canonical 5-seed runs; the earlier "+23.1 pp (provisional)" paired a superseded 3-seed 75.6 % top-1 with
+this baseline and is superseded.
 
 ## 7.8 Limitations and integration
 
