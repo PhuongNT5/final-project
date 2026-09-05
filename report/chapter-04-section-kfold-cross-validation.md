@@ -58,30 +58,45 @@ pooled cross-validated predictions; per-class results report both recall and fal
 
 ## 4.9.3 Results
 
-> **⚠ INTERVALS PROVISIONAL — DO NOT QUOTE THE CI₉₅ COLUMNS (2026-09-06).** The intervals below
-> were produced by a percentile bootstrap that resampled **1548 rows = 516 clips × 3 seeds**, i.e. it
-> treated the same 516 clips re-predicted under three seeds as three independent draws. That is
-> pseudo-replication and makes the intervals roughly **1.7× too narrow** (clip-level bootstrap on 516
-> gives [71.7, 79.1] where the table reports [73.1, 77.5]). `bootstrap_ci()` in `run_kfold_eval.py` has
-> been fixed to a clip-level block bootstrap and the fold re-run is in flight; this table's interval
-> columns are replaced when it lands. **The point estimates (75.3 / 71.9 / 77.8 / 71.8 %) are
-> unaffected** — only the intervals move. See `plans/2026-09-06-thesis-2week-final/brief.md` (S6).
+> **Intervals corrected and re-run landed (2026-09-06).** The intervals previously printed here came
+> from a percentile bootstrap that resampled **1548 rows = 516 clips × 3 seeds**, treating the same 516
+> clips re-predicted under three seeds as three independent draws. That is pseudo-replication.
+> `bootstrap_ci()` in `run_kfold_eval.py` is now a **clip-level block bootstrap** (the clip is the
+> resampling unit; when a clip is drawn, all of its per-seed predictions come with it), and the folds
+> were re-run in full under the argparse defaults — `--k 5 --seeds 42 123 314 --clusters 24`, 204 min.
+> The table below is that run.
+>
+> **Two corrections to what the provisional banner itself claimed.** (i) It asserted "the point
+> estimates are unaffected — only the intervals move." That is true of the stratified protocol
+> (75.3 → 75.26 %) but **false of the scene-group protocol**, which moved 71.9 → 70.48 % top-1 and
+> 71.8 → 72.49 % macro. (ii) The re-run's stratified interval is [71.8, 78.6], not the [71.7, 79.1]
+> the banner projected from a partial recomputation.
+>
+> **The previously published values cannot be reconciled, only replaced.** Their source artifact
+> (`plans/260628-thesis-improvement-strategy/reports/kfold-eval.json`) was deleted from the repository
+> in commit `a93a997`, so no stored artifact reproduces them; the re-run recreated the file. KMeans
+> grouping is seeded (`random_state=0`), so cluster assignment is not the cause. The likely cause is
+> visible in the per-fold log: scene-group **fold 2 scores 53.5 / 51.5 / 69.3 % across the three
+> seeds** — a 17.8-point swing on one fold. With that instability the scheme's mean is worth about
+> ±1.1 pp of standard error, and a 1.4-point shift between runs is ordinary noise, not a discrepancy
+> to be explained away. **Quote the scene-group figures as unstable; the stratified ones are solid.**
 
-**Table 4.9.1 — Cross-validated accuracy (4-class unsafe, N = 516).**
+**Table 4.9.1 — Cross-validated accuracy (4-class unsafe, N = 516), clip-level bootstrap.**
 
-| Protocol | Top-1 (mean ± std) | Top-1 CI₉₅ *(provisional)* | Macro-F1 (mean ± std) | Macro CI₉₅ *(provisional)* |
+| Protocol | Top-1 (mean ± std) | Top-1 CI₉₅ | Macro-F1 (mean ± std) | Macro CI₉₅ |
 |---|---|---|---|---|
-| Stratified k-fold (random) | **75.3 ± 1.2%** | [73.1, 77.5] | **77.8 ± 1.0%** | [76.0, 79.6] |
-| Scene-group k-fold (leakage-robust) | **71.9 ± 1.6%** | [69.7, 74.2] | **71.8 ± 1.0%** | [70.0, 73.8] |
+| Stratified k-fold (random) | **75.3 ± 0.2 %** | [71.8, 78.6] | **77.6 ± 0.3 %** | [74.7, 80.4] |
+| Scene-group k-fold (leakage-robust) | **70.5 ± 1.9 %** | [66.9, 74.0] | **72.5 ± 1.0 %** | [69.5, 75.4] |
 
-The cross-validated interval is substantially tighter than the 15.6-point interval of the single
-split — the central methodological gain of this section. (The exact width is restated once the
-corrected bootstrap lands; on the clip-level estimate it is ~7.4 rather than ~4.4 points, still less
-than half the single-split width, so the gain survives the correction.) The scene-group protocol costs **3.4 points of
-top-1 and 6.0 points of macro** relative to the random split: scene dependence is real but modest,
-not the catastrophic background-memorisation that wide scene leakage would produce. We therefore
-take the scene-robust figure (**71.9 ± 1.6% top-1, 71.8 ± 1.0% macro**) as the honest estimate of
-generalisation to unseen camera scenes.
+The cross-validated interval remains substantially tighter than the 15.6-point interval of the single
+split — the central methodological gain of this section survives the correction, though by a smaller
+margin than the pseudo-replicated version advertised: **6.8 points** for stratified top-1 (7.1 for
+scene-group), i.e. under half the single-split width rather than the ~4.4 points previously claimed.
+The scene-group protocol costs **4.8 points of top-1 and 5.1 points of macro** relative to the random
+split: scene dependence is real but modest, not the catastrophic background-memorisation that wide
+scene leakage would produce. We therefore take the scene-robust figure (**70.5 ± 1.9 % top-1,
+72.5 ± 1.0 % macro**) as the honest estimate of generalisation to unseen camera scenes, with the
+instability caveat above attached.
 
 These figures sit below the single-split headline (56/64 = 87.5% best-case, 53/64 = 82.8% blind).
 The difference is expected and is itself informative: the headline benefited from a favourable
@@ -102,18 +117,23 @@ accounts for the dependence between overlapping training sets).
 
 | Protocol | Δ top-1 (head − probe) | Nadeau–Bengio t | p | Verdict |
 |---|---|---|---|---|
-| Stratified | **−4.65 pp** (≈75.3% vs ≈80.0%) | −3.15 | **0.007** | Head **significantly worse** |
-| Scene-group | +1.70 pp (≈71.9% vs ≈70.2%) | 0.75 | 0.47 | No significant difference |
+| Stratified | **−4.72 pp** (75.3 % vs 80.0 %) | −2.77 | **0.015** | Head **significantly worse** |
+| Scene-group | +0.22 pp (70.5 % vs 70.3 %) | 0.07 | 0.94 | No significant difference |
 
 *Test details (audited 2026-09-06).* The differences are accumulated over seeds **and** folds, so
 n = 3 × 5 = 15 paired measurements and df = 14; the Nadeau–Bengio variance inflation uses
-ρ = n_test/n_train = 0.25. This is **not** affected by the Table 4.9.1 bootstrap defect, which
-concerns a different estimator. At df = 14, t = −3.15 gives p = 0.0071 as reported. The one caveat
-is power: n = 15 here against n = 50 in the repeated-k-fold runs of Chapter 7, so this p-value is
-less precisely estimated than those — but the sign and magnitude of the effect are as measured.
+ρ = n_test/n_train = 0.25. This was **not** affected by the Table 4.9.1 bootstrap defect, which
+concerns a different estimator, and the re-run confirms it: the stratified effect size reproduces
+(−4.65 → −4.72 pp) while its *t* and *p* move with the re-run's variance (−3.15 → −2.77,
+p 0.007 → 0.015). **Both verdicts are unchanged**, which is the substantive point — the head is
+significantly worse under the random split and indistinguishable under the scene-group split in both
+runs. The scene-group Δ is the one number that shifted materially (+1.70 → +0.22 pp), consistent
+with that scheme's instability documented above; it was and remains far from significance. The
+standing caveat is power: n = 15 here against n = 50 in the repeated-k-fold runs of Chapter 7, so
+these p-values are less precisely estimated than those.
 
 On the random split the logistic-regression probe is **significantly more accurate** than the
-Transformer head (p = 0.007); under the scene-robust split the two are statistically
+Transformer head (p = 0.015); under the scene-robust split the two are statistically
 indistinguishable. In neither protocol does the Transformer head provide a measurable advantage
 over a linear classifier on mean-pooled features. This is consistent with, and quantifies, the
 temporal-stream ablation of §4.7.8, which found no lift from the motion streams. The honest reading
@@ -172,8 +192,9 @@ retain non-trivial uncertainty.
 ## 4.9.5 Summary
 
 Leakage-free k-fold cross-validation reduces the headline accuracy uncertainty from a 15.6-point
-to a 4.4-point interval and yields an honest generalisation estimate of **71.9 ± 1.6% top-1 /
-71.8 ± 1.0% macro** under scene-robust evaluation. The analysis surfaces two results that the
+to a **6.8-point** interval and yields an honest generalisation estimate of **70.5 ± 1.9 % top-1 /
+72.5 ± 1.0 % macro** under scene-robust evaluation, with the stability caveat in §4.9.3 attached to
+the scene-group numbers. The analysis surfaces two results that the
 single-split protocol could not: the Transformer head provides no statistically significant gain
 over a linear probe (and is significantly worse on the random split), and the entire safety-
 relevant miss rate is concentrated in the two restricted-zone classes. Both findings motivate the

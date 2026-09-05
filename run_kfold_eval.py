@@ -50,13 +50,22 @@ def per_class(y, pred, nc=4):
     return rec, fnr
 
 
-def bootstrap_ci(y, pred, iters=5000, seed=0):
-    rng = np.random.RandomState(seed); n = len(y)
-    correct = (pred == y).astype(float); top1, macro = [], []
+def bootstrap_ci(y2d, pred2d, iters=5000, seed=0):
+    """Clip-level (cluster) bootstrap over the CLIP axis of (n_seeds, n_clips) arrays.
+
+    The sampling unit is the clip, not the (clip, seed) row. Resampling rows instead
+    would treat the same 516 clips re-predicted under S seeds as S*516 independent
+    draws and shrink the interval by ~sqrt(S); when a clip is drawn, all S of its
+    predictions come with it, which is the correct block bootstrap for this design.
+    """
+    y2d, pred2d = np.atleast_2d(y2d), np.atleast_2d(pred2d)
+    rng = np.random.RandomState(seed); n = y2d.shape[1]
+    correct = (pred2d == y2d).astype(float); top1, macro = [], []
     for _ in range(iters):
         idx = rng.randint(0, n, n)
-        top1.append(100 * correct[idx].mean())
-        macro.append(100 * f1_score(y[idx], pred[idx], average='macro', zero_division=0))
+        yb, pb = y2d[:, idx].ravel(), pred2d[:, idx].ravel()
+        top1.append(100 * correct[:, idx].mean())
+        macro.append(100 * f1_score(yb, pb, average='macro', zero_division=0))
     pct = lambda a, q: round(float(np.percentile(a, q)), 1)
     return [pct(top1, 2.5), pct(top1, 97.5)], [pct(macro, 2.5), pct(macro, 97.5)]
 
@@ -128,7 +137,7 @@ def run_scheme(name, stats4, y4, ynp, groups, seeds, device, stats_dim, args):
         per_seed_macro.append(100 * f1_score(ynp, tf_pred, average='macro', zero_division=0))
         rec, fnr = per_class(ynp, tf_pred); per_class_rec.append(rec); per_class_fnr.append(fnr)
         cat_y.append(ynp.copy()); cat_tf.append(tf_pred.copy())
-    cy, ct = np.concatenate(cat_y), np.concatenate(cat_tf)
+    cy, ct = np.stack(cat_y), np.stack(cat_tf)   # (n_seeds, n_clips) - clip is the bootstrap unit
     ci_top1, ci_macro = bootstrap_ci(cy, ct)
     t, p, mdiff = nadeau_bengio(diffs, int(np.mean(n_tr)), int(np.mean(n_te)))
     return {

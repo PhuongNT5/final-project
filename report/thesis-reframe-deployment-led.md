@@ -104,7 +104,7 @@ Recap as the lead result (Chapter 5, measured on hardware, not projected):
 | Paper no-bbox baseline | 89.06 % | 85.78 % | zero bbox |
 | Ours — deployed checkpoint (canonical 64-clip split) | 87.5 % (56/64) | 89.28 % | shipped artifact |
 | **Ours — k-fold random (single head, leakage-free)** | **75.3 ± 1.2 %** | **77.8 ± 1.0 %** | representative generalisation |
-| **Ours — k-fold scene-robust** | **71.9 ± 1.6 %** | **71.8 ± 1.0 %** | honest deployable estimate |
+| **Ours — k-fold scene-robust** | ~~71.9 ± 1.6 %~~ **70.5 ± 1.9 %** | ~~71.8 ± 1.0 %~~ **72.5 ± 1.0 %** | superseded by the 2026-09-06 clip-level-bootstrap re-run (§4.9.3) |
 
 State plainly: the canonical-split 56/64 is the deployed checkpoint; the leakage-free generalisation
 of the core method is 72–75 %; we do not claim an accuracy advantage. The contribution is the
