@@ -1,8 +1,30 @@
 # Deployment-Led Reframe & Consolidated Conclusion (draft for review)
 
-> Standalone draft consolidating the thesis around what was actually delivered. Feeds Chapter 1
-> (§1.3 objectives, §1.4 contributions), Chapter 4/§4.8, and Chapter 6 (conclusion). All claims
-> are backed by committed artifacts. EN to match existing chapters. Review, then I integrate.
+> ### SUPERSEDED 2026-09-06 — pre-P3 draft, retained for framing only. Do not compile.
+>
+> This draft was written **before the P3 pivot** (entity detector + spatial-relation Transformer,
+> Ch7) and describes only the **P1** pipeline. Three of its central claims no longer hold:
+>
+> 1. **"does not beat even the no-bbox baseline on top-1"** — overstated. P3 blind is 54/64 vs the
+>    baseline's 57/64: Δ = −4.7 pp, **p = 0.435, a statistical tie**, not a defeat. §7.4 further
+>    shows *no* system could demonstrate superiority at N = 64.
+> 2. **The title suggestions in §2, and "drop YOLO and Transformer from the title"** — rejected.
+>    They rest on P1's §4.8 finding that the Transformer head is not the operative component; in P3
+>    the spatial-relation Transformer over entity tokens *is* the mechanism carrying the
+>    cross-camera result (§7.7.2). The thesis title keeps YOLO and Transformer.
+> 3. **The two-part contribution (edge system + data-bound diagnosis)** — incomplete. The thesis
+>    now leads with the **scene-confound finding** (§7.7.1–7.7.2) and the N = 516 evidence; see
+>    Ch6 §6.5 for the current four-part statement.
+>
+> **What is still usable:** the deployment-led *narrative stance* and the Jetson measurements. The
+> Vietnamese Ch6 drafting plan cites this file for framing only
+> (`plans/2026-09-06-thesis-2week-final/research/r3-…md`), which remains valid under these caveats.
+>
+> ---
+>
+> *Original header:* Standalone draft consolidating the thesis around what was actually delivered.
+> Feeds Chapter 1 (§1.3 objectives, §1.4 contributions), Chapter 4/§4.8, and Chapter 6
+> (conclusion). All claims are backed by committed artifacts. EN to match existing chapters.
 
 ## 1. The honest one-paragraph thesis
 
