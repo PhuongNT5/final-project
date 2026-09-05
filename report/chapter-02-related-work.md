@@ -275,8 +275,10 @@ thesis compilation.
      computer vision system for real-time detection of unsafe behaviours
      in workplace," *Multimedia Tools and Applications*, vol. 84, no. 29,
      pp. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
-     Dataset: https://data.mendeley.com/datasets/xjmtb22pff/1
-     (CC BY 4.0). DOI: 10.17632/xjmtb22pff.1.
+     Dataset: O. Önal and E. Dandıl, "Video Dataset for Safe and Unsafe
+     Behaviours," Mendeley Data, 2024, CC BY 4.0.
+     DOI: 10.17632/xjmtb22pff.1.
+     https://data.mendeley.com/datasets/xjmtb22pff/1
 
 [18] Microsoft, "ONNX Runtime," 2024. [Online]. Available:
      https://onnxruntime.ai/docs/ (accessed 2026-04).
