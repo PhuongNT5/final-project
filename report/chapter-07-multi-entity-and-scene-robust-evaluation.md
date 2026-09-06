@@ -204,9 +204,17 @@ numbers are not comparable estimators.
 Per-class LCO recall (**scene-appearance vs ours**, canonical run): OpenedPanel 88.0/88.7,
 CarryOverload 100/100, **WalkwayViol 17.6/70.5, UnauthorInt 51.9/65.7**. Object-visible behaviours (panel, forklift) generalise for everyone; the
 **spatial-relational confusion pair - the whole point of the task - collapses for the whole-frame
-approach and is carried by our entity+geometry reasoning**. That per-class pattern, not the aggregate,
-is the strongest evidence here: the two classes that a scene-memorising model cannot get right are
-exactly the two that entity geometry is designed to separate.
+approach and is carried by our entity+geometry reasoning**.
+
+**How much weight this per-class pattern can bear (revised).** An earlier draft called this pattern
+"the strongest evidence here, not the aggregate". That is withdrawn - the stability study in §7.8
+reverses the ordering. Under perturbations that leave the aggregate margin essentially unchanged, the
+individual recalls move a great deal: re-seeding the scene clustering swings UnauthorInt by 20.4 pp in
+the k-fold scene-group scheme, and removing the 51 label-contradictory duplicate clips moves OpenedPanel
+by 18.5 pp under LCO even though only **one** of the removed clips belongs to that class - i.e. the move
+is training variance, not a change of population. The aggregate margin is the robust quantity here
+(+16.9 pp macro, CI [+12.5, +21.2], reproduced as +17.7 pp CI [+12.9, +22.4] on the deduplicated set);
+the four recalls are reported as descriptive support for the intended mechanism, not as its proof.
 
 **Implications.** (i) **The same-distribution metric is scene-inflated on this benchmark.** With these
 view<->class correlations and no camera holdout, a model can score 81.2 % by identifying the camera. That
@@ -216,12 +224,60 @@ cannot be run, and asserting its outcome would be speculation dressed as a resul
 critique; leave their number alone. (ii) The entity ontology's real payoff is **scene-agnostic,
 cross-camera generalisation** - the property a deployable factory-safety system needs, since cameras are
 added, moved, and re-aimed. Same-distribution top-1 is the wrong metric on this benchmark; scene-robust
-accuracy is the right one, and there our approach leads the trained whole-frame baseline by **+20.9 pp
-macro (81.2 % vs 60.3 %) and +25.2 pp top-1 (77.7 % vs 52.5 %)**. Both sides of that comparison are now
-canonical 5-seed runs; the earlier "+23.1 pp (provisional)" paired a superseded 3-seed 75.6 % top-1 with
+accuracy is the right one. Against the *weaker* of the two transferable baselines - the trained
+whole-frame classifier - the lead is **+20.9 pp macro (81.2 % vs 60.3 %) and +25.2 pp top-1
+(77.7 % vs 52.5 %)**; against the *stronger* scene-appearance baseline it is **+16.9 pp macro
+(81.2 % vs 64.4 %)**. **The +16.9 pp figure is the headline claim throughout this thesis** - it is the
+margin over the harder baseline, and quoting the larger number as the result would be baseline-shopping.
+Both sides of both comparisons are canonical 5-seed runs; the earlier "+23.1 pp (provisional)" paired a superseded 3-seed 75.6 % top-1 with
 this baseline and is superseded.
 
 ## 7.8 Limitations and integration
+
+### 7.8.1 Stability of the LCO result under perturbation (what each number can bear)
+
+Two perturbations were applied that a reader could reasonably object were arbitrary choices, to see
+which conclusions survive them. Both run on the pooled 516-clip set and consume **no test evaluations**.
+
+**(a) Re-seeding the scene clustering.** The camera proxy is `KMeans(8, random_state=0)`; the seed was
+hardcoded, so the grouping carried no measurable uncertainty. Exposing it (`--cluster_seed`) and
+re-running shows the aggregate is stable while the per-class recalls are not. In the k-fold
+scene-group scheme, top-1 moves 70.6 / 72.3 / 72.4 % across three clusterings (spread 1.7 pp, SD 0.97)
+— *smaller* than the training-seed SD of 1.93 pp measured over 8 seeds at fixed clustering. Combining
+both sources gives ±2.2 pp, which is the interval this thesis quotes. But UnauthorInt recall over the
+same three clusterings is **38.6 / 24.7 / 45.1 % — a 20.4 pp swing from re-seeding alone**, and
+WalkwayViol moves 9.7 pp, while the object-visible classes barely move (OpenedPanel 5.0 pp,
+CarryOverload 0.0 pp).
+
+**(b) Removing the label-contradictory duplicates.** The dataset contains 691 clips of which only 658
+are byte-distinct, in **32 md5-identical groups carrying two or more different class labels** (26 of the
+32 conflate WalkwayViolation with UnauthorizedIntervention). These clips are unlearnable by
+construction: identical pixels, contradictory targets. Dropping them (465 clips) leaves the LCO
+aggregate margin intact — **+17.7 pp macro, CI [+12.9, +22.4]**, against the canonical
+**+16.9 pp, CI [+12.5, +21.2]** — but moves OpenedPanel LCO recall by **18.5 pp** (88.7 → 70.2 %) even
+though **one** single clip of that class was removed. A change that large from a one-clip change of
+population is training variance, not a population effect.
+
+**What follows.** The aggregate cross-camera margin is robust to both perturbations and is the
+quantity this thesis claims. Individual LCO per-class recalls are **not** stable to within the
+differences the mechanism argument would need to read off them, and are reported here as descriptive.
+This ordering is the reverse of an earlier draft's and is stated against our own interest: the
+per-class pattern is the more rhetorically appealing evidence, and it is the weaker evidence.
+
+*A second, unrelated finding from (b), reported because it bears on the k-fold analysis of §7.7.1:*
+removing those 51 clips raises random-k-fold top-1 from 80.8 to 86.6 % and moves the Nadeau–Bengio test
+from p = 0.057 (n.s.) to p = 0.0014 (significant). **This is not evidence of a better model.** Scoring
+the unchanged canonical model's own out-of-fold predictions on the two subsets shows it gets
+**43.1 % (22/51)** on the dropped clips — at the coin-flip level their 25/25 class-0/class-1 mix implies
+— and 85.8 % on the 465 kept clips. So removing them from the *denominator* alone accounts for
+80.8 → 85.8 %; at most ≈ 0.8 pp of the 5.8 pp gain is attributable to training on cleaner labels. The
+headline k-fold figures in §7.7.1 therefore remain **80.8 % and p = 0.057 (n.s.)** on the full 516
+clips. The finding worth reporting is the diagnosis, not the number: the benchmark's own duplicate
+contradictions are large enough to move a significance test across the 0.05 threshold, and they
+systematically penalise an input-dependent behaviour model relative to an input-independent scene
+baseline on exactly the class pair this task is about.
+
+### 7.8.2 Other limitations
 
 - **Residual cross-camera confusion pair.** UnauthorInt LCO recall is **65.7 %** and WalkwayViol
   **70.5 %** (canonical 5-seed run) — the weakest two classes, and both are the spatially-defined ones:

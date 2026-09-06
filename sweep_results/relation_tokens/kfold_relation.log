@@ -1,0 +1,12 @@
+  fold 1: relation 83.7%  scene-only 77.9%  Δ=+5.8
+  fold 2: relation 82.5%  scene-only 78.6%  Δ=+3.9
+  fold 3: relation 82.5%  scene-only 76.7%  Δ=+5.8
+  fold 4: relation 76.7%  scene-only 75.7%  Δ=+1.0
+  fold 5: relation 80.6%  scene-only 76.7%  Δ=+3.9
+
+=== STRATIFIED 5-FOLD (random, pooled 516 clips) ===
+  relation-Transformer: top-1 81.2±2.5% | pooled 419/516 | macro 84.5%
+  scene-only baseline : top-1 77.1±1.0%
+  Nadeau–Bengio (relation vs scene-only): mean Δ=4.1pp  t=3.07  p=0.0375  (significant)
+  NOTE: random k-fold has every camera in train (scene-confounded); the scene-robust picture is the
+        leave-camera-out result (relation 80.4% vs scene-only 16.9%). Report both.

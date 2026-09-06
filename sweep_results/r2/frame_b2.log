@@ -1,0 +1,7 @@
+[frame] resnet50 fit=483clips/7728frames val=83clips
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/unsafenet/train_frame.py:120: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  tot += float(loss)
+  ep00 loss=1.381 val_top1=78.3 val_macro=79.4 (22865s)
+/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/lib/python3.13/multiprocessing/resource_tracker.py:301: UserWarning: resource_tracker: There appear to be 20 leaked semaphore objects to clean up at shutdown: {'/mp-8_eoh56u', '/mp-r9yxrs2p', '/mp-piolbbkd', '/mp-dclxkl3e', '/mp-xygemyfg', '/mp-s4dzjb0u', '/mp-wi3f1j8n', '/mp-ef3lyd29', '/mp-tt1jwm1b', '/mp-nu9g84c7', '/mp-q90_70ze', '/mp-6djot41j', '/mp-fd9h26cw', '/mp-et2ysx8b', '/mp-cdi9c7cv', '/mp-lw4qkfb0', '/mp-bf8ifw9j', '/mp-hibvdgxo', '/mp-eupi5ez6', '/mp-qqlzhudc'}
+  warnings.warn(

@@ -19,10 +19,13 @@ classifier (the paper's scene-dependent style) scores an identical 81.2 % — i.
 accuracy largely measures *which camera*, not the behaviour. Under a **leave-camera-out (scene-robust)
 protocol** a trained, transferable scene-appearance baseline reaches only 64.4 % macro while the
 proposed entity-relation model retains **81.2 % macro (77.7 % top-1)** — an **honest margin of +16.9 pp
-macro, 95 % bootstrap CI [+12.5, +21.2]** (n_boot = 5 000 over 516 pooled clips). The margin is carried
-entirely by the spatial-relational classes: object-visible behaviours tie (OpenedPanel 88.7 vs 88.0,
-CarryOverload 100 vs 100), while WalkwayViolation is 70.5 vs 17.6 and UnauthorizedIntervention 65.7 vs
-51.9 — exactly the pair that requires reasoning about *where* a person is rather than *what* is visible. We therefore argue that same-distribution
+macro, 95 % bootstrap CI [+12.5, +21.2]** (n_boot = 5 000 over 516 pooled clips). The per-class
+pattern is *consistent with* the margin being carried by the spatially-defined classes (OpenedPanel
+88.7 vs 88.0 and CarryOverload 100 vs 100 tie; WalkwayViolation 70.5 vs 17.6 and UnauthorizedIntervention
+65.7 vs 51.9), but we deliberately do **not** rest the claim on those four numbers: a stability study
+(§7.8) finds LCO per-class recall varies by up to ~20 pp under perturbations that leave the aggregate
+margin unchanged. The evidential claim is the aggregate margin; the per-class breakdown is reported as
+descriptive support only. We therefore argue that same-distribution
 top-1 on this benchmark is substantially scene-inflated, and that the entity-relation formulation — not
 any same-distribution top-1 — is the scientifically sound, cross-camera-deployable approach a real
 factory-safety system requires. We do **not** claim the paper's own model would fail cross-camera: its

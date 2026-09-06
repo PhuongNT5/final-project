@@ -1,0 +1,2 @@
+[tx-mean-lg] ENSEMBLE val_macro=84.5 val_top1=81.9 (test held for fusion)
+[tx-lstm-elg] ENSEMBLE val_macro=83.1 val_top1=80.7 (test held for fusion)

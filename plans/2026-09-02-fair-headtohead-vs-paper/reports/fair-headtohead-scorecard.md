@@ -36,6 +36,25 @@ Pipeline O only (user decision); compared to paper's PUBLISHED numbers. Runs: `r
 >    macro-F1 83.9 %, κ 0.744, MCC 0.749, NB 95 % CI 77.0-84.4 %.
 > 5. **Any k-fold CI here computed without the NB correction is ~3.7x too narrow** (naive SE 0.51
 >    vs NB-corrected 1.87 on the canonical run).
+>
+> 6. **The per-class leg of the mechanism claim is WITHDRAWN (2026-09-06).** Correction 2 above and
+>    §2 item 3 below both argue "the mechanism is visible per-class" from four LCO recalls
+>    (OpenedPanel 88.7/88.0 tie, WalkwayViol 70.5/17.6 and UnauthorInt 65.7/51.9 separate). Two
+>    independent perturbations show those recalls are not stable to within the differences being read
+>    off them (brief.md S16/S18): re-seeding the KMeans camera proxy swings UnauthorInt by **20.4 pp**,
+>    and dropping the 51 label-contradictory duplicate clips moves OpenedPanel by **18.5 pp** under LCO
+>    although only **one** clip of that class is removed — training variance, not population change.
+>    Under that second perturbation the "tie" reverses outright (model 70.2 vs baseline 86.5).
+>    **What survives, and is what to cite:** the aggregate margin **+16.9 pp macro CI [+12.5, +21.2]**,
+>    reproduced as **+17.7 pp CI [+12.9, +22.4]** on the deduplicated 465-clip set. Report per-class
+>    recalls as descriptive; do not build the mechanism argument on them.
+>
+> 7. **A `--dedupe drop_all` k-fold run reaching 86.6 % top-1 with NB p = 0.0014 exists — do not cite
+>    it as a headline.** ~5.0 of the 5.8 pp gain is denominator arithmetic: the unchanged canonical
+>    model scores 43.1 % (22/51) on the dropped clips (coin-flip level, given their 25/25 class-0/1 mix)
+>    and 85.8 % on the 465 kept ones, so removal alone moves 80.8 → 85.8 %. LCO confirms the diagnosis
+>    from the opposite side — the same edit *lowers* LCO top-1, 77.7 → 75.9 %. Headline stays
+>    **80.8 % / p = 0.0574 (n.s.)**. See brief.md S17/S18 and thesis §7.8.1.
 
 ## 0. Task parity confirmed (paper.txt L340, Table 7)
 Paper 95.81% = macro over the **4 UNSAFE classes**, 64 unsafe test clips. Our eval is identical 4-class.
@@ -79,9 +98,11 @@ LCO per-class recall (YOLO26): Walkway 77.1 · UnauthorInt 44.4 · OpenedPanel 9
 2. **Statistical reliability:** k-fold macro 84.0% ± 3pp over 516 clips vs paper's single 64-clip point
    (±11pp). Our estimate is ~3.5× tighter and reproducible — the paper never provided one.
 3. **Scene-robust generalization (LCO):** **81.2% macro vs a transferable scene-appearance baseline's
-   64.4% — +16.9 pp, 95% bootstrap CI [+12.5, +21.2]** (canonical 5-seed run). The mechanism is visible
-   per-class: object-visible behaviours **tie** (OpenedPanel 88.7/88.0, CarryOverload 100/100) while the
-   spatially-defined pair separates (WalkwayViol 70.5/17.6, UnauthorInt 65.7/51.9).
+   64.4% — +16.9 pp, 95% bootstrap CI [+12.5, +21.2]** (canonical 5-seed run); reproduced as +17.7 pp
+   CI [+12.9, +22.4] on the deduplicated 465-clip set. The per-class breakdown is *consistent with* the
+   intended mechanism (OpenedPanel 88.7/88.0 and CarryOverload 100/100 tie; WalkwayViol 70.5/17.6 and
+   UnauthorInt 65.7/51.9 separate) but **does not carry the claim** — see correction 6; those recalls
+   move up to ~20 pp under perturbations that leave the aggregate margin intact.
    The paper NEVER ran cross-camera — its 95.81% does not measure behaviour generalization. Note this is
    a claim about the *protocol*, not a prediction about their model, which cannot be run (weights
    unreleased). Caveat: the 8 "cameras" are a KMeans(8) proxy; Unsafe-Net publishes no camera IDs.

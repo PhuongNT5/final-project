@@ -1,0 +1,96 @@
+{
+  "protocol": "pooled 691 clips; 4-class subset; per-fold inner-val epoch select; no day metadata available \u2192 clip-level + scene-cluster grouping",
+  "args": {
+    "k": 5,
+    "seeds": [
+      42,
+      123,
+      314
+    ],
+    "clusters": 24,
+    "cluster_seed": 1,
+    "out_tag": "cs1",
+    "lr": 0.00015,
+    "epochs": 300,
+    "patience": 60,
+    "feature": "stats",
+    "schemes": [
+      "scene_group"
+    ],
+    "smoke": false
+  },
+  "runtime_min": 198.7,
+  "results": {
+    "scene_group": {
+      "scheme": "group",
+      "k": 5,
+      "seeds": [
+        42,
+        123,
+        314
+      ],
+      "n_clips": 516,
+      "top1_mean": 72.29,
+      "top1_std": 0.69,
+      "top1_per_seed": [
+        71.3,
+        72.7,
+        72.9
+      ],
+      "macro_mean": 71.71,
+      "macro_std": 0.46,
+      "top1_bootstrap_ci95": [
+        68.7,
+        76.0
+      ],
+      "macro_bootstrap_ci95": [
+        68.8,
+        74.7
+      ],
+      "per_class_recall_mean": [
+        72.1,
+        24.7,
+        97.9,
+        100.0
+      ],
+      "per_class_fnr_mean": [
+        27.9,
+        75.3,
+        2.1,
+        0.0
+      ],
+      "transformer_vs_linear": {
+        "mean_acc_diff_pp": -1.865,
+        "nadeau_bengio_t": -0.527,
+        "p_value": 0.6062,
+        "significant_05": false
+      },
+      "confusion_matrix_seed0": [
+        [
+          139,
+          43,
+          28,
+          0
+        ],
+        [
+          45,
+          31,
+          32,
+          0
+        ],
+        [
+          0,
+          0,
+          142,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          56
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,108 @@
+### Pre-registered: this is the ablation prescribed by dedupe-procedure.md (2026-09-05),
+### never executed until now (brief S11). Reported whatever the result, per user decision 2026-09-06.
+### Canonical --dedupe none counterparts: canonical/kfold_repeats10_yolo26app_HEADLINE.log (80.8+-4.0%, p=0.0600)
+###                                       canonical/lco_seeds5_yolo26L1_CANONICAL.log (77.7% top-1 / 81.2% macro)
+
+=== [1/2] k-fold headline, --dedupe drop_all (52 of 516 pooled clips dropped) ===
+[dedupe:drop_all] dropped 51 of 516 pooled clips
+  rep 1 fold 1: relation 86.0%  scene-only 80.6%  Δ=+5.4
+  rep 1 fold 2: relation 84.9%  scene-only 82.8%  Δ=+2.2
+  rep 1 fold 3: relation 86.0%  scene-only 78.5%  Δ=+7.5
+  rep 1 fold 4: relation 87.1%  scene-only 81.7%  Δ=+5.4
+  rep 1 fold 5: relation 86.0%  scene-only 79.6%  Δ=+6.5
+  rep 2 fold 1: relation 90.3%  scene-only 80.6%  Δ=+9.7
+  rep 2 fold 2: relation 84.9%  scene-only 82.8%  Δ=+2.2
+  rep 2 fold 3: relation 80.6%  scene-only 78.5%  Δ=+2.2
+  rep 2 fold 4: relation 92.5%  scene-only 79.6%  Δ=+12.9
+  rep 2 fold 5: relation 87.1%  scene-only 81.7%  Δ=+5.4
+  rep 3 fold 1: relation 87.1%  scene-only 78.5%  Δ=+8.6
+  rep 3 fold 2: relation 83.9%  scene-only 81.7%  Δ=+2.2
+  rep 3 fold 3: relation 84.9%  scene-only 81.7%  Δ=+3.2
+  rep 3 fold 4: relation 88.2%  scene-only 79.6%  Δ=+8.6
+  rep 3 fold 5: relation 84.9%  scene-only 81.7%  Δ=+3.2
+  rep 4 fold 1: relation 91.4%  scene-only 80.6%  Δ=+10.8
+  rep 4 fold 2: relation 87.1%  scene-only 82.8%  Δ=+4.3
+  rep 4 fold 3: relation 87.1%  scene-only 76.3%  Δ=+10.8
+  rep 4 fold 4: relation 83.9%  scene-only 81.7%  Δ=+2.2
+  rep 4 fold 5: relation 86.0%  scene-only 81.7%  Δ=+4.3
+  rep 5 fold 1: relation 89.2%  scene-only 83.9%  Δ=+5.4
+  rep 5 fold 2: relation 93.5%  scene-only 79.6%  Δ=+14.0
+  rep 5 fold 3: relation 86.0%  scene-only 76.3%  Δ=+9.7
+  rep 5 fold 4: relation 87.1%  scene-only 81.7%  Δ=+5.4
+  rep 5 fold 5: relation 82.8%  scene-only 81.7%  Δ=+1.1
+  rep 6 fold 1: relation 92.5%  scene-only 83.9%  Δ=+8.6
+  rep 6 fold 2: relation 89.2%  scene-only 76.3%  Δ=+12.9
+  rep 6 fold 3: relation 83.9%  scene-only 78.5%  Δ=+5.4
+  rep 6 fold 4: relation 89.2%  scene-only 82.8%  Δ=+6.5
+  rep 6 fold 5: relation 84.9%  scene-only 81.7%  Δ=+3.2
+  rep 7 fold 1: relation 80.6%  scene-only 74.2%  Δ=+6.5
+  rep 7 fold 2: relation 86.0%  scene-only 80.6%  Δ=+5.4
+  rep 7 fold 3: relation 88.2%  scene-only 83.9%  Δ=+4.3
+  rep 7 fold 4: relation 88.2%  scene-only 81.7%  Δ=+6.5
+  rep 7 fold 5: relation 92.5%  scene-only 82.8%  Δ=+9.7
+  rep 8 fold 1: relation 89.2%  scene-only 82.8%  Δ=+6.5
+  rep 8 fold 2: relation 90.3%  scene-only 80.6%  Δ=+9.7
+  rep 8 fold 3: relation 80.6%  scene-only 81.7%  Δ=-1.1
+  rep 8 fold 4: relation 86.0%  scene-only 78.5%  Δ=+7.5
+  rep 8 fold 5: relation 82.8%  scene-only 79.6%  Δ=+3.2
+  rep 9 fold 1: relation 83.9%  scene-only 79.6%  Δ=+4.3
+  rep 9 fold 2: relation 89.2%  scene-only 79.6%  Δ=+9.7
+  rep 9 fold 3: relation 80.6%  scene-only 78.5%  Δ=+2.2
+  rep 9 fold 4: relation 88.2%  scene-only 87.1%  Δ=+1.1
+  rep 9 fold 5: relation 87.1%  scene-only 78.5%  Δ=+8.6
+  rep 10 fold 1: relation 84.9%  scene-only 76.3%  Δ=+8.6
+  rep 10 fold 2: relation 87.1%  scene-only 81.7%  Δ=+5.4
+  rep 10 fold 3: relation 83.9%  scene-only 81.7%  Δ=+2.2
+  rep 10 fold 4: relation 86.0%  scene-only 78.5%  Δ=+7.5
+  rep 10 fold 5: relation 88.2%  scene-only 84.9%  Δ=+3.2
+
+=== STRATIFIED 5-FOLD x 10 REPEATS (50 folds, pooled 465 clips) ===
+  relation-Transformer: top-1 86.6±3.1% | pooled 400/465 | macro 86.6%
+  scorecard: macro-F1 86.4% | macro-precision 86.5% | macro-recall 86.6% | Cohen κ 0.802 | MCC 0.803
+  fold-mean top-1 86.6%  naive SE 0.44  NB-corrected SE 1.62 (95% CI 83.5-89.8%)
+  scene-only baseline : top-1 80.6±2.4%
+  Nadeau–Bengio (relation vs scene-only): mean Δ=6.0pp  t=3.39  df=49  p=0.0014  (significant)
+  NOTE: random k-fold has every camera in train, so the per-view-majority scene baseline is
+        informative here. Under leave-camera-out it degenerates to a CONSTANT global-majority
+        predictor (macro 25% by arithmetic) — the two baselines are different estimators, so the
+        old '77.1% -> 16.9% collapse' contrast is WITHDRAWN. See brief.md S2; task A3b rebuilds it.
+  [saved OOF selection set] sweep_results/relation_tokens/kfold_oof_softmax_yolo26app__drop_all.pt
+
+=== [2/2] LCO canonical, --dedupe drop_all ===
+[dedupe:drop_all] dropped 51 of 516 pooled clips
+[scene_map] overriding views from sweep_results/zone_prior/clip_scene_map.json | mapped 465/465 clips
+[LIMITATION] this grouping is a KMeans(8) proxy on per-clip static-background descriptors (tools/build_scene_grouping.py) — NOT verified camera metadata (no camera IDs exist in filenames, per r4). LCO strength is bounded by how well this proxy tracks real cameras.
+pooled 465 clips | views [np.str_('0'), np.str_('1'), np.str_('2'), np.str_('3'), np.str_('4'), np.str_('5'), np.str_('6'), np.str_('7')] | feat 72 | seeds 5 epochs 60
+  held-out view 0: n= 44 classes=[0, 1, 2] (train majority class=0) → transformer acc= 59.1%  prior acc= 20.5%  scene-appearance acc= 65.9%
+  held-out view 1: n=121 classes=[0, 1] (train majority class=2) → transformer acc= 86.0%  prior acc=  0.0%  scene-appearance acc=  5.0%
+  held-out view 2: n= 39 classes=[3] (train majority class=0) → transformer acc=100.0%  prior acc=  0.0%  scene-appearance acc=100.0%
+  held-out view 3: n=  5 classes=[0, 1] (train majority class=0) → transformer acc= 80.0%  prior acc= 60.0%  scene-appearance acc= 60.0%
+  held-out view 4: n= 69 classes=[0, 1] (train majority class=0) → transformer acc= 72.5%  prior acc= 60.9%  scene-appearance acc= 65.2%
+  held-out view 5: n= 17 classes=[3] (train majority class=0) → transformer acc=100.0%  prior acc=  0.0%  scene-appearance acc=100.0%
+  held-out view 6: n=152 classes=[0, 1, 2] (train majority class=0) → transformer acc= 67.1%  prior acc= 10.5%  scene-appearance acc= 75.7%
+  held-out view 7: n= 18 classes=[1] (train majority class=0) → transformer acc= 61.1%  prior acc=  0.0%  scene-appearance acc=  0.0%
+
+=== LEAVE-CAMERA-OUT (scene-robust, 465 clips pooled, 8 camera-groups) ===
+  relation-Transformer      : 353/465 = 75.9% top-1 | macro 79.3%
+  [1] prior (trivial floor) : 70/465 = 15.1% top-1 | macro 9.5% (arithmetic expectation for a CONSTANT predictor over 4 classes = 25.0% macro EXACTLY, by construction — 100% recall on one class, 0% on the rest; the measured macro above will equal this whenever a single class is predicted for the whole held-out camera, which is the common case here)
+  [2] scene-appearance      : 254/465 = 54.6% top-1 | macro 61.6% (logistic regression on whole-frame MobileNetV3 features, background/scene-encoding, NOT crop-based — trained on training cameras only, no access to the held-out camera)
+  [3] per-view-majority     : UNDEFINED under LCO (the held-out view has zero training clips, so 'majority class within this view from training data' cannot be computed) — degenerates to [1] prior by construction. This is the honest reason the k-fold script's 77.1% baseline and this script's numbers are NOT comparable estimators; see brief.md S2.
+  per-class recall (LCO transformer)    : {'WalkwayViol': 74.6, 'UnauthorInt': 72.3, 'OpenedPanel': 70.2, 'CarryOverload': 100.0}
+  per-class recall (LCO scene-appearance): {'WalkwayViol': 25.9, 'UnauthorInt': 33.7, 'OpenedPanel': 86.5, 'CarryOverload': 100.0}
+  confusion (LCO transformer):
+ [[138  35  12   0]
+ [ 20  60   3   0]
+ [  4  38  99   0]
+ [  0   0   0  56]]
+  confusion (LCO scene-appearance):
+ [[ 48 128   9   0]
+ [ 43  28  12   0]
+ [  1  18 122   0]
+ [  0   0   0  56]]
+
+  → HONEST margin (relation-Transformer macro - scene-appearance macro) = +17.7 pp  [95% bootstrap CI +12.9, +22.4 pp, n_boot=5000, resampled over 465 pooled clips]
+
+  (withdrawn framing, DO NOT USE: the old +60.3pp figure compared the model against the trivial constant baseline [1], not against a transferable classifier — see brief.md S2)
+
+Contrast: SAME-DISTRIBUTION scene-only=52/64 (81.2%), our S1a=54/64 (84.4%).
+### DEDUPE ABLATION DONE

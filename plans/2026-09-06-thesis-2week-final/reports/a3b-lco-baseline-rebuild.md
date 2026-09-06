@@ -1,5 +1,17 @@
 # A3b — LCO baseline rebuild (S2 fix)
 
+> **STABILITY NOTE (added 2026-09-06, after this report was written).** The aggregate margin below
+> (+16.9 pp macro, CI [+12.5, +21.2]) is **confirmed stable**: it reproduces as +17.7 pp CI [+12.9,
+> +22.4] on the deduplicated 465-clip set. The **per-class recall table in §1 is not stable** and the
+> reading built on it ("the transformer's real advantage is concentrated in WalkwayViol +52.9 pp and
+> UnauthorInt +13.8 pp") must not be cited as evidence. Two perturbations (brief.md S16/S18): re-seeding
+> the KMeans camera proxy swings UnauthorInt recall by 20.4 pp in the k-fold scene-group scheme, and
+> dropping the 51 label-contradictory duplicate clips moves OpenedPanel LCO recall by 18.5 pp
+> (88.7 → 70.2 %) although only **one** clip of that class is removed — so the move is training
+> variance, not population change. Under that perturbation the OpenedPanel "tie" reverses (70.2 model
+> vs 86.5 baseline). Numbers below are left exactly as measured; only their evidential weight changes.
+> See thesis §7.8.1.
+
 Task: rebuild the leave-camera-out (LCO) baseline in `run_lco_eval.py` so axis-4 (cross-camera
 generalisation) rests on a defensible comparison, not a constant predictor. File owned exclusively:
 `run_lco_eval.py`. No other root `run_*.py` touched.

@@ -1,0 +1,21 @@
+[frame] resnet34 fit=483clips/7728frames val=83clips
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/unsafenet/train_frame.py:120: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  tot += float(loss)
+  ep00 loss=1.305 val_top1=79.5 val_macro=82.0 (296s)
+  ep01 loss=1.024 val_top1=75.9 val_macro=80.7 (330s)
+  ep02 loss=0.949 val_top1=75.9 val_macro=81.1 (323s)
+  ep03 loss=0.910 val_top1=81.9 val_macro=83.6 (324s)
+  ep04 loss=0.849 val_top1=80.7 val_macro=83.1 (320s)
+  ep05 loss=0.824 val_top1=83.1 val_macro=83.7 (324s)
+  ep06 loss=0.798 val_top1=79.5 val_macro=82.0 (321s)
+  ep07 loss=0.760 val_top1=77.1 val_macro=79.8 (324s)
+  ep08 loss=0.740 val_top1=78.3 val_macro=80.3 (327s)
+  ep09 loss=0.714 val_top1=75.9 val_macro=79.1 (332s)
+  ep10 loss=0.691 val_top1=78.3 val_macro=81.3 (334s)
+  ep11 loss=0.664 val_top1=77.1 val_macro=80.2 (336s)
+  ep12 loss=0.653 val_top1=78.3 val_macro=80.3 (337s)
+  ep13 loss=0.644 val_top1=77.1 val_macro=79.6 (337s)
+[frame] best ep5 val_macro=83.7 -> /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/r2/frame_b0.pt
+  exported train: (566, 32, 8)
+  exported test: (125, 32, 8)

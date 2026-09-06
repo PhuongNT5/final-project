@@ -61,12 +61,12 @@ Note: OpenedPanel 100% **exceeds paper's 92.31%**. CarryOverload 100% matches pa
 
 **The gap is DATA, not architecture.**
 
-The paper's YOLO v4 was trained with **per-frame bounding box annotations** on Unsafe-Net (95.7% mAP). Their YOLO detects "walkway violation" and "unauthorized intervention" as distinct object classes per frame. ConvLSTM then smooths temporal predictions.
+The paper's YOLO v4 was trained with **per-frame bounding box annotations** on Unsafe-Net (no test-set mAP is published; the paper reports only *"around 97 %"* read off the Fig. 8 training curve, for a **nc=4** frame gate at 416x416 — the previously stated "95.7 % mAP" is **retracted**, it does not appear in `paper/paper.txt`). Their YOLO detects "walkway violation" and "unauthorized intervention" as distinct object classes per frame. ConvLSTM then smooths temporal predictions.
 
 Our YOLO v11 uses COCO weights → generic features. Even YOLO-World (open-vocabulary, 99% person detection) cannot distinguish WHICH restricted zone the person is in.
 
 ### To beat 95.81%:
-- **Done**: Manual bbox annotation — 401 labeled frames across 8 classes (`annotation_guide/`)
+- **Done**: Manual bbox annotation — 2,262 labeled frames across 8 classes (1,901 train / 343 val) (`annotation_guide/`)
 - Fine-tune YOLOv11 on behavior-specific detection → Transformer temporal fusion
 - Expected: 96-98%
 
@@ -110,9 +110,47 @@ Our YOLO v11 uses COCO weights → generic features. Even YOLO-World (open-vocab
 - Real-time demonstration
 
 ### Future Work (Bbox Annotations)
-- Manual annotation complete: 401 labeled frames across 8 classes (`annotation_guide/`)
+- Manual annotation complete: 2,262 labeled frames across 8 classes (1,901 train / 343 val) (`annotation_guide/`)
 - Fine-tune YOLOv11 for behavior-specific detection
 - Expected: 96-98% accuracy (matching/exceeding paper)
+
+## Round 2 - Paper-faithful rewrite (`unsafenet/`), 2026-09-01
+
+Complete rewrite grounded in Onal & Dandil's actual method, after review found that the paper's core
+mechanism - a **fine-tuned per-frame behaviour recogniser** - had never been implemented (the earlier
+"whole-frame paper-style baseline" used *frozen* MobileNetV3-small features random-projected to 64 d).
+
+Pipeline: T=32 frame cache (691 clips, 2.8 GB) -> entity detection -> ORB/RANSAC-registered zone
+geometry + person-motion streams -> 2 per-frame behaviour CNNs trained on all 8 classes -> 12
+training-free aggregation members (incl. the paper's frame-reduction gate) -> 22 temporal heads
+(mean / BiLSTM / Transformer) -> bagged Caruana fusion selected on val -> one test touch.
+
+**Blind test: 50/64 = 78.12 % top-1 [66.0, 87.5], 80.81 % macro [70.6, 90.2].**
+Worse than round 1 (53/64, 85.4 % macro). Reported as measured.
+
+### The two results that matter
+1. **Val macro does not predict test macro.** Over the 34 configs trained this round:
+   Pearson r = **-0.066** (p = 0.71), Spearman rho = 0.024. Best-on-val (88.2) scored 80.8 on test;
+   24th-on-val (83.1) scored 85.9. The whole 52 -> 56/64 "improvement ladder" across rounds 0-2 is
+   resampling inside a +/-11 pp bootstrap band, not progress.
+2. **The paper's frame-reduction step does nothing here** (-0.8 to -3.4 pp val; -0.8 to +1.5 pp test,
+   both backbones, q in {25, 50, 75} %) because the released clips are already single-action. And the
+   paper's own ablation, 62/64 vs 57/64, is **not significant**: McNemar under the most favourable
+   possible discordance gives p = 0.0625; Clopper-Pearson intervals overlap ([89.2, 99.6] vs [78.8, 95.5]).
+
+Full write-up: `plans/2026-09-01-unsafenet-r2-rewrite/reports/thesis-process-review.md`
+
+### Correction (2026-09-03): the paper's YOLO-behaviour stage had never actually run
+Two behaviour-detector trainings failed totally (mAP50 0.0144 after 2.31 h; 0.00212 after 6.59 h) and
+were misdiagnosed as the behaviour-as-object formulation being unlearnable on our boxes. Controls on the
+*known-good* entity dataset (previously 0.969 mAP) reproduce the failure: mps+amp 0.0002, mps no-amp
+0.0002, while **cpu reaches 0.940 after a single epoch** and mps *inference* with the existing
+`detector_best.pt` scores 0.9752. Root cause: **Ultralytics YOLO detection training does not converge on
+the MPS backend in this stack (torch 2.11.0 / ultralytics 8.4.27)**; pure-PyTorch MPS training is fine
+(the stage-B recognisers trained on MPS to 83.7 / 84.7 val macro). ~9 h of compute lost.
+`train_behaviour_detector.py` now defaults to `--device cpu --amp False` and is being run in two
+variants (`beh_tight` = literal paper boxes, `beh_ctx` = person boxes widened 4.0x/1.8x) so the
+box-context question is settled by ablation instead of assumption.
 
 ## Current Project State
 

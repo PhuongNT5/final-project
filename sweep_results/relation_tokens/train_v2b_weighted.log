@@ -1,0 +1,28 @@
+train 452 clips | test 64 clips | tag='app_' feat=74 (n_num=73) | params ~297,732
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_relation_transformer.py:58: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:837.)
+  tot += float(loss) * len(b)
+  seed0: val_macro=83.3@e7 → test 48/64 top1=75.0 macro=82.2
+  seed1: val_macro=84.3@e12 → test 50/64 top1=78.1 macro=83.8
+  seed2: val_macro=81.7@e3 → test 46/64 top1=71.9 macro=72.1
+  seed3: val_macro=84.9@e12 → test 50/64 top1=78.1 macro=85.3
+  seed4: val_macro=85.7@e2 → test 41/64 top1=64.1 macro=68.2
+
+=== RESULTS (4-class unsafe, 64-clip test) ===
+across 5 seeds: test top1 = 47.0±3.3/64 | macro = 78.3%
+BLIND (val-selected seed 4): 41/64 = 64.1% top1, macro 68.2%
+ensemble (test-selected caveat): 48/64 = 75.0% top1, macro 80.7%
+blind top1 BCa 95% CI = [50.0, 73.4]
+per-class (blind):
+  WalkwayViol    n=32  recall= 59.4%  FNR= 40.6%
+  UnauthorInt    n=11  recall= 36.4%  FNR= 63.6%
+  OpenedPanel    n=13  recall= 76.9%  FNR= 23.1%
+  CarryOverload  n= 8  recall=100.0%  FNR=  0.0%
+confusion (rows=true, cols=pred):
+ [[19 12  1  0]
+ [ 4  4  3  0]
+ [ 0  3 10  0]
+ [ 0  0  0  8]]
+
+Paper: no-bbox 57/64 (85.78% macro) | full-bbox 62/64 (95.81% macro)
+blind vs no-bbox baseline: Δ=-25.0pp z=-3.34 p=0.001

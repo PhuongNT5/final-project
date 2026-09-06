@@ -1,0 +1,22 @@
+[scene_map] sweep_results/zone_prior/clip_scene_map.json | mapped 516/516 clips
+pooled 516 clips | groups [np.str_('0'), np.str_('1'), np.str_('2'), np.str_('3'), np.str_('4'), np.str_('5'), np.str_('6'), np.str_('7')] | feat 72 | seeds 3 epochs 60 | GRL lambda_max 1.0 aux_w 0.5
+  held-out group 0: n= 48 domains=7 → GRL acc= 56.2%
+  held-out group 1: n=139 domains=7 → GRL acc= 86.3%
+  held-out group 2: n= 39 domains=7 → GRL acc=100.0%
+  held-out group 3: n= 11 domains=7 → GRL acc= 54.5%
+  held-out group 4: n= 90 domains=7 → GRL acc= 73.3%
+  held-out group 5: n= 17 domains=7 → GRL acc=100.0%
+  held-out group 6: n=154 domains=7 → GRL acc= 23.4%
+  held-out group 7: n= 18 domains=7 → GRL acc= 22.2%
+
+=== LEAVE-CAMERA-OUT · GRL (scene-robust, 516 clips) ===
+  GRL relation-Transformer: 315/516 = 61.0% top-1 | macro 66.0%
+  champion (yolo26L1_, no GRL): 78.9% top-1 | macro 82.0%  [reference]
+  per-class recall (LCO GRL): {'WalkwayViol': 74.3, 'UnauthorInt': 72.2, 'OpenedPanel': 17.6, 'CarryOverload': 100.0}
+  confusion (LCO GRL):
+ [[156  51   3   0]
+ [ 30  78   0   0]
+ [  2 115  25   0]
+ [  0   0   0  56]]
+
+  Δ vs champion macro = -16.0 pp — keep iff >0 AND k-fold does not diverge up.

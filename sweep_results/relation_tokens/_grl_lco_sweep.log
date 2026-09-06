@@ -1,0 +1,22 @@
+[scene_map] sweep_results/zone_prior/clip_scene_map.json | mapped 516/516 clips
+pooled 516 clips | groups [np.str_('0'), np.str_('1'), np.str_('2'), np.str_('3'), np.str_('4'), np.str_('5'), np.str_('6'), np.str_('7')] | feat 72 | seeds 3 epochs 60 | GRL lambdas [0.05, 0.1, 0.3, 1.0] (val-selected per fold) aux_w 0.5
+  held-out group 0: n= 48 domains=7 → GRL acc= 60.4% (val-selected lambda=0.05, val_macro=88.9)
+  held-out group 1: n=139 domains=7 → GRL acc= 82.0% (val-selected lambda=0.05, val_macro=87.1)
+  held-out group 2: n= 39 domains=7 → GRL acc=100.0% (val-selected lambda=0.05, val_macro=87.6)
+  held-out group 3: n= 11 domains=7 → GRL acc= 54.5% (val-selected lambda=0.3, val_macro=86.3)
+  held-out group 4: n= 90 domains=7 → GRL acc= 73.3% (val-selected lambda=1.0, val_macro=85.9)
+  held-out group 5: n= 17 domains=7 → GRL acc=100.0% (val-selected lambda=0.1, val_macro=87.1)
+  held-out group 6: n=154 domains=7 → GRL acc= 81.2% (val-selected lambda=0.1, val_macro=85.2)
+  held-out group 7: n= 18 domains=7 → GRL acc= 38.9% (val-selected lambda=0.1, val_macro=86.0)
+
+=== LEAVE-CAMERA-OUT · GRL (scene-robust, 516 clips) ===
+  GRL relation-Transformer: 403/516 = 78.1% top-1 | macro 82.2%
+  champion (yolo26L1_, no GRL): 78.9% top-1 | macro 82.0%  [reference]
+  per-class recall (LCO GRL): {'WalkwayViol': 68.6, 'UnauthorInt': 72.2, 'OpenedPanel': 88.0, 'CarryOverload': 100.0}
+  confusion (LCO GRL):
+ [[144  48  18   0]
+ [ 20  78  10   0]
+ [  2  15 125   0]
+ [  0   0   0  56]]
+
+  Δ vs champion macro = +0.2 pp — keep iff >0 AND k-fold does not diverge up.

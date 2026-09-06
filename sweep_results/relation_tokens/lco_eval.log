@@ -1,0 +1,22 @@
+pooled 516 clips | views [np.str_('0'), np.str_('1'), np.str_('2'), np.str_('3'), np.str_('4'), np.str_('5'), np.str_('6'), np.str_('7')] | feat 74 | seeds 3 epochs 60
+  held-out view 0: n= 68 classes=[0, 1, 2] → transformer acc= 85.3%  scene-only acc=  5.9%
+  held-out view 1: n=137 classes=[0, 1] → transformer acc= 79.6%  scene-only acc=  0.0%
+  held-out view 2: n= 32 classes=[3] → transformer acc=100.0%  scene-only acc=  0.0%
+  held-out view 3: n= 70 classes=[0, 1, 2] → transformer acc= 72.9%  scene-only acc= 18.6%
+  held-out view 4: n= 18 classes=[1] → transformer acc= 72.2%  scene-only acc=  0.0%
+  held-out view 5: n=103 classes=[0, 1] → transformer acc= 57.3%  scene-only acc= 57.3%
+  held-out view 6: n= 64 classes=[0, 1, 2] → transformer acc= 68.8%  scene-only acc= 17.2%
+  held-out view 7: n= 24 classes=[3] → transformer acc=100.0%  scene-only acc=  0.0%
+
+=== LEAVE-CAMERA-OUT (scene-robust, 516 clips pooled) ===
+  relation-Transformer: 390/516 = 75.6% top-1 | macro 76.6%
+  scene-only baseline : 87/516 = 16.9% top-1 | macro 10.4%
+  → behaviour signal beyond scene = +58.7 pp
+  per-class recall (LCO transformer): {'WalkwayViol': 78.1, 'UnauthorInt': 35.2, 'OpenedPanel': 93.0, 'CarryOverload': 100.0}
+  confusion (LCO transformer):
+ [[164  24  22   0]
+ [ 55  38  15   0]
+ [  2   8 132   0]
+ [  0   0   0  56]]
+
+Contrast: SAME-DISTRIBUTION scene-only=52/64 (81.2%), our S1a=54/64 (84.4%).

@@ -257,10 +257,14 @@ ignores behaviour entirely already reaches **77.1 %**; our model adds
 this against our own interest, because the complement is the point: under
 leave-camera-out, where camera identity is structurally unavailable, the same
 model leads a transferable scene-appearance baseline by **+16.9 pp macro, 95 %
-bootstrap CI [+12.5, +21.2]** (81.2 % vs 64.4 %). The mechanism is visible
-per-class — object-visible behaviours *tie* (OpenedPanel 88.7/88.0,
-CarryOverload 100/100) while the spatially-defined pair separates
-(WalkwayViol 70.5/17.6, UnauthorInt 65.7/51.9). Same-distribution accuracy on
+bootstrap CI [+12.5, +21.2]** (81.2 % vs 64.4 %). The per-class breakdown is
+consistent with the intended mechanism — object-visible behaviours *tie*
+(OpenedPanel 88.7/88.0, CarryOverload 100/100) while the spatially-defined
+pair separates (WalkwayViol 70.5/17.6, UnauthorInt 65.7/51.9) — but a
+stability study (§7.8) shows these four recalls move by up to ~20 pp under
+perturbations that leave the aggregate margin intact, so the mechanism is
+stated here as a *hypothesis consistent with* the margin, not as something
+the per-class numbers demonstrate. Same-distribution accuracy on
 this dataset substantially rewards camera memorisation; only cross-camera
 evaluation isolates behaviour. This is a claim about the *protocol*, not a
 prediction about their system, which cannot be run (weights unreleased).

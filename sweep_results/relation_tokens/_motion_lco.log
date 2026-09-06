@@ -1,0 +1,23 @@
+[scene_map] overriding views from sweep_results/zone_prior/clip_scene_map.json | mapped 516/516 clips
+pooled 516 clips | views [np.str_('0'), np.str_('1'), np.str_('2'), np.str_('3'), np.str_('4'), np.str_('5'), np.str_('6'), np.str_('7')] | feat 74 | seeds 3 epochs 60
+  held-out view 0: n= 48 classes=[0, 1, 2] → transformer acc= 60.4%  scene-only acc= 20.8%
+  held-out view 1: n=139 classes=[0, 1] → transformer acc= 82.0%  scene-only acc=  0.0%
+  held-out view 2: n= 39 classes=[3] → transformer acc=100.0%  scene-only acc=  0.0%
+  held-out view 3: n= 11 classes=[0, 1] → transformer acc= 54.5%  scene-only acc= 45.5%
+  held-out view 4: n= 90 classes=[0, 1] → transformer acc= 76.7%  scene-only acc= 57.8%
+  held-out view 5: n= 17 classes=[3] → transformer acc=100.0%  scene-only acc=  0.0%
+  held-out view 6: n=154 classes=[0, 1, 2] → transformer acc= 81.2%  scene-only acc= 11.7%
+  held-out view 7: n= 18 classes=[1] → transformer acc= 44.4%  scene-only acc=  0.0%
+
+=== LEAVE-CAMERA-OUT (scene-robust, 516 clips pooled) ===
+  relation-Transformer: 407/516 = 78.9% top-1 | macro 81.5%
+  scene-only baseline : 85/516 = 16.5% top-1 | macro 10.1%
+  → behaviour signal beyond scene = +62.4 pp
+  per-class recall (LCO transformer): {'WalkwayViol': 75.2, 'UnauthorInt': 62.0, 'OpenedPanel': 88.7, 'CarryOverload': 100.0}
+  confusion (LCO transformer):
+ [[158  34  18   0]
+ [ 31  67  10   0]
+ [  5  11 126   0]
+ [  0   0   0  56]]
+
+Contrast: SAME-DISTRIBUTION scene-only=52/64 (81.2%), our S1a=54/64 (84.4%).

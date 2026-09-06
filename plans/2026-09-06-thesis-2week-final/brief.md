@@ -670,3 +670,281 @@ Three things worth keeping:
 15.6 → **6.8** points, not 4.4. Table 4.9.2's verdicts are unchanged (head significantly worse than a
 linear probe under the random split, p 0.007 → 0.015; indistinguishable under scene-group), and the
 stratified effect size reproduced at −4.65 → −4.72 pp. The negative finding stands.
+
+---
+
+**S11 — the dedupe fix was written but never applied to any headline number (found 2026-09-06).**
+`unsafenet/dedupe.py` and `reports/.../dedupe-procedure.md` (2026-09-05) correctly diagnose 32 groups of
+byte-identical clips filed under contradictory labels, and prescribe re-running k-fold / LCO with
+`--dedupe drop_all` (steps B–E). **Those steps were never executed, and the flag defaults to `none`
+everywhere.** Verified:
+- `run_relation_transformer.py` — which produced the **54/64 headline** — has **zero** dedupe support
+  (`grep -c dedupe` = 0). Same for `run_wholeframe_eval.py`, `run_full_eval.py`, `build_relation_tokens.py`.
+- `run_kfold_relation.py`, `run_lco_eval.py`, `run_representation_ladder.py` support it, all defaulting to
+  `--dedupe none`; the canonical HEADLINE k-fold and LCO logs contain no dedupe record.
+- Only `representation_ladder` and `scene_confound` have `_drop_all` / `_keep_one` outputs on disk. There is
+  no `kfold_*_drop_all` or `lco_*_drop_all` anywhere in `sweep_results/`.
+
+So every headline number in the thesis is currently a `--dedupe none` number. That is *defensible* — it is
+the raw benchmark, comparable with the paper — but the thesis must say so explicitly, and the deduped
+ablation the procedure promised does not exist yet. Do not cite `dedupe-procedure.md` as if it had been
+carried out.
+
+**S12 — the frame-level dataset was never deduped either, and one detector class is degenerate
+(found 2026-09-06).** The clip-level audit was never propagated to `annotation_guide/dataset`:
+- 62 groups of byte-identical **frames**; **60 of them carry contradictory behaviour labels**;
+  **12 val frames (3.5% of 343) are byte-identical to a train frame.** The behaviour detector's val mAP is
+  therefore both slightly leaked and internally contradictory.
+- **OpenedPanel is degenerate.** Its 525 boxes sit at one position and size (sd(x)=0.004, sd(y)=0.003,
+  sd(w)=0.008, sd(h)=0.007). A single constant box — the train mean — localises **100% of val OpenedPanel
+  instances at IoU 0.5**, 96.2% at IoU 0.75. Since mAP50 averages over 8 classes, **~0.125 of any reported
+  behaviour-detector mAP50 is free** and measures nothing. Checked and *not* confirmed for ClosedPanel
+  (constant-box recall 0.0%) — only OpenedPanel is affected.
+- The detector val split shares **all 8 camera views** with train, so its mAP is in-domain only.
+
+Consequence for Gate 1: a passing mAP50 ≥ 0.90 would be ~0.125 free mass plus seven real classes, on a
+scene-confounded, partly contaminated split. Report it with all three caveats or not at all.
+
+**S13 — R1's box-count arithmetic is wrong (minor).** `r1-detector-gpu-recipe.md` §0 states
+"5263 boxes total" for `dataset_behaviour_tight`. Its own per-class list sums to **6122**, which is what the
+labels on disk contain (re-verified). The per-class numbers are right; only the total is wrong.
+
+**S14 — the scene-group k-fold's instability was mis-diagnosed by S6 point 3; the mechanism is the
+opposite of what it implies (found 2026-09-06).** S6 reported "Fold 2 scores 53.5 / 51.5 / 69.3 % across
+the three seeds — a 17.8-point swing on one fold" and concluded the *scheme* is unstable. Split-geometry
+check (`scene_group_split_geometry.py`, no head training, seconds):
+
+- **The scene-group folds are byte-identical across all three seeds — pairwise Jaccard 1.000 on every
+  fold.** `StratifiedGroupKFold(shuffle=True, random_state=seed)` does not re-partition here: its greedy
+  group-to-fold assignment is determined by the cluster sizes and class distributions, which are fixed
+  because `KMeans` is seeded at `random_state=0`. Contrast the stratified scheme, whose folds *do*
+  reshuffle (mean Jaccard 0.11 ≈ the 1/(2k−1)=0.111 expected of independent splits).
+- The inner fit/val split is also fixed (`stratified_fit_val(..., split_seed=0)`).
+- Therefore the only thing varying across seeds is `pw.set_seed(seed)` — **model initialisation and
+  training stochasticity**. The 17.8-point swing is measured on *the same 101 clips, three times*.
+
+Consequences, and they cut in a worse direction than S6 suggested:
+1. The swing is **head instability, not split instability**: ~9 pp SD from initialisation alone on one
+   fold. Cannot be reduced by choosing a better split; it is a property of the estimator.
+2. The reported `top1_std` values are **not comparable between the two schemes**. Stratified ±0.2 %
+   averages over split noise *and* init noise; scene-group ±1.9 % is init noise only, on one fixed
+   partition. Quoting them side by side implies a comparison that was never made.
+3. **The scene-group scheme carries no split-choice uncertainty at all.** Every scene-group number in the
+   thesis rests on one `KMeans(24, random_state=0)` clustering. `--cluster_seed` was added to
+   `run_kfold_eval.py` so this can finally be varied; it has not been varied yet.
+4. **Fold 5 contains zero clips of class 3** (`cls=[49, 22, 28, 0]`; class 3 has only 56 clips and
+   concentrates in a few clusters, so `StratifiedGroupKFold` cannot stratify it). Fold 5 therefore scores a
+   3-class problem. Pooled metrics are unaffected — `per_class` runs on pooled predictions — but any
+   per-fold accuracy from fold 5 is not commensurable with the others.
+5. Fold sizes range **85–125** (sd 12.9) against stratified's 103–104 (sd 0.4).
+
+Also added `--out_tag` to `run_kfold_eval.py`: the script wrote to a fixed `kfold-eval.json`, so any re-run
+silently overwrote the canonical artifact — the S6/S9 failure mode, still live in the code that produced
+them. Non-canonical runs must now pass `--out_tag`.
+
+**S15 — clips share verbatim annotation boxes: a near-duplicate relation the md5 audit cannot see
+(found 2026-09-06).** Surfaced by an Ultralytics warning ("1 duplicate labels removed") during the
+behaviour-detector smoke run. Audit scripts in the scratchpad; all counts re-derived from
+`annotation_guide/dataset/labels`.
+
+Of 6933 entity boxes, 1790 (25.8%) have coordinates that repeat verbatim (6 dp) in *another clip*.
+Decomposed by class, most of that is benign and one part is not:
+
+| class | boxes | in cross-clip repeats | reading |
+|---|---|---|---|
+| Panel_Closed | 1181 | 1070 (90.6%) | static furniture — **expected** |
+| Panel_Opened | 525 | 342 (65.1%) | static furniture — **expected** |
+| Forklift_Safe_Load / _Overload | 170 / 195 | 0 / 0 | clean |
+| Person_Unauthorized | 4497 | 353 (7.8%) | **anomalous** — a moving person cannot repeat coords to 6 dp |
+| Person_Authorized | 365 | 25 (6.8%) | **anomalous** |
+
+Three consequences, in ascending order of importance:
+
+1. **The panel rows are the mechanism behind S12's OpenedPanel degeneracy.** That finding was inferred
+   from low coordinate variance; it is now direct — 65–91% of panel boxes are *literally the same
+   annotation copied across clips*. The constant-box result is not a quirk of the metric.
+2. **Box-level label contradiction exists but is small: 51 person boxes (1.05%).** Seven coordinate
+   tuples appear in clips of different behaviour classes, so `behaviour_dataset.py` (`bid = clip_cls`)
+   assigns the same box two different targets — e.g. `0.771518 0.336903 …` is labelled WalkwayViol x5 and
+   UnauthorInt x12 across 12 clips. Real, bounded, and it lands on exactly the class pair the thesis calls
+   hard. Not a headline-scale defect.
+3. **The important one — 20.1% of annotated clips are linked by shared person boxes.** Treating "shares a
+   verbatim person-box coordinate" as an edge gives 24 components covering **114 of 566 clips**. Almost all
+   are *consecutively numbered* (`0_tr112`–`0_tr119`, `2_tr36`–`2_tr40`, `5_tr21`–`5_tr23`), which is what
+   segments of one continuous recording look like. **10 of 24 components straddle the detector train/val
+   split.** Only 3 of 24 span more than one clip class, so this is a **leakage** relation, not a
+   label-contradiction one.
+
+   This is **strictly weaker to trigger than byte-identity**, so it catches same-source footage the 32-group
+   md5 audit cannot: clips that are not byte-identical but come from the same recording. It therefore
+   applies to the pooled 516-clip protocols as well — random k-fold splits these components across folds.
+   That is an argument for why random k-fold overstates performance which is **independent of** the
+   scene-confound argument already in the chapter.
+
+**Two limits on this finding, both of which must be stated with it.** (a) It is a **lower bound**: it only
+fires where the annotator's coordinates happened to repeat exactly; same-source clips whose boxes were
+re-drawn are invisible to it. (b) Verbatim repeats have a second possible cause — annotation copy-paste
+between genuinely distinct clips. That would be an annotation-quality defect rather than footage reuse.
+The consecutive numbering favours the footage-reuse reading, but the two are not separated here, and
+separating them needs a look at the frames. Do not assert footage reuse as established.
+
+Also: 6 label files contain exact duplicate lines. Ultralytics strips them, so training is unaffected.
+
+---
+
+## S16 — scene-group split-choice uncertainty, measured (2026-09-06)
+
+S14 established the scene-group folds are *identical* across `--seed` (Jaccard 1.000), so the ±1.9 pp
+there is head-init noise only. `--cluster_seed` was added to make the remaining source measurable.
+Three runs, `run_kfold_eval.py`, 516 pooled clips (zero test touches):
+
+| run | clustering | seeds | top-1 | macro | Δ Transformer−linear |
+|---|---|---|---|---|---|
+| A `kfold-eval-seeds8.json` | cluster_seed 0 | 8 | 70.64 ± 1.93 | 72.54 | **+0.38** pp, p=0.8953 n.s. |
+| B `kfold-eval-cs1.json` | cluster_seed 1 | 3 | 72.29 ± 0.69 | 71.71 | **−1.86** pp, p=0.6062 n.s. |
+| C `kfold-eval-cs2.json` | cluster_seed 2 | 3 | 72.35 ± 0.64 | 74.38 | **−1.90** pp, p=0.3966 n.s. |
+
+**1. 8 seeds reproduce 3 seeds.** Run A gives 70.64 ± 1.93 vs the canonical 3-seed 70.5 ± 1.9 (macro
+72.54 vs 72.5). More seeds firmed the SD without moving the point estimate → the 3-seed value was not
+an artifact of too few seeds, and S14's head-init diagnosis stands.
+
+**2. The aggregate is robust to the clustering choice — my S14 recommendation was too harsh.**
+Top-1 across the three clusterings spans 70.64–72.35 (**1.71 pp**, SD 0.97); macro spans 71.71–74.38
+(**2.67 pp**, SD 1.37). Split-choice SD (0.97) is *half* the head-init SD (1.93). Combined
+`sqrt(1.93² + 0.97²) = ` **2.16 pp**. So scene-group *can* carry an aggregate point estimate — quoted as
+**≈71.8 ± 2.2 % top-1**, an interval that now covers both noise sources, not the ±1.9 that covered one.
+I predicted in S14 that re-clustering might swing the verdict; measured, it does not. Recorded as a
+prediction that did not survive contact with the data.
+
+**3. The per-class breakdown is NOT robust — this is the finding that matters.**
+
+| class | cs0 | cs1 | cs2 | spread |
+|---|---|---|---|---|
+| WalkwayViol | 64.2 | 72.1 | 62.4 | 9.7 pp |
+| **UnauthorInt** | **38.6** | **24.7** | **45.1** | **20.4 pp** |
+| OpenedPanel | 92.9 | 97.9 | 97.0 | 5.0 pp |
+| CarryOverload | 100.0 | 100.0 | 100.0 | 0.0 pp |
+
+UnauthorInt recall moves 20.4 pp on the KMeans seed alone. UnauthorInt is precisely the class the
+thesis singles out as weak cross-camera. **Consequence: no per-class recall from a KMeans-proxy
+protocol may carry a mechanism argument.** This does not directly invalidate the LCO per-class numbers
+(§ scorecard: WalkwayViol 70.5/17.6, UnauthorInt 65.7/51.9 — different scheme, `run_lco_eval.py`
+KMeans(8) scene_map, not this KMeans(24) k-fold grouping), but it is the same unvalidated proxy and
+this test has never been run there. **Open task: repeat the cluster_seed sweep on the LCO scene_map
+before the mechanism claim is written into §4.** If it swings there too, the mechanism claim needs
+rewording to the aggregate margin (+16.9 pp macro, CI [+12.5,+21.2]) with per-class shown as
+illustrative only.
+
+**4. The Transformer-vs-linear-probe sign flips.** +0.38 / −1.86 / −1.90 pp. All three n.s., so the
+verdict "indistinguishable" is robust — but never quote the sign or the magnitude, either direction.
+
+**Revised recommendation for §4.9.5** (supersedes S14's blanket "should not anchor"): scene-group may
+anchor an aggregate number at **≈71.8 ± 2.2 %**, stated with both noise sources named. Its per-class
+recalls are reported as descriptive only. Caveat that must accompany it: fold sizes 85–125 and fold 5
+contains zero class-3 clips (`cls=[49,22,28,0]`), so fold 5 scores a 3-class problem (S14).
+
+---
+
+## S17 — dedupe `drop_all` ablation: the k-fold significance flip is 86 % arithmetic (2026-09-06)
+
+Run as committed, reported regardless of direction. `run_kfold_relation.py --tag yolo26app_
+--repeats 10 --dedupe drop_all`, 51 of 516 pooled clips dropped → 465. LCO leg still running.
+
+|  | canonical (`--dedupe none`, 516) | `drop_all` (465) |
+|---|---|---|
+| relation top-1 | 80.8 ± 4.0 % | **86.6 ± 3.1 %** |
+| macro / F1 / κ / MCC | 84.2 / 83.0 / 0.731 / 0.735 | 86.6 / 86.4 / 0.802 / 0.803 |
+| scene-only baseline | 77.1 ± 2.5 % | 80.6 ± 2.4 % |
+| Nadeau–Bengio, 50 folds | Δ=+3.6 pp, t=1.95, **p=0.0574 n.s.** | Δ=+6.0 pp, t=3.39, **p=0.0014 sig** |
+
+Taken at face value this looks like the headline result flipping to significant. **It mostly is not.**
+
+**Decomposition.** The `drop_all` list is not a generic near-duplicate filter: `unsafenet/dedupe.py`
+drops exactly the members of the 32 **md5-identical groups carrying ≥2 different labels** (26 of 32 are
+WalkwayViol ↔ UnauthorInt). Byte-identical input, contradictory label → unlearnable by construction;
+33 of the 65 members are guaranteed errors for *any* deterministic classifier. Scoring the **canonical
+model's own OOF predictions** split by that mask:
+
+* on the 51 dropped clips: **43.1 % (22/51)** — at/below the ~50 % coin-flip implied by their 25/25
+  class-0/class-1 mix, exactly as an unlearnable subset predicts;
+* on the 465 kept clips: **85.8 % (399/465)**.
+
+So removing those clips from the *evaluation*, with the **same, unchanged model**, already moves
+80.8 → **85.8 %**. The retrained `drop_all` run measures 86.6 %. Of the +5.8 pp headline gain,
+**≈ +5.0 pp is denominator arithmetic and only ≈ +0.8 pp is attributable to training on cleaner labels.**
+The same accounting applied to the baseline (77.1 → ~80.1 predicted vs 80.6 measured, assuming it
+scores ~50 % on the byte-identical pairs it must answer identically) explains most of its rise too —
+and therefore most of the Δ widening, since the model is hurt *more* by the contradictory clips
+(43.1 %) than the input-independent baseline is (~50 %).
+
+**What is and is not claimable.**
+* NOT claimable: "cleaning duplicates makes the model significantly better." It buys ~0.8 pp.
+* NOT claimable: 86.6 % or p=0.0014 as headline numbers. Different population, not comparable to the
+  paper, to 80.8 %, or to any other figure on the 516 set.
+* **Claimable, and it is the real finding:** the canonical k-fold NB test is contaminated by 51 clips
+  that are unlearnable by construction, and they are enough to move the headline test across the
+  0.05 threshold (p 0.0574 ↔ 0.0014). The 516-clip protocol systematically penalises an
+  input-dependent behaviour model relative to an input-independent scene baseline on exactly the
+  WalkwayViol/UnauthorInt pair the thesis cares about. Unsafe-Net ships 691 clips of which only 658 are
+  distinct, with 32 contradictory md5 groups; the paper reports none of this.
+
+**Decision:** headline stays **80.8 % / p = 0.0574 (n.s.)** on 516 — conservative, comparable, and the
+strategy was never score-based. `drop_all` goes in §4 as a **sensitivity analysis with this
+decomposition printed alongside it**, never as a bare 86.6 %. Presenting the flip without the
++5.0/+0.8 split would be the single most misleading thing available in this repo.
+
+---
+
+## S18 — dedupe `drop_all`, LCO leg: aggregate margin survives, the per-class mechanism story does not
+
+`run_lco_eval.py --tag yolo26L1_ --seeds 5 --scene_map …/clip_scene_map.json --dedupe drop_all`,
+465 clips, 8 KMeans-proxy camera groups. Completes S17.
+
+| | canonical (516) | `drop_all` (465) |
+|---|---|---|
+| relation-Transformer | 77.7 % top-1 / **81.2 %** macro | 75.9 % / **79.3 %** macro |
+| scene-appearance baseline | 53.1 % / 64.4 % | 54.6 % / 61.6 % |
+| **honest margin (macro)** | **+16.9 pp** CI [+12.5, +21.2] | **+17.7 pp** CI [+12.9, +22.4] |
+
+**1. The headline LCO claim is robust.** Margins overlap heavily; the cross-camera result does not
+depend on whether the contradictory clips are in or out. This is the one number in the thesis that the
+dedupe perturbation *strengthens the case for citing* — quote **+16.9 pp** (canonical, larger n) and
+note the sensitivity check reproduces it.
+
+**2. LCO independently confirms S17's arithmetic diagnosis.** Under k-fold, dropping the clips *raised*
+top-1 by 5.8 pp. Under LCO it *lowers* it, 77.7 → 75.9. The same removal-arithmetic should have applied
+(expectation ≈ 81.5 % if the model scores ~43 % on the dropped subset as it does in k-fold), so losing
+51 training clips costs ≈ **5.6 pp** here. Two protocols, opposite signs, from the same edit: the
+k-fold gain was denominator, not learning. Nothing else explains the sign flip.
+
+**3. The per-class mechanism narrative is fragile — this needs fixing in the scorecard and §4.**
+
+| class | canonical model/scene (sep) | `drop_all` model/scene (sep) | Δ model |
+|---|---|---|---|
+| WalkwayViol | 70.5 / 17.6 (**+52.9**) | 74.6 / 25.9 (**+48.7**) | +4.1 |
+| UnauthorInt | 65.7 / 51.9 (**+13.8**) | 72.3 / 33.7 (**+38.6**) | +6.6 |
+| **OpenedPanel** | 88.7 / 88.0 (**+0.7**) | **70.2 / 86.5 (−16.3)** | **−18.5** |
+| CarryOverload | 100 / 100 (+0.0) | 100 / 100 (+0.0) | 0.0 |
+
+The scorecard currently argues the mechanism is *visible per-class*: spatially-defined classes separate,
+object-visible classes **tie**. The "tie" leg breaks — under `drop_all` the scene baseline **beats** the
+model on OpenedPanel by 16.3 pp. And the move is not an evaluation-set effect: only **1** of the 51
+dropped clips is class 2, yet OpenedPanel recall falls 18.5 pp (confusion row 2 = `[4, 38, 99, 0]`;
+38 OpenedPanel clips now go to UnauthorInt). That is retraining variance, not population change.
+
+Combined with S16 point 3 (UnauthorInt recall swinging 20.4 pp on the KMeans seed alone), the
+conclusion is consistent across two independent perturbations: **LCO per-class recalls carry variance
+far larger than the differences the mechanism argument reads off them.** They are descriptive, not
+evidential.
+
+**Required edits (not yet made):**
+* `plans/2026-09-02-fair-headtohead-vs-paper/reports/fair-headtohead-scorecard.md` correction 2 and
+  §2 item 3 both assert "the mechanism is visible per-class (OpenedPanel 88.7/88.0 … tie)". **Withdraw
+  the per-class leg**; keep the aggregate +16.9 pp CI [+12.5, +21.2] as the claim.
+* §4 of the thesis: state the mechanism as a hypothesis consistent with the aggregate margin, not as
+  something demonstrated by four per-class recalls.
+* Still open from S16: the `--cluster_seed` sweep has never been run on the **LCO** scene_map. Two
+  perturbations now point the same way, so the expected finding is more of the same, but it is
+  unmeasured. Run it before §4 is finalised.
+
+Test touches consumed by S16–S18: **zero** (all on the 516/465 pooled set).

@@ -1,0 +1,62 @@
+  rep 1 fold 1: relation 88.5%  scene-only 77.9%  Δ=+10.6
+  rep 1 fold 2: relation 82.5%  scene-only 78.6%  Δ=+3.9
+  rep 1 fold 3: relation 79.6%  scene-only 76.7%  Δ=+2.9
+  rep 1 fold 4: relation 78.6%  scene-only 75.7%  Δ=+2.9
+  rep 1 fold 5: relation 78.6%  scene-only 76.7%  Δ=+1.9
+  rep 2 fold 1: relation 78.8%  scene-only 78.8%  Δ=+0.0
+  rep 2 fold 2: relation 82.5%  scene-only 78.6%  Δ=+3.9
+  rep 2 fold 3: relation 80.6%  scene-only 74.8%  Δ=+5.8
+  rep 2 fold 4: relation 78.6%  scene-only 75.7%  Δ=+2.9
+  rep 2 fold 5: relation 89.3%  scene-only 77.7%  Δ=+11.7
+  rep 3 fold 1: relation 75.0%  scene-only 76.0%  Δ=-1.0
+  rep 3 fold 2: relation 80.6%  scene-only 78.6%  Δ=+1.9
+  rep 3 fold 3: relation 76.7%  scene-only 73.8%  Δ=+2.9
+  rep 3 fold 4: relation 87.4%  scene-only 78.6%  Δ=+8.7
+  rep 3 fold 5: relation 82.5%  scene-only 78.6%  Δ=+3.9
+  rep 4 fold 1: relation 81.7%  scene-only 73.1%  Δ=+8.7
+  rep 4 fold 2: relation 84.5%  scene-only 78.6%  Δ=+5.8
+  rep 4 fold 3: relation 84.5%  scene-only 77.7%  Δ=+6.8
+  rep 4 fold 4: relation 73.8%  scene-only 74.8%  Δ=-1.0
+  rep 4 fold 5: relation 84.5%  scene-only 81.6%  Δ=+2.9
+  rep 5 fold 1: relation 85.6%  scene-only 81.7%  Δ=+3.8
+  rep 5 fold 2: relation 80.6%  scene-only 76.7%  Δ=+3.9
+  rep 5 fold 3: relation 86.4%  scene-only 77.7%  Δ=+8.7
+  rep 5 fold 4: relation 78.6%  scene-only 76.7%  Δ=+1.9
+  rep 5 fold 5: relation 74.8%  scene-only 72.8%  Δ=+1.9
+  rep 6 fold 1: relation 81.7%  scene-only 76.9%  Δ=+4.8
+  rep 6 fold 2: relation 76.7%  scene-only 73.8%  Δ=+2.9
+  rep 6 fold 3: relation 85.4%  scene-only 77.7%  Δ=+7.8
+  rep 6 fold 4: relation 72.8%  scene-only 79.6%  Δ=-6.8
+  rep 6 fold 5: relation 81.6%  scene-only 77.7%  Δ=+3.9
+  rep 7 fold 1: relation 78.8%  scene-only 76.0%  Δ=+2.9
+  rep 7 fold 2: relation 86.4%  scene-only 76.7%  Δ=+9.7
+  rep 7 fold 3: relation 77.7%  scene-only 71.8%  Δ=+5.8
+  rep 7 fold 4: relation 81.6%  scene-only 80.6%  Δ=+1.0
+  rep 7 fold 5: relation 75.7%  scene-only 80.6%  Δ=-4.9
+  rep 8 fold 1: relation 88.5%  scene-only 78.8%  Δ=+9.6
+  rep 8 fold 2: relation 85.4%  scene-only 82.5%  Δ=+2.9
+  rep 8 fold 3: relation 74.8%  scene-only 74.8%  Δ=+0.0
+  rep 8 fold 4: relation 75.7%  scene-only 75.7%  Δ=+0.0
+  rep 8 fold 5: relation 78.6%  scene-only 73.8%  Δ=+4.9
+  rep 9 fold 1: relation 83.7%  scene-only 74.0%  Δ=+9.6
+  rep 9 fold 2: relation 78.6%  scene-only 77.7%  Δ=+1.0
+  rep 9 fold 3: relation 79.6%  scene-only 75.7%  Δ=+3.9
+  rep 9 fold 4: relation 79.6%  scene-only 77.7%  Δ=+1.9
+  rep 9 fold 5: relation 79.6%  scene-only 80.6%  Δ=-1.0
+  rep 10 fold 1: relation 77.9%  scene-only 74.0%  Δ=+3.8
+  rep 10 fold 2: relation 77.7%  scene-only 73.8%  Δ=+3.9
+  rep 10 fold 3: relation 81.6%  scene-only 80.6%  Δ=+1.0
+  rep 10 fold 4: relation 84.5%  scene-only 79.6%  Δ=+4.9
+  rep 10 fold 5: relation 82.5%  scene-only 77.7%  Δ=+4.9
+
+=== STRATIFIED 5-FOLD x 10 REPEATS (50 folds, pooled 516 clips) ===
+  relation-Transformer: top-1 80.8±4.0% | pooled 421/516 | macro 84.2%
+  scorecard: macro-F1 83.5% | macro-precision 83.2% | macro-recall 84.2% | Cohen κ 0.741 | MCC 0.744
+  fold-mean top-1 80.8%  naive SE 0.58  NB-corrected SE 2.12 (95% CI 76.7-85.0%)
+  scene-only baseline : top-1 77.1±2.5%
+  Nadeau–Bengio (relation vs scene-only): mean Δ=3.7pp  t=1.93  df=49  p=0.0600  (n.s.)
+  NOTE: random k-fold has every camera in train, so the per-view-majority scene baseline is
+        informative here. Under leave-camera-out it degenerates to a CONSTANT global-majority
+        predictor (macro 25% by arithmetic) — the two baselines are different estimators, so the
+        old '77.1% -> 16.9% collapse' contrast is WITHDRAWN. See brief.md S2; task A3b rebuilds it.
+  [saved OOF selection set] sweep_results/relation_tokens/kfold_oof_softmax_yolo26app_.pt

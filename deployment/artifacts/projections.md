@@ -2,20 +2,31 @@
 
 ## Introduction
 
-This table presents measured latency for the YOLO-Transformer unsafe behavior
-pipeline on Apple M4 (via ONNX Runtime) alongside cited Jetson Orin numbers from
-Ultralytics official benchmarks. These are independent measurements on distinct
-accelerator architectures — M4 ORT-CPU versus Jetson Ampere GPU with TensorRT —
-and should not be interpreted as a direct scaling ratio or projection.
+This table mixes three kinds of row, and the distinction is load-bearing — read the
+**Source** column before citing any figure:
+
+- **`This work (measured, M4)`** — our pipeline, measured on Apple M4 via ONNX Runtime.
+- **`This work (measured, Jetson)`** — our pipeline, measured on physical Jetson Orin Nano
+  hardware (`phuongnguyen-desktop`, Linux-5.15.185-tegra-aarch64, TensorRT 10.3.0,
+  2026-06-03), from `benchmarks-jetson-{fp16,int8}.json`. **These rows benchmark the P1
+  pipeline** (frozen-COCO detector + multi-stream Transformer), not the P3 accuracy headline.
+- **`[Ult.2025]` / `[arXiv:...]`** — **published third-party figures for a different model and
+  workload**, included only as external context. They are *not* measurements of this system
+  and must never be reported as our results.
+
+M4 ORT-CPU and Jetson Ampere-GPU-with-TensorRT are distinct accelerator architectures; no
+scaling ratio or projection between them is claimed.
 
 ## Side-by-Side Latency Table
 
 | Device | Accelerator | Model | Format | Latency p50 (ms) | FPS | Source |
 |--------|------------|-------|--------|-----------------|-----|--------|
-| MacBook Air M4 (measured) | ORT CPU | YOLO11s backbone | FP32 | 27.3 | 37 | This work |
-| MacBook Air M4 (measured) | ORT CPU | YOLO11s backbone | INT8 | 31.8 | 31 | This work |
-| MacBook Air M4 (measured) | ORT CoreML | YOLO11s backbone | FP32 | 45.1 | 22 | This work |
-| MacBook Air M4 (measured) | ORT CoreML | YOLO11s backbone | INT8 | 85.0 | 12 | This work |
+| MacBook Air M4 | ORT CPU | YOLO11s backbone | FP32 | 27.3 | 37 | This work (measured, M4) |
+| MacBook Air M4 | ORT CPU | YOLO11s backbone | INT8 | 31.8 | 31 | This work (measured, M4) |
+| MacBook Air M4 | ORT CoreML | YOLO11s backbone | FP32 | 45.1 | 22 | This work (measured, M4) |
+| MacBook Air M4 | ORT CoreML | YOLO11s backbone | INT8 | 85.0 | 12 | This work (measured, M4) |
+| **Jetson Orin Nano 8GB** | **TensorRT (Ampere GPU)** | **P1 full pipeline** | **FP16** | **8.62** (p95 9.13 / p99 9.21) | **116.0** | **This work (measured, Jetson)** |
+| **Jetson Orin Nano 8GB** | **TensorRT (Ampere GPU)** | **P1 full pipeline** | **INT8** | **8.24** (p95 8.58 / p99 8.71) | **121.4** | **This work (measured, Jetson)** |
 | Jetson Orin Nano Super 8GB | TensorRT (Ampere GPU) | YOLO11s | INT8 | 5.25 | 190 | [Ult.2025] |
 | Jetson AGX Orin 64GB | TensorRT (Ampere GPU) | YOLO11s | INT8 | 2.98 | 336 | [Ult.2025] |
 | Jetson Orin NX 16GB | TensorRT (Ampere GPU) | YOLO11s | INT8 | 6.05 | 165 | [Ult.2025] |
@@ -50,10 +61,19 @@ and should not be interpreted as a direct scaling ratio or projection.
    quantized ops, adding overhead. A native CoreML `.mlpackage` export would access the ANE
    directly (expected 2–4 ms backbone-only, consistent with researcher measurement of 2.3 ms).
 
-4. **Jetson published figures are backbone-only.** Our M4 pipeline adds a transformer head
-   (~2M params, T=32, D=1536) on top of the backbone. This head adds roughly 10–20% latency
-   overhead. An equivalent full-pipeline Jetson benchmark would require hardware access not
-   available in this study.
+4. **The third-party Jetson figures are backbone-only; ours are full-pipeline.** The
+   `[Ult.2025]`/`[arXiv]` rows time a YOLO backbone alone at 640×640. Our two measured Jetson
+   rows time the **complete** pipeline — backbone 2.76 ms + direct4 head 1.41 ms + cascade heads
+   4.44 ms = 8.62 ms end-to-end (FP16 p50) — so they are **not comparable** to the cited rows and
+   the difference is not a performance gap.
+   *(Corrected 2026-09-06: this footnote previously stated that a full-pipeline Jetson benchmark
+   "would require hardware access not available in this study." That is no longer true — the
+   measurements above were taken on physical hardware on 2026-06-03. The claim is withdrawn.)*
+
+6. **Pipeline attribution.** The measured Jetson rows are the **P1** pipeline, whose 4-class
+   accuracy on the 64-clip test set is 55/64. The thesis accuracy headline is **P3**, a different
+   model; its Jetson re-export and re-benchmark is Lane B work and is **not** represented in this
+   table. Do not pair P3 accuracy numbers with P1 latency numbers.
 
 5. **Orin Nano 15W reference.** The arXiv:2502.15737 figure (28.25 ms for YOLOv8s INT8 at
    15 W) covers the standard shipping mode of Orin Nano 8GB. The Nano Super at 25 W yields

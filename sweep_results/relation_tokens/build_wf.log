@@ -1,0 +1,6 @@
+  [train] 100/452
+  [train] 200/452
+  [train] 300/452
+  [train] 400/452
+[train] 452 clips → tokens_wf_train.pt  shape (452, 16, 64)
+[test] 64 clips → tokens_wf_test.pt  shape (64, 16, 64)

@@ -14,7 +14,7 @@ deployment/*.pt
 deployment/*.onnx
 s11042-024-19276-8.pdf
 .claude/
-annotation_guide/
+
 
 # UCF-Crime dataset (Phase 05)
 data/ucf_crime/
@@ -30,4 +30,28 @@ deployment/jetsoninstaller-*
 deployment/artifacts/
 deployment/features/
 figures/
+dataset/
 sweep_results/finetune_bbox/
+
+# Phase 01 multi-entity annotation — ignore large frame binaries only
+# (keep tracked: frame_manifest.csv, ontology-multi-entity.md, cvat-labels.json,
+#  dataset/data.yaml, dataset/labels/**, zones/**)
+.archive/
+annotation_guide/dataset/images/
+annotation_guide/frames_to_annotate/
+annotation_guide/cvat_tasks/
+annotation_guide/**/*.jpg
+annotation_guide/**/*.png
+# CVAT export temp extraction
+annotation_guide/annotated/_extracted/
+
+# Phase 02 detector training outputs
+sweep_results/entity_detector/
+
+# Colab dataset package (large, regenerate via zip of dataset/)
+unsafe-net-detector-dataset.zip
+cache_r2/
+annotation_guide/
+# Kaggle upload staging - real frames of identifiable workers, never commit.
+# (the old rule named unsafe-net-detector-dataset.zip; the actual file is unsafenet-detector.zip)
+kaggle-detector-retrain/upload/

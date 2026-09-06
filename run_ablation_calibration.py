@@ -20,6 +20,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 CKPT = os.path.join(ROOT, 'sweep_results', 'pairwise')
 FEAT = os.path.join(CKPT, 'features', 'all8_test.pt')
+FEAT_TR = os.path.join(CKPT, 'features', 'all8_train.pt')  # D3: fit T here, apply to test
 OUT = os.path.join(ROOT, 'sweep_results', 'ablations')
 FIG = os.path.join(ROOT, 'figures')
 
@@ -61,44 +62,72 @@ def nll(p, y):
     eps = 1e-12; return float(-np.log(p[np.arange(len(y)), y] + eps).mean())
 
 
-def main():
-    os.makedirs(OUT, exist_ok=True); os.makedirs(FIG, exist_ok=True)
-    dev = torch.device('mps' if torch.backends.mps.is_available()
-                       else 'cuda' if torch.cuda.is_available() else 'cpu')
-    TH = load_TH()
-    d = torch.load(FEAT, map_location='cpu', weights_only=False)
+def ens_logits(feat_path, dev, TH):
+    """Ensemble component logits (Ld, Lsc, pair_log) + 4-class labels for one feature file."""
+    d = torch.load(feat_path, map_location='cpu', weights_only=False)
     mask4 = d['labels'] < 4; y = d['labels'][mask4].numpy()
-    fz4 = d['features'][mask4]; fzall = d['features']
-    s4 = stats(fz4); sall = stats(fzall)
+    s4 = stats(d['features'][mask4]); sall = stats(d['features'])
     sd = s4.shape[-1]
-
-    # Get logits for direct4 + cascade ensemble
     Ld = logits(lh(os.path.join(CKPT, 'direct4_s314.pt'), 4, 384, 8, 6, sd, dev, TH), s4, dev)
     Lsc = logits(lh(os.path.join(CKPT, 'scenario_s7.pt'), 4, 384, 8, 6, sd, dev, TH), sall, dev)[mask4.numpy()]
     pair_log = []
     for i, n in enumerate(['Walkway', 'Intervention', 'Panel', 'Forklift']):
         pair_log.append(logits(lh(os.path.join(CKPT, f'pair{i}_{n}_s7.pt'), 2, 192, 6, 3, sd, dev, TH), s4, dev))
-    pair_log = np.stack(pair_log, 1)  # (64, 4, 2)
+    return Ld, Lsc, np.stack(pair_log, 1), y
 
-    sweep = []
-    for T in np.arange(0.5, 2.05, 0.1):
-        pd = F.softmax(torch.from_numpy(Ld / T), 1).numpy()
-        psc = F.softmax(torch.from_numpy(Lsc / T), 1).numpy()
-        pp_unsafe = F.softmax(torch.from_numpy(pair_log / T), 2).numpy()[:, :, 1]
-        cas = psc * pp_unsafe; cas = cas / (cas.sum(1, keepdims=True) + 1e-8)
-        ens = (pd + cas) / 2
-        sweep.append({
+
+def ens_probs_at_T(Ld, Lsc, pair_log, T):
+    pd = F.softmax(torch.from_numpy(Ld / T), 1).numpy()
+    psc = F.softmax(torch.from_numpy(Lsc / T), 1).numpy()
+    pp_unsafe = F.softmax(torch.from_numpy(pair_log / T), 2).numpy()[:, :, 1]
+    cas = psc * pp_unsafe; cas = cas / (cas.sum(1, keepdims=True) + 1e-8)
+    return (pd + cas) / 2
+
+
+def sweep_metrics(Ld, Lsc, pair_log, y, Ts):
+    out = []
+    for T in Ts:
+        ens = ens_probs_at_T(Ld, Lsc, pair_log, T)
+        out.append({
             "T": round(float(T), 2),
-            "correct": int((ens.argmax(1) == y).sum()),
+            "correct": int((ens.argmax(1) == y).sum()), "total": int(len(y)),
             "macro": round(float(np.mean([(ens.argmax(1)[y == c] == c).mean() * 100 for c in range(4) if (y == c).sum()])), 2),
-            "nll": round(nll(ens, y), 4),
-            "ece": round(ece(ens, y), 4),
+            "nll": round(nll(ens, y), 4), "ece": round(ece(ens, y), 4),
             "mean_confidence": round(float(ens.max(1).mean()), 4),
         })
-    for r in sweep: print(f"  T={r['T']:.2f}  ens={r['correct']:2d}/64  macro={r['macro']:.2f}%  "
+    return out
+
+
+def main():
+    os.makedirs(OUT, exist_ok=True); os.makedirs(FIG, exist_ok=True)
+    dev = torch.device('mps' if torch.backends.mps.is_available()
+                       else 'cuda' if torch.cuda.is_available() else 'cpu')
+    TH = load_TH()
+    Ts = list(np.arange(0.5, 2.05, 0.1))
+
+    # TEST sweep — DIAGNOSTIC ONLY (sensitivity curve; NOT used to pick T — that would be test-fit)
+    Ld, Lsc, pair_log, y = ens_logits(FEAT, dev, TH)
+    sweep = sweep_metrics(Ld, Lsc, pair_log, y, Ts)
+    print("TEST sweep (diagnostic — T NOT selected here):")
+    for r in sweep: print(f"  T={r['T']:.2f}  ens={r['correct']:2d}/{r['total']}  macro={r['macro']:.2f}%  "
                           f"NLL={r['nll']:.4f}  ECE={r['ece']:.4f}  conf={r['mean_confidence']:.3f}")
 
-    json.dump({"sweep": sweep}, open(os.path.join(OUT, 'calibration.json'), 'w'), indent=2)
+    # D3 FIX: select T* = argmin NLL on TRAIN, then apply that single T* to TEST (val-fit / test-apply).
+    Ld_tr, Lsc_tr, pair_tr, y_tr = ens_logits(FEAT_TR, dev, TH)
+    tr_sweep = sweep_metrics(Ld_tr, Lsc_tr, pair_tr, y_tr, Ts)
+    T_star = min(tr_sweep, key=lambda r: r['nll'])['T']
+    test_at = next(r for r in sweep if abs(r['T'] - T_star) < 1e-6)
+    test_at_T1 = next(r for r in sweep if abs(r['T'] - 1.0) < 1e-6)
+    print(f"\n[D3 val-fit/test-apply] T* = argmin NLL on TRAIN = {T_star:.2f}")
+    print(f"  HONEST TEST calibration @ T*={T_star:.2f}:  ECE={test_at['ece']:.4f}  NLL={test_at['nll']:.4f}  "
+          f"top-1={test_at['correct']}/{test_at['total']}  macro={test_at['macro']:.2f}%")
+    print(f"  (reference, uncalibrated T=1.0:  ECE={test_at_T1['ece']:.4f}  NLL={test_at_T1['nll']:.4f}  "
+          f"top-1={test_at_T1['correct']}/{test_at_T1['total']})")
+
+    json.dump({"test_sweep_diagnostic": sweep, "train_sweep": tr_sweep,
+               "T_star_selected_on_train": T_star,
+               "honest_test_at_T_star": test_at, "test_at_T1": test_at_T1},
+              open(os.path.join(OUT, 'calibration.json'), 'w'), indent=2)
     print(f"\n[SAVED] {os.path.join(OUT, 'calibration.json')}")
 
     # Plot

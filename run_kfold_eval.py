@@ -159,6 +159,12 @@ def main():
     ap.add_argument('--k', type=int, default=5)
     ap.add_argument('--seeds', type=int, nargs='+', default=[42, 123, 314])
     ap.add_argument('--clusters', type=int, default=24)
+    ap.add_argument('--cluster_seed', type=int, default=0,
+                    help='KMeans random_state. The scene-group folds are a FUNCTION of this: '
+                         'varying it is the only way to get split-choice uncertainty for that scheme.')
+    ap.add_argument('--out_tag', default='',
+                    help='suffix for the output json. Set it for any non-canonical run so the '
+                         'canonical kfold-eval.json is never silently overwritten (see brief S6/S9).')
     ap.add_argument('--lr', type=float, default=1.5e-4)
     ap.add_argument('--epochs', type=int, default=300)
     ap.add_argument('--patience', type=int, default=60)
@@ -190,7 +196,7 @@ def main():
 
     # scene-leakage proxy groups: cluster clips by time-averaged appearance feature
     clip_repr = stats4.mean(1).numpy()
-    groups = KMeans(args.clusters, random_state=0, n_init=10).fit_predict(clip_repr)
+    groups = KMeans(args.clusters, random_state=args.cluster_seed, n_init=10).fit_predict(clip_repr)
     print(f"  Scene clusters: {args.clusters} groups, sizes "
           f"{np.bincount(groups).tolist()}\n")
 
@@ -227,7 +233,8 @@ def main():
     out = {'protocol': 'pooled 691 clips; 4-class subset; per-fold inner-val epoch select; '
                        'no day metadata available → clip-level + scene-cluster grouping',
            'args': vars(args), 'runtime_min': round((time.time() - t0) / 60, 1), 'results': results}
-    tag = ('-smoke' if args.smoke else '') + ('' if args.feature == 'stats' else f'-{args.feature}')
+    tag = ('-smoke' if args.smoke else '') + ('' if args.feature == 'stats' else f'-{args.feature}') \
+          + (f'-{args.out_tag}' if args.out_tag else '')
     path = os.path.join(OUT_DIR, f"kfold-eval{tag}.json")
     json.dump(out, open(path, 'w'), indent=2)
     print(f"\n[SAVED] {path} | {(time.time()-t0)/60:.1f} min")
