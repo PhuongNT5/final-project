@@ -17,7 +17,7 @@ from sklearn.metrics import (f1_score, balanced_accuracy_score, cohen_kappa_scor
                              roc_auc_score, average_precision_score)
 from eval_utils.metrics import top1, macro_accuracy, per_class_recall, per_class_fnr, confusion
 from eval_utils.bootstrap_ci import bootstrap_ci
-from eval_utils.paired_tests import mcnemar_exact, wilson_ci, two_proportion_z
+from eval_utils.paired_tests import mcnemar_exact, wilson_ci, paired_vs_aggregate_baseline
 from eval_utils.calibration import ece, reliability_bins
 from eval_utils.safety_metrics import cost_sensitive_score
 
@@ -120,8 +120,13 @@ def main():
     out['top1_wilson_ci95'] = [round(100 * x, 1) for x in wilson_ci(int((pred == y).sum()), n)]
     sp = scene_only_pred()
     out['mcnemar_vs_scene_only'] = mcnemar_exact(pred == y, sp == y)
-    out['vs_paper_no_bbox_top1'] = two_proportion_z(int((pred == y).sum()), n, 57, n)
-    out['vs_paper_full_bbox_top1'] = two_proportion_z(int((pred == y).sum()), n, 62, n)
+    # Paper's per-clip predictions on these 64 clips are unpublished (only the aggregate 57/64 and
+    # 62/64 are known), so the paired (b,c) table can't be reconstructed here -> McNemar BOUND, not
+    # an exact test. two_proportion_z is WRONG for this (same clips, not 2 independent samples) —
+    # see review-2026-09-13-eval-statistics.md finding #1. Kept only as a labeled diagnostic.
+    our_correct = int((pred == y).sum())
+    out['vs_paper_no_bbox_top1'] = paired_vs_aggregate_baseline(n, our_correct, 57, label='paper no-bbox (57/64)')
+    out['vs_paper_full_bbox_top1'] = paired_vs_aggregate_baseline(n, our_correct, 62, label='paper full-bbox (62/64)')
 
     # canonical headline output keeps the plain 'full_eval.json' name; any non-default --logits writes
     # to a suffixed file instead, so re-running against a different artifact never silently overwrites
@@ -163,9 +168,14 @@ def main():
     print("  per-class (P / R / FNR):")
     for c in NAMES:
         pc = out['per_class'][c]; print(f"    {c:14s} P={pc['precision']:5.1f} R={pc['recall']:5.1f} FNR={pc['fnr']:5.1f} (n={pc['n']})")
-    print(f"  McNemar vs scene-only: p={out['mcnemar_vs_scene_only']['p_value']:.3f} "
-          f"(discordant {out['mcnemar_vs_scene_only']['n_discordant']}, {out['mcnemar_vs_scene_only']['note'][:40]})")
-    print(f"  vs paper no-bbox (57/64): Δ={out['vs_paper_no_bbox_top1']['delta_pp']:+.1f}pp p={out['vs_paper_no_bbox_top1']['p_value']:.3f}")
+    mvs = out['mcnemar_vs_scene_only']
+    print(f"  McNemar vs scene-only: b={mvs['b']} c={mvs['c']} p={mvs['p_value']:.3f} "
+          f"diff={mvs['diff_accuracy_pp']:+.1f}pp CI95=[{mvs['diff_accuracy_ci95_pp'][0]:+.1f},{mvs['diff_accuracy_ci95_pp'][1]:+.1f}]pp")
+    for key, tag in [('vs_paper_no_bbox_top1', '57/64'), ('vs_paper_full_bbox_top1', '62/64')]:
+        b = out[key]
+        print(f"  vs paper {tag} (BOUND, per-clip preds unpublished): Δ={b['delta_pp']:+.1f}pp "
+              f"p∈[{b['min_p_over_splits']:.4f},{b['max_p_over_splits']:.4f}] "
+              f"(diagnostic-only two_proportion_z p={b['diagnostic_two_proportion_z']['p_value']:.3f}, invalid independence)")
     print(f"  saved: sweep_results/relation_tokens/{out_name} + figures/")
 
 

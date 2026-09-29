@@ -10,7 +10,7 @@ import numpy as np
 import torch
 from eval_utils.metrics import top1, macro_accuracy, per_class_recall, per_class_fnr, confusion
 from eval_utils.bootstrap_ci import bootstrap_ci
-from eval_utils.paired_tests import two_proportion_z, mcnemar_exact
+from eval_utils.paired_tests import paired_vs_aggregate_baseline, mcnemar_exact
 
 TOK = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'sweep_results', 'relation_tokens')
 NAMES = ['WalkwayViol', 'UnauthorInt', 'OpenedPanel', 'CarryOverload']
@@ -38,10 +38,24 @@ def main():
     print("\n--- vs individual configs (blind seed) ---")
     print(f"  v1 geom no-weights : {a['blind_top1']}/64")
     print(f"  v2b appearance nw  : {b['blind_top1']}/64")
+    # own-vs-own, same 64 clips, per-clip preds already loaded -> exact McNemar (not a bound).
+    v1_pred = a['blind_pred'].numpy() if hasattr(a['blind_pred'], 'numpy') else np.asarray(a['blind_pred'])
+    v2b_pred = b['blind_pred'].numpy() if hasattr(b['blind_pred'], 'numpy') else np.asarray(b['blind_pred'])
+    for cfg_name, cfg_pred in [('v1 geom no-weights', v1_pred), ('v2b appearance nw', v2b_pred)]:
+        m = mcnemar_exact(pred == y, cfg_pred == y)
+        print(f"  McNemar hybrid vs {cfg_name}: b={m['b']} c={m['c']} p={m['p_value']:.4f} "
+              f"diff={m['diff_accuracy_pp']:+.2f}pp CI95=[{m['diff_accuracy_ci95_pp'][0]:+.1f},"
+              f"{m['diff_accuracy_ci95_pp'][1]:+.1f}]pp")
     print("\n--- vs paper ---")
+    # Paper's per-clip predictions are unpublished -> paired (b,c) table can't be reconstructed ->
+    # McNemar BOUND is the valid stat (not two_proportion_z, which wrongly assumes 2 independent
+    # n=64 samples on what are actually the SAME 64 clips). See
+    # review-2026-09-13-eval-statistics.md finding #1.
     for name, k in [('no-bbox baseline', 57), ('full-bbox', 62)]:
-        z = two_proportion_z(c, 64, k, 64)
-        print(f"  ensemble {c}/64 vs {name} {k}/64: Δ={z['delta_pp']:+.1f}pp z={z['z']:+.2f} p={z['p_value']:.3f}")
+        r = paired_vs_aggregate_baseline(64, c, k, label=name)
+        print(f"  ensemble {c}/64 vs {name} {k}/64: Δ={r['delta_pp']:+.1f}pp "
+              f"McNemar bound p∈[{r['min_p_over_splits']:.4f},{r['max_p_over_splits']:.4f}] "
+              f"(diagnostic-only two_proportion_z p={r['diagnostic_two_proportion_z']['p_value']:.3f}, invalid independence)")
 
 
 if __name__ == '__main__':
