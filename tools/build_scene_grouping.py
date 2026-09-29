@@ -14,8 +14,11 @@ from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, 'sweep_results', 'zone_prior', 'clip_scene_map.json')
+OUT = os.path.join(ROOT, 'sweep_results', 'zone_prior', 'clip_scene_map.json')          # 4-class canonical (516)
+OUT_ALL = os.path.join(ROOT, 'sweep_results', 'zone_prior', 'clip_scene_map_691.json')  # 8-class canonical (691)
 DOWN = 32  # background downscale side
+UNSAFE_CLASSES = [0, 1, 2, 3]
+ALL_CLASSES = [0, 1, 2, 3, 4, 5, 6, 7]
 
 
 def bg_descriptor(npy_path):
@@ -36,23 +39,35 @@ def main():
     # split-choice uncertainty (brief.md S16/S18). Exposed so it can be swept.
     ap.add_argument('--cluster_seed', type=int, default=0, help='KMeans random_state')
     ap.add_argument('--clusters', type=int, default=8)
+    ap.add_argument('--classes', default='unsafe',
+                    help="'unsafe' (0-3, default, matches original 516-clip behaviour), "
+                         "'all' (0-7, 691 clips), or an explicit comma list e.g. '0,1,2,3,4'")
     ap.add_argument('--out', default=None,
-                    help='output json. Default: the canonical path for cluster_seed=0/clusters=8, '
-                         'otherwise a suffixed name - a sweep must never overwrite the canonical map '
+                    help='output json. Default: the canonical path for cluster_seed=0/clusters=8 '
+                         '(clip_scene_map.json for --classes unsafe, clip_scene_map_691.json for --classes all), '
+                         'otherwise a suffixed name - a sweep must never overwrite a canonical map '
                          '(the S6/S9 silent-overwrite failure mode).')
     args = ap.parse_args()
+    if args.classes == 'unsafe':
+        classes = UNSAFE_CLASSES
+    elif args.classes == 'all':
+        classes = ALL_CLASSES
+    else:
+        classes = [int(c) for c in args.classes.split(',')]
+    canon_out = OUT if classes == UNSAFE_CLASSES else (OUT_ALL if classes == ALL_CLASSES else None)
     out = args.out
     if out is None:
-        canon = args.cluster_seed == 0 and args.clusters == 8
-        out = OUT if canon else OUT.replace('.json', f'_k{args.clusters}cs{args.cluster_seed}.json')
+        canon = args.cluster_seed == 0 and args.clusters == 8 and canon_out is not None
+        out = canon_out if canon else (canon_out or OUT_ALL).replace(
+            '.json', f'_k{args.clusters}cs{args.cluster_seed}.json')
 
-    # map basename -> npy path (4-class unsafe subset only, labels 0-3)
+    # map basename -> npy path, restricted to the requested class set
     npys = glob.glob(os.path.join(ROOT, 'data', '*', '*', '*.npy'))
     by_base = {}
     for p in npys:
         base = os.path.basename(p)[:-4]  # strip .npy -> '0_tr1.mp4'
         cls = int(os.path.basename(os.path.dirname(p)).split('_')[0])
-        if cls < 4:
+        if cls in classes:
             by_base[base] = p
 
     bases = sorted(by_base)

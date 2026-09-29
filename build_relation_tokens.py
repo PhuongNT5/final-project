@@ -7,6 +7,11 @@ For each clip: sample T frames, run the entity detector, and for every detection
 Geometry (last 4) is computed for people (class 0/1) against the clip's per-view zone polygons;
 zeros for non-person entities. Output: sweep_results/relation_tokens/tokens_{train,test}.pt
 
+NOTE: feat[10] is the *geometry-only* token. With --appearance (which the headline tag `yolo26app_`
+uses) each token is 10 + APP_DIM = 74 wide, and up to T*N_MAX = 128 context crops per clip go
+through the appearance backbone. Read the stored 'feat_layout' field, not this docstring, to know
+what a given tokens_*.pt actually contains.
+
 Runs LOCALLY — inference on MPS/CPU is fine; only TRAINING hits the MPS bug.
 Usage:  .venv/bin/python build_relation_tokens.py [--limit N] [--device mps|cpu]
 """
@@ -17,7 +22,10 @@ import os
 import numpy as np
 import cv2
 import torch
-from ultralytics import YOLO
+# ultralytics is imported lazily where a detector is actually constructed (process_clip,
+# main) so that geometry()/load_zones() can be reused on machines without it — e.g. the
+# Jetson, where pip-installing ultralytics would drag in a torchvision/torch that clashes
+# with the vendor CUDA torch build. Both call sites already do their own local import.
 from shapely.geometry import Polygon, Point, box as shp_box
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -26,7 +34,7 @@ VIEW_MAP = os.path.join(ROOT, 'sweep_results', 'zone_prior', 'clip_view_map.json
 ZONES_DIR = os.path.join(ROOT, 'annotation_guide', 'zones')
 OUT = os.path.join(ROOT, 'sweep_results', 'relation_tokens')
 T, N_MAX, CONF, IMGSZ = 16, 8, 0.25, 800
-UNSAFE = [0, 1, 2, 3]            # source behaviour-class folders (clip labels)
+UNSAFE = [0, 1, 2, 3]            # source behaviour-class folders (clip labels) — default CLASSES
 FEAT = 10
 APP_DIM = 64                     # v2b: per-box appearance feature (context crop -> MobileNet -> random-projected)
 _APP = {}
@@ -92,8 +100,8 @@ def load_zones():
     return z
 
 
-def view_map():
-    return {r['basename']: str(r['view']) for r in json.load(open(VIEW_MAP))}
+def view_map(path=None):
+    return {r['basename']: str(r['view']) for r in json.load(open(path or VIEW_MAP))}
 
 
 def geometry(cx, cy, w, h, W, H, zones):
@@ -183,9 +191,9 @@ def process_clip(path, det, zones, device, app=None):
     return tokens, mask
 
 
-def build_subset(subset, det, zones, vmap, device, limit=None, app=None, tag=''):
+def build_subset(subset, det, zones, vmap, device, limit=None, app=None, tag='', classes=UNSAFE):
     clips = []
-    for c in UNSAFE:
+    for c in classes:
         clips += sorted(glob.glob(os.path.join(ROOT, 'data', subset, f'{c}_*', '*.mp4')))
     if limit:
         clips = clips[:limit]
@@ -222,24 +230,32 @@ def main():
                     help='test-time corruption/aug applied to frames (F/G robustness)')
     ap.add_argument('--detector', default=None, help='override detector weights (MT3: YOLO26 swap)')
     ap.add_argument('--out_tag', default=None, help='override output tag prefix (avoid clobbering baseline tokens)')
+    ap.add_argument('--classes', default=None,
+                    help="comma-separated source-class folders to tokenize, e.g. '0,1,2,3,4,5,6,7'. "
+                         "Default (unset) reproduces the original UNSAFE=[0,1,2,3] behaviour.")
+    ap.add_argument('--view_map', default=None,
+                    help='override the clip->view map json (e.g. the 691-clip map with derived safe-clip views). '
+                         'Default: sweep_results/zone_prior/clip_view_map.json (516 unsafe clips only).')
     args = ap.parse_args()
     global CORRUPT, DET
     CORRUPT = args.corrupt
     if args.detector:
         DET = os.path.abspath(args.detector)   # swap detector (+ its ROI backbone) for YOLO26 comparison
+    classes = [int(c) for c in args.classes.split(',')] if args.classes else UNSAFE
     device = args.device or ('mps' if torch.backends.mps.is_available() else 'cpu')
     print(f"detector={os.path.relpath(DET, ROOT)} device={device} appearance={args.appearance} "
-          f"backbone={args.appearance_backbone} corrupt={args.corrupt}")
+          f"backbone={args.appearance_backbone} corrupt={args.corrupt} classes={classes}")
+    from ultralytics import YOLO
     det = YOLO(DET)
-    zones, vmap = load_zones(), view_map()
+    zones, vmap = load_zones(), view_map(args.view_map)
     app = get_appearance(device, args.appearance_backbone) if args.appearance else None
     tag = args.out_tag if args.out_tag else \
         (('yoloapp_' if args.appearance_backbone == 'yolo' else 'app_') if args.appearance else '')
     if args.corrupt:
         tag = f'{tag}{args.corrupt}_'
-    print(f"zones for views: {sorted(zones)} | view-map entries: {len(vmap)}")
+    print(f"zones for views: {sorted(zones)} | view-map entries: {len(vmap)} (source={args.view_map or VIEW_MAP})")
     for sp in args.subsets.split(','):
-        build_subset(sp, det, zones, vmap, device, args.limit, app=app, tag=tag)
+        build_subset(sp, det, zones, vmap, device, args.limit, app=app, tag=tag, classes=classes)
 
 
 if __name__ == '__main__':
