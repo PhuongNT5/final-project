@@ -55,3 +55,18 @@ annotation_guide/
 # Kaggle upload staging - real frames of identifiable workers, never commit.
 # (the old rule named unsafe-net-detector-dataset.zip; the actual file is unsafenet-detector.zip)
 kaggle-detector-retrain/upload/
+
+# P3 detector cost probes — regenerable in seconds by
+#   export-p3-graphs.py --cost_imgsz 640 512 416
+# and they carry no accuracy meaning (no tokens were ever built at those sizes), so there is no
+# reason to put 114 MB of them in history. The three real P3 graphs are NOT ignored.
+deployment/export/p3-detector-fp32-imgsz*.onnx
+
+# external dataset (1.29 GB, not versioned)
+data/isafetybench/
+
+# Detector sweep checkpoints under runs/ — the `sweep_results/**/*.pt` rule above contains a
+# slash, so git anchors it to the repo root and it does NOT match runs/detect/sweep_results/.
+# 146 MB of YOLO best.pt/last.pt; best.pt is referenced by
+# tools/count-actors-in-contradictory-clips.py, so the files stay on disk, just out of history.
+runs/**/weights/*.pt
