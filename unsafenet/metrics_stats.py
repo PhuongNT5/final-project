@@ -52,26 +52,54 @@ def mcnemar_exact(y, pred_a, pred_b):
     return {'b': b, 'c': c, 'n_discordant': n, 'p': p}
 
 
+def feasible_discordant_splits(n_total: int, correct_a: int, correct_b: int):
+    """Yield every (b, c) discordant split consistent with the two aggregate correct-counts, where
+    b = "a right, b wrong" and c = "a wrong, b right". A split is feasible iff all four cells of the
+    2x2 paired table are non-negative: both-wrong = (n_total - correct_b) - b >= 0 and
+    (n_total - correct_a) - c >= 0; both-right = correct_a - b >= 0 and correct_b - c >= 0.
+
+    Single source of truth for the feasibility rule - `mcnemar_bound` (min p) and
+    eval_utils.paired_tests._max_p_over_discordant_splits (max p) both consume this, so the rule
+    cannot drift between them again. It has been wrong twice: the original version enforced only
+    b + c <= n_total, and the 2026-09-29 fix added the both-wrong pair but not the both-right pair.
+    """
+    if not (0 <= correct_a <= n_total and 0 <= correct_b <= n_total):
+        raise ValueError(f'correct counts must lie in [0, {n_total}]: got {correct_a}, {correct_b}')
+    diff = correct_a - correct_b
+    wrong_a, wrong_b = n_total - correct_a, n_total - correct_b
+    for c in range(0, n_total + 1):
+        b = diff + c
+        if b < 0 or b > wrong_b or c > wrong_a or b > correct_a or c > correct_b:
+            continue
+        yield b, c
+
+
 def mcnemar_bound(n_total: int, correct_a: int, correct_b: int):
     """Bounded McNemar when only total-correct counts are known for the opponent (we lack the
     paper's per-clip predictions). Enumerates every discordant split (b, c) consistent with
-    correct_a - correct_b = b - c, 0 <= b, c, b + c <= n_total, and returns the SMALLEST exact
-    p across all such splits - i.e. the most favourable split for the "difference is real" claim.
-    Report this as a lower bound on p (p >= this value); it can never be tightened without the
-    per-clip predictions.
+    correct_a - correct_b = b - c and returns the SMALLEST exact p across all such splits - i.e.
+    the most favourable split for the "difference is real" claim. Report this as a lower bound on
+    p (p >= this value); it can never be tightened without the per-clip predictions.
+
+    Feasibility (corrected 2026-09-29): a split is feasible iff all four cells of the 2x2 table are
+    non-negative. b is "a right, b wrong", so b <= b's own wrong-count (n_total - correct_b) and
+    b <= a's own right-count (correct_a); symmetrically c <= n_total - correct_a and c <= correct_b.
+    The first pair is the "both wrong" cell >= 0, the second the "both right" cell >= 0. The
+    original version required only b + c <= n_total, which admits splits contradicting the
+    marginals (e.g. 8 clips where the opponent is wrong when it is wrong on only 2); the both-right
+    pair was added 2026-09-29 after review and binds only when correct_a + correct_b < n_total, so
+    it changes no thesis comparison (all are ~50-62 of 64, sum >> 64). min_p is unaffected by
+    either - it is attained at the minimal discordance, always feasible - but max_p was far too
+    loose; see reports/finding-2026-09-29-mcnemar-bound-marginal-constraint.md.
     """
-    diff = correct_a - correct_b
     best_p = 1.0
-    for c in range(0, n_total + 1):
-        b = diff + c
-        if b < 0 or b > n_total or b + c > n_total:
-            continue
+    for b, c in feasible_discordant_splits(n_total, correct_a, correct_b):
         n = b + c
         if n == 0:
             continue
         p = 2 * _st.binom.cdf(min(b, c), n, 0.5)
         best_p = min(best_p, p)
-    return {'diff': int(diff), 'min_p_over_splits': float(min(best_p, 1.0))}
+    return {'diff': int(correct_a - correct_b), 'min_p_over_splits': float(min(best_p, 1.0))}
 
 
 def permutation_test(y, pred_a, pred_b, metric_fn, n: int = 10000, seed: int = 0):
