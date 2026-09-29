@@ -14,7 +14,6 @@ Usage:
 """
 import argparse
 import asyncio
-import collections
 import importlib.util
 import json
 import os
@@ -30,45 +29,20 @@ sys.path.insert(0, ROOT)
 EXPORT_DIR = os.path.join(ROOT, "deployment", "export")
 OUT_PATH = os.path.join(ROOT, "deployment", "artifacts", "multi-stream-results.json")
 
-_spec = importlib.util.spec_from_file_location(
-    "pipeline_utils", os.path.join(ROOT, "deployment", "scripts", "pipeline-utils.py"))
-pu = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(pu)
-
-QUEUE_MAX = 4
-T_WINDOW = 32
-EMIT_EVERY = 8
+def _load(name, fname):
+    spec = importlib.util.spec_from_file_location(name, os.path.join(ROOT, "deployment", "scripts", fname))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
 
 
-class StreamState:
-    def __init__(self, sid: int):
-        self.sid = sid
-        self.buf = collections.deque(maxlen=T_WINDOW)
-        self.frame_count = 0
-        self.dropped = 0
-        self.head_latencies: List[float] = []
-        self.predictions: List[int] = []
-
-
-async def video_reader(source: str, queue: asyncio.Queue, state: StreamState,
-                       max_frames: int, fps: float, stop: asyncio.Event) -> None:
-    loop = asyncio.get_event_loop()
-    cap = cv2.VideoCapture(source)
-    period = 1.0 / max(fps, 1.0)
-    try:
-        while not stop.is_set() and state.frame_count < max_frames:
-            ok, frame = await loop.run_in_executor(None, cap.read)
-            if not ok:
-                cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                continue
-            if queue.qsize() >= QUEUE_MAX:
-                state.dropped += 1
-            else:
-                await queue.put((state.sid, pu.preprocess(frame)))
-            state.frame_count += 1
-            await asyncio.sleep(period)
-    finally:
-        cap.release()
+pu = _load("pipeline_utils", "pipeline-utils.py")
+# Shared StreamState/aggregate_fps/video_reader/softmax/stats_agg/percentiles — was
+# near-verbatim duplicated with jetson-multi-stream-pipeline.py (code-review 2026-09-16 §6).
+_spu = _load("stream_pipeline_utils", "stream-pipeline-utils.py")
+StreamState, aggregate_fps, video_reader = _spu.StreamState, _spu.aggregate_fps, _spu.video_reader
+softmax, stats_agg, percentiles = _spu.softmax, _spu.stats_agg, _spu.percentiles
+QUEUE_MAX, T_WINDOW, EMIT_EVERY = _spu.QUEUE_MAX, _spu.T_WINDOW, _spu.EMIT_EVERY
 
 
 async def inference_loop(queue: asyncio.Queue, backbone, heads: Dict[str, object],
@@ -97,14 +71,15 @@ async def inference_loop(queue: asyncio.Queue, backbone, heads: Dict[str, object
         feats = backbone.run(None, {bb_in: batch})[0]  # (B,16,512)
         for i, (sid, _) in enumerate(items):
             s = states[sid]
+            s.processed += 1
             s.buf.append(feats[i])
             if len(s.buf) == T_WINDOW and s.frame_count % EMIT_EVERY == 0:
-                stats = pu.stats_agg(np.stack(s.buf))[None]  # (1,32,1536)
+                stats = stats_agg(np.stack(s.buf))[None]  # (1,32,1536)
                 t0 = time.perf_counter()
-                d4 = pu.softmax(heads["direct4"].run(None, {head_in: stats})[0])
-                sc = pu.softmax(heads["scenario"].run(None, {head_in: stats})[0])
+                d4 = softmax(heads["direct4"].run(None, {head_in: stats})[0])
+                sc = softmax(heads["scenario"].run(None, {head_in: stats})[0])
                 pair_cols = [
-                    pu.softmax(heads[k].run(None, {head_in: stats})[0])[:, 1:2]
+                    softmax(heads[k].run(None, {head_in: stats})[0])[:, 1:2]
                     for k in pu.PAIR_KEYS
                 ]
                 cas = sc * np.concatenate(pair_cols, axis=1)
@@ -139,7 +114,7 @@ async def run_config(n: int, sources: List[str], max_frames: int, fps: float,
     stop = asyncio.Event()
     t0 = time.perf_counter()
     readers = [asyncio.create_task(video_reader(sources[i % len(sources)], queue,
-                                                 states[i], max_frames, fps, stop))
+                                                 states[i], max_frames, fps, stop, pu.preprocess))
                for i in range(n)]
     inf = asyncio.create_task(inference_loop(queue, backbone, heads, states, batch_util, stop))
     await asyncio.gather(*readers)
@@ -148,14 +123,15 @@ async def run_config(n: int, sources: List[str], max_frames: int, fps: float,
     # so the final items put by readers are processed before timing stops.
     await inf
     elapsed = time.perf_counter() - t0
-    total_frames = sum(s.frame_count for s in states.values())
+    agg = aggregate_fps(states, elapsed)
     return {
-        "n_streams": n, "precision": precision, "elapsed_sec": round(elapsed, 3),
-        "aggregate_fps": round(total_frames / elapsed, 2),
+        "n_streams": n, "precision": precision, "elapsed_sec": agg["elapsed_sec"],
+        "aggregate_fps": agg["aggregate_fps"], "read_fps": agg["read_fps"], "drop_rate": agg["drop_rate"],
         "backbone_batch_utilisation": round(float(np.mean(batch_util)) if batch_util else 0.0, 3),
         "streams": [{
-            "id": s.sid, "frames": s.frame_count, "dropped": s.dropped,
-            "head_latency_ms": pu.percentiles(s.head_latencies),
+            "id": s.sid, "frames": s.frame_count, "processed": s.processed,
+            "dropped": s.dropped,
+            "head_latency_ms": percentiles(s.head_latencies),
             "n_predictions": len(s.predictions),
         } for s in states.values()],
     }
@@ -174,8 +150,9 @@ def main():
     for n in args.streams:
         print(f"\n=== N={n} streams, precision={args.precision} ===", flush=True)
         r = asyncio.run(run_config(n, args.source, args.max_frames, args.fps, args.precision))
-        print(f"  aggFPS={r['aggregate_fps']}  batchUtil={r['backbone_batch_utilisation']}"
-              f"  drops={sum(s['dropped'] for s in r['streams'])}")
+        print(f"  aggFPS(processed)={r['aggregate_fps']}  readFPS={r['read_fps']}"
+              f"  batchUtil={r['backbone_batch_utilisation']}"
+              f"  drops={sum(s['dropped'] for s in r['streams'])}  drop_rate={r['drop_rate']}")
         results["configs"].append(r)
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, "w") as f:

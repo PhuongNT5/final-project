@@ -13,6 +13,7 @@ Usage:
     python3 deployment/scripts/jetson-benchmark.py --mode fp16 --runs 100
 """
 import argparse
+import importlib.util
 import json
 import os
 import platform
@@ -31,6 +32,16 @@ ART_DIR = os.path.join(ROOT, 'deployment', 'artifacts')
 MODELS = ['backbone', 'direct4-s314', 'scenario-s7',
           'pair0-s7', 'pair1-s7', 'pair2-s7', 'pair3-s7']
 
+# TRTRunner binds all engine inputs/outputs by NAME (needed for the P3 relation head,
+# which has 2 inputs: tokens + mask — see trt-runner-utils.py docstring for the bug this
+# fixes). Loaded via importlib (hyphenated filename); shared with
+# jetson-multi-stream-pipeline.py so the fix lives in one place.
+_tru_spec = importlib.util.spec_from_file_location(
+    'trt_runner_utils', os.path.join(ROOT, 'deployment', 'scripts', 'trt-runner-utils.py'))
+_tru = importlib.util.module_from_spec(_tru_spec)
+_tru_spec.loader.exec_module(_tru)
+TRTRunner = _tru.TRTRunner
+
 
 def import_trt():
     try:
@@ -40,37 +51,6 @@ def import_trt():
         return trt, cuda
     except ImportError as e:
         sys.exit(f'ERROR: {e}. Need tensorrt + pycuda (JetPack 6 default).')
-
-
-class TRTRunner:
-    def __init__(self, trt, cuda, engine_path):
-        self.cuda = cuda
-        with open(engine_path, 'rb') as f:
-            runtime = trt.Runtime(trt.Logger(trt.Logger.WARNING))
-            self.engine = runtime.deserialize_cuda_engine(f.read())
-        self.context = self.engine.create_execution_context()
-        self.stream = cuda.Stream()
-        self.bindings, self.host_in, self.dev_in, self.host_out, self.dev_out = [], None, None, None, None
-        for i in range(self.engine.num_io_tensors):
-            name = self.engine.get_tensor_name(i)
-            shape = tuple(self.context.get_tensor_shape(name))
-            dtype = trt.nptype(self.engine.get_tensor_dtype(name))
-            host = np.empty(shape, dtype=dtype)
-            dev = cuda.mem_alloc(host.nbytes)
-            self.context.set_tensor_address(name, int(dev))
-            mode = self.engine.get_tensor_mode(name)
-            if mode == trt.TensorIOMode.INPUT:
-                self.host_in, self.dev_in, self.in_name, self.in_shape = host, dev, name, shape
-            else:
-                self.host_out, self.dev_out, self.out_name = host, dev, name
-
-    def run(self, x):
-        np.copyto(self.host_in, x.reshape(self.in_shape))
-        self.cuda.memcpy_htod_async(self.dev_in, self.host_in, self.stream)
-        self.context.execute_async_v3(self.stream.handle)
-        self.cuda.memcpy_dtoh_async(self.host_out, self.dev_out, self.stream)
-        self.stream.synchronize()
-        return self.host_out.copy()
 
 
 def softmax(x, axis=-1):
