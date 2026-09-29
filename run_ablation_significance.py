@@ -12,6 +12,7 @@ from scipy import stats as sst
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
+from eval_utils.paired_tests import paired_vs_aggregate_baseline, mcnemar_exact
 CKPT = os.path.join(ROOT, 'sweep_results', 'pairwise')
 FEAT_TE = os.path.join(CKPT, 'features', 'all8_test.pt')
 OUT = os.path.join(ROOT, 'sweep_results', 'ablations')
@@ -96,16 +97,6 @@ def bootstrap_perclass(pred, y, n_boot=5000, n_cls=4):
     return out
 
 
-def two_prop_z(k1, n1, k2, n2):
-    """Unpaired two-proportion z-test. Returns z, p (two-sided)."""
-    p1, p2 = k1 / n1, k2 / n2
-    p_hat = (k1 + k2) / (n1 + n2)
-    se = (p_hat * (1 - p_hat) * (1 / n1 + 1 / n2)) ** 0.5
-    z = (p1 - p2) / se if se > 0 else 0.0
-    p = 2 * (1 - sst.norm.cdf(abs(z)))
-    return float(z), float(p), float(p1 - p2)
-
-
 def macro_z_simulated(macro1, macro2, n1=64, n2=64, n_sim=20000):
     """Approximate z-test on macro accuracy by treating macro as a
     weighted top-1 with the same N. Returns simulation-based 2-sided p."""
@@ -115,36 +106,6 @@ def macro_z_simulated(macro1, macro2, n1=64, n2=64, n_sim=20000):
     z = (p1 - p2) / se if se > 0 else 0.0
     p = 2 * (1 - sst.norm.cdf(abs(z)))
     return float(z), float(p)
-
-
-def mcnemar_marginal_bounds(k_a, k_b, n):
-    """Given two paired classifiers' top-1 counts k_a, k_b on same n,
-    bound the McNemar chi-sq. Discordant cells satisfy
-        b01 - b10 = k_a - k_b   (signed)
-        b01 + b10 = D ≥ |k_a - k_b|, ≤ min(2*max-marginal-mismatch, n).
-
-    Returns chi-sq under the BEST and WORST possible D for the
-    less-accurate model, and the corresponding 2-sided p-values.
-    """
-    diff = abs(k_a - k_b)
-    # D_min = diff (one method strictly dominates discordant cells)
-    # D_max = 2 * min(k_a, k_b, n - k_a, n - k_b) + diff  (max overlap of
-    # disagreements consistent with both marginals); upper-bounded by n.
-    d_min = diff
-    d_max = min(n, 2 * min(k_a, n - k_a, k_b, n - k_b) + diff)
-    # Continuity-corrected McNemar: chi2 = (|b01-b10| - 1)^2 / (b01+b10)
-    # b01 - b10 fixed at ±diff, so chi2 maximized when D minimized.
-    out = {}
-    for label, D in [('lower_bound (max D)', d_max), ('upper_bound (min D)', d_min)]:
-        if D == 0:
-            out[label] = {'D': D, 'chi2': None, 'p_value': None,
-                          'note': 'zero discordant cells — perfect agreement'}
-            continue
-        chi2 = (max(0, diff - 1)) ** 2 / D
-        p = 1 - sst.chi2.cdf(chi2, df=1)
-        out[label] = {'D': int(D), 'chi2': round(chi2, 4),
-                      'p_value': round(float(p), 6)}
-    return out
 
 
 def main():
@@ -183,37 +144,45 @@ def main():
         if r.get('point') is not None:
             print(f"    {r['class']:14s} n={r['n']:2d}  point={r['point']:6.2f}  CI=[{r['ci95_lo']:6.2f}, {r['ci95_hi']:6.2f}]")
 
-    # ── F2 — z-tests ──
-    print(f"\n[3] Two-proportion z-tests")
+    # ── F2 — top-1 vs paper (paired, same 64 clips; paper per-clip predictions unpublished
+    # -> per-clip table can't be reconstructed -> McNemar BOUND is the primary, valid stat, not an
+    # unpaired two-proportion z-test. Routed through eval_utils.paired_tests so this file shares
+    # ONE implementation with run_full_eval.py / ensemble_relation.py / run_relation_transformer.py
+    # instead of its own drifting continuity-corrected-chi2 bound. See
+    # plans/2026-09-06-thesis-2week-final/reports/review-2026-09-13-eval-statistics.md finding #1
+    # and reports/laneb-2026-09-16-paired-significance-fix.md for the old-vs-new bound comparison. ──
+    print(f"\n[3] McNemar bound vs paper (primary) + two_proportion_z (labelled diagnostic only)")
+    cmp_baseline = paired_vs_aggregate_baseline(64, 56, 55, label='paper ConvLSTM baseline (55/64)')
+    print(f"  top-1  ours 56/64 vs paper 55/64:  McNemar bound p∈[{cmp_baseline['min_p_over_splits']:.4f},"
+          f"{cmp_baseline['max_p_over_splits']:.4f}]  Δ={cmp_baseline['delta_pp']:+.2f}pp  "
+          f"(diagnostic two_proportion_z p={cmp_baseline['diagnostic_two_proportion_z']['p_value']:.4f}, invalid independence)")
 
-    # Top-1: ours 56/64 vs paper ConvLSTM 55/64 (paired? no — different test runs.
-    # Use unpaired as conservative)
-    z_top1, p_top1, d_top1 = two_prop_z(56, 64, 55, 64)
-    print(f"  top-1  ours 56/64 vs paper 55/64:  z={z_top1:+.3f}  p={p_top1:.4f}  Δ={d_top1*100:+.2f}pp  → not significant")
+    cmp_full = paired_vs_aggregate_baseline(64, 56, 62, label='paper full pipeline (62/64)')
+    print(f"  top-1  ours 56/64 vs paper 62/64:  McNemar bound p∈[{cmp_full['min_p_over_splits']:.4f},"
+          f"{cmp_full['max_p_over_splits']:.4f}]  Δ={cmp_full['delta_pp']:+.2f}pp  "
+          f"(diagnostic two_proportion_z p={cmp_full['diagnostic_two_proportion_z']['p_value']:.4f}, invalid independence)")
 
-    # Top-1: ours 56/64 vs paper full 62/64 (negative direction)
-    z_top1_full, p_top1_full, d_top1_full = two_prop_z(56, 64, 62, 64)
-    print(f"  top-1  ours 56/64 vs paper 62/64:  z={z_top1_full:+.3f}  p={p_top1_full:.4f}  Δ={d_top1_full*100:+.2f}pp")
+    # ── F2 — macro z-tests. NOT part of this fix: macro accuracy is a mean of per-class recalls,
+    # not a per-clip binary correctness value, so it isn't a McNemar/paired-proportion case at all
+    # (a different, separate methodological question from finding #1) — left untouched here.
+    # ── own-vs-own: ensemble vs direct4 / cascade share the SAME 64 test clips (per-clip preds
+    # already in memory) -> exact McNemar is directly computable, unlike the paper comparisons. ──
+    print(f"\n[3b] McNemar exact — own variants (same 64 clips, per-clip preds available)")
+    mc_d4 = mcnemar_exact(pred_ens == y, pred_d4 == y)
+    print(f"  ensemble vs direct4:  b={mc_d4['b']} c={mc_d4['c']}  p={mc_d4['p_value']:.4f}  "
+          f"diff={mc_d4['diff_accuracy_pp']:+.2f}pp  CI95=[{mc_d4['diff_accuracy_ci95_pp'][0]:+.1f},"
+          f"{mc_d4['diff_accuracy_ci95_pp'][1]:+.1f}]pp")
+    mc_cas = mcnemar_exact(pred_ens == y, pred_cas == y)
+    print(f"  ensemble vs cascade:  b={mc_cas['b']} c={mc_cas['c']}  p={mc_cas['p_value']:.4f}  "
+          f"diff={mc_cas['diff_accuracy_pp']:+.2f}pp  CI95=[{mc_cas['diff_accuracy_ci95_pp'][0]:+.1f},"
+          f"{mc_cas['diff_accuracy_ci95_pp'][1]:+.1f}]pp")
 
-    # Macro: 89.28 vs 85.78 (paper Table 7)
+    print(f"\n[4] Macro two-proportion z-tests (simulated; separate from the paired-significance fix)")
     z_macro, p_macro = macro_z_simulated(89.28, 85.78, n1=64, n2=64)
     print(f"  macro  ours 89.28 vs paper 85.78:  z={z_macro:+.3f}  p={p_macro:.4f}  Δ=+3.50pp")
 
-    # Macro: 89.28 vs paper full 95.81
     z_macro_full, p_macro_full = macro_z_simulated(89.28, 95.81, n1=64, n2=64)
     print(f"  macro  ours 89.28 vs paper 95.81:  z={z_macro_full:+.3f}  p={p_macro_full:.4f}  Δ=-6.53pp")
-
-    # ── McNemar bounds vs paper full pipeline ──
-    print(f"\n[4] McNemar marginal bounds (paired, same N=64 test set, "
-          f"unknown per-clip overlap)")
-    mc_bounds_full = mcnemar_marginal_bounds(56, 62, 64)
-    mc_bounds_baseline = mcnemar_marginal_bounds(56, 55, 64)
-    print(f"  vs paper full 62/64:")
-    for k, v in mc_bounds_full.items():
-        print(f"    {k}:  D={v.get('D')}  chi2={v.get('chi2')}  p={v.get('p_value')}")
-    print(f"  vs paper baseline 55/64:")
-    for k, v in mc_bounds_baseline.items():
-        print(f"    {k}:  D={v.get('D')}  chi2={v.get('chi2')}  p={v.get('p_value')}")
 
     out = {
         'point_estimates': {
@@ -227,15 +196,21 @@ def main():
             'macro': {'mean': round(macro_mu, 2), 'ci95': [round(macro_lo, 2), round(macro_hi, 2)], 'std': round(macro_sd, 2)},
             'per_class': perclass,
         },
-        'z_tests': {
-            'top1_ours_vs_paper_baseline': {
-                'ours_k': 56, 'ours_n': 64, 'paper_k': 55, 'paper_n': 64,
-                'z': round(z_top1, 3), 'p': round(p_top1, 4), 'delta_pp': round(d_top1 * 100, 2),
-            },
-            'top1_ours_vs_paper_full': {
-                'ours_k': 56, 'ours_n': 64, 'paper_k': 62, 'paper_n': 64,
-                'z': round(z_top1_full, 3), 'p': round(p_top1_full, 4), 'delta_pp': round(d_top1_full * 100, 2),
-            },
+        'top1_vs_own_variants': {
+            # exact McNemar: both sides are per-clip predictions on the SAME 64 test clips.
+            'ensemble_vs_direct4': mc_d4,
+            'ensemble_vs_cascade': mc_cas,
+        },
+        'top1_vs_paper': {
+            # primary_test == 'mcnemar_discordance_bound...' -> bound is the valid stat; the
+            # embedded diagnostic_two_proportion_z is NOT the significance test, see its own
+            # diagnostic_warning field.
+            'ours_vs_paper_baseline': cmp_baseline,
+            'ours_vs_paper_full': cmp_full,
+        },
+        'macro_z_tests_simulated': {
+            # separate methodological question from the paired-significance fix (macro accuracy is
+            # not a per-clip binary correctness value) — untouched, not routed through paired_tests.
             'macro_ours_vs_paper_baseline': {
                 'ours_macro': 89.28, 'paper_macro': 85.78, 'n': 64,
                 'z': round(z_macro, 3), 'p': round(p_macro, 4), 'delta_pp': 3.50,
@@ -244,11 +219,6 @@ def main():
                 'ours_macro': 89.28, 'paper_macro': 95.81, 'n': 64,
                 'z': round(z_macro_full, 3), 'p': round(p_macro_full, 4), 'delta_pp': -6.53,
             },
-        },
-        'mcnemar_marginal_bounds': {
-            'vs_paper_full_pipeline': mc_bounds_full,
-            'vs_paper_convlstm_baseline': mc_bounds_baseline,
-            'note': 'Paper\'s per-clip predictions are not published, so D=b01+b10 is bounded; chi-squared is reported at both extremes of D.',
         },
     }
     json.dump(out, open(os.path.join(OUT, 'significance.json'), 'w'), indent=2)
