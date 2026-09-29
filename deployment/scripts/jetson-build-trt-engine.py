@@ -94,7 +94,7 @@ def make_calibrator(trt, calib_dir, model_name, batch_size=DEFAULT_BATCH):
     return _Calib()
 
 
-def build_engine(trt, onnx_path, mode, calib_dir, model_name):
+def build_engine(trt, onnx_path, mode, calib_dir, model_name, batch_profile=None):
     logger = trt.Logger(trt.Logger.WARNING)
     builder = trt.Builder(logger)
     network = builder.create_network(1 << int(trt.NetworkDefinitionCreationFlag.EXPLICIT_BATCH))
@@ -110,7 +110,13 @@ def build_engine(trt, onnx_path, mode, calib_dir, model_name):
     config.set_memory_pool_limit(trt.MemoryPoolType.WORKSPACE, WORKSPACE_GB << 30)
 
     # TRT 10: any dynamic input shape requires an optimization profile.
-    # We deploy at batch=1 only — set min=opt=max=1 for any -1 dim.
+    # Default is min=opt=max=DEFAULT_BATCH, which is correct for every P1 model and for the
+    # P3 detector/head (one frame, one clip per pass). It is NOT correct for p3-appearance:
+    # a P3 decision embeds the clip's whole crop set (p50=54, cap=128) in ONE batched pass,
+    # which is how benchmark-p3-onnx.py times it. Pinning that input to 1 forces a 54-iteration
+    # loop at measurement time and overstates P3's per-decision cost against its own ONNX
+    # baseline. --batch_profile MIN:OPT:MAX builds the real shape range for such graphs.
+    lo, opt, hi = batch_profile or (DEFAULT_BATCH, DEFAULT_BATCH, DEFAULT_BATCH)
     profile = builder.create_optimization_profile()
     has_dynamic = False
     for i in range(network.num_inputs):
@@ -118,9 +124,9 @@ def build_engine(trt, onnx_path, mode, calib_dir, model_name):
         shape = list(tensor.shape)
         if any(d < 0 for d in shape):
             has_dynamic = True
-            concrete = tuple(DEFAULT_BATCH if d < 0 else d for d in shape)
-            profile.set_shape(tensor.name, concrete, concrete, concrete)
-            print(f'  profile: {tensor.name} {shape} -> {concrete}')
+            mk = lambda b: tuple(b if d < 0 else d for d in shape)
+            profile.set_shape(tensor.name, mk(lo), mk(opt), mk(hi))
+            print(f'  profile: {tensor.name} {shape} -> min{mk(lo)} opt{mk(opt)} max{mk(hi)}')
     if has_dynamic:
         config.add_optimization_profile(profile)
 
@@ -151,19 +157,32 @@ def main():
     ap.add_argument('--mode', choices=['fp32', 'fp16', 'int8'], default='fp16')
     ap.add_argument('--calib-dir', default=os.path.join(ROOT, 'deployment',
                                                         'artifacts', 'calib-jetson'))
+    ap.add_argument('--model', help='build a single named model instead of the '
+                     'full P1 MODELS list (e.g. p3-detector); used for the output '
+                     'filename <model>-<mode>.engine')
+    ap.add_argument('--onnx', help='ONNX path for --model (default: '
+                     'deployment/export/<model>-fp32.onnx)')
+    ap.add_argument('--batch_profile', help='MIN:OPT:MAX for dynamic batch dims, e.g. 1:54:128 '
+                     'for p3-appearance (p50/cap crop counts). Default pins them to '
+                     f'{DEFAULT_BATCH}, which is right for per-frame/per-clip graphs only.')
     args = ap.parse_args()
+    bp = tuple(int(x) for x in args.batch_profile.split(':')) if args.batch_profile else None
+    if bp is not None and (len(bp) != 3 or not bp[0] <= bp[1] <= bp[2] or bp[0] < 1):
+        sys.exit(f'--batch_profile must be MIN:OPT:MAX with 1 <= MIN <= OPT <= MAX (got {args.batch_profile})')
 
     trt = import_trt()
     print(f'TensorRT {trt.__version__} | mode={args.mode}')
     os.makedirs(ENGINE_DIR, exist_ok=True)
 
-    for name in MODELS:
-        onnx = os.path.join(EXPORT_DIR, f'{name}-fp32.onnx')
+    targets = [(args.model, args.onnx or os.path.join(EXPORT_DIR, f'{args.model}-fp32.onnx'))] \
+        if args.model else [(name, os.path.join(EXPORT_DIR, f'{name}-fp32.onnx')) for name in MODELS]
+
+    for name, onnx in targets:
         if not os.path.exists(onnx):
             print(f'[SKIP] {name}: ONNX not found at {onnx}')
             continue
         print(f'\n[BUILD] {name} ({args.mode})')
-        eng = build_engine(trt, onnx, args.mode, args.calib_dir, name)
+        eng = build_engine(trt, onnx, args.mode, args.calib_dir, name, bp)
         if eng is None:
             print(f'  FAILED to build {name}')
             continue
