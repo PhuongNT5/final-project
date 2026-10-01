@@ -60,14 +60,27 @@ def run_cmd(cmd, timeout=5):
         return None
 
 
+def _clock_state():
+    """Load the sibling sysfs reader: `jetson_clocks --show` needs root and lands as null, so
+    sysfs is the only unprivileged source of the clock state."""
+    from importlib.util import module_from_spec, spec_from_file_location
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'jetson-clock-state-utils.py')
+    spec = spec_from_file_location('jetson_clock_state_utils', path)
+    mod = module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod.clock_and_contention_state()
+
+
 def device_state(dry_run):
-    return {
+    state = {
         'dry_run': dry_run,
         'nvpmodel_q': run_cmd(['nvpmodel', '-q']),
         'jetson_clocks_show': run_cmd(['jetson_clocks', '--show']),
         'platform': __import__('platform').platform(),
         'python_version': sys.version.split()[0],
     }
+    state.update(_clock_state())
+    return state
 
 
 _TEGRA_RAM = re.compile(r'RAM (\d+)/(\d+)MB')

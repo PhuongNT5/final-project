@@ -184,19 +184,36 @@ alignment.
 
 | metric | protocol | value | token_tag | script | log_path | date | touch | status |
 |---|---|---|---|---|---|---|---|---|
-| **P3 per-decision latency incl. CPU frame decode, p50 crops (54)** — HEADLINE | on-device TRT FP16, MAXN_SUPER, n=3 | 331.19 / 328.88 / 329.69 ms = **3.02 / 3.04 / 3.03 dec/s** (margin 0.7-1.3%) | `bin8_` | `--decision --clips-dir data/test` | `decision-latency-fp16-20260929T{221836,223133,223401}.json` | 2026-09-29 | 0 | measured |
-| **P3 per-decision latency incl. CPU frame decode, cap crops (128)** | same, n=3 | 385.15 / 382.30 / 383.73 ms = **2.60 / 2.62 / 2.61 dec/s — FAIL**; p95 **2.71-2.72**, p99 **2.64-2.66**, also FAIL | `bin8_` | same | same | 2026-09-29 | 0 | measured |
-| P3 per-decision latency, p50 crops, **compute only, same 3 runs** | same, n=3 | 292.48 / 291.74 / 291.40 ms = **3.42 / 3.43 / 3.43 dec/s** (0.4% spread) | `bin8_` | same | same | 2026-09-29 | 0 | measured |
-| P3 per-decision latency, cap crops, **compute only, same 3 runs** | same, n=3 | 346.44 / 345.16 / 345.44 ms = **2.89 / 2.90 / 2.89 dec/s — FAIL** | `bin8_` | same | same | 2026-09-29 | 0 | measured |
-| _(decode-free process — not deployment-representative)_ compute only, 2 earlier runs | same, n=2, no `--clips-dir` | p50 275.97 / 272.40 ms = 3.62 / 3.67; cap 328.15 / 324.55 ms = 3.05 / 3.08 — **do not quote**: decode running in-process costs the detector +9.4% (11.85 -> 12.87 ms/frame), and no deployment decodes zero frames | `bin8_` | `--decision` (no clips) | `decision-latency-fp16-20260929T{214556,221408}.json` | 2026-09-29 | 0 | measured |
-| P3 detector stage | on-device TRT FP16, n=3 | 12.846-12.903 ms/frame (x16 = **205.6 ms, 62% of the 331 ms decision**) | `bin8_` | same | same | 2026-09-29 | 0 | measured |
-| P3 postprocess (select + Shapely geometry, 16 frames) | on-device, CPU, n=3 | 47.25-47.30 ms/decision (14.3%) | `bin8_` | same | same | 2026-09-29 | 0 | measured |
-| P3 crop extraction, 54 crops | on-device, CPU, n=3 | 18.07-18.30 ms/decision (5.5%) | `bin8_` | same | same | 2026-09-29 | 0 | measured |
-| P3 appearance, batched 54 crops | on-device TRT FP16, n=3 | 20.27-20.45 ms/decision (6.2%) | `bin8_` | same | same | 2026-09-29 | 0 | measured |
-| P3 relation head, binary E3 | on-device TRT FP16, n=3 | **0.162-0.169 ms/decision (0.05%)** — the Transformer is free | `bin8_` | same | same | 2026-09-29 | 0 | measured |
+| **P3 per-decision latency incl. CPU frame decode, p50 crops (54), CLOCKS PINNED** — HEADLINE | on-device TRT FP16, MAXN_SUPER, `jetson_clocks` applied (CPU/GPU min=max), n=3 | 311.78 / 308.16 / 310.00 ms = **3.207 / 3.245 / 3.226 dec/s** — **PASS, margin +7.5%** (median basis) | `bin8_` | `--decision --clips-dir data/test --engine-dir deployment/export/jetson-p3` | `decision-latency-fp16-20261001T{222854,223216,223538}.json` | 2026-10-01 | 0 | measured |
+| **P3 per-decision latency incl. CPU frame decode, p50 crops (54), DEFAULT DVFS** | same engines, `schedutil`, GPU 306-1020 MHz, n=3 | 360.01 / 371.69 / 365.88 ms = **2.778 / 2.690 / 2.733 dec/s — FAIL, -8.9%** | `bin8_` | same | `decision-latency-fp16-20261001T{220144,220543,220925}.json` | 2026-10-01 | 0 | measured |
+| P3 per-decision, tail crop loads, **clocks pinned** | same, n=3, median basis | p95 346.87 ms = **2.883 (-3.9%)**; p99 355.93 = **2.810 (-6.3%)**; cap 362.32 = **2.760 (-8.0%)** — all FAIL | `bin8_` | same | `decision-latency-fp16-20261001T{222854,223216,223538}.json` | 2026-10-01 | 0 | measured |
+| P3 per-decision, tail crop loads, **default DVFS** | same, n=3, median basis | p95 403.11 ms = **2.481 (-17.3%)**; p99 413.03 = **2.421 (-19.3%)**; cap 420.25 = **2.380 (-20.7%)** — all FAIL | `bin8_` | same | `decision-latency-fp16-20261001T{220144,220543,220925}.json` | 2026-10-01 | 0 | measured |
+| P3 detector stage | on-device TRT FP16, n=3 | **pinned 11.724 ms/frame** (x16 = 187.58, 60.5% of the 310.00 ms decision); **DVFS 14.246** (x16 = 227.94) | `bin8_` | same | `decision-latency-fp16-20261001T{222854,223216,223538}.json` / `decision-latency-fp16-20261001T{220144,220543,220925}.json` | 2026-10-01 | 0 | measured |
+| P3 detector p95/p50 ratio — DVFS tail penalty | same, n=3 | **pinned 1.03** (11.724 -> 12.030); **DVFS 1.51** (14.246 -> 21.575). DVFS widens the tail, not just the median | `bin8_` | same | same | 2026-10-01 | 0 | measured |
+| P3 postprocess (select + Shapely geometry, 16 frames) | on-device, CPU, n=3 | **47.352 ms pinned / 47.672 DVFS** — only -0.7% under a clock change that moves the detector -17.3%: **clock-insensitive, single-threaded Python, now the binding term** (15.3%) | `bin8_` | same | same | 2026-10-01 | 0 | measured |
+| P3 crop extraction, 54 crops | on-device, CPU, n=3 | 17.953 ms pinned / 18.801 DVFS (5.8%) | `bin8_` | same | same | 2026-10-01 | 0 | measured |
+| P3 appearance, batched 54 crops | on-device TRT FP16, n=3 | 19.343 ms pinned / 27.779 DVFS (6.2%) | `bin8_` | same | same | 2026-10-01 | 0 | measured |
+| P3 relation head, binary E3 | on-device TRT FP16, n=3 | **0.158 ms pinned / 0.284 DVFS = 0.05% of the decision** — the Transformer is free | `bin8_` | same | same | 2026-10-01 | 0 | measured |
+| frame decode, stream path (8 consecutive frames = 1 decision) | on-device, 20 real 1080p clips, CPU/FFMPEG (OpenCV built without GStreamer, **no NVDEC**), n=3 | **37.61 ms/decision pinned** (4.70 ms/frame), 43.41 DVFS — 12.1% of the decision | `bin8_` | same | same | 2026-10-01 | 0 | measured |
+| frame decode, seek-sampled 16 frames (offline token extraction only) | on-device, same 20 clips, n=3 | 5405.9 ms p50 pinned — **never add to the cadence figure**; ~144x the sequential cost | `bin8_` | same | same | 2026-10-01 | 0 | measured |
+| run-to-run repeatability of the decision measurement | n=3 per condition | **pinned 0.46% spread; DVFS 2.42%** — pinning the clocks is also what makes the measurement repeatable | `bin8_` | same | same | 2026-10-01 | 0 | measured |
+| P3 engine memory, all 4 P3 engines resident | on-device, P3 engine dir only | `engines_resident_delta_mb` = **251.1**, `n_engines_resident` = 4, host peak RSS 31.6 MB. Supersedes 417.84 (an 11-engine P1+P3 aggregate from the default dir). `device_used_mb` 3523.38 is system-wide unified memory, **not** a model footprint | `bin8_` | `--memory --engine-dir deployment/export/jetson-p3` | `memory-fp16-20261001T214413.json` | 2026-10-01 | 0 | measured |
+| P3 FP16 engine set size | on-device, rebuilt engines | **24.46 MB** (detector 21.543 + appearance 2.727 + bin-E3 head 0.190) | `bin8_` | `stat` on `deployment/export/jetson-p3` | device filesystem | 2026-10-01 | 0 | measured |
+| P3 per-stage energy, **total-board basis only** | on-device, VDD_IN, 60 s saturated/stage | detector 74.70 inf/s @ 17.06 W = **0.2284 J/inf**; appearance (54-crop batch) 41.34 @ 15.01 W = **0.3631 J/batch**; bin-E3 head 3705.0 @ 9.06 W = **0.00245 J/inf**. Composed: **4.02 J/decision**, head share **0.06%** | `bin8_` | `--energy <stage> --energy-sec 60` | `energy-p3-{detector,appearance,relation-head-bin-e3}-fp16-20261001T22*.json` | 2026-10-01 | 0 | measured |
+| _(do not quote)_ `*_delta_idle` energy figures | same artifacts | idle baseline recorded 6.841 / 5.618 / 7.509 W across three consecutive stages (**34% spread**, 55% including the concurrent R48 run's 4.842 W) because each takes only a 10 s window right after the previous stage's load. **`*_delta_idle` is not comparable across stages and is not quoted**; one settled 60 s baseline is being measured to repair it | `bin8_` | same | same | 2026-10-01 | 0 | measured, unusable |
+| **P3 per-decision latency incl. CPU frame decode, p50 crops (54)** — HEADLINE | on-device TRT FP16, MAXN_SUPER, n=3 | 331.19 / 328.88 / 329.69 ms = **3.02 / 3.04 / 3.03 dec/s** (margin 0.7-1.3%) | `bin8_` | `--decision --clips-dir data/test` | `decision-latency-fp16-20260929T{221836,223133,223401}.json` | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
+| **P3 per-decision latency incl. CPU frame decode, cap crops (128)** | same, n=3 | 385.15 / 382.30 / 383.73 ms = **2.60 / 2.62 / 2.61 dec/s — FAIL**; p95 **2.71-2.72**, p99 **2.64-2.66**, also FAIL | `bin8_` | same | same | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
+| P3 per-decision latency, p50 crops, **compute only, same 3 runs** | same, n=3 | 292.48 / 291.74 / 291.40 ms = **3.42 / 3.43 / 3.43 dec/s** (0.4% spread) | `bin8_` | same | same | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
+| P3 per-decision latency, cap crops, **compute only, same 3 runs** | same, n=3 | 346.44 / 345.16 / 345.44 ms = **2.89 / 2.90 / 2.89 dec/s — FAIL** | `bin8_` | same | same | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
+| _(decode-free process — not deployment-representative)_ compute only, 2 earlier runs | same, n=2, no `--clips-dir` | p50 275.97 / 272.40 ms = 3.62 / 3.67; cap 328.15 / 324.55 ms = 3.05 / 3.08 — **do not quote**: decode running in-process costs the detector +9.4% (11.85 -> 12.87 ms/frame), and no deployment decodes zero frames | `bin8_` | `--decision` (no clips) | `decision-latency-fp16-20260929T{214556,221408}.json` | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
+| P3 detector stage | on-device TRT FP16, n=3 | 12.846-12.903 ms/frame (x16 = **205.6 ms, 62% of the 331 ms decision**) | `bin8_` | same | same | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
+| P3 postprocess (select + Shapely geometry, 16 frames) | on-device, CPU, n=3 | 47.25-47.30 ms/decision (14.3%) | `bin8_` | same | same | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
+| P3 crop extraction, 54 crops | on-device, CPU, n=3 | 18.07-18.30 ms/decision (5.5%) | `bin8_` | same | same | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
+| P3 appearance, batched 54 crops | on-device TRT FP16, n=3 | 20.27-20.45 ms/decision (6.2%) | `bin8_` | same | same | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
+| P3 relation head, binary E3 | on-device TRT FP16, n=3 | **0.162-0.169 ms/decision (0.05%)** — the Transformer is free | `bin8_` | same | same | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
 | P1 per-stage latency (naive sum) | on-device TRT FP16 | see artifact — **`throughput_decisions_per_sec_naive` (73.051) is NOT a decision rate** | `bin8_` | `jetson-full-measurement.py --latency` | `deployment/artifacts/jetson-measurements/latency-fp16-20260929T212712.json` | 2026-09-29 | 0 | measured |
-| frame decode, stream path (8 consecutive frames = 1 decision) | on-device, 20 real 1080p clips, CPU/FFMPEG (OpenCV built without GStreamer, **no NVDEC**), n=3 | **4.643-4.839 ms/frame p50 -> 37.14-38.71 ms/decision** (11.7% of the decision) | `bin8_` | `--decision --clips-dir data/test` | `decision-latency-fp16-20260929T{221836,223133,223401}.json` | 2026-09-29 | 0 | measured |
-| frame decode, seek-sampled 16 frames (offline token extraction only) | on-device, same 20 clips, n=3 | 5577 / 5674 / 5614 ms p50 — **never add to the cadence figure**; 72x the sequential cost | `bin8_` | same | same | 2026-09-29 | 0 | measured |
+| frame decode, stream path (8 consecutive frames = 1 decision) | on-device, 20 real 1080p clips, CPU/FFMPEG (OpenCV built without GStreamer, **no NVDEC**), n=3 | **4.643-4.839 ms/frame p50 -> 37.14-38.71 ms/decision** (11.7% of the decision) | `bin8_` | `--decision --clips-dir data/test` | `decision-latency-fp16-20260929T{221836,223133,223401}.json` | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
+| frame decode, seek-sampled 16 frames (offline token extraction only) | on-device, same 20 clips, n=3 | 5577 / 5674 / 5614 ms p50 — **never add to the cadence figure**; 72x the sequential cost | `bin8_` | same | same | 2026-09-29 | 0 | **SUPERSEDED 2026-10-01** — engines did not match the device record; clock state unrecorded |
 | FP16 vs FP32 parity, 3 classifier stages (appearance, head-4class, head-bin-E3) | on-device TRT, argmax vs FP32 ref | **agreement 1.000 / 1.000 / 1.000**; max abs diff 2.53e-02 / 1.66e-03 / 0.0 | `bin8_` | `jetson-full-measurement.py --parity --rule argmax` | `deployment/artifacts/jetson-measurements/parity-20260929T221055.json` | 2026-09-29 | 0 | measured |
 | FP16 vs FP32 parity, detector stage | on-device | **NOT MEASURED — do not quote the 0.633 in the artifact** | `bin8_` | same | same | 2026-09-29 | 0 | placeholder |
 | energy per decision, **total attribution** | on-device, per-stage 30 s saturated runs, VDD_IN module total | **3.91 J/decision** = 16(0.22414) detector + 0.32017 appearance + 0.0015 head | `bin8_` | `--energy <stage> --energy-sec 30` | `energy-p3-{detector,appearance,relation-head-bin-e3}-fp16-2026092922{2624,2705,2811}.json` | 2026-09-29 | 0 | measured |
@@ -208,6 +225,105 @@ alignment.
 | engine sizes, FP16 deployment set | on-device TRT build | detector 21.457 + appearance 2.862 + head-bin-E3 0.190 = **24.5 MB** (FP32: 38.299 / 4.473 / 0.190) | `bin8_` | `--model-size` | `model-size-20260929T222545.json` | 2026-09-29 | 0 | measured |
 | ONNX↔PyTorch max abs logit diff, E3 | numerics only | 1.431e-06 | `bin8_` | `deployment/scripts/export-p3-relation-head-binary.py` | `deployment/export/MANIFEST.md` | 2026-09-19 | 0 | measured |
 | ONNX↔PyTorch max abs logit diff, E0 | numerics only | 2.623e-06 | `bin8_` | same | `deployment/export/MANIFEST.md` | 2026-09-19 | 0 | measured |
+
+## Block 3b — Edge / Jetson, R48 deployment path (B1: CLIP tower + temporal head)
+
+Orin Nano **Super** 8GB `phuongnguyen-desktop`, JetPack R36.5.0, TensorRT 10.3.0, nvpmodel 2
+(MAXN_SUPER), **default DVFS (clocks NOT pinned)**, device verified **quiet** (no competing
+measurement process) by the provenance block now embedded in every artifact. Engines built
+2026-10-01 and verified free of the stale-device warning. n=3 independent repeats, 100 runs each
+after 3 warmups. One class decision = **16 frames, whole frame, no detector**.
+
+Read `Block 3b-note` below before quoting anything here: three earlier runs today were withdrawn.
+
+| metric | protocol | value | token_tag | script | log_path | date | touch | status |
+|---|---|---|---|---|---|---|---|---|
+| **B1 class-decision compute latency** — HEADLINE | on-device TRT FP16, quiet, unpinned, n=3 | **23.796 / 23.731 / 23.958 ms = 42.02 / 42.14 / 41.74 dec/s** (0.95% spread) | `r48_` | `benchmark-r48-clip-pipeline.py --backend tensorrt --mode fp16 --runs 100 --detector --power --json` | `r48-pipeline-20261001T{223826,223853,223920}.json` | 2026-10-01 | 0 | measured |
+| CLIP ViT-B/32 vision tower, batch 16 | same, 87,849,216 params | p50 **23.386 / 23.335 / 23.567 ms**; p95 31.187 / 35.077 / 35.418; min 22.859-22.912 | `r48_` | same | same | 2026-10-01 | 0 | measured |
+| B1 temporal head, 3-seed ensemble, batch 1 | same, 603,270 params | p50 **0.410 / 0.396 / 0.391 ms**; p95 0.484-0.502 — the Transformer is free, as in P3 | `r48_` | same | same | 2026-10-01 | 0 | measured |
+| backbone share of class-decision compute | same, n=3 | **98.28 / 98.33 / 98.37%** | `r48_` | same | same | 2026-10-01 | 0 | measured |
+| **YOLOv11s localisation, isolated** — a *separate* obligation, never summed into the class decision | on-device TRT FP16 @imgsz **800**, batch 1, n=3 | p50 **12.636 / 13.001 / 12.741 ms/frame**; p95 14.638-14.736 | `r48_` | same | same | 2026-10-01 | 0 | measured |
+| YOLOv11s localisation, **with decode running in-process** | same, n=2 | p50 **13.317 / 14.491 ms/frame** — the decode tax the 09-29 session measured at +9.4%; quote the isolated figure for the stage and this one for a composed pipeline | `r48_` | `jetson-full-measurement.py --decision --engine-dir deployment/export/jetson-p3` | `decision-latency-fp16-20261001T{224529,224821}.json` | 2026-10-01 | 0 | measured |
+| frame decode, stream path (sequential, no seek) | on-device, 20 real 1080p clips, CPU/FFMPEG (**no NVDEC**), n=2 | p50 **5.047 / 5.091 ms/frame**, p95 6.259 / 6.943 -> **40.373 / 40.728 ms per 8-frame advance** | `r48_` | same | same | 2026-10-01 | 0 | measured |
+| frame decode, seek-sampled 16 frames | same, n=2 | **5815.9 / 5729.0 ms** — OFFLINE token extraction only; **never add to a cadence figure** (1150x the sequential cost per frame) | `r48_` | same | same | 2026-10-01 | 0 | measured |
+| **FP16 vs FP32 parity, full B1 decision path** | on-device TRT FP16 vs onnxruntime CPU FP32 ref, 24 real clips (12 hazard / 12 normal) | **decision agreement 1.000** (gate 1.000), **0 preprocessing mismatches**, max abs prob diff **2.66e-03** | `r48_` | `verify-r48-device-parity.py --mode fp16` | `r48-parity-fp16-20261001T224028.json` | 2026-10-01 | 0 | measured |
+| end-to-end per clip **incl. seek decode** | same 24 clips | p50 **1761.8 ms**, p95 4245.2, p99 5428.6 — this is the **offline file-evaluation path**; it is NOT the deployed cadence and must never be quoted as one | `r48_` | same | same | 2026-10-01 | 0 | measured |
+| **energy per class decision** | on-device, 60.015 s saturated tower run, 2508 invocations, VDD_IN module total | **0.4811 J/decision** total board; **0.36522 J/decision** marginal over idle; 41.789 inf/s, 20.105 W avg | `r48_` | `jetson-full-measurement.py --energy r48-clip-vit-b32-vision --energy-sec 60 --idle-sec 10` | `energy-r48-clip-vit-b32-vision-fp16-20261001T224142.json` | 2026-10-01 | 0 | measured |
+| engine sizes, B1 deployment set | on-device TRT build, FP16 | class path **175.9 MB** (tower 174.022 + head 1.874); + localisation 21.543 = **197.4 MB** total | `r48_` | `--model-size --engine-dir deployment/export/jetson-r48` | `model-size-20261001T224927.json` | 2026-10-01 | 0 | measured |
+| device memory, B1 set resident | on-device TRT FP16, 3 engines | resident delta **92.24 MB**; host peak RSS 31.441 MB — **artifact self-labels `quiet: false`**, re-measure before the freeze | `r48_` | `--memory --engine-dir deployment/export/jetson-r48` | `memory-fp16-20261001T224929.json` | 2026-10-01 | 0 | provisional |
+| reference: MobileNetV3-small appearance, batch 16 | same conditions, n=3 | p50 **7.336 / 7.710 / 7.645 ms** -> CLIP costs **3.06x** the appearance backbone it replaced (host CPU said 18.3x; see Block 3b-note 3) | `r48_` | same as headline | same | 2026-10-01 | 0 | measured |
+| _(declared second condition)_ same stages, **clocks pinned** by `jetson_clocks` | on-device TRT FP16, idle GPU, pinned, n=2 | tower p50 **23.481 / 23.167 ms**, p95 **24.084-25.359**; detector p50 **11.743 / 11.802 ms** | `r48_` | same as headline | `r48-pipeline-20261001T{222505,222511}.json` | 2026-10-01 | 0 | measured |
+
+### Block 3b-note — how these numbers were obtained, and what was thrown away
+
+1. **Three runs taken earlier the same evening are withdrawn.** A second session was measuring on the
+   same device. `r48-pipeline-20261001T221822.json` was taken while a concurrent 60 s energy sweep
+   saturated the GPU (tower 41.8 ms, detector 21.1 ms); `...222505/...222511` were taken while that
+   session had pinned all clocks. The spread between the contended run and the clean run is
+   **1.79x on the same engine and the same board**, and all three carried **byte-identical**
+   `device_state`, because `nvpmodel -q` still reads MAXN_SUPER under a clock pin and
+   `jetson_clocks --show` needs root and was serialised as null. Full account:
+   `reports/finding-2026-10-01-concurrent-session-contamination.md`. Closed in code by
+   `deployment/scripts/jetson-clock-state-utils.py`, folded into the shared `device_state()`, so every
+   artifact from this commit forward records per-policy CPU/GPU min/cur/max, a `clocks_pinned` flag,
+   `competing_processes` and `quiet`. The 22:38 headline runs carry `quiet: true`,
+   `clocks_pinned: {cpu: false, gpu: false, any: false}`, `competing_processes: []`.
+   **Consequence that is not comfortable: no device artifact written before this commit — 09-29
+   included, and note 8 records that 09-29 was also a multi-session day — can have contention or
+   pinning excluded from its own record.**
+
+2. **Pinning the clocks does not change the median; it removes the tail.** p50 is 23.17-23.48 ms
+   pinned against 23.34-23.57 ms unpinned (indistinguishable), while p95 is 24.1-25.4 ms pinned
+   against 31.2-35.4 ms unpinned. The DVFS ramp is a **tail** cost, not a throughput cost. The
+   detector, being batch-1 with shorter kernels, is the one stage pinning actually speeds up
+   (11.74-11.80 vs 12.64-13.00 ms, ~7%). Default DVFS is quoted as the headline because it is the
+   state the device boots and deploys in and the state the 09-29 numbers were taken in; the pinned
+   pair is kept above as a labelled condition, not merged.
+
+3. **The host-CPU extrapolation in Block 1c was wrong by 16x, and in the safe direction.** Block 1c
+   measured the tower at 375.0 ms on host CPU with the backbone at 99.9% of wall clock. On device it
+   is **23.386 ms** — 16.0x faster. The CLIP-vs-MobileNetV3 ratio also collapses from 18.3x on CPU to
+   **3.06x** on device: tensor cores and batch-16 amortisation favour the large regular GEMMs of a
+   ViT far more than they favour a small depthwise-separable CNN. Block 1c stays in the sheet as the
+   host number it always was, and the lesson is explicit: **a CPU ratio is not an edge ratio.**
+
+4. **No composed live-pipeline measurement exists for B1.** Everything above is per-stage. A duty
+   budget can be assembled from it — at 25 fps, localising every frame and deciding on the demo's
+   48-frame window with 24-frame stride: decode 25x5.047 = 126.2 ms, localisation 25x12.741 =
+   318.5 ms, classification 23.796/0.96 s = 24.8 ms, total **469.5 ms per second of video = 47.0%
+   duty, 2.1x headroom** — but this is a **naive stage sum**, the exact construction Block 3 already
+   warns against (`throughput_decisions_per_sec_naive` is not a decision rate). It may be reported as
+   a budget with that caveat attached and must not be presented as a measured cadence.
+
+5. **B1 against P3 on energy, since both now have a measured per-decision figure.** B1's class
+   decision costs **0.4811 J** (total board, head negligible); P3's costs **3.91 J** (Block 3, 16
+   detector invocations plus appearance plus head). **B1 is 8.1x cheaper per decision** while also
+   being the more accurate arm (+4.0 pp balanced accuracy, cluster CI includes 0 — the accuracy
+   claim is not certified at cluster resolution and the energy claim does not change that). The idle
+   baseline recorded here is **4.842 W** (10 s, n=19) against the 09-29 figure of 7.563 W (20 s,
+   n=40); per note 11 neither may be used to infer a power *profile*, and a concurrent session was
+   measuring a 60 s settled idle baseline at 22:54 which should supersede both.
+
+### Block 3b-adjudication — pre-registered predictions P1-P4
+
+Written 2026-10-01 in `deployment/JETSON-RUNBOOK-2026-10-01.md` **before any device number existed**,
+and not renegotiated. Adjudicated only against the quiet, unpinned 22:38 runs.
+
+| # | prediction | falsifier | measured | verdict |
+|---|---|---|---|---|
+| **P1** | tower batch-16 FP16 in **60-120 ms** | outside the band | **23.386 ms** (23.335-23.567, n=3) | **REFUTED** — 2.6x below the floor |
+| **P2** | per decision **100-160 ms** incl. decode -> **6-10 dec/s**; B1 **MEETS** the 3.0 dec/s contract | **< 3.0 dec/s** ⇒ refuted | compute **23.796 ms = 42.0 dec/s**; + stream decode at an 8-frame advance 64.17 ms = **15.6 dec/s**; at the demo's 24-frame advance 144.9 ms = **6.9 dec/s** | **CONFIRMED** on the falsifiable claim — nowhere near 3.0 dec/s. The band is **only** satisfied at a 24-frame advance; the prediction **failed to specify the stride**, which is a defect in the prediction and is recorded as one rather than resolved in its favour |
+| **P3** | backbone **>= 90%** of compute (decode excluded) | < 90% | **98.28 / 98.33 / 98.37%** | **CONFIRMED** |
+| **P4** | FP16 decision agreement **100%** on the 24-clip fixture | any disagreement ⇒ FP16 latency may **NOT** be quoted beside 84.4% accuracy | **1.000**, 0 preprocessing mismatches, max abs diff 2.66e-03 — obtained twice (22:20 contended, 22:40 clean); agreement is load-independent | **CONFIRMED** — FP16 latency may be quoted beside the accuracy |
+
+**Why P1 was wrong, stated plainly.** The 60-120 ms band came from FLOP-parity scaling off the
+09-29 detector: 70.4 GFLOPs per 16-frame decision against YOLOv11s' 14.7 GFLOPs/frame at 12.90 ms.
+That assumed the two graphs convert FLOPs to time at the same rate. They do not. ViT-B/32 at 224 is
+a short stack of large, regular GEMMs with a batch of 16 to amortise over — close to the best case
+for Orin's tensor cores — while YOLOv11s at 800 is batch-1, memory-bound, and spends much of its
+time in many small layers. **A detector is the wrong yardstick for a ViT**, and no amount of care
+with the arithmetic would have fixed a baseline that was wrong in kind. This is the one prediction
+of the four that was quantitative rather than directional, and it is the one that failed.
 
 ## Historical — 4-class task (context only, never joined into the binary tables)
 
@@ -415,3 +531,93 @@ the binary reframe. Any 4-class number that appears in the final thesis must fir
     ONNX models are present, so it is re-runnable — **but not on this machine**, because re-running
     here would silently substitute M3 numbers for numbers the chapter attributes to an M4 (note 15).
     A re-run was prepared and abandoned for that reason; nothing was overwritten. Blocked on note 15.
+
+17. **A shared device silently produced a 1.79× latency spread (2026-10-01).** Two sessions measured
+    on the same Orin Nano within the same half hour. One of my runs was taken while a concurrent
+    60 s energy sweep saturated the GPU, another while that session had pinned every clock with
+    `jetson_clocks`, and the quiet unpinned run came third — tower 41.8 / 23.5 / 23.4 ms on one
+    engine, one board, one power mode, one host commit. **All three carried byte-identical
+    `device_state`**: `nvpmodel -q` reports MAXN_SUPER under a full clock pin, and
+    `jetson_clocks --show` needs root so it was serialised as `null`, which is indistinguishable
+    from ordinary off-device degradation. Contention was not recorded at all, because Orin's
+    integrated GPU exposes no per-process accounting. Fixed in
+    `deployment/scripts/jetson-clock-state-utils.py` — sysfs-based, unprivileged, with
+    `clocks_pinned` returning `None` rather than `False` when nothing was read — folded into the
+    shared `device_state()` so all six measurement scripts inherit it, and warning on stderr at
+    measurement time. 12 tests in `tests/test-jetson-clock-state.py` against real sysfs/`/proc`
+    trees on disk. The guard fired correctly on its first live contention (the R48 memory run
+    self-labels `quiet: false`). Three artifacts withdrawn; see Block 3b-note 1 and
+    `reports/finding-2026-10-01-concurrent-session-contamination.md`. The consequence for the rest
+    of the sheet is the uncomfortable one: **no device artifact predating this commit can have
+    contention or pinning excluded from its own record**, and note 8 already establishes that
+    2026-09-29 was also a multi-session day. One cross-check survives: the 09-29 detector figure
+    (12.903 ms) sits inside today's clean spread (12.636–13.001 ms) on the same graph and
+    configuration, which is evidence that *that* row was taken quiet — for that row only.
+
+18. **Block 3 re-measured under two labelled clock conditions; all 09-29 decision rows superseded
+    (2026-10-01).** Every P3 decision-latency row in Block 3 was retaken on engines rebuilt for this
+    device, three repeats per condition, with the crop load and decode source unchanged. The result
+    is a **two-condition** finding, and the sheet now carries both: under default DVFS P3 misses
+    3.0 dec/s at every crop load including p50 (2.733, −8.9 %); with `jetson_clocks` pinned it
+    clears the contract **at p50 only** (3.226, +7.5 %) and still misses p95/p99/cap. Twelve 09-29
+    rows are marked SUPERSEDED above. Full derivation in
+    `reports/finding-2026-10-01-engine-provenance-invalidates-0929-latency.md`.
+
+    **The earlier attribution in this project was wrong and is withdrawn.** The p50 PASS→FAIL flip
+    was first attributed to the engine rebuild. The pinned condition disproves that: rebuilt engines
+    at pinned clocks are **faster than the 09-29 stale engines on every GPU term** (detector 11.724
+    vs 12.852; appearance 19.343 vs 20.274; head 0.158 vs 0.169). A rebuild that produced slower
+    engines cannot produce those numbers. The DVFS deficit is a **governor** result, not an engine
+    result.
+
+    **Correction to note 17's surviving cross-check.** Note 17 keeps the 09-29 detector row on the
+    grounds that 12.903 ms "sits inside today's clean spread (12.636–13.001 ms) on the same graph and
+    configuration". Same engine, yes — `r48-pipeline-…T223920.json` times
+    `p3-detector-fp16.engine` at 12.741 median — but **not the same configuration**: today's clean
+    spread is a *standalone* batch-1 loop with no decode in the process, while 09-29's 12.903 is an
+    *in-pipeline* figure with OpenCV decode running in-process. Unresolved 7 of this sheet already
+    establishes that decode-in-process costs the detector ≈ +9.4 %, so the two numbers are one
+    condition apart and their agreement is not evidence of a quiet device. Under the **matched**
+    condition (in-pipeline, with decode, DVFS) today's figure is **14.246 ms** — 09-29 is 9.4 %
+    *faster* than it, which is unexplained unless 09-29 ran at higher clocks. That is consistent
+    with, but does not prove, the inference that 09-29 was a near-max-clock session; its
+    `jetson_clocks_show` was null, so it cannot be assigned to either condition. **The 09-29
+    detector row is superseded rather than reinterpreted**, and note 17's cross-check should not be
+    relied on for it.
+
+19. **§5.6.8 rewritten in Vietnamese (2026-10-01).** Per the standing decision that the whole report
+    is Vietnamese in scientific-report register, and that new text is drafted directly in Vietnamese
+    rather than translated later, the rewritten §5.6.8 is Vietnamese. Chapter 5's remaining sections
+    are still English and await conversion. Table labels changed: the section's tables are now
+    **5.5J** (cadence, two clock conditions), **5.5K** (cost decomposition at pinned p50) and
+    **5.5L** (per-stage energy). This also fixes a real collision — 5.5G was previously used twice
+    in the same chapter, by the threat-to-control table at §5.6.6 and by the cadence table. Notes 12
+    and 13 above refer to the old 5.5G/5.5H/5.5I labels and to a 331.19 ms headline; both are
+    historical. The chapter-wide table lettering remains out of order (5.5A–5.5L appear as B, C, F,
+    D, G, A, J, K, L) and is a separate editorial cleanup.
+
+    **The provenance gap notes 12 and 13 describe is now closed.** All 27 artifacts from the
+    2026-10-01 session were rsynced from the device into
+    `deployment/artifacts/jetson-measurements/`, so §5.6.8 no longer rests on any device-only
+    reading: the energy table, the memory row and the n=3 spread are all locally re-openable. The
+    "five unmirrored device-only files" caveat in note 13 is discharged.
+
+20. **`*_delta_idle` energy figures are not quotable (2026-10-01).** The three P3 stage runs recorded
+    idle baselines of 6.841 / 5.618 / 7.509 W — a 34 % spread, 55 % including the concurrent R48
+    run's 4.842 W — because `run_energy` samples only a 10 s idle window immediately after the
+    previous stage's load, so the baseline carries residual heat and clock state. Every
+    `joules_per_inference_delta_idle` and `fps_per_watt_delta_idle` value in those artifacts is
+    therefore **not comparable across stages and is not quoted**.
+
+    **Repaired.** One settled 60 s baseline was taken on a quiet device — `idle_power_w` =
+    **4.691 W**, 118 samples, `clocks_pinned` false on both CPU and GPU, `competing_processes`
+    empty, `quiet: true`, load 0.08, 50 °C, GPU at its 306 MHz floor
+    (`energy-p3-relation-head-bin-e3-fp16-20261001T225523.json`). That is 20–60 % below all three
+    10 s baselines, confirming they measured decaying load rather than idle. Re-referencing the
+    three stage runs to this common baseline via the spec's own
+    `J/inference = (P_avg − P_idle) / fps` gives detector 0.16562 J, appearance 0.24961 J/batch,
+    bin-E3 head 0.00118 J, composing to **2.90 J/decision marginal** against **4.02 J/decision
+    total-board**; head share 0.041 % marginal. These are **derived** values, not artifact fields —
+    §5.6.8 Table 5.5M states the formula and inputs so they recompute. Caveat: the baseline was
+    taken with only the 0.190 MB head engine resident, so it is a lower bound on engine-resident
+    idle and the marginal figures are a mild upper bound.

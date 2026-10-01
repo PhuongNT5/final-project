@@ -147,6 +147,57 @@ device state attached.
 Steps 1–5. Step 6 is a nice-to-have; Step 4 alone, without Step 5, yields a latency number that
 cannot legitimately be printed next to the accuracy number.
 
+---
+
+## Outcome — session run 2026-10-01, 22:1x–22:49
+
+Steps 1–7 all run. **P1 refuted, P2 confirmed on its falsifiable claim, P3 confirmed, P4
+confirmed.** Numbers, verdicts and the reasoning are in
+`plans/2026-09-19-thesis-recovery-architecture/number-sheet.md` → Block 3b and
+Block 3b-adjudication. Nothing here was renegotiated after seeing results; P1's failure and the
+defect in P2's wording (no stride specified) are both recorded against the predictions as written.
+
+### The session's main lesson: a shared device needs a guard, not a check
+
+Two sessions were measuring at once. Step 4 and Step 5 were first run while a concurrent 60 s
+energy sweep saturated the GPU, and re-run while that session had pinned all clocks — a **1.79×
+spread** on the tower with **byte-identical provenance** in all three artifacts. A point-in-time
+idle check before launching is **not** sufficient: exactly that check passed at 22:11, and the
+competing sweep started afterwards.
+
+What worked is a device-side guard that **polls until the clocks are restored and no measurement
+process is running, settles 90 s, measures, then re-reads the state** — and aborts instead of
+measuring in a dirty window. Kept at `/tmp/r48-clean-window.sh` on the device; the pattern is worth
+re-creating rather than reusing a stale copy.
+
+Provenance is now self-describing: `deployment/scripts/jetson-clock-state-utils.py` records
+per-policy CPU/GPU min/cur/max, `clocks_pinned`, `competing_processes` and `quiet` into every
+artifact via the shared `device_state()`, and warns on stderr at measurement time. **Before quoting
+any device latency, check its artifact's `quiet` and `clocks_pinned` fields.** Artifacts written
+before 2026-10-01 22:38 do not carry them and cannot be cleared from the record alone.
+
+### Answers to the three unresolved questions above
+
+1. **Does the tower hit FP16 tensor cores?** Evidently yes, and better than predicted — 23.386 ms
+   for 70.4 GFLOPs is ~3.0 TFLOP/s effective, and the `trtexec --verbose` layer-precision dump was
+   never needed. There is no LayerNormalization fallback problem to chase.
+2. **INT8 for the tower?** Moot. FP16 clears the cadence contract by 14× at the demo's stride, so
+   INT8 buys nothing the thesis needs and would cost a CLIP calibration set that does not exist.
+3. **imgsz 640 vs 800.** The localisation figures above are **imgsz 800**, batch 1, stated as such
+   in every row — the same configuration as the 09-29 detector number, so the two are comparable.
+   The features were built at 640; that mismatch belongs to the concurrent imgsz-scaling work
+   (`finding-2026-10-01-cadence-levers.md`) and is not resolved here.
+
+### Still open after this session
+
+- Device memory for the B1 engine set is **provisional**: the artifact self-labels `quiet: false`
+  (`memory-fp16-20261001T224929.json`, 92.24 MB resident delta). Re-run
+  `--memory --engine-dir deployment/export/jetson-r48` in a quiet window.
+- No **composed** live-pipeline measurement exists for B1 — only per-stage numbers and a stage-sum
+  duty budget (Block 3b-note 4), which must not be presented as a measured cadence.
+- The idle power baseline disagrees between sessions (4.842 W here, 7.563 W on 09-29). A concurrent
+  session measured a 60 s settled baseline at ~22:54 which should supersede both.
+
 ## Unresolved questions
 
 1. Does the exported tower graph hit Orin's FP16 tensor cores at all, or does opset-18

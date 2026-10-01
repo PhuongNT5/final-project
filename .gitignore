@@ -79,3 +79,12 @@ deployment/export/r48-clip-vit-b32-vision-fp32.onnx
 deployment/export/r48-clip-vit-b32-vision-fp32.onnx.data
 # Detector checkpoint, same treatment as yolo11s.pt above.
 yolo26s.pt
+
+# TensorRT engines are device-specific -- an engine built on this Orin Nano is not loadable on
+# another board (the deserialiser warns and the plan is rebuilt), so they carry no value in
+# history, and the CLIP tower engine alone is 174 MB, over GitHub's 100 MB per-file limit.
+# deployment/export/jetson-p3/ and jetson-r48/ hold per-pipeline symlink subsets because the
+# shared jetson/ dir mixes engine build dates; all of them are rebuilt on the device.
+deployment/export/jetson/
+deployment/export/jetson-*/
+*.engine
