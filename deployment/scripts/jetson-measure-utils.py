@@ -28,12 +28,25 @@ def percentiles(xs):
             'p99': round(float(np.percentile(a, 99)), 3), 'n': len(xs)}
 
 
+# The rsync to the device excludes .git, so `git rev-parse` there returns nothing and every
+# device JSON from the 2026-09-29 session recorded 'unknown' -- a measurement that cannot be tied
+# to the code that produced it. jetson-rsync-from-mac.sh now stamps the host commit into this file
+# as part of the transfer, and it is the fallback below.
+HOST_COMMIT_FILE = os.path.join(ROOT, 'deployment', 'artifacts', 'host-commit.txt')
+
+
 def git_commit():
     try:
         out = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=ROOT,
                              capture_output=True, text=True, timeout=5)
-        return out.stdout.strip() if out.returncode == 0 else 'unknown'
+        if out.returncode == 0 and out.stdout.strip():
+            return out.stdout.strip()
     except Exception:
+        pass
+    try:
+        with open(HOST_COMMIT_FILE) as f:
+            return f.read().strip() or 'unknown'
+    except OSError:
         return 'unknown'
 
 
