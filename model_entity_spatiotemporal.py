@@ -86,6 +86,11 @@ class EntitySpatioTemporal(nn.Module):
         self.head = nn.Linear(d, n_cls)
 
     def forward(self, app, geom, mask):
+        return self.head(self.encode(app, geom, mask))
+
+    def encode(self, app, geom, mask):
+        """-> the clip state, before the classifier. Split out so TwoStreamFusion reuses this arm
+        exactly as G14 evaluated it, rather than a copy that could drift from it."""
         b, t, n, _ = app.shape
         x = self.tok(app, geom).reshape(b * t, n, -1)
         x = torch.cat([self.frame_cls.expand(b * t, -1, -1), x], 1)
@@ -96,7 +101,7 @@ class EntitySpatioTemporal(nn.Module):
         m = torch.where(empty.unsqueeze(1), torch.ones_like(m), m)
         pad = torch.cat([torch.zeros(b * t, 1, dtype=torch.bool, device=x.device), m < 0.5], 1)
         frames = self.snorm(self.spatial(x, src_key_padding_mask=pad)[:, 0]).reshape(b, t, -1)
-        return self.head(self.temporal(frames, (mask.sum(-1) > 0).float()))
+        return self.temporal(frames, (mask.sum(-1) > 0).float())
 
 
 class WholeFrameTemporal(nn.Module):
@@ -110,7 +115,54 @@ class WholeFrameTemporal(nn.Module):
         self.head = nn.Linear(d, n_cls)
 
     def forward(self, frames, valid):
-        return self.head(self.temporal(self.proj(frames), valid))
+        return self.head(self.encode(frames, valid))
+
+    def encode(self, frames, valid):
+        """-> the clip state, before the classifier. See EntitySpatioTemporal.encode."""
+        return self.temporal(self.proj(frames), valid)
+
+
+class TwoStreamFusion(nn.Module):
+    """TSF (G18) — the entity stream and the whole-frame stream, fused by attention.
+
+    G14 settled that the entity decomposition does not *replace* a whole-frame representation. What
+    it left open is whether it *complements* one, and the measured answer was yes: on the LSO-1100
+    OOF vectors the two arms' correctness vectors correlate at phi=0.49, against 0.86 for two
+    whole-frame variants of the same family, with 91.2% oracle against 84.4% best-single. They fail
+    on different clips.
+
+    So both arms are kept whole -- `EntitySpatioTemporal` and `WholeFrameTemporal` exactly as G14
+    evaluated them -- and their clip states become a 2-token sequence that a CLS attends over. A
+    learned stream embedding tells the fusion block which token is which; the fusion is learned
+    jointly with both arms, not a post-hoc average of two frozen models (that shortcut is what the
+    banned complementarity sweep did, and its numbers are selection statistics, not measurements).
+
+    Auxiliary heads on each arm carry lambda=esta_training.AUX_W of the loss, the same weight the binary relation
+    heads in this repo already use. Without them the fusion block can starve one arm and the model
+    quietly collapses to a single stream, which would make a PASS unreadable.
+    """
+
+    def __init__(self, d=128, heads=4, ff=256, dropout=0.1, n_cls=2, t_max=16, f_layers=1):
+        super().__init__()
+        self.entity = EntitySpatioTemporal(d, heads, ff, 1, 1, dropout, n_cls, t_max)
+        self.frame = WholeFrameTemporal(d, heads, ff, 1, dropout, n_cls, t_max)
+        self.cls = nn.Parameter(torch.zeros(1, 1, d))
+        self.stream = nn.Parameter(torch.zeros(1, 2, d))
+        nn.init.trunc_normal_(self.cls, std=0.02)
+        nn.init.trunc_normal_(self.stream, std=0.02)
+        self.fuse = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), f_layers)
+        self.norm = nn.LayerNorm(d)
+        self.head = nn.Linear(d, n_cls)
+
+    def forward(self, app, geom, mask, frames, valid):
+        """-> (fused logits, entity-arm logits, frame-arm logits). The aux logits are returned
+        rather than scored internally so the loss stays visible in the training loop."""
+        e = self.entity.encode(app, geom, mask)
+        f = self.frame.encode(frames, valid)
+        x = torch.stack([e, f], 1) + self.stream
+        x = torch.cat([self.cls.expand(x.shape[0], -1, -1), x], 1)
+        z = self.norm(self.fuse(x)[:, 0])
+        return self.head(z), self.entity.head(e), self.frame.head(f)
 
 
 def count_params(m):

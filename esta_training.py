@@ -14,12 +14,16 @@ import torch
 import torch.nn as nn
 
 from eval_utils.metrics import macro_accuracy
-from model_entity_spatiotemporal import EntitySpatioTemporal, WholeFrameTemporal, count_params
+from model_entity_spatiotemporal import (EntitySpatioTemporal, TwoStreamFusion,
+                                         WholeFrameTemporal, count_params)
 from run_relation_transformer import class_weights, set_seed
 
 DEVICE = 'cpu'
 BS = 32
 EPOCHS = 60
+# Weight on each stream's auxiliary head (G18/TSF). Fixed at the value the binary relation heads
+# in this repo already use, so it is inherited convention rather than a knob tuned on these folds.
+AUX_W = 0.3
 
 
 def build(name, in_dim=None):
@@ -28,11 +32,22 @@ def build(name, in_dim=None):
     amendment 2026-09-29, before any of these models had been trained)."""
     if name == 'ESTA':
         return EntitySpatioTemporal()
+    if name == 'TSF':
+        # G18: both G14 arms kept whole, fused by attention. Pre-registered in risks.md before this
+        # model existed; the configuration below is that registration and is not to be tuned.
+        return TwoStreamFusion()
     kw = {'in_dim': in_dim} if in_dim else {}
     if name == 'B1':
         return WholeFrameTemporal(t_layers=1, **kw)
     if name == 'B1w':
         return WholeFrameTemporal(t_layers=2, **kw)
+    if name == 'B1xl':
+        # G18 capacity control, pre-registered 2026-09-29 BEFORE the TSF result was visible.
+        # Chosen by a rule, not by score: of the whole-frame configurations, the one whose
+        # parameter count is closest to TSF's 686,726 -- which lands at 696,962, i.e. 1.5% LARGER
+        # than the fusion model. If TSF beats this, "the two-stream model simply has more
+        # parameters" is not an available explanation.
+        return WholeFrameTemporal(d=192, heads=4, ff=384, t_layers=2, **kw)
     if name == 'B2':
         # G16's honest strong opponent: same head, video-pretrained backbone (VideoMAE-base, 768-d
         # per tubelet state). If this beats ESTA the entity pipeline is not justified on accuracy.
@@ -44,6 +59,11 @@ def parts_for(name, feats, idx):
     """Model inputs for a set of clip rows. ESTA sees entities; the baselines see frame vectors."""
     if name == 'ESTA':
         return (feats['entity'][idx], feats['geom'][idx], feats['mask'][idx])
+    if name == 'TSF':
+        # Both streams come from the SAME feature file, so the fusion adds no extraction cost and
+        # cannot be fed a different corpus than the arms it is compared against.
+        return (feats['entity'][idx], feats['geom'][idx], feats['mask'][idx],
+                feats['wholeframe'][idx], (feats['mask'][idx].sum(-1) > 0).float())
     fr = feats['wholeframe'][idx]
     # B1/B1w reuse ESTA's own frame-validity so the two differ only by the entity axis. A backbone
     # with no detector pass (B2) has no such mask: every state it emits is valid by construction.
@@ -64,8 +84,12 @@ def _epoch(model, parts, y, opt, lossfn, train):
     for i in range(0, n, BS):
         sel = order[i:i + BS]
         logits = _forward(model, [p[sel] for p in parts])
+        aux = ()
+        if isinstance(logits, tuple):
+            logits, *aux = logits
         if train:
-            loss = lossfn(logits, y[sel].to(DEVICE))
+            yt = y[sel].to(DEVICE)
+            loss = lossfn(logits, yt) + AUX_W * sum(lossfn(a, yt) for a in aux)
             opt.zero_grad(); loss.backward()
             nn.utils.clip_grad_norm_(model.parameters(), 1.0)
             opt.step()
@@ -100,6 +124,8 @@ def predict_softmax(model, name, feats, idx):
     model.eval()
     parts = parts_for(name, feats, idx)
     out = [_forward(model, [p[i:i + BS] for p in parts]) for i in range(0, len(idx), BS)]
+    # TSF returns (fused, aux_entity, aux_frame); only the fused head is the model's prediction.
+    out = [o[0] if isinstance(o, tuple) else o for o in out]
     return torch.softmax(torch.cat(out).cpu(), 1)
 
 

@@ -71,7 +71,7 @@ def finalise(model, tag_suffix, yn, y, pred, soft, clip_ids, groups, seeds, n_gr
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--model', default='ESTA', choices=['ESTA', 'B1', 'B1w', 'B2'])
+    ap.add_argument('--model', default='ESTA', choices=['ESTA', 'B1', 'B1w', 'B2', 'TSF', 'B1xl'])
     ap.add_argument('--seeds', type=int, default=3)
     ap.add_argument('--epochs', type=int, default=T.EPOCHS)
     ap.add_argument('--folds', type=int, default=10)

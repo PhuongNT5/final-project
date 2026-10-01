@@ -70,3 +70,12 @@ data/isafetybench/
 # 146 MB of YOLO best.pt/last.pt; best.pt is referenced by
 # tools/count-actors-in-contradictory-clips.py, so the files stay on disk, just out of history.
 runs/**/weights/*.pt
+
+# R48 lane: the CLIP ViT-B/32 vision tower exports at 351 MB fp32, over GitHub's 100 MB hard
+# per-file limit -- a push carrying it would be rejected outright. Every other graph in
+# deployment/export/ is 48 MB or under and stays tracked. Rebuild it with
+# deployment/scripts/export-clip-vision-tower.py; the weights come from the HF cache, not this repo.
+deployment/export/r48-clip-vit-b32-vision-fp32.onnx
+deployment/export/r48-clip-vit-b32-vision-fp32.onnx.data
+# Detector checkpoint, same treatment as yolo11s.pt above.
+yolo26s.pt

@@ -1,4 +1,4 @@
-"""Mechanical adjudication of the pre-registered R48 gates G14/G15/G16.
+"""Mechanical adjudication of the pre-registered R48 gates G14/G15/G16 and G18.
 
 The thresholds below are copied from risks.md, which was written before any of these models existed.
 They are constants in this file so the verdict is computed, not decided after seeing the numbers: if
@@ -17,13 +17,16 @@ from eval_utils.cluster_bootstrap import balanced_accuracy, paired_metric_cluste
 from eval_utils.paired_tests import mcnemar_exact
 
 TOK = 'sweep_results/relation_tokens'
-MARGIN = 3.0          # pp, pre-registered for G14 and G15
+MARGIN = 3.0          # pp, pre-registered for G14, G15 and G18a
+G18B_MARGIN = 2.0     # pp, pre-registered second tier for G18 (risks.md, before the run)
 ALPHA = 0.05
 RUNS = {'ESTA': f'{TOK}/enc_isbclip_ESTA_lso-1100_headline-none_oof.json',
         'B1': f'{TOK}/enc_isbclip_B1_lso-1100_headline-none_oof.json',
         'B1w': f'{TOK}/enc_isbclip_B1w_lso-1100_headline-none_oof.json',
         'B2': f'{TOK}/enc_isbclip_B2_lso-1100_headline-none_oof.json',
-        'E0@64d': f'{TOK}/enc_isb_E0_lso-1100_headline-none_oof.json'}
+        'E0@64d': f'{TOK}/enc_isb_E0_lso-1100_headline-none_oof.json',
+        'TSF': f'{TOK}/enc_isbclip_TSF_lso-1100_headline-none_oof.json',
+        'B1xl': f'{TOK}/enc_isbclip_B1xl_lso-1100_headline-none_oof.json'}
 
 
 def _loader():
@@ -62,6 +65,59 @@ def show(r):
     return excl
 
 
+
+def adjudicate_g18(runs):
+    """G18: the two-stream fusion against the incumbent best single stream.
+
+    Two tiers, both written into risks.md before the model existed. The weak tier exists because
+    R41 (151 sources, 0 carrying both classes) makes a cluster CI excluding 0 unreachable for any
+    margin this lane can produce -- but a gate that can only fail is not a gate, so the weak tier
+    states in advance exactly which weaker claim a significant paired test would license.
+    """
+    print("\n=== G18: two-stream fusion (TSF) vs the incumbent best single stream ===")
+    base = 'B1w'          # pre-registered baseline, not best-of-N chosen after the fact
+    print(f'  baseline = {base} (pre-registered as the incumbent best single stream, 84.4%)')
+    r = paired('TSF', base, runs)
+    excl = show(r)
+    strong = r['diff'] >= MARGIN and excl and r['p'] < ALPHA
+    weak = r['diff'] >= G18B_MARGIN and r['p'] < ALPHA
+    if strong:
+        print(f'  VERDICT: G18a PASS (strong) -- may claim the two-stream architecture '
+              f'outperforms the whole-frame baseline.')
+    elif weak:
+        print(f'  VERDICT: G18b PASS (weak) -- may claim ONLY that the streams are complementary '
+              f'and fusion improves accuracy on this corpus.')
+        print('    Mandatory caveat: at 151 sources with 0 carrying both classes (R41), '
+              'source-level generalisation of a margin this size is not certifiable.')
+        print('    Forbidden: any unqualified superiority claim; the clip-level CI as headline.')
+    else:
+        print(f'  VERDICT: FAIL (needs >= {G18B_MARGIN} pp and p < {ALPHA} for the weak tier)')
+        print('  -> pre-registered consequence: the entity stream adds nothing even as a '
+              'complementary view. Thesis headlines B1/B1w; YOLO is localisation + edge.')
+    # The aux arms are not the contribution, but a fusion that lost to its own entity arm would
+    # mean the fusion block is harming the model, and that must surface rather than hide.
+    if 'ESTA' in runs:
+        print('\n  [control] TSF vs its own entity arm, to catch a fusion block that hurts:')
+        show(paired('TSF', 'ESTA', runs))
+
+    # Pre-registered capacity condition: a PASS must also survive a LARGER whole-frame model.
+    if 'B1xl' in runs:
+        print('\n  [capacity control] TSF (686,726 params) vs B1xl (696,962 -- 1.5% LARGER):')
+        rc = paired('TSF', 'B1xl', runs)
+        exc = show(rc)
+        tier = ('G18a' if rc['diff'] >= MARGIN and exc and rc['p'] < ALPHA
+                else 'G18b' if rc['diff'] >= G18B_MARGIN and rc['p'] < ALPHA else 'FAIL')
+        print(f'    capacity condition reaches: {tier}')
+        if strong and tier != 'G18a':
+            print('    -> G18a is NOT sustained: the strong claim required the same tier against '
+                  'B1xl. Report at the tier the capacity control supports, per the registration.')
+        elif (strong or weak) and tier == 'FAIL':
+            print('    -> CLAIM WITHDRAWN: TSF does not beat a larger whole-frame model, so the '
+                  'fusion result is a capacity effect and the entity stream gets no credit.')
+        elif strong or weak:
+            print('    -> capacity condition SUSTAINED; "it is simply bigger" is not available.')
+
+
 def main():
     load = _loader()
     runs, missing = {}, []
@@ -90,6 +146,9 @@ def main():
         r = paired('ESTA', 'E0@64d', runs)
         excl = show(r)
         print(f"  VERDICT: {'PASS' if r['diff'] >= MARGIN and excl else 'FAIL'}")
+
+    if {'TSF', 'B1w'} <= set(runs):
+        adjudicate_g18(runs)
 
     if {'ESTA', 'B2'} <= set(runs):
         print("\n=== G16 (honest strong opponent): ESTA vs frozen Kinetics VideoMAE ===")
