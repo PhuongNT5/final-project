@@ -59,7 +59,8 @@ Created: `model_entity_spatiotemporal.py`, `esta_training.py`, `run-esta-lso.py`
 `frame_sampling.py`, `build-isafetybench-clip-features.py`,
 `build-isafetybench-videomae-features.py`, `train-esta-deployment-checkpoint.py`,
 `tools/adjudicate-r48-gates.py`, `tests/test-esta-alignment-and-guards.py`,
-`demo/esta-window-pipeline.py`, `demo/run-esta-demo.py`.
+`demo/b1-window-pipeline.py`, `demo/run-unsafe-behavior-demo.py` (both created under their
+`esta-` names and renamed 2026-10-01 when the demo was realigned onto the B1 decision path).
 Modified: `plan.md`, `risks.md`.
 
 ## Implementation Steps
