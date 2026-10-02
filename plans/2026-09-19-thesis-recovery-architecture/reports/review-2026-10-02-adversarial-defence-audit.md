@@ -669,6 +669,70 @@ selection *undisclosed*, and found §4.1 had already named the file, the functio
 the line. The frozen branch is clean. Only the bbox branch's identical criterion was
 missing from the sentence.
 
+### 16. Chapter 5's multi-stream "real-time" claim is reader-limited, not met
+
+Started as a small errand — ch06 cites a 49.2 FPS soak throughput that Table 5.5F
+had no row for — and the row would not write honestly.
+
+`multi-stream-jetson-fp16-realtime.json` records `elapsed_sec` per config. Each
+stream reads 240 frames = **8.00 s of 30 FPS footage**, and every configuration takes
+longer than that: 9.884 s at N = 1 (+23.6 %), 9.966 at N = 2 (+24.6 %), 10.202 at
+N = 3 (+27.5 %), 10.902 at N = 4 (+36.3 %). Per-stream delivered rates are
+24.28 / 24.08 / 23.52 / 22.02 FPS — all below the 30 the reader is asked for. So the
+chapter's headline "four concurrent cameras at 30 FPS source pacing are sustained
+with **zero dropped frames**" is true in its drop count and false in its premise: the
+reader under-delivers, the 4-slot queue never fills, and nothing drops. Zero drops
+here is evidence about the reader, not about the pipeline holding live pace.
+
+The inference side is genuinely fast (head p50 6.8–7.0 ms, flat in N), so the
+shortfall is harness I/O, not the model — which is the defensible version and now
+what the chapter says. Caption changed from "real-time pacing (30 FPS source)" to
+"30 FPS *requested* reader pacing … delivered 22–24 FPS". ch06's Finding 1 keeps its
+measured numbers and gains the clause.
+
+### 17. The "GPU saturation point" counted frames it threw away (a 20-day-old open item)
+
+Needed a ceiling to say whether 4×30 FPS was even reachable, so I went to the
+unbounded sweep. Its 136.89 FPS at N = 4 **counts the 328 of 960 frames it dropped**:
+`aggregate_fps` in that artifact reproduces exactly as frames-read ÷ elapsed, and the
+file carries no `total_processed` / `read_fps` key because it predates the accounting
+fix now at `stream-pipeline-utils.py:156` (guarded by
+`tests/test_stream_fps_accounting.py`). Processed-only:
+
+| N | published | dropped | correct |
+|---|---:|---:|---:|
+| 1 |  78.78 |   0 |  78.78 |
+| 2 | 103.00 |   0 | 103.00 |
+| 3 | 119.27 |  96 | 103.36 |
+| 4 | 136.89 | 328 |  90.12 |
+
+The ceiling is **≈ 103 FPS at N = 2–3** and throughput *falls* to 90 at N = 4. It never
+approaches 137. This inverts the answer to finding 16's open question: 4 × 30 = 120 FPS
+is **above** the measured ceiling, so four streams at a true 30 FPS is excluded by
+measurement, not merely undemonstrated. Three streams (90 FPS) fits.
+
+Two things to be clear about. **This is not my find.** `review-2026-09-13-edge-deployment.md`
+H4 named it, named the line, and prescribed `(960−328)/elapsed` — the exact arithmetic
+above — and `review-2026-09-13-thesis-alignment.md` carried it as action item 14. The
+**code** was fixed (b694102 added the `processed` counter and the regression test); the
+**chapter text was never updated**, so the thesis has been printing the inflated figure
+for 20 days with the fix sitting in the repo. Worth naming as a failure mode distinct
+from anything in findings 1–15: *a fix applied to code and not to prose*. A sweep over
+artifacts (finding 11's complement) would not have caught this either — the artifact is
+cited and unchanged; what moved was the code that interprets it.
+
+**And the 54 % was invented.** The same paragraph claimed "approximately 54% headroom"
+for the 30 FPS surveillance case. It derives from no Jetson artifact. The only other
+54 % in the chapter is the **batch-utilisation** cell of Table 5.4's M3 N = 2 row — an
+unrelated quantity in an unrelated table on unrelated hardware. A numeral migrated
+across tables and acquired a new meaning. Withdrawn; replaced by the computed 85 % of
+ceiling / ≈ 15 % headroom.
+
+Scope check, deliberately: every zero-drop row in ch05 — Tables 5.4, 5.5C, soak 5.5F —
+is **unaffected**, because read and processed counts coincide when nothing is dropped.
+Only the two drop-bearing unbounded rows moved. H5's emit-cadence gate keys off the
+same read count, so those two rows' `n_predictions` are unreliable as well; also noted.
+
 ### Method note, revised
 
 The 10-02 note said: check prose against the artifact. This sweep shows the arrow

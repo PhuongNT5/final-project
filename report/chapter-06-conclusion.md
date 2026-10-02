@@ -61,6 +61,11 @@ entropy calibration **8.24 ms / 121 FPS**; **4-stream zero-drop
 throughput demonstrated (88 FPS aggregate, Table 5.5C)**; and a **2-stream
 soak sustained for 36.2 minutes at 49.2 FPS aggregate (24.6 FPS per stream)
 with zero dropped frames**
+(the per-stream rates in both multi-stream results are **reader-limited below
+30 FPS** — the harness delivers 22–24 FPS against the 30 it requests, so the
+zero-drop result reflects a reader that under-delivers rather than a pipeline
+holding live pace; the 116 FPS single-stream figure is the real-time claim,
+and §5.6.3's pacing caveat quantifies the multi-stream shortfall)
 at **7.03 W average power** (peak 7.34 W; junction temperature ≈ 24 °C
 below throttle at steady-state, 23 °C at peak). The absolute watts are the
 claim — the power *profile* in force during that June run was not logged,

@@ -360,8 +360,8 @@ The headline result of this chapter is a **deployment** result, not an
 accuracy result. The deployed (best-case) checkpoint runs at 116 FPS
 single-stream while sustaining a 2-stream soak for 36.2 minutes with zero
 dropped frames at 7.0 W, plus separately a 4-stream zero-drop throughput burst
-(88 FPS aggregate, Table 5.5C) — and **no published baseline
-demonstrates edge real-time multi-stream inference for this task**, so the
+(88 FPS aggregate = 22 FPS per stream, Table 5.5C) — and **no published
+baseline reports edge multi-stream inference for this task at all**, so the
 deployment opens an operating point unreachable from the server-only
 baselines [5]. On accuracy the P1 checkpoint exported here shows 89.28% macro under
 test-selected evaluation, but the honest leakage-free estimate for the best
@@ -467,8 +467,8 @@ an industrial site rarely has only one camera. The pipeline runs four
 async readers feeding a single shared TRT inference loop; the per-stream
 sliding window of 32 frames is updated independently per stream.
 
-**Table 5.5C — Multi-stream FPS, real-time pacing (30 FPS source, 240
-frames per stream)**
+**Table 5.5C — Multi-stream FPS, 30 FPS *requested* reader pacing (240
+frames per stream; delivered 22–24 FPS — see caveat)**
 
 | N streams | Aggregate FPS | Per-stream FPS | Dropped frames | Head latency p50 |
 |---|---|---|---|---|
@@ -479,29 +479,94 @@ frames per stream)**
 
 Source: `deployment/artifacts/multi-stream-jetson-fp16-realtime.json`.
 
-Four concurrent cameras at 30 FPS source pacing are sustained with **zero
-dropped frames**. The per-stream FPS gap (24 vs 22 from N=1 to N=4) is
-scheduling jitter at the reader, not inference saturation: head latency
-p50 remains essentially constant at 6.8 ms across all N, indicating the
-GPU is well below its operating envelope. (As on the M3, the N = 1 async
+Four concurrent cameras are sustained with **zero dropped frames**. The
+per-stream FPS gap (24 vs 22 from N=1 to N=4) is scheduling jitter at the
+reader, not inference saturation: head latency p50 remains essentially
+constant at 6.8 ms across all N, indicating the GPU is well below its
+operating envelope.
+
+> **Pacing caveat (added 2026-10-03) — "30 FPS source" is the harness's
+> *intent*, not its delivered rate.** The artifact records `elapsed_sec` per
+> configuration, and every configuration takes longer than the video it
+> consumes. Each stream reads 240 frames, which is 8.00 s of 30 FPS footage:
+>
+> | N | elapsed (s) | video consumed (s) | over wall-clock | per-stream FPS |
+> |---|---:|---:|---:|---:|
+> | 1 |  9.884 | 8.00 | +23.6 % | 24.28 |
+> | 2 |  9.966 | 8.00 | +24.6 % | 24.08 |
+> | 3 | 10.202 | 8.00 | +27.5 % | 23.52 |
+> | 4 | 10.902 | 8.00 | +36.3 % | 22.02 |
+>
+> So the zero-drop result is real but it is a property of a reader that
+> **under-delivers**: `cv2.VideoCapture` decode plus event-loop cost hold the
+> reader at 22–24 FPS, below the 30 FPS it is asked for, so the 4-slot queue
+> never overflows and nothing is dropped. A true 30 FPS live source would
+> require 120 FPS aggregate at N = 4, which the corrected unbounded sweep
+> below places **above this device's measured ceiling of ≈ 103 FPS** — so
+> four streams at a genuine 30 FPS is excluded by measurement, not merely
+> undemonstrated. Three streams at 30 FPS (90 FPS aggregate) sits inside it.
+> The defensible claim is the measured one: **four concurrent streams at
+> 22 FPS each with zero drops and 6.8 ms head p50**, with the shortfall
+> located in the reader, not the model. The same caveat applies to the N = 2
+> soak of Table 5.5F (24.62 FPS per stream). (As on the M3, the N = 1 async
 aggregate of 24.3 FPS is below the 116 FPS synchronous single-stream
 benchmark of §5.6.2 for the same harness-overhead reason given in §5.5.2 —
 event-loop and batch-bucket cost with nothing to amortize against at N = 1;
 the synchronous 116 FPS is the single-stream latency figure of record.) A separate unbounded-throughput
-sweep (where readers run as fast as `cv2.VideoCapture` allows) caps the
-aggregate at 136.89 FPS at N=4 with 328 of 960 frames dropped in total
-(~82 of ~240 per stream), identifying the GPU saturation point. For the 30 FPS surveillance use
-case the GPU has approximately 54% headroom for additional streams or
-for higher-rate workloads.
+sweep (where readers run as fast as `cv2.VideoCapture` allows) identifies the
+saturation point.
 
-A **36.2-minute sustained soak at N=2** validates production-readiness.
-≈ 107,000 frames were inferenced with zero drops while
-`tegrastats --interval 1000` logged thermal and power at 1 Hz.
+> **Accounting correction (2026-10-03) — the unbounded sweep's headline FPS
+> counted dropped frames.** `multi-stream-jetson-fp16-unbounded.json` predates
+> the FPS-accounting fix (`deployment/scripts/stream-pipeline-utils.py:156` now divides
+> **processed** frames by elapsed, with `tests/test_stream_fps_accounting.py`
+> as the regression guard); the artifact carries no `total_processed` or
+> `read_fps` key, and its `aggregate_fps` reproduces exactly as
+> frames-*read* ÷ elapsed. Where nothing was dropped this is identical; where
+> frames were dropped it is the inflation §5.5.1 says the harness was fixed
+> to avoid. Recomputed from processed frames only:
+>
+> | N | read FPS (as published) | dropped | **processed FPS (correct)** |
+> |---|---:|---:|---:|
+> | 1 |  78.78 |   0 |  **78.78** |
+> | 2 | 103.00 |   0 | **103.00** |
+> | 3 | 119.27 |  96 | **103.36** |
+> | 4 | 136.89 | 328 |  **90.12** |
+>
+> So the device's aggregate inference ceiling is **≈ 103 FPS, reached at
+> N = 2–3**, and at N = 4 throughput *falls* to 90 FPS — it does not climb to
+> 137. The paced 4-stream configuration of Table 5.5C (88.06 FPS, zero drops)
+> therefore runs at **≈ 85 % of the measured ceiling**, leaving roughly 15 %
+> headroom, not the "approximately 54 %" this paragraph previously claimed.
+> That 54 % was not derived from any Jetson artifact: the only other 54 % in
+> this chapter is the **batch-utilisation** cell of Table 5.4's M3 N = 2 row,
+> an unrelated quantity. The claim is withdrawn and replaced by the computed
+> figure. The ceiling itself is unaffected by the pacing caveat above — the
+> unbounded readers are not rate-limited — so ≈ 103 FPS is the honest
+> statement of what this pipeline can infer on this device.
+>
+> This closes an open item rather than opening one: the inflation was
+> identified on 2026-09-13 (`review-2026-09-13-edge-deployment.md` H4, which
+> prescribed exactly `(960−328)/elapsed`) and the **code** was fixed shortly
+> after; the chapter text was not. Two consequences of the same read-count
+> bug remain bounded to the drop-bearing rows only: H5 notes the emit-cadence
+> gate also keys off the read count, so the `n_predictions` of the N = 3 and
+> N = 4 unbounded rows are unreliable too. Every zero-drop row in this chapter
+> — Tables 5.4, 5.5C and the soak of 5.5F — is unaffected, because with no
+> drops the read and processed counts are identical.
+
+A **36.2-minute sustained soak at N=2** tests thermal and power stability
+under continuous load. ≈ 107,000 frames were inferenced with zero drops while
+`tegrastats --interval 1000` logged thermal and power at 1 Hz. What the soak
+establishes is sustained operation without throttling or drift — not 30 FPS
+per stream, which the pacing caveat under Table 5.5C quantifies.
 
 **Table 5.5F — Sustained soak (N=2, 36.2 minutes, MAXN_SUPER profile)**
 
 | Metric | Value | Headroom vs limit |
 |---|---|---|
+| Aggregate throughput | **49.24 FPS** (24.62 FPS per stream) | reader-limited, not GPU-limited — see the pacing caveat under Table 5.5C |
+| Frames inferenced | ≈ **107,000** | — |
 | Dropped frames | **0** | — |
 | Throttle events (tj > 80 °C) | **0** | — |
 | GPU temperature (steady-state) | 55.9 ± 0.9 °C | ≈ 24 °C below 80 °C throttle (mean); 23 °C at peak 56.8 °C |
@@ -510,7 +575,14 @@ A **36.2-minute sustained soak at N=2** validates production-readiness.
 | GPU utilisation peak | 44 % | — |
 
 Source: `deployment/artifacts/soak-jetson-summary.json` +
-`tegrastats-soak30min.log` (2,548 samples).
+`tegrastats-soak30min.log` (2,548 samples); throughput and drop count from
+`deployment/artifacts/soak-30min.log` (`aggFPS=49.24  drops=0
+elapsed=2193.509s`). The frame count is 49.24 FPS × 2,172 s = 106,949, where
+2,172 s is the **tegrastats active window** (2,170 samples at 1 Hz = 36.2 min),
+which is the clock this table's caption uses. The pipeline's own clock is
+slightly longer — 2,193.5 s = 36.6 min, giving 108,008 frames — because
+tegrastats was started after and stopped before the streams. The two differ by
+21 s (1 %); the smaller figure is quoted throughout.
 
 > **Caveat on the power figure (added 2026-09-29).** The measured watts above are
 > measurements and stand. The *headroom* this table previously claimed ("8 W below
