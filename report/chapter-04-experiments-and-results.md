@@ -90,6 +90,10 @@ Training time per experiment is summarized in Table 4.1.
 unsafe-test subset was used as a *validation set during head training*:
 each head in `run_pairwise_contrastive.py` selects its best epoch by
 test-set accuracy (early-stopping criterion at `train_classifier:255`).
+The bbox branch of §4.6 carries the identical criterion
+(`run_finetune_bbox.py:465`), so its column of Table 4.6 is an upper
+bound on the same footing — the comparison between the two branches is
+therefore like-for-like, but neither side of it is blind.
 This means the *individual heads* see test labels for model selection,
 even though the test set is not used for gradient updates. Two
 consequences are flagged honestly: (a) per-head accuracies in §4.7.1 and
@@ -438,6 +442,39 @@ in the artifact are shown; the five omitted are the 0.7 / 0.8 frozen-weight
 blends (both 55/64, 88.49 macro, identical to the 0.9 row) and three
 single-seed blends at 54/64 (86.57–87.71 macro). None of the eleven exceeds
 the frozen-only baseline, so the omission is presentational, not selective.*
+
+> **Artifact disagreement (recorded 2026-10-03).** The two artifacts behind
+> Tables 4.6 and 4.6a do not agree on the individual bbox direct4 seeds.
+> `finetune_bbox/results.json` (12 Apr) reads s42 52/64 macro 86.15, s123
+> 52/64 83.17, s314 52/64 86.15, s7 34/64 65.33, s2024 54/64 84.73;
+> `cross_ensemble.json` (29 Apr, 17 days later) reads s42 52/64 **77.20**,
+> s123 52/64 **77.20**, s314 **50/64** 85.29, s7 **45/64** 74.72. No macro
+> matches on any seed, so the predictions differ throughout and the two
+> top-1 agreements are coincidence. The disagreement cannot now be
+> arbitrated: `sweep_results/finetune_bbox/` holds only `results.json` — the
+> five head checkpoints and the `features/bbox_test.pt` cache are both gone,
+> so neither run can be re-executed to decide which is the live one. Both
+> figures are reported as their artifacts hold them. **No cell of Table 4.6
+> or 4.6a is affected** — 4.6 prints only branch-level best/cascade/ensemble
+> and 4.6a only blend rows — but a reader recomputing `bbox_avg` from
+> Table 4.6's source will not reproduce 4.6a's blends.
+>
+> Two related limits of the blend, both checkable in code. First,
+> `run_cross_ensemble.py:121` enumerates the bbox seeds as
+> `['s42','s123','s314','s7']` and so **never loads s2024** — the strongest
+> bbox seed, and the 54/64 that Table 4.6 reports as the branch's best
+> single. `bbox_avg` is therefore a 4-seed probability average scoring
+> 48/64 (macro 80.39) that omits the branch's best head, which makes the
+> *Result* below conservative against itself: the blend was given a weaker
+> bbox partner than the branch could supply. Second,
+> `run_cross_ensemble.py:145` drops any bbox seed scoring under 40/64; under
+> `cross_ensemble.json`'s own numbers all four survive, but under
+> `results.json`'s numbers s7 (34/64) would have been excluded — so even the
+> membership of `bbox_avg` depends on which run one believes. Re-running the
+> blend with all five seeds is the clean fix and needs the deleted cache
+> regenerated first (≈ 8.6 h); it is not attempted before the number freeze,
+> and the conclusion it would test — that no blend beats 56/64 — would have
+> to clear a stronger bbox partner, not a weaker one.
 
 **Result.** No blend exceeds the frozen-only baseline. Even at 90 %
 frozen / 10 % bbox weight, the result holds at 55/64 — meaning the

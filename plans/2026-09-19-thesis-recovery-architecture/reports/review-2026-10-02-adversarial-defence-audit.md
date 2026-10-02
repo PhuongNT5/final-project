@@ -616,6 +616,59 @@ the only column where the bbox branch wins. Table 4.6a showed 6 of 11 blends wit
 saying so; now disclosed, with the 5 omitted characterised (none beats the baseline,
 so the omission was presentational).
 
+### 14. The bbox branch's two artifacts are two different runs (question 8, resolved)
+
+Chased question 8 to the bottom. It is worse and smaller than it looked.
+
+Worse: the disagreement is not confined to s314 and s7. **No macro matches on any
+seed.** `results.json` (12 Apr) gives s42 86.15, s123 83.17, s314 86.15, s7 65.33;
+`cross_ensemble.json` (29 Apr) gives 77.20, 77.20, 85.29, 74.72. The predictions
+differ for all four, so the two seeds whose top-1 agrees at 52/64 agree by
+coincidence, not provenance. Two artifacts 17 days apart, describing runs over
+different head generations.
+
+Smaller: it cannot be arbitrated and it reaches no table cell. `sweep_results/
+finetune_bbox/` now holds **only `results.json`** — the five `direct4_s*.pt` heads
+and `features/bbox_test.pt` are both gone (the dir is gitignored but for
+`results.json`). The method note above says a reproducible artifact is the only one
+that can arbitrate; here neither is reproducible, so the honest move is to print both
+and say so. §4.6 cites only branch-level best/cascade/ensemble from `results.json`;
+§4.6a cites only blend rows from `cross_ensemble.json`. Neither prints a per-seed
+bbox figure, so nothing needed correcting — only disclosing.
+
+Two code-level limits of the blend fell out of the same read, and these *are*
+substantive:
+
+- `run_cross_ensemble.py:121` hard-codes `['s42','s123','s314','s7']`. **s2024 is
+  never loaded** — and s2024 is the 54/64 that Table 4.6 reports as the bbox
+  branch's best single. So `bbox_avg` (48/64, macro 80.39) omits the branch's best
+  head. §4.6.1's conclusion — no blend beats 56/64 — was therefore tested against a
+  deliberately weaker partner than available. The conclusion is conservative against
+  itself, which is the safe direction, but it is not the experiment the prose implies.
+- `run_cross_ensemble.py:145` drops bbox seeds under 40/64. Under
+  `cross_ensemble.json`'s own numbers all four survive; under `results.json`'s, s7
+  (34/64) would have been cut. So even the *membership* of `bbox_avg` depends on
+  which run one believes.
+
+Re-running with all five seeds needs the deleted cache regenerated first (8.6 h,
+`total_time_s = 31035.9`). Not attempted before the freeze. Recorded in §4.6.1.
+
+### 15. The §4.1 selection disclosure under-stated its own scope
+
+§4.1's disclosure names `run_pairwise_contrastive.py` only. `run_finetune_bbox.py`
+carries the identical test-selected early stopping at `train_classifier:465` —
+`best_c` is accuracy on the same 64 clips the head is then scored on, patience
+counted on the same signal. So Table 4.6's bbox column is an upper bound on exactly
+the same footing as the frozen column. That makes the branch comparison like-for-like
+(the thesis's actual claim survives intact), but the disclosure as written implied
+only one branch was affected. Widened.
+
+Worth stating plainly because the check went the other way first: I read
+`run_pairwise_contrastive.py:230-269` expecting to find the headline 56/64's
+selection *undisclosed*, and found §4.1 had already named the file, the function and
+the line. The frozen branch is clean. Only the bbox branch's identical criterion was
+missing from the sentence.
+
 ### Method note, revised
 
 The 10-02 note said: check prose against the artifact. This sweep shows the arrow
@@ -631,11 +684,8 @@ feeds — the reverse direction.
 
 ### Unresolved questions
 
-8. `finetune_bbox/results.json` and `cross_ensemble.json` disagree on the bbox
-   direct4 seeds they share: s314 = 52 vs 50, s7 = 34 vs 45 (s42, s123 agree at 52).
-   No table cell depends on the overlap, but two artifacts describing "bbox direct4
-   seed N" should not differ by 11 samples. Different epoch selection, or a
-   different finetune generation? Unresolved; flagged, not guessed.
+8. ~~bbox seed disagreement~~ — **resolved, see finding 14.** Not epoch selection:
+   two different finetune generations, un-arbitrable because the inputs are deleted.
 9. Table 4.5's confidences are the ensemble's mean-of-two-softmax maxima. The old
    table's "94–96 %" for clips 37/38 does not correspond to anything measured here
    (0.795, 0.853). Provenance of the original ranges unknown.

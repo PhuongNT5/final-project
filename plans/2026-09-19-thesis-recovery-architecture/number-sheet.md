@@ -580,6 +580,8 @@ WalkwayViol ↔ UnauthorInt raw cosine (wrong) and it is genuinely the
 **UnauthorInt ↔ CarryOverload** raw cosine (right). Any surviving 0.834 in a
 draft must be checked against which pair it names.
 
+**Numeral warning — 48/64 has three readings.** (i) the INT8-quantised ensemble, ch05 §5.3.1 — 56/64 → 48/64; (ii) `bbox_avg`, the 4-seed bbox probability average of §4.6.1; (iii) Table 4.10's cascade column at test-time T = 8. Unrelated quantities. Do not let a reviewer's eye join them.
+
 Both corrections move the thesis's own claims in the honest direction: `GATEROW`
 makes the *paper's* mechanism look better, and `RAWCOS` makes the raw-feature
 collapse this thesis argues for look worse. Neither touches an accuracy number.
@@ -620,6 +622,9 @@ two tables is quoted but not re-readable.** First device action in the runbook.
 | `BOUNDFULL` | 56/64 vs 62/64 exact McNemar bound **[0.031, 0.109]** | same; matches Table 4.16c |
 | `BOOTSTD` | top-1 std **4.13**, macro std **3.87**; WalkwayViol 84.48 / 6.27; UnauthorInt 72.62 / 13.60 | same, `bootstrap_5000` |
 | `TSTAR` | honest temperature **T\* = 0.5** selected on train → **55/64, macro 88.49** | `ablations/calibration.json` → `honest_test_at_T_star` |
+| `BBOXSEED` | the two bbox artifacts are **two runs, not one**: `results.json` s42/s123/s314/s7 = 52/52/52/34 (macro 86.15/83.17/86.15/65.33), `cross_ensemble.json` = 52/52/50/45 (77.20/77.20/85.29/74.72). No macro matches. Un-arbitrable — heads and feature cache deleted. Print both. | `finetune_bbox/results.json` (12 Apr) vs `ablations/cross_ensemble.json` (29 Apr) |
+| `BBOXAVG` | `bbox_avg` = **48/64, macro 80.39**, a 4-seed prob average that **excludes s2024** (the branch's best single, 54/64) — `run_cross_ensemble.py:121` hard-codes four seeds of five | `ablations/cross_ensemble.json` → `bbox_only` |
+| `SELSCOPE` | test-selected early stopping is in **both** branches: `run_pairwise_contrastive.py:255` *and* `run_finetune_bbox.py:465`. Table 4.6's comparison is like-for-like; neither side is blind. | source read, 2026-10-03 |
 
 **Numeral warning — 55/64 now has four readings.** (i) our direct4_s314 top-1;
 (ii) V7 YOLO-World top-1 (§4.2.1, macro 89.54); (iii) the honest
