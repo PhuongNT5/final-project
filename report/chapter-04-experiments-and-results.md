@@ -32,6 +32,12 @@
 > the pre-registered *edge* criterion, smallest model, not on accuracy, so its own number is the one
 > to quote and never max(B1, B1w). §5.6.9 quotes 84.2 % throughout for that reason
 > (`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-two-different-84-4-percent.md`).
+>
+> **"84.2 %" likewise denotes two different quantities. Never write it bare either.** 84.2 %
+> *balanced accuracy* (B1, LSO-1100, N=1,100, binary) is the deployed figure above. 84.2 % *macro*
+> is P3's k-fold mean over 516 ESTA clips on the 4-class task (Ch7 §7.7.1). Different corpus,
+> different task, different metric: the two must never be compared, summed, or carried into one
+> sentence without their qualifiers.
 
 Objective 2 of this thesis is to train and evaluate the YOLO–Transformer
 on Unsafe-Net and compare against the 96.88 % top-1 (95.81 % macro) baseline reported by
@@ -47,8 +53,9 @@ re-classified in §4.7.7 as test-set tuning), while **§4.7.11 establishes the f
 ≈ 52/64 (≈ 81 % top-1, macro ≈ 84 %); the best zero-bbox configuration
 (hybrid + frame-gate, §4.6.2) lifts this to 53/64 (82.8 % top-1,
 85.4 % macro) — this chapter's (P1's) defensible best, at macro parity with the
-no-bbox baseline even blind. The *thesis* headline is P3's 54/64 (Ch7); see the
-banner above.** Section 4.4
+no-bbox baseline even blind. On this 4-class ESTA corpus the best figure is P3's
+54/64 (Ch7); the *thesis* headline is the R48 lane (84.2 % balanced accuracy,
+N = 1,100, Ch5 §5.6.9). See the banner above.** Section 4.4
 presents per-class breakdown and
 confusion analysis. Section 4.5 diagnoses the persistent error clips
 and argues that the residual gap is attributable to missing
@@ -97,8 +104,10 @@ in §4.7.11**, where epoch, configuration, and seed are all selected on a
 validation slice carved from the *training* set: the resulting honest
 blind held-out accuracy is ≈ 52/64 (≈ 81 % top-1, macro ≈ 84 %), and that
 blind number — not the best-case 56/64 — is this pipeline's defensible
-accuracy claim (the thesis headline is P3's 54/64, Ch7). The 56/64 checkpoint is retained only because it is the
-one deployed in Chapter 5.
+accuracy claim (the best ESTA figure is P3's 54/64, Ch7; the thesis headline is
+the R48 lane, Ch5 §5.6.9). The 56/64 checkpoint is retained only because it is the
+P1 engine exported and timed in Chapter 5 §§5.1–5.5. It is **not** the engine on
+the device in the live demo: that is the R48 B1 decision path, Ch5 §5.6.9.
 
 ## 4.2 Experiment Tracks
 
@@ -1199,7 +1208,8 @@ baseline on top-1 (57/64 = 89.06 %) and short of macro parity (85.78 %).
 The best zero-bbox configuration — **hybrid + frame-gate (§4.6.2) — lifts
 the blind honest accuracy to 53/64 (82.8 % top-1, 85.4 % macro), reaching
 macro parity with the no-bbox baseline even blind; this is P1's defensible
-best, superseded as the thesis headline by P3's 54/64 (Ch7).** The
+best, superseded on this corpus by P3's 54/64 (Ch7) and, as the thesis headline,
+by the R48 lane (Ch5 §5.6.9).** The
 "+3.5 pp macro win" reported under test-selected evaluation does not
 survive the blind protocol and is withdrawn; so is the cascade/ensemble,
 which a blind configuration-selection rejects in favour of the single

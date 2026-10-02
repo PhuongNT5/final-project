@@ -1,0 +1,146 @@
+{
+  "configs": [
+    {
+      "n_streams": 1,
+      "mode": "fp16",
+      "elapsed_sec": 3.046,
+      "aggregate_fps": 78.78,
+      "streams": [
+        {
+          "id": 0,
+          "frames": 240,
+          "dropped": 0,
+          "head_latency_ms": {
+            "50": 6.89,
+            "95": 7.01,
+            "99": 30.59
+          },
+          "n_predictions": 27
+        }
+      ]
+    },
+    {
+      "n_streams": 2,
+      "mode": "fp16",
+      "elapsed_sec": 4.66,
+      "aggregate_fps": 103.0,
+      "streams": [
+        {
+          "id": 0,
+          "frames": 240,
+          "dropped": 0,
+          "head_latency_ms": {
+            "50": 6.74,
+            "95": 7.24,
+            "99": 7.38
+          },
+          "n_predictions": 27
+        },
+        {
+          "id": 1,
+          "frames": 240,
+          "dropped": 0,
+          "head_latency_ms": {
+            "50": 6.84,
+            "95": 7.23,
+            "99": 7.59
+          },
+          "n_predictions": 27
+        }
+      ]
+    },
+    {
+      "n_streams": 3,
+      "mode": "fp16",
+      "elapsed_sec": 6.037,
+      "aggregate_fps": 119.27,
+      "streams": [
+        {
+          "id": 0,
+          "frames": 240,
+          "dropped": 33,
+          "head_latency_ms": {
+            "50": 6.73,
+            "95": 7.44,
+            "99": 7.6
+          },
+          "n_predictions": 19
+        },
+        {
+          "id": 1,
+          "frames": 240,
+          "dropped": 23,
+          "head_latency_ms": {
+            "50": 6.95,
+            "95": 8.06,
+            "99": 9.35
+          },
+          "n_predictions": 24
+        },
+        {
+          "id": 2,
+          "frames": 240,
+          "dropped": 40,
+          "head_latency_ms": {
+            "50": 6.62,
+            "95": 7.25,
+            "99": 7.36
+          },
+          "n_predictions": 25
+        }
+      ]
+    },
+    {
+      "n_streams": 4,
+      "mode": "fp16",
+      "elapsed_sec": 7.013,
+      "aggregate_fps": 136.89,
+      "streams": [
+        {
+          "id": 0,
+          "frames": 240,
+          "dropped": 76,
+          "head_latency_ms": {
+            "50": 6.99,
+            "95": 7.89,
+            "99": 9.09
+          },
+          "n_predictions": 15
+        },
+        {
+          "id": 1,
+          "frames": 240,
+          "dropped": 86,
+          "head_latency_ms": {
+            "50": 6.93,
+            "95": 8.42,
+            "99": 8.72
+          },
+          "n_predictions": 14
+        },
+        {
+          "id": 2,
+          "frames": 240,
+          "dropped": 77,
+          "head_latency_ms": {
+            "50": 7.03,
+            "95": 8.46,
+            "99": 8.54
+          },
+          "n_predictions": 22
+        },
+        {
+          "id": 3,
+          "frames": 240,
+          "dropped": 89,
+          "head_latency_ms": {
+            "50": 6.72,
+            "95": 7.45,
+            "99": 7.63
+          },
+          "n_predictions": 19
+        }
+      ]
+    }
+  ]
+}

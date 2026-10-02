@@ -406,14 +406,40 @@ of the four that was quantitative rather than directional, and it is the one tha
 
 ## Historical — 4-class task (context only, never joined into the binary tables)
 
-Left deliberately empty until freeze; the 4-class numbers exist in `report/**` and are superseded by
-the binary reframe. Any 4-class number that appears in the final thesis must first get a row here.
+The 4-class numbers exist in `report/**` and are superseded as the headline by the binary reframe.
+Any 4-class number that appears in the final thesis must first get a row here.
+
+**P1 edge measurements (ESTA 4-class engine).** Quoted in Ch1 §1.6, Ch5 Table 5.5 and Ch6 §6.2.
+Device `phuongnguyen-desktop`, Linux 5.15.185-tegra, TensorRT 10.3.0, warmup 10 / 100 runs,
+measured 2026-06-03. Added here 2026-10-02 by the trace audit: these numbers were in the thesis
+with no sheet row, and their artifacts were untracked (`deployment/artifacts/` is gitignored); the
+artifacts are now force-added so each row resolves.
+
+| Quantity | Protocol | Value | Spread | Artifact | Status |
+|---|---|---|---|---|---|
+| P1 end-to-end, TRT **FP32** | on-device, n=100 | **12.47 ms** / 80.2 FPS | p95 12.56, p99 12.64 | `deployment/artifacts/benchmarks-jetson-fp32.json` | measured |
+| P1 end-to-end, TRT **FP16** | on-device, n=100 | **8.62 ms** / 116.0 FPS | p95 9.13, p99 9.21 | `deployment/artifacts/benchmarks-jetson-fp16.json` | measured |
+| P1 end-to-end, TRT **INT8** (256-frame entropy calib) | on-device, n=100 | **8.24 ms** / 121.4 FPS | p95 8.58, p99 8.71 | `deployment/artifacts/benchmarks-jetson-int8.json` | measured |
+| P1 4-class accuracy on the exported engines | same-dist N=64, **test-selected** | FP32 56/64; FP16 55/64; INT8 55/64 | — | same three files | measured; 56/64 is test-selected and must never be quoted as honest |
+| Soak: sustained run, zero throttle | tegrastats, 2,548 samples / 2,170 active | **36.2 min active** (42.5 min wall), **0 throttle events** | — | `deployment/artifacts/soak-jetson-summary.json` | measured |
+| Soak power | same | **7.03 W mean** | min 6.01 W, **max 7.34 W** | same | measured |
+| Soak junction temperature | same, throttle threshold 80 °C | mean 55.88 °C (**24.1 °C below throttle**) | max 56.81 °C (**23.2 °C below**) | same | measured |
+| Power/latency vs nvpmodel mode | tegrastats sweep | mode 0: 8.6 ms / 116.3 FPS / 45.69 mJ per inference; mode 1: 7.13 ms / 140.3; mode 2: 6.55 ms / 152.6 / 34.18 mJ | — | `deployment/artifacts/power-sweep-summary.json` | measured |
+| Multi-stream, zero drop | fp16, 240 frames per stream | 1–4 streams all zero-drop; aggregate 24.3 / 48.2 / 70.6 FPS at 1/2/3 streams | head p50 6.86–6.98 ms | `deployment/artifacts/multi-stream-jetson-fp16-realtime.json` | measured |
+
+**Open against these rows.** Ch6 calls the soak a *2-stream* soak; `soak-jetson-summary.json`
+records duration, power and temperature but not the stream count, so that one qualifier is not
+substantiated by the artifact and must be traced to `tegrastats-soak30min.log` or dropped.
 
 ## Unresolved questions
 
-1. Does the thesis headline become the iSafetyBench 75.2% or stay Unsafe-Net? Blocks 1 and 2 are two
-   corpora and must never be averaged or compared directly (different detector, different labels,
-   zero geometry on Block 1). Framing decision, not a measurement one — plan.md unresolved Q4.
+1. ~~Does the thesis headline become the iSafetyBench 75.2% or stay Unsafe-Net?~~ **RESOLVED
+   2026-10-02 (framing decision).** The headline is the **R48 lane**: CLIP ViT-B/32 + temporal
+   Transformer, **84.2 % balanced accuracy** (B1, N=1,100) under P-D LSO-1100 — Block 1b, quoted in
+   Ch5 §5.6.9. YOLOv11s is localisation plus the edge chapter's measurement subject, not part of the
+   class decision. The standing constraint is unchanged: Blocks 1 and 2 are two corpora and must
+   never be averaged or compared directly (different detector, different labels, zero geometry on
+   Block 1).
 2. Block 2 rows need a verification pass against logs whose seed-count was never recorded
    (`audit-2026-09-19-repo-capability-and-feasibility.md`). If a log cannot substantiate a number,
    the row stays `placeholder` and the number leaves the thesis — it does not get re-run to match.

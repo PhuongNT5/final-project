@@ -1,0 +1,72 @@
+{
+ "note": "Entity-set agreement vs the DET_IMGSZ=800 reference, TRAIN clips only. host_ms_per_frame is this host, NOT a Jetson number and not quotable as one.",
+ "host": "Phgs-Mac.lan",
+ "platform": "macOS-14.6-arm64-arm-64bit-Mach-O",
+ "detector": "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/entity_detector/detector_best.pt",
+ "det_conf": 0.2,
+ "n_box": 8,
+ "iou_thr": 0.5,
+ "n_clips": 24,
+ "n_frames": 768,
+ "seed": 0,
+ "clips": [
+  "6_tr6",
+  "2_tr125",
+  "2_tr53",
+  "0_tr10",
+  "0_tr119",
+  "0_tr136",
+  "5_tr12",
+  "0_tr25",
+  "2_tr59",
+  "0_tr90",
+  "0_tr71",
+  "2_tr18",
+  "0_tr107",
+  "0_tr8",
+  "4_tr17",
+  "2_tr47",
+  "2_tr101",
+  "2_tr77",
+  "2_tr39",
+  "3_tr12",
+  "4_tr18",
+  "2_tr102",
+  "6_tr1",
+  "3_tr6"
+ ],
+ "results": {
+  "800": {
+   "boxes": 2480,
+   "recall_vs_800": 1.0,
+   "precision_vs_800": 1.0,
+   "frames_identical_count": 1.0,
+   "frames_emptied": 0,
+   "host_ms_per_frame": 24.84
+  },
+  "640": {
+   "boxes": 2423,
+   "recall_vs_800": 0.9548,
+   "precision_vs_800": 0.9773,
+   "frames_identical_count": 0.8268,
+   "frames_emptied": 0,
+   "host_ms_per_frame": 17.5
+  },
+  "512": {
+   "boxes": 2550,
+   "recall_vs_800": 0.9633,
+   "precision_vs_800": 0.9369,
+   "frames_identical_count": 0.7591,
+   "frames_emptied": 1,
+   "host_ms_per_frame": 13.46
+  },
+  "416": {
+   "boxes": 2564,
+   "recall_vs_800": 0.9331,
+   "precision_vs_800": 0.9025,
+   "frames_identical_count": 0.6758,
+   "frames_emptied": 0,
+   "host_ms_per_frame": 11.88
+  }
+ }
+}

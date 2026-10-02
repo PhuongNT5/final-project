@@ -32,6 +32,12 @@
 > the pre-registered *edge* criterion, smallest model, not on accuracy, so its own number is the one
 > to quote and never max(B1, B1w). §5.6.9 quotes 84.2 % throughout for that reason
 > (`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-two-different-84-4-percent.md`).
+>
+> **"84.2 %" likewise denotes two different quantities. Never write it bare either.** 84.2 %
+> *balanced accuracy* (B1, LSO-1100, N=1,100, binary) is the deployed figure above. 84.2 % *macro*
+> is P3's k-fold mean over 516 ESTA clips on the 4-class task (Ch7 §7.7.1). Different corpus,
+> different task, different metric: the two must never be compared, summed, or carried into one
+> sentence without their qualifiers.
 
 This chapter specifies (3.1) the Unsafe-Net dataset used throughout the
 thesis, (3.2) the YOLO–Transformer architecture, (3.3) the multi-stream
@@ -307,9 +313,12 @@ epoch/config/seed selection is also moved off the test set, is the blind
 held-out **≈ 52/64** of §4.7.11. The best zero-bbox configuration
 (hybrid + frame-gate, §4.6.2) raises this to **53/64 (85.4 % macro)**,
 which is the best honest accuracy **of the P1 pipeline described in this
-chapter**. It is *not* the thesis headline: that is P3's blind 54/64
-(84.4 % top-1, 88.4 % macro, Ch7), the only pipeline carrying evidence
-beyond N = 64. See the pipeline-attribution banner in Ch4.
+chapter**. It is *not* the thesis headline: the headline is the R48
+lane (CLIP ViT-B/32 + temporal Transformer, 84.2 % balanced accuracy over
+N = 1,100 under LSO-1100, Ch5 §5.6.9). On this 4-class ESTA corpus the best
+figure is P3's blind 54/64 (84.4 % top-1, 88.4 % macro, Ch7), the only ESTA
+pipeline carrying evidence beyond N = 64. See the pipeline-attribution banner
+at the head of this chapter.
 
 ## 3.6 Reproducibility
 

@@ -1,0 +1,37 @@
+{
+  "log_file": "deployment/artifacts/tegrastats-soak30min.log",
+  "total_samples": 2548,
+  "active_samples": 2170,
+  "duration_min": 42.5,
+  "active_duration_min": 36.2,
+  "throttle_events": 0,
+  "stats_active": {
+    "cpu_c": {
+      "min": 50.875,
+      "mean": 54.45123917050691,
+      "max": 55.468
+    },
+    "gpu_c": {
+      "min": 52.375,
+      "mean": 55.88181198156682,
+      "max": 56.812
+    },
+    "tj_c": {
+      "min": 52.375,
+      "mean": 55.880458986175114,
+      "max": 56.812
+    },
+    "power_mw": {
+      "min": 6011,
+      "mean": 7033.761290322581,
+      "max": 7340
+    },
+    "gpu_util": {
+      "min": 0,
+      "mean": 16.02626728110599,
+      "max": 44
+    }
+  },
+  "throttle_threshold_c": 80,
+  "maxn_budget_mw": 15000
+}

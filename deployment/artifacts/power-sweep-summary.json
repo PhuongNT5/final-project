@@ -1,0 +1,43 @@
+{
+  "configs": [
+    {
+      "mode": 0,
+      "samples": 396,
+      "power_w_min": 5.1,
+      "power_w_mean": 5.31,
+      "power_w_max": 9.35,
+      "gpu_util_mean": 1.5,
+      "gpu_util_max": 86,
+      "tj_max_c": 54.031,
+      "fps": 116.3,
+      "e2e_p50_ms": 8.6,
+      "energy_mj_per_inference": 45.69
+    },
+    {
+      "mode": 1,
+      "samples": 356,
+      "power_w_min": 5.1,
+      "power_w_mean": 5.29,
+      "power_w_max": 9.31,
+      "gpu_util_mean": 0.9,
+      "gpu_util_max": 67,
+      "tj_max_c": 54.25,
+      "fps": 140.3,
+      "e2e_p50_ms": 7.13,
+      "energy_mj_per_inference": 37.67
+    },
+    {
+      "mode": 2,
+      "samples": 317,
+      "power_w_min": 5.1,
+      "power_w_mean": 5.22,
+      "power_w_max": 9.27,
+      "gpu_util_mean": 0.4,
+      "gpu_util_max": 67,
+      "tj_max_c": 54.187,
+      "fps": 152.6,
+      "e2e_p50_ms": 6.55,
+      "energy_mj_per_inference": 34.18
+    }
+  ]
+}

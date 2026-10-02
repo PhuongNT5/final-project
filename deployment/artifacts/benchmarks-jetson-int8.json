@@ -1,0 +1,34 @@
+{
+  "machine": "phuongnguyen-desktop",
+  "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+  "tensorrt_version": "10.3.0",
+  "timestamp": "2026-06-03T22:17:35.587038",
+  "config": {
+    "mode": "int8",
+    "warmup": 10,
+    "runs": 100,
+    "backbone_ms": {
+      "50": 2.39,
+      "95": 2.68,
+      "99": 2.76
+    },
+    "direct4_ms": {
+      "50": 1.42,
+      "95": 1.44,
+      "99": 1.45
+    },
+    "cascade_ms": {
+      "50": 4.43,
+      "95": 4.49,
+      "99": 4.53
+    },
+    "end_to_end_ms": {
+      "50": 8.24,
+      "95": 8.58,
+      "99": 8.71
+    },
+    "fps": 121.4,
+    "accuracy_4class_correct": 55,
+    "accuracy_4class_total": 64
+  }
+}

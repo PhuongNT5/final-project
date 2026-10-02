@@ -1,0 +1,29 @@
+{
+ "note": "Host-side geometry microbenchmark; ms are THIS host, not Jetson. The speedup RATIO is the transferable quantity, not the absolute ms.",
+ "max_abs_diff_reference_vs_shipped": 1.6653345369377348e-16,
+ "views": [
+  "0",
+  "1",
+  "3",
+  "4",
+  "5",
+  "6",
+  "na"
+ ],
+ "box_loads": {
+  "median decision": {
+   "boxes": 41,
+   "reference_ms": 3.693,
+   "shipped_ms": 1.81,
+   "speedup": 2.04,
+   "saved_ms": 1.882
+  },
+  "worst case (all slots)": {
+   "boxes": 132,
+   "reference_ms": 12.455,
+   "shipped_ms": 6.777,
+   "speedup": 1.838,
+   "saved_ms": 5.678
+  }
+ }
+}

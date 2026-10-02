@@ -1,0 +1,109 @@
+{
+  "machine": "Phgs-Mac.lan",
+  "platform": "macOS-14.6-arm64-arm-64bit-Mach-O",
+  "ep": "cpu",
+  "timestamp": "2026-09-16T20:27:04.693573",
+  "parity": {
+    "max_abs_diff": 2.980232238769531e-07,
+    "argmax_agreement": 64,
+    "n": 64,
+    "onnx_top1_correct": 54,
+    "pass": true
+  },
+  "bench": {
+    "detector_ms_per_frame": {
+      "50": 811.05,
+      "95": 1552.52,
+      "99": 1588.03
+    },
+    "postprocess_ms_per_decision": {
+      "50": 19.53,
+      "95": 63.97,
+      "99": 70.17
+    },
+    "head_ms_per_decision": {
+      "50": 1.35,
+      "95": 1.46,
+      "99": 1.47
+    },
+    "frames_per_decision": 16,
+    "crop_scenarios": {
+      "p50": 54,
+      "p95": 106,
+      "p99": 119,
+      "cap": 128,
+      "n_clips": 516,
+      "source": "measured"
+    },
+    "by_scenario": {
+      "p50": {
+        "n_crops": 54,
+        "crop_extract_ms": {
+          "50": 18.91,
+          "95": 25.24,
+          "99": 25.88
+        },
+        "appearance_ms": {
+          "50": 710.95,
+          "95": 732.63,
+          "99": 735.54
+        },
+        "ms_per_decision_p50": 13727.54,
+        "decisions_per_sec_p50": 0.07
+      },
+      "p95": {
+        "n_crops": 106,
+        "crop_extract_ms": {
+          "50": 25.0,
+          "95": 35.89,
+          "99": 38.05
+        },
+        "appearance_ms": {
+          "50": 1373.23,
+          "95": 1483.98,
+          "99": 1495.82
+        },
+        "ms_per_decision_p50": 14395.91,
+        "decisions_per_sec_p50": 0.07
+      },
+      "p99": {
+        "n_crops": 119,
+        "crop_extract_ms": {
+          "50": 52.96,
+          "95": 80.43,
+          "99": 83.61
+        },
+        "appearance_ms": {
+          "50": 1221.36,
+          "95": 1579.66,
+          "99": 1593.44
+        },
+        "ms_per_decision_p50": 14272.0,
+        "decisions_per_sec_p50": 0.07
+      },
+      "cap": {
+        "n_crops": 128,
+        "crop_extract_ms": {
+          "50": 72.37,
+          "95": 74.56,
+          "99": 74.6
+        },
+        "appearance_ms": {
+          "50": 1318.34,
+          "95": 1414.59,
+          "99": 1419.8
+        },
+        "ms_per_decision_p50": 14388.39,
+        "decisions_per_sec_p50": 0.07
+      }
+    },
+    "stages_included": [
+      "detector",
+      "postprocess(select+geometry)",
+      "crop_extract(cv2)",
+      "appearance",
+      "head"
+    ],
+    "parity_skipped": false
+  }
+}

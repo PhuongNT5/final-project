@@ -189,7 +189,7 @@ Relative to the three threads:
    factor.
 
 4. **vs. edge-deployment literature.** The deployment in Chapter 5 is
-   end-to-end reproducible on a commodity laptop CPU (M4 Apple Silicon)
+   end-to-end reproducible on a commodity laptop CPU (M3 Apple Silicon)
    with no GPU and no cloud dependency. The multi-stream measurements
    (N = 1..4 concurrent streams with a single shared backbone pool)
    operationalize the "multi-luồng" (multi-stream) requirement of
@@ -249,7 +249,7 @@ thesis compilation.
 
 [12] C. Feichtenhofer, H. Fan, J. Malik, K. He, "SlowFast Networks for
      Video Recognition," *Proc. IEEE/CVF Int. Conf. Computer Vision
-     (ICCV)*, 2019, pp. 6201–6210. arXiv:1812.03982.
+     (ICCV)*, 2019, pp. 6202–6211. arXiv:1812.03982.
      DOI: 10.1109/ICCV.2019.00630.
 
 [13] G. Bertasius, H. Wang, L. Torresani, "Is Space-Time Attention All You

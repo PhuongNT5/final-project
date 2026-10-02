@@ -32,6 +32,12 @@
 > the pre-registered *edge* criterion, smallest model, not on accuracy, so its own number is the one
 > to quote and never max(B1, B1w). §5.6.9 quotes 84.2 % throughout for that reason
 > (`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-two-different-84-4-percent.md`).
+>
+> **"84.2 %" likewise denotes two different quantities. Never write it bare either.** 84.2 %
+> *balanced accuracy* (B1, LSO-1100, N=1,100, binary) is the deployed figure above. 84.2 % *macro*
+> is P3's k-fold mean over 516 ESTA clips on the 4-class task (Ch7 §7.7.1). Different corpus,
+> different task, different metric: the two must never be compared, summed, or carried into one
+> sentence without their qualifiers.
 
 ## 6.1 Summary of Findings
 
@@ -120,8 +126,12 @@ requires (the evidence suggests) substantially more than a 400-frame
 pilot.
 
 On the accuracy number the thesis is deliberately, and unusually,
-transparent. The thesis headline is **P3's blind 54/64 (84.4 % top-1,
-88.4 % macro, Ch7)** — the only pipeline evaluated beyond N = 64. Within the
+transparent. The headline is the **R48 lane: CLIP ViT-B/32 + temporal
+Transformer, 84.2 % balanced accuracy over 1,100 source-grouped clips under
+LSO-1100 (Ch5 §5.6.9)** — the largest and the only leak-free estimate in the
+thesis, and the configuration actually deployed. On the 4-class ESTA corpus the
+best figure is **P3's blind 54/64 (84.4 % top-1, 88.4 % macro, Ch7)**, the only
+ESTA pipeline evaluated beyond N = 64. Within the
 P1 line of work documented in Ch4, the honest best is the **blind held-out
 estimate of the best zero-bbox configuration — hybrid (frozen ⊕
 detection-finetuned) features + frame-gate (§4.6.2): 53/64 (82.8 % top-1,
@@ -158,7 +168,8 @@ selected with reference to the test set; §4.7.11 measures and removes
 this leakage with a train-carved validation slice, establishing the
 frozen single-head honest blind at ≈ 52/64. The best zero-bbox
 configuration (hybrid + frame-gate, §4.6.2) raises this to 53/64 (85.4 %
-macro) — P1's defensible best; the thesis headline remains P3's 54/64 (Ch7).
+macro) — P1's defensible best; the best ESTA figure remains P3's 54/64 (Ch7) and
+the thesis headline is the R48 lane (Ch5 §5.6.9).
 A larger dataset
 permitting a permanent held-out validation split would remove the need
 for this correction entirely.

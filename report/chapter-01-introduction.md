@@ -32,6 +32,12 @@
 > the pre-registered *edge* criterion, smallest model, not on accuracy, so its own number is the one
 > to quote and never max(B1, B1w). §5.6.9 quotes 84.2 % throughout for that reason
 > (`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-two-different-84-4-percent.md`).
+>
+> **"84.2 %" likewise denotes two different quantities. Never write it bare either.** 84.2 %
+> *balanced accuracy* (B1, LSO-1100, N=1,100, binary) is the deployed figure above. 84.2 % *macro*
+> is P3's k-fold mean over 516 ESTA clips on the 4-class task (Ch7 §7.7.1). Different corpus,
+> different task, different metric: the two must never be compared, summed, or carried into one
+> sentence without their qualifiers.
 
 ## 1.1 Background and Motivation
 

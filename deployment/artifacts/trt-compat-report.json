@@ -1,0 +1,948 @@
+{
+  "export_dir": "deployment/export",
+  "n_files": 18,
+  "n_trt_compatible": 9,
+  "n_blocked": 9,
+  "reports": [
+    {
+      "file": "backbone-fp32.onnx",
+      "opset": 18,
+      "size_mb": 33.31,
+      "has_external_data": true,
+      "external_data_mb": 32.81,
+      "n_nodes": 245,
+      "op_counts": {
+        "Shape": 2,
+        "Conv": 63,
+        "Sigmoid": 59,
+        "Mul": 60,
+        "Split": 10,
+        "Add": 14,
+        "Concat": 21,
+        "MaxPool": 3,
+        "Reshape": 4,
+        "Transpose": 3,
+        "MatMul": 2,
+        "Softmax": 1,
+        "Resize": 3
+      },
+      "unsupported_ops": [],
+      "inputs": [
+        [
+          "image",
+          [
+            "batch",
+            3,
+            224,
+            224
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "tokens",
+          [
+            "batch",
+            16,
+            512
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "backbone-ft-fp32.onnx",
+      "opset": 18,
+      "size_mb": 33.3,
+      "has_external_data": true,
+      "external_data_mb": 32.81,
+      "n_nodes": 243,
+      "op_counts": {
+        "Shape": 2,
+        "Conv": 63,
+        "Sigmoid": 58,
+        "Mul": 59,
+        "Split": 10,
+        "Add": 14,
+        "Concat": 21,
+        "MaxPool": 3,
+        "Reshape": 4,
+        "Transpose": 3,
+        "MatMul": 2,
+        "Softmax": 1,
+        "Resize": 3
+      },
+      "unsupported_ops": [],
+      "inputs": [
+        [
+          "image",
+          [
+            "batch",
+            3,
+            224,
+            224
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "tokens",
+          [
+            "batch",
+            16,
+            512
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "backbone-ft-int8.onnx",
+      "opset": 18,
+      "size_mb": 8.66,
+      "has_external_data": false,
+      "external_data_mb": 0,
+      "n_nodes": 618,
+      "op_counts": {
+        "Shape": 2,
+        "DynamicQuantizeLinear": 60,
+        "Reshape": 67,
+        "Concat": 21,
+        "Mul": 185,
+        "ConvInteger": 63,
+        "Cast": 63,
+        "Add": 77,
+        "Sigmoid": 58,
+        "Split": 10,
+        "MaxPool": 3,
+        "Transpose": 3,
+        "MatMul": 2,
+        "Softmax": 1,
+        "Resize": 3
+      },
+      "unsupported_ops": [
+        "DynamicQuantizeLinear",
+        "ConvInteger"
+      ],
+      "inputs": [
+        [
+          "image",
+          [
+            "batch",
+            3,
+            224,
+            224
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "tokens",
+          [
+            "batch",
+            16,
+            512
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "backbone-int8.onnx",
+      "opset": 18,
+      "size_mb": 8.66,
+      "has_external_data": false,
+      "external_data_mb": 0,
+      "n_nodes": 620,
+      "op_counts": {
+        "Shape": 2,
+        "DynamicQuantizeLinear": 60,
+        "Reshape": 67,
+        "Concat": 21,
+        "Mul": 186,
+        "ConvInteger": 63,
+        "Cast": 63,
+        "Add": 77,
+        "Sigmoid": 59,
+        "Split": 10,
+        "MaxPool": 3,
+        "Transpose": 3,
+        "MatMul": 2,
+        "Softmax": 1,
+        "Resize": 3
+      },
+      "unsupported_ops": [
+        "DynamicQuantizeLinear",
+        "ConvInteger"
+      ],
+      "inputs": [
+        [
+          "image",
+          [
+            "batch",
+            3,
+            224,
+            224
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "tokens",
+          [
+            "batch",
+            16,
+            512
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "direct4-s314-fp32.onnx",
+      "opset": 17,
+      "size_mb": 46.23,
+      "has_external_data": true,
+      "external_data_mb": 46.19,
+      "n_nodes": 321,
+      "op_counts": {
+        "Shape": 2,
+        "Squeeze": 7,
+        "LayerNormalization": 16,
+        "MatMul": 32,
+        "Add": 47,
+        "Div": 10,
+        "Erf": 10,
+        "Mul": 34,
+        "Gather": 21,
+        "Slice": 5,
+        "Sub": 1,
+        "Concat": 8,
+        "Expand": 1,
+        "Transpose": 48,
+        "Reshape": 58,
+        "Unsqueeze": 6,
+        "Softmax": 6,
+        "Gemm": 9
+      },
+      "unsupported_ops": [],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            4
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "direct4-s314-int8.onnx",
+      "opset": 17,
+      "size_mb": 11.79,
+      "has_external_data": false,
+      "external_data_mb": 0,
+      "n_nodes": 448,
+      "op_counts": {
+        "Shape": 2,
+        "LayerNormalization": 16,
+        "Gather": 21,
+        "Slice": 5,
+        "Squeeze": 7,
+        "Concat": 8,
+        "DynamicQuantizeLinear": 29,
+        "DequantizeLinear": 2,
+        "Sub": 1,
+        "Mul": 92,
+        "Expand": 1,
+        "MatMulInteger": 29,
+        "Reshape": 58,
+        "Add": 56,
+        "Cast": 29,
+        "Div": 10,
+        "Erf": 10,
+        "Transpose": 48,
+        "Unsqueeze": 6,
+        "MatMul": 12,
+        "Softmax": 6
+      },
+      "unsupported_ops": [
+        "DynamicQuantizeLinear",
+        "MatMulInteger"
+      ],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            4
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "eight-s7-fp32.onnx",
+      "opset": 17,
+      "size_mb": 46.23,
+      "has_external_data": true,
+      "external_data_mb": 46.19,
+      "n_nodes": 321,
+      "op_counts": {
+        "Shape": 2,
+        "Squeeze": 7,
+        "LayerNormalization": 16,
+        "MatMul": 32,
+        "Add": 47,
+        "Div": 10,
+        "Erf": 10,
+        "Mul": 34,
+        "Gather": 21,
+        "Slice": 5,
+        "Sub": 1,
+        "Concat": 8,
+        "Expand": 1,
+        "Transpose": 48,
+        "Reshape": 58,
+        "Unsqueeze": 6,
+        "Softmax": 6,
+        "Gemm": 9
+      },
+      "unsupported_ops": [],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            8
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "eight-s7-int8.onnx",
+      "opset": 17,
+      "size_mb": 11.79,
+      "has_external_data": false,
+      "external_data_mb": 0,
+      "n_nodes": 448,
+      "op_counts": {
+        "Shape": 2,
+        "LayerNormalization": 16,
+        "Gather": 21,
+        "Slice": 5,
+        "Squeeze": 7,
+        "Concat": 8,
+        "DynamicQuantizeLinear": 29,
+        "DequantizeLinear": 2,
+        "Sub": 1,
+        "Mul": 92,
+        "Expand": 1,
+        "MatMulInteger": 29,
+        "Reshape": 58,
+        "Add": 56,
+        "Cast": 29,
+        "Div": 10,
+        "Erf": 10,
+        "Transpose": 48,
+        "Unsqueeze": 6,
+        "MatMul": 12,
+        "Softmax": 6
+      },
+      "unsupported_ops": [
+        "DynamicQuantizeLinear",
+        "MatMulInteger"
+      ],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            8
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "pair0-s7-fp32.onnx",
+      "opset": 17,
+      "size_mb": 7.7,
+      "has_external_data": true,
+      "external_data_mb": 7.69,
+      "n_nodes": 192,
+      "op_counts": {
+        "Shape": 2,
+        "Squeeze": 4,
+        "LayerNormalization": 10,
+        "MatMul": 17,
+        "Add": 29,
+        "Div": 7,
+        "Erf": 7,
+        "Mul": 22,
+        "Gather": 12,
+        "Slice": 5,
+        "Sub": 1,
+        "Concat": 8,
+        "Expand": 1,
+        "Transpose": 24,
+        "Reshape": 31,
+        "Unsqueeze": 3,
+        "Softmax": 3,
+        "Gemm": 6
+      },
+      "unsupported_ops": [],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            2
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "pair0-s7-int8.onnx",
+      "opset": 17,
+      "size_mb": 2.03,
+      "has_external_data": false,
+      "external_data_mb": 0,
+      "n_nodes": 268,
+      "op_counts": {
+        "Shape": 2,
+        "LayerNormalization": 10,
+        "Gather": 12,
+        "Slice": 5,
+        "Squeeze": 4,
+        "Concat": 8,
+        "DynamicQuantizeLinear": 17,
+        "DequantizeLinear": 2,
+        "Sub": 1,
+        "Mul": 56,
+        "Expand": 1,
+        "MatMulInteger": 17,
+        "Reshape": 31,
+        "Add": 35,
+        "Cast": 17,
+        "Div": 7,
+        "Erf": 7,
+        "Transpose": 24,
+        "Unsqueeze": 3,
+        "MatMul": 6,
+        "Softmax": 3
+      },
+      "unsupported_ops": [
+        "DynamicQuantizeLinear",
+        "MatMulInteger"
+      ],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            2
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "pair1-s7-fp32.onnx",
+      "opset": 17,
+      "size_mb": 7.7,
+      "has_external_data": true,
+      "external_data_mb": 7.69,
+      "n_nodes": 192,
+      "op_counts": {
+        "Shape": 2,
+        "Squeeze": 4,
+        "LayerNormalization": 10,
+        "MatMul": 17,
+        "Add": 29,
+        "Div": 7,
+        "Erf": 7,
+        "Mul": 22,
+        "Gather": 12,
+        "Slice": 5,
+        "Sub": 1,
+        "Concat": 8,
+        "Expand": 1,
+        "Transpose": 24,
+        "Reshape": 31,
+        "Unsqueeze": 3,
+        "Softmax": 3,
+        "Gemm": 6
+      },
+      "unsupported_ops": [],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            2
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "pair1-s7-int8.onnx",
+      "opset": 17,
+      "size_mb": 2.03,
+      "has_external_data": false,
+      "external_data_mb": 0,
+      "n_nodes": 268,
+      "op_counts": {
+        "Shape": 2,
+        "LayerNormalization": 10,
+        "Gather": 12,
+        "Slice": 5,
+        "Squeeze": 4,
+        "Concat": 8,
+        "DynamicQuantizeLinear": 17,
+        "DequantizeLinear": 2,
+        "Sub": 1,
+        "Mul": 56,
+        "Expand": 1,
+        "MatMulInteger": 17,
+        "Reshape": 31,
+        "Add": 35,
+        "Cast": 17,
+        "Div": 7,
+        "Erf": 7,
+        "Transpose": 24,
+        "Unsqueeze": 3,
+        "MatMul": 6,
+        "Softmax": 3
+      },
+      "unsupported_ops": [
+        "DynamicQuantizeLinear",
+        "MatMulInteger"
+      ],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            2
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "pair2-s7-fp32.onnx",
+      "opset": 17,
+      "size_mb": 7.7,
+      "has_external_data": true,
+      "external_data_mb": 7.69,
+      "n_nodes": 192,
+      "op_counts": {
+        "Shape": 2,
+        "Squeeze": 4,
+        "LayerNormalization": 10,
+        "MatMul": 17,
+        "Add": 29,
+        "Div": 7,
+        "Erf": 7,
+        "Mul": 22,
+        "Gather": 12,
+        "Slice": 5,
+        "Sub": 1,
+        "Concat": 8,
+        "Expand": 1,
+        "Transpose": 24,
+        "Reshape": 31,
+        "Unsqueeze": 3,
+        "Softmax": 3,
+        "Gemm": 6
+      },
+      "unsupported_ops": [],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            2
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "pair2-s7-int8.onnx",
+      "opset": 17,
+      "size_mb": 2.03,
+      "has_external_data": false,
+      "external_data_mb": 0,
+      "n_nodes": 268,
+      "op_counts": {
+        "Shape": 2,
+        "LayerNormalization": 10,
+        "Gather": 12,
+        "Slice": 5,
+        "Squeeze": 4,
+        "Concat": 8,
+        "DynamicQuantizeLinear": 17,
+        "DequantizeLinear": 2,
+        "Sub": 1,
+        "Mul": 56,
+        "Expand": 1,
+        "MatMulInteger": 17,
+        "Reshape": 31,
+        "Add": 35,
+        "Cast": 17,
+        "Div": 7,
+        "Erf": 7,
+        "Transpose": 24,
+        "Unsqueeze": 3,
+        "MatMul": 6,
+        "Softmax": 3
+      },
+      "unsupported_ops": [
+        "DynamicQuantizeLinear",
+        "MatMulInteger"
+      ],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            2
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "pair3-s7-fp32.onnx",
+      "opset": 17,
+      "size_mb": 7.7,
+      "has_external_data": true,
+      "external_data_mb": 7.69,
+      "n_nodes": 192,
+      "op_counts": {
+        "Shape": 2,
+        "Squeeze": 4,
+        "LayerNormalization": 10,
+        "MatMul": 17,
+        "Add": 29,
+        "Div": 7,
+        "Erf": 7,
+        "Mul": 22,
+        "Gather": 12,
+        "Slice": 5,
+        "Sub": 1,
+        "Concat": 8,
+        "Expand": 1,
+        "Transpose": 24,
+        "Reshape": 31,
+        "Unsqueeze": 3,
+        "Softmax": 3,
+        "Gemm": 6
+      },
+      "unsupported_ops": [],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            2
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "pair3-s7-int8.onnx",
+      "opset": 17,
+      "size_mb": 2.03,
+      "has_external_data": false,
+      "external_data_mb": 0,
+      "n_nodes": 268,
+      "op_counts": {
+        "Shape": 2,
+        "LayerNormalization": 10,
+        "Gather": 12,
+        "Slice": 5,
+        "Squeeze": 4,
+        "Concat": 8,
+        "DynamicQuantizeLinear": 17,
+        "DequantizeLinear": 2,
+        "Sub": 1,
+        "Mul": 56,
+        "Expand": 1,
+        "MatMulInteger": 17,
+        "Reshape": 31,
+        "Add": 35,
+        "Cast": 17,
+        "Div": 7,
+        "Erf": 7,
+        "Transpose": 24,
+        "Unsqueeze": 3,
+        "MatMul": 6,
+        "Softmax": 3
+      },
+      "unsupported_ops": [
+        "DynamicQuantizeLinear",
+        "MatMulInteger"
+      ],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            2
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "scenario-s7-fp32.onnx",
+      "opset": 17,
+      "size_mb": 46.23,
+      "has_external_data": true,
+      "external_data_mb": 46.19,
+      "n_nodes": 321,
+      "op_counts": {
+        "Shape": 2,
+        "Squeeze": 7,
+        "LayerNormalization": 16,
+        "MatMul": 32,
+        "Add": 47,
+        "Div": 10,
+        "Erf": 10,
+        "Mul": 34,
+        "Gather": 21,
+        "Slice": 5,
+        "Sub": 1,
+        "Concat": 8,
+        "Expand": 1,
+        "Transpose": 48,
+        "Reshape": 58,
+        "Unsqueeze": 6,
+        "Softmax": 6,
+        "Gemm": 9
+      },
+      "unsupported_ops": [],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            4
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    },
+    {
+      "file": "scenario-s7-int8.onnx",
+      "opset": 17,
+      "size_mb": 11.79,
+      "has_external_data": false,
+      "external_data_mb": 0,
+      "n_nodes": 448,
+      "op_counts": {
+        "Shape": 2,
+        "LayerNormalization": 16,
+        "Gather": 21,
+        "Slice": 5,
+        "Squeeze": 7,
+        "Concat": 8,
+        "DynamicQuantizeLinear": 29,
+        "DequantizeLinear": 2,
+        "Sub": 1,
+        "Mul": 92,
+        "Expand": 1,
+        "MatMulInteger": 29,
+        "Reshape": 58,
+        "Add": 56,
+        "Cast": 29,
+        "Div": 10,
+        "Erf": 10,
+        "Transpose": 48,
+        "Unsqueeze": 6,
+        "MatMul": 12,
+        "Softmax": 6
+      },
+      "unsupported_ops": [
+        "DynamicQuantizeLinear",
+        "MatMulInteger"
+      ],
+      "inputs": [
+        [
+          "features",
+          [
+            "batch",
+            32,
+            1536
+          ]
+        ]
+      ],
+      "outputs": [
+        [
+          "logits",
+          [
+            1,
+            4
+          ]
+        ]
+      ],
+      "issues": [],
+      "warnings": []
+    }
+  ]
+}
