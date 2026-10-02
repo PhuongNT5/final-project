@@ -146,6 +146,20 @@ Corpus facts (not metrics, but cited in prose and therefore traceable here): 1,1
 geometry columns (`iou_walkway`, `iou_restricted`, `foot_in_walkway`, `norm_dist`) identically zero
 (R45) — `tests/test-isafetybench-dataset.py`, all pass.
 
+Source split re-verified 2026-10-02 with the loader's own key `SRC_RE = r'([A-Za-z0-9_-]{11})_'`:
+151 groups = **76 hazard-only / 75 normal-only**, 0 cross-class. One filename
+(`VFCTDVt5B8_trim_7.mp4`, 10-char id) misses the pattern and forms a singleton. The key is strictly
+coarser than a filename-level parse (it merges `3UVQRVJy9g0_clip0/1`; a `_trim_` parse gives 152)
+and no filename-level source is split across two key groups — grouping can only be stricter, never
+leaky. Earlier "150 sources / normal 74" in risks.md R41 was stale and is corrected.
+
+Provenance, now cited in the thesis (Ch3 §3.1.1, ref [26]): Abdullah, Rawat & Vyas, "iSafetyBench:
+A video-language benchmark for safety in industrial environment," VISION'25 workshop @ ICCV 2025,
+arXiv:2508.00399, licence **CC BY-NC-SA 4.0**, project page `https://isafetybench.github.io/`.
+Original task is **open-vocabulary multi-label over 165 categories** (98 routine + 67 hazardous),
+evaluated by multiple-choice prompting of VLMs — our binary recasting makes every number here
+**non-comparable with the source paper**, and the thesis says so.
+
 ## Block 2 — Unsafe-Net binary lane (P-A blind / P-B k-fold-691 / P-C LCO-691)
 
 Seeded as placeholders; each must be re-verified against its log at freeze time, NOT copied from

@@ -51,7 +51,15 @@ zero-bbox configuration (hybrid + frame-gate, §4.6.2) raises this to
 53/64 (85.4 % macro) — the 56/64 here is a best-case upper bound,
 retained because it is the deployed checkpoint.)
 
-## 3.1 Dataset
+## 3.1 Datasets
+
+Two corpora are used, in two lanes that are never compared. **Unsafe-Net**
+(the remainder of §3.1) carries the 4-class multi-entity lane of Chapter 7
+and the edge-export measurements of Chapter 5. **iSafetyBench** (§3.1.1)
+carries the binary headline lane, measured in Ch5 §5.6.9 and carried into
+Chapters 4 and 6. Different label spaces, different protocols, different N:
+no number from one lane may be compared with, summed with, or carried into
+the same sentence as a number from the other without its qualifiers.
 
 The Unsafe-Net dataset [17 — Chapter 2] is used without modification.
 
@@ -89,6 +97,78 @@ many architecture sweeps in Chapter 4, spatial tokens are pre-extracted
 once and cached to disk under `features/` (one `.pt` file per clip;
 shape `(T, 16, 512)` for the YOLOv11s layer-22 output). Runtime-backed
 online extraction is retained for the end-to-end deployment in Chapter 5.
+
+### 3.1.1 iSafetyBench — the headline corpus (binary hazard/normal)
+
+The thesis headline is measured on a second, larger corpus:
+**iSafetyBench** [26], a video-language benchmark for safety in industrial
+environments released at the VISION'25 workshop of ICCV 2025. It is
+distributed under CC BY-NC-SA 4.0 (non-commercial, share-alike) and used
+here for academic research only. Clips are YouTube-sourced industrial
+footage, trimmed by the benchmark authors.
+
+**The original task is not our task.** iSafetyBench is built for
+*open-vocabulary multi-label* recognition over 165 categories — 98 routine
+activities and 67 hazardous events — evaluated by multiple-choice prompting
+of vision-language models. This thesis recasts the corpus as **binary**
+hazard/normal clip classification with a trained head. The recasting is a
+deliberate simplification, and it makes every accuracy reported here
+**non-comparable with any number in the source paper**: different label
+space, different protocol, different model class. No comparison with the
+benchmark's published VLM results is made or implied anywhere in this
+thesis.
+
+**Composition (measured from the distributed files, not quoted).** 1,100
+clips: 420 `hazard` (38.2 %) and 680 `normal` (61.8 %). Majority-class
+accuracy is therefore 61.8 %, so **balanced accuracy** is the reported
+metric throughout and the imbalance cannot inflate a headline. Resolution
+spans 320 × 240 to 1280 × 720; frame rate is median 29.970 fps (Chapter 5
+measures both over all 1,100 clips for the real-time contract).
+
+**Source grouping and the LSO-1100 protocol.** The loader derives a source
+key from the first 11 characters of each filename — the YouTube video id —
+via `SRC_RE = r'([A-Za-z0-9_-]{11})_'`. That yields **151 groups**, of which
+**0 contain both classes** (76 hazard-only, 75 normal-only). All splits are
+GroupKFold over this key, referred to below as **LSO-1100** (leave-source-out
+over 1,100 clips), so no source video is ever split across train and test.
+
+Two properties of the key are recorded for exactness. One filename,
+`VFCTDVt5B8_trim_7.mp4`, carries a 10-character id, fails the pattern, falls
+back to its own basename, and forms a singleton group. And the key is
+strictly *coarser* than a filename-level source parse: it merges
+`3UVQRVJy9g0_clip0` with `3UVQRVJy9g0_clip1`, two trims of one video that a
+naive `_trim_` parse separates (giving 152 groups). The converse was checked
+and never occurs — no filename-level source is split across two key groups —
+so the grouping can only be stricter than necessary, never leaky.
+
+**Pre-registered floor, printed beside every accuracy claim.** Before any
+encoder was trained on this corpus, a 3-feature detector-count rule
+(persons/frame, objects/frame, and their ratio) was fitted under identical
+GroupKFold folds as a gate against the count shortcut: a corpus a count rule
+can solve is not worth a temporal encoder. On a 300-clip balanced probe it
+reaches **63.3 % balanced accuracy leave-source-out** (67.0 % under random
+folds; 50.0 % majority). The gate passed — above chance, far from saturating
+— and that number became the **pre-registered floor**: every
+balanced-accuracy claim on iSafetyBench is reported against 63.3 %,
+recomputed on the same folds, never against 50 %.
+
+**Three limitations inherited from the corpus**, each repeated where the
+affected result appears:
+
+1. *Source–label confounding is diluted, not cured.* With 0 of 151 sources
+   carrying both classes, a model can still in principle fit "this scene is
+   a hazard scene". Leave-source-out leaves that strategy unrewarded across
+   folds, and 151 groups make the test statistically powered where
+   Unsafe-Net's 8 groups do not. But the property is intrinsic to any
+   YouTube-collected safety corpus; the protocol bounds it, it does not
+   remove it.
+2. *No ground-truth boxes.* The corpus ships no detection annotations, so no
+   detection mAP is quoted on it anywhere in this thesis, and the detection
+   quality measured on Unsafe-Net must not be assumed to transfer.
+3. *The entity-to-zone geometry channel is identically zero.* That channel is
+   defined only where per-view zone polygons ship (§7.4); iSafetyBench ships
+   none. Relations on this corpus are therefore entity-to-entity, and the
+   zone-geometry framing of Chapter 7 does not apply to the headline lane.
 
 ## 3.2 Architecture Overview
 
@@ -347,5 +427,12 @@ into a unified bibliography at final thesis compilation).
 
 [17] O. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based
      computer vision system for real-time detection of unsafe behaviours
-     in workplace," *Multimedia Tools and Applications*, vol. 84, pp.
-     34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
+     in workplace," *Multimedia Tools and Applications*, vol. 84, no. 29,
+     pp. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
+
+[26] R. Abdullah, Y. S. Rawat, and S. Vyas, "iSafetyBench: A video-language
+     benchmark for safety in industrial environment," in *Proc. IEEE/CVF
+     Int. Conf. Computer Vision (ICCV) Workshops — VISION'25*, 2025.
+     arXiv:2508.00399. Licensed CC BY-NC-SA 4.0.
+     Project page: https://isafetybench.github.io/
+

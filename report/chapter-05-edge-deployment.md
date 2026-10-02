@@ -1083,7 +1083,7 @@ một **hợp đồng nhịp thời gian thực**: nguồn ở *f* fps buộc h�
 giây mới theo kịp luồng.
 
 Các bản nháp trước lấy *f* = 25,1 fps và suy ra hợp đồng **1,05 quyết định/giây**. Con số đó
-**không đại diện cho kho dữ liệu**: đo siêu dữ liệu của cả **1.100** clip iSafetyBench cho trung
+**không đại diện cho kho dữ liệu**: đo siêu dữ liệu của cả **1.100** clip iSafetyBench [26 — Chương 3] cho trung
 vị **29,97** fps, trung bình **34,25** fps, p95 **60,0** fps, và 25,1 fps chỉ xuất hiện ở **11
 clip (1,0 %)**. Phân bố thực tế: 30,0 fps ở 653 clip (59,4 %), **60,0 fps ở 218 clip (19,8 %)**,
 25,0 fps ở 92 clip, 15,0 fps ở 53 clip.
