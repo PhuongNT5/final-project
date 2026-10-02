@@ -301,7 +301,9 @@ prediction about their system, which cannot be run (weights unreleased).
 
 **Second, evaluation at a scale and a standard the benchmark lacked.** P3 is
 estimated over **516 clips** by k-fold (fold-mean 80.8 ± 4.0 % top-1, macro
-84.2 %, Nadeau–Bengio corrected) rather than a single 64-clip point with no
+84.2 %, Nadeau–Bengio [4] corrected — a **4-class** macro on Unsafe-Net, not to
+be confused with the binary lane's 84.2 % balanced accuracy on iSafetyBench,
+which is a different corpus, metric and N) rather than a single 64-clip point with no
 interval — roughly a 3.5× tighter estimate. To it we add a safety-oriented
 multi-lens battery the paper reports none of: per-class miss-rate,
 cost-sensitive scoring that penalises misses over false alarms, ROC-AUC 0.951,

@@ -12,6 +12,21 @@ Rules this sheet enforces:
 - `test_touch_cost` is 0 unless the row was produced by scoring the frozen 125-clip blind split.
   Running total of touches spent: **0 of 2**.
 
+## Numeral collisions between the two lanes (added 2026-10-02 — read before any defence)
+
+Three figures repeat across lanes that mean entirely different things. Each is correct; each is a
+trap. **No sentence may quote one of these without its protocol and its N**, and an examiner who
+hears "eighty-four point four" must be told immediately which lane it is.
+
+| Digits | Lane A | Lane B | Why it matters |
+|---|---|---|---|
+| **84.4 %** | **B1w balanced accuracy**, iSafetyBench, P-D LSO-1100, N=1,100 (Block 1b) | **blind rule top-1**, Unsafe-Net, P-A same-distribution, N=64 (H6) | Identical digits; different corpus, metric, protocol and N. They must never appear in the same sentence, and neither may be used to corroborate the other. |
+| **84.2 %** | **B1 balanced accuracy** — **the deployed headline**, iSafetyBench, P-D LSO-1100, N=1,100 (Block 1b) | **k-fold macro**, Unsafe-Net 4-class, P-B 50 folds, 516 pooled clips (`KF` L53) | The headline number collides with a 4-class macro. Ch6 §"Second" quotes the 4-class one; it now says so explicitly in-text. |
+| **81.2 %** | **scene-only same-distribution top-1**, 52/64 (H5) | **relation-Transformer LCO macro** (H1) | Both inside the 4-class lane. The scene-only tie at same-distribution and the model's LCO macro are the two ends of the central argument, and they happen to print the same. |
+
+The deployed headline is **84.2 % balanced accuracy, B1, LSO-1100, N=1,100, against a 63.3 % floor**.
+Its own OOF number is the one to quote — never `max(B1, B1w)`, and never the 4-class neighbour.
+
 ## Block 1 — iSafetyBench accuracy lane (P-D LSO-1100, grouped by YouTube source)
 
 1,100 clips / 420 hazard / 151 sources, `StratifiedGroupKFold(10)`, seed 0, 3 seeds/fold, 60 epochs.
