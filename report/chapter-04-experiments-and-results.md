@@ -437,7 +437,10 @@ validation slice) and as a **feature extractor**, across frozen-COCO,
 bbox-finetuned, and hybrid (concatenated) feature spaces. All numbers are
 direct-4-head, blind held-out (val-selected) and best-case (test-selected),
 on the 64-clip 4-class test set. Source:
-`framegate-result.json`, `feature-sweep-result.json`.
+`plans/260613-thesis-defense-revision/reports/feature-sweep-result.json`
+(fixed gate τ = 0.15, every row) and
+`plans/260613-thesis-defense-revision/reports/framegate-result.json`
+(the τ sweep, τ ∈ {0.0, 0.15, 0.25, 0.35, 0.5}).
 
 **Table 4.6b — Corrected-mechanism sweep (1,200-frame detector)**
 
@@ -446,12 +449,22 @@ on the 64-clip 4-class test set. Source:
 | Frozen-COCO (baseline) | 51/64 | 83.1 % | 53/64 | 85.4 % |
 | Frozen + frame-gate | 52/64 | 83.2 % | 52/64 | 83.2 % |
 | Bbox-finetuned features | 50/64 | 79.3 % | 50/64 | 80.0 % |
-| Bbox + frame-gate (paper mechanism) | 49/64 | 75.3 % | 52/64 | 80.9 % |
+| Bbox + frame-gate (paper mechanism) | 51/64 | 80.1 % | 52/64 | 80.9 % |
 | **Hybrid (frozen ⊕ bbox)** | 52/64 | 85.4 % | 53/64 | 85.4 % |
 | **Hybrid + frame-gate** ⭐ | **53/64** | **85.4 %** | 53/64 | **86.9 %** |
 | **Ensemble (frozen ⊕ hybrid)** | — | — | **54/64** | **87.7 %** |
 | *Paper — no-bbox baseline* | *57/64* | *85.78 %* | *57/64* | *85.78 %* |
 | *Paper — full-bbox* | *62/64* | *95.81 %* | *62/64* | *95.81 %* |
+
+> **Protocol correction (2026-10-02).** An earlier draft gave the bbox + frame-gate
+> row as 49/64 blind, 75.3 % macro. Those two values come from `framegate-result.json`,
+> where τ *itself* is selected on validation (τ = 0.5 → 49.33/64, 75.32 %), whereas every
+> other row in the table holds τ fixed at 0.15. Mixing the two protocols made the paper's
+> mechanism look worse than a like-for-like comparison supports, so the row now carries the
+> fixed-τ = 0.15 values from `feature-sweep-result.json` like its neighbours. The
+> val-selected-τ variant is reported here rather than in the table. Neither choice changes
+> the conclusion below: the gate moves at most one sample at fixed τ, and selecting τ costs
+> samples.
 
 Three results follow, all consistent with the data-bound thesis and
 together its strongest confirmation.
@@ -460,8 +473,10 @@ together its strongest confirmation.
 Bbox-finetuned features drop macro to 79.3 % (vs frozen 83.1 %) because
 fine-tuning the backbone for *detection* over-specialises layer-22 and
 discards the general COCO representation the temporal head relies on. The
-frame-gate — the paper's actual gain mechanism — adds only +1 sample on
-frozen features (within seed noise) and *hurts* on bbox features. Replicated
+frame-gate — the paper's actual gain mechanism — moves at most one sample on
+either feature space at the matched τ = 0.15 (+1 on frozen, +1 on bbox), i.e.
+within seed noise; and when τ is itself selected on validation it *costs*
+samples (49.3/64, 75.3 % macro). Replicated
 faithfully at 1,200 frames, the paper's mechanism does **not** close the gap
 at this annotation scale.
 
@@ -1040,15 +1055,32 @@ at near-identical cosine similarity, confirming the §4.5 claim quantitatively:
 
 | Class pair                          | Between-class cos | Max-pair cos |
 | ----------------------------------- | ----------------: | -----------: |
-| WalkwayViol  vs  UnauthorInt        |             0.834 |        0.918 |
-| WalkwayViol  vs  OpenedPanel        |             0.821 |        0.917 |
-| UnauthorInt  vs  OpenedPanel        |             0.819 |        0.916 |
+| **WalkwayViol  vs  UnauthorInt**    |         **0.934** |    **1.000** |
+| UnauthorInt  vs  OpenedPanel        |             0.888 |        0.995 |
+| WalkwayViol  vs  OpenedPanel        |             0.873 |        0.996 |
+| UnauthorInt  vs  CarryOverload      |             0.834 |        0.918 |
+| WalkwayViol  vs  CarryOverload      |             0.831 |        0.921 |
 | OpenedPanel  vs  CarryOverload      |             0.823 |        0.924 |
 
-All pairs cluster in the 0.82–0.93 range. The frozen backbone, by
-itself, places the four behaviour classes essentially co-linear in
-embedding space. This is the geometric statement of the data-bound
-argument in §4.5.
+All six pairs cluster in the 0.823–0.934 range, and the hard
+WalkwayViol ↔ UnauthorInt pair is the *most* collapsed of the six, with
+a max-pair cosine of 1.000 — some clip pairs across the two classes are
+indistinguishable in raw feature space. The frozen backbone, by itself,
+places the four behaviour classes essentially co-linear in embedding
+space. This is the geometric statement of the data-bound argument in
+§4.5. Source: `sweep_results/ablations/embedding_probe.json`
+(`raw_yolo_baseline`), regenerable with `run_probe_tsne.py`.
+
+> **Correction (2026-10-02).** An earlier draft of this table listed four
+> rows with 0.834 / 0.821 / 0.819 / 0.823 and attributed 0.834 to the
+> WalkwayViol ↔ UnauthorInt pair. Re-read against the artifact: 0.834 is
+> the **UnauthorInt ↔ CarryOverload** pair, 0.821 and 0.819 appear nowhere
+> in the probe output, and the hard pair's true value is **0.934**. Only the
+> OpenedPanel ↔ CarryOverload row (0.823 / 0.924) was correct. The table now
+> carries all six pairs as computed. The correction strengthens §4.8.1's
+> claim — the raw collapse is more severe than reported — and enlarges every
+> Δ in Table 4.20; it does not affect any accuracy number, because the
+> cosine probe feeds no decision.
 
 ### 4.8.2 What the direct4 head learns
 
@@ -1059,16 +1091,19 @@ geometry changes substantially:
 
 | Class pair                          | Between-class cos | Δ vs raw |
 | ----------------------------------- | ----------------: | -------: |
-| WalkwayViol  vs  UnauthorInt        |        **+0.375** |   −0.459 |
-| WalkwayViol  vs  OpenedPanel        |            −0.353 |   −1.174 |
-| WalkwayViol  vs  CarryOverload      |            −0.023 |   −0.844 |
-| UnauthorInt  vs  OpenedPanel        |            −0.348 |   −1.167 |
-| UnauthorInt  vs  CarryOverload      |            −0.233 |   −1.057 |
-| OpenedPanel  vs  CarryOverload      |            −0.061 |   −0.884 |
+| WalkwayViol  vs  UnauthorInt        |        **+0.375** |   −0.559 |
+| WalkwayViol  vs  OpenedPanel        |            −0.353 |   −1.226 |
+| WalkwayViol  vs  CarryOverload      |            −0.023 |   −0.854 |
+| UnauthorInt  vs  OpenedPanel        |            −0.348 |   −1.237 |
+| UnauthorInt  vs  CarryOverload      |            −0.233 |   −1.067 |
+| OpenedPanel  vs  CarryOverload      |            −0.061 |   −0.885 |
+
+Δ is computed against the corrected Table 4.19 raw values. Source:
+`sweep_results/ablations/embedding_probe.json` (`models.direct4_s314`).
 
 Three of the four "easy" pairs are pushed to *negative* cosine, i.e.
 the head actively separates them. The hard WalkwayViol ↔ UnauthorInt
-pair is reduced from 0.834 to 0.375 — a substantial separation, but the
+pair is reduced from 0.934 to 0.375 — a substantial separation, but the
 two clusters remain in the same hemisphere. This is the geometric
 fingerprint of the residual error pattern: the head learns a partial
 separator on the confusion pair, exactly enough to score 8/11
@@ -1104,15 +1139,23 @@ geometry collapses.
 ### 4.8.4 t-SNE projections
 
 Figure 4.1 shows 2-D t-SNE projections (perplexity = 10) of each
-embedding space. Saved as PNG under `figures/embedding_tsne_*.png`:
+embedding space, written to `figures/embedding_tsne_*.png` by
+`run_probe_tsne.py` — the same run that produces the cosine tables above.
+`figures/` is otherwise under `.gitignore`; of the six panels only
+`embedding_tsne_raw.png` is committed. The remaining five are regenerated by
+re-running that script, which needs the head checkpoints in
+`sweep_results/pairwise/` and the feature cache
+`sweep_results/pairwise/features/all8_test.pt` — present in the working tree
+but not distributed (§3.6). The six are:
 
 - `embedding_tsne_raw.png` — raw YOLO features; classes interpenetrate.
 - `embedding_tsne_direct4_s314.png` — direct4 head; OpenedPanel and
   CarryOverload form clean clusters; WalkwayViol and UnauthorInt sit
   partially overlapping.
-- `embedding_tsne_pair{0..3}_*.png` — pair-head spaces; only pair0 and
-  pair2 produce visible target-pair separation; pair3 collapses to a
-  single elongated band.
+- `embedding_tsne_pair0_Walkway.png`, `..._pair1_Intervention.png`,
+  `..._pair2_Panel.png`, `..._pair3_Forklift.png` — pair-head spaces; only
+  pair0 and pair2 produce visible target-pair separation; pair3 collapses
+  to a single elongated band.
 
 **Conclusion.** The head's contribution is verifiable in geometry, not
 just in accuracy. Three of four pair heads rely on classifier-boundary

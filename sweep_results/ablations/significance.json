@@ -1,0 +1,172 @@
+{
+  "point_estimates": {
+    "ensemble_top1": {
+      "correct": 56,
+      "n": 64,
+      "pct": 87.5
+    },
+    "direct4_top1": {
+      "correct": 55,
+      "n": 64,
+      "pct": 85.94
+    },
+    "cascade_top1": {
+      "correct": 51,
+      "n": 64,
+      "pct": 79.69
+    },
+    "ensemble_macro": 89.28
+  },
+  "bootstrap_5000": {
+    "top1": {
+      "mean": 87.46,
+      "ci95": [
+        79.69,
+        95.31
+      ],
+      "std": 4.13
+    },
+    "macro": {
+      "mean": 89.34,
+      "ci95": [
+        81.32,
+        96.32
+      ],
+      "std": 3.87
+    },
+    "per_class": [
+      {
+        "class": "WalkwayViol",
+        "n": 32,
+        "point": 84.38,
+        "mean": 84.48,
+        "ci95_lo": 71.88,
+        "ci95_hi": 96.88,
+        "std": 6.27
+      },
+      {
+        "class": "UnauthorInt",
+        "n": 11,
+        "point": 72.73,
+        "mean": 72.62,
+        "ci95_lo": 45.45,
+        "ci95_hi": 100.0,
+        "std": 13.6
+      },
+      {
+        "class": "OpenedPanel",
+        "n": 13,
+        "point": 100.0,
+        "mean": 100.0,
+        "ci95_lo": 100.0,
+        "ci95_hi": 100.0,
+        "std": 0.0
+      },
+      {
+        "class": "CarryOverload",
+        "n": 8,
+        "point": 100.0,
+        "mean": 100.0,
+        "ci95_lo": 100.0,
+        "ci95_hi": 100.0,
+        "std": 0.0
+      }
+    ]
+  },
+  "top1_vs_own_variants": {
+    "ensemble_vs_direct4": {
+      "b01": 0,
+      "b10": 1,
+      "b": 1,
+      "c": 0,
+      "n_discordant": 1,
+      "p_value": 1.0,
+      "diff_accuracy_pp": 1.5625,
+      "diff_accuracy_ci95_pp": [
+        0.0,
+        4.6875
+      ],
+      "ci_method": "percentile_bootstrap_over_clips_5000",
+      "underpowered": true,
+      "note": "N=64: few discordant cells -> use bootstrap CIs as primary evidence"
+    },
+    "ensemble_vs_cascade": {
+      "b01": 0,
+      "b10": 5,
+      "b": 5,
+      "c": 0,
+      "n_discordant": 5,
+      "p_value": 0.0625,
+      "diff_accuracy_pp": 7.8125,
+      "diff_accuracy_ci95_pp": [
+        1.5625,
+        14.101562499999432
+      ],
+      "ci_method": "percentile_bootstrap_over_clips_5000",
+      "underpowered": true,
+      "note": "N=64: few discordant cells -> use bootstrap CIs as primary evidence"
+    }
+  },
+  "top1_vs_paper": {
+    "ours_vs_paper_baseline": {
+      "label": "paper ConvLSTM baseline (55/64)",
+      "n": 64,
+      "our_correct": 56,
+      "other_correct": 55,
+      "primary_test": "mcnemar_discordance_bound (baseline per-clip predictions unavailable)",
+      "p_value_bound": [
+        0.9999999999999996,
+        1.0
+      ],
+      "min_p_over_splits": 0.9999999999999996,
+      "max_p_over_splits": 1.0,
+      "diff": 1,
+      "favours_b": false,
+      "delta_pp": 1.5625,
+      "diagnostic_two_proportion_z": {
+        "z": 0.26044680535720477,
+        "p_value": 0.7945191428350273
+      },
+      "diagnostic_warning": "INVALID independence assumption on same-clip paired data (assumes 2 independent n=64 samples) \u2014 kept only for continuity with older reports; do NOT cite this p as the significance test."
+    },
+    "ours_vs_paper_full": {
+      "label": "paper full pipeline (62/64)",
+      "n": 64,
+      "our_correct": 56,
+      "other_correct": 62,
+      "primary_test": "mcnemar_discordance_bound (baseline per-clip predictions unavailable)",
+      "p_value_bound": [
+        0.03125,
+        0.5323087760278422
+      ],
+      "min_p_over_splits": 0.03125,
+      "max_p_over_splits": 0.5323087760278422,
+      "diff": -6,
+      "favours_b": true,
+      "delta_pp": -9.375,
+      "diagnostic_two_proportion_z": {
+        "z": -1.9761287270222838,
+        "p_value": 0.04814019958202187
+      },
+      "diagnostic_warning": "INVALID independence assumption on same-clip paired data (assumes 2 independent n=64 samples) \u2014 kept only for continuity with older reports; do NOT cite this p as the significance test."
+    }
+  },
+  "macro_z_tests_simulated": {
+    "macro_ours_vs_paper_baseline": {
+      "ours_macro": 89.28,
+      "paper_macro": 85.78,
+      "n": 64,
+      "z": 0.599,
+      "p": 0.549,
+      "delta_pp": 3.5
+    },
+    "macro_ours_vs_paper_full": {
+      "ours_macro": 89.28,
+      "paper_macro": 95.81,
+      "n": 64,
+      "z": -1.406,
+      "p": 0.1596,
+      "delta_pp": -6.53
+    }
+  }
+}

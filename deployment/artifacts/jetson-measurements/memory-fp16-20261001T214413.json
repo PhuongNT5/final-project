@@ -1,0 +1,25 @@
+{
+  "mode": "fp16",
+  "host_peak_rss_mb": 31.578,
+  "device_total_mb": 7607.06,
+  "device_free_mb": 4083.69,
+  "device_used_mb": 3523.38,
+  "device_used_note": "system-wide (unified memory shared with OS), not a model footprint",
+  "engines_loaded": [
+    "p3-appearance",
+    "p3-detector",
+    "p3-relation-head",
+    "p3-relation-head-bin-e3"
+  ],
+  "n_engines_resident": 4,
+  "engines_resident_delta_mb": 251.1,
+  "git_commit": "unknown",
+  "timestamp": "2026-10-01T21:44:13.323089",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12"
+  }
+}

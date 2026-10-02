@@ -393,3 +393,137 @@ After the fixes: **0 dangling reference markers across all 8 report files.**
    nothing now misresolves, so this is deferred, not broken — but the merge is real work and is
    not scheduled. The paper of record appearing as [17]/[5]/[1] in one document is the kind of
    thing a reader notices.
+
+## Artifact-number sweep, 2026-10-03 — reading the numbers back out of the restored files
+
+The two earlier sweeps checked that cited paths *resolve* and that internal
+cross-references *point somewhere*. This one opens the artifacts and compares
+their contents against the tables that cite them. Two tables disagreed with
+their own evidence; both are now corrected. A fourth check — cited path vs the
+**git index**, not the filesystem — found that resolving is not the same as
+being distributed.
+
+### 1. Table 4.6b mixed two protocols in one table (ch04 §4.6.2)
+
+Five of six rows match `feature-sweep-result.json` exactly. The sixth —
+"Bbox + frame-gate (**paper mechanism**)" — read 49/64, 75.3 % blind. Traced:
+those two values come from the *other* artifact, `framegate-result.json`, whose
+meta block selects τ **on validation** (τ = 0.5 → 49.33, 75.32). Every other row
+holds τ fixed at 0.15, where the same configuration gives **51/64, 80.1 %**.
+
+Direction of the error matters: the mixed protocol made **the paper's own
+mechanism** look worse than like-for-like. Fixed by putting the row on the same
+footing as its neighbours and disclosing the val-selected variant in a note.
+
+Consequence for the argument. §4.6.2(i) read "the frame-gate ... adds only +1
+sample on frozen features and *hurts* on bbox features." At matched τ the gate
+**helps** bbox by +1 (50 → 51) — the "hurts" was an artifact of the protocol mix.
+Rewritten to the defensible claim: the gate moves ≤ 1 sample on either feature
+space at fixed τ (within seed noise), and *costs* samples when τ is itself
+selected. Conclusions (i)–(iii) survive: 51/64 and 80.1 % still sit clearly below
+hybrid+gate's 53/64 and 85.4 %.
+
+### 2. Table 4.19 — three of four rows did not exist in the artifact
+
+| Thesis row (old) | Value | Status against `embedding_probe.json` |
+|---|---|---|
+| WalkwayViol vs UnauthorInt | 0.834 / 0.918 | **mislabelled** — 0.834 / 0.9176 is the *UnauthorInt vs CarryOverload* pair |
+| WalkwayViol vs OpenedPanel | 0.821 / 0.917 | **not in the artifact** (true: 0.873 / 0.996) |
+| UnauthorInt vs OpenedPanel | 0.819 / 0.916 | **not in the artifact** (true: 0.888 / 0.995) |
+| OpenedPanel vs CarryOverload | 0.823 / 0.924 | correct |
+
+The true value for the hard pair is **0.934** (max-pair **1.000** — some clip
+pairs across the two classes are indistinguishable in raw feature space). The
+table now carries all six pairs as computed.
+
+The correction **strengthens** §4.8.1: the raw collapse is more severe than
+reported, and every Δ in Table 4.20 grows (hard pair −0.459 → **−0.559**). It
+touches no accuracy number — the cosine probe feeds no decision. Propagated to
+ch01:241 (0.834 → 0.934, range 0.82–0.93 → 0.823–0.934, §4.7 → §4.8),
+ch04:1086, Table 4.20's whole Δ column, and ch06:98.
+
+Table 4.21 (pair-head cosines) was checked the same way and matches the artifact
+on all four rows, within and between.
+
+### 3. Cited ≠ available: 30 paths resolved on disk but were not in the repository
+
+The 02-10 existence sweep used `os.path.exists`. Re-run against `git ls-files`,
+**30 of 123 cited paths were untracked** — a reader cloning the repo gets none of
+them. Causes were directory-level ignores (`figures/`, `sweep_results/**/*.json`,
+`annotation_guide/`, `deployment/artifacts/`), not deliberate exclusion of each file.
+
+Resolved by tracking the small evidence and disclosing the large binaries:
+
+| Class | Action | Size |
+|---|---|---|
+| 11 ablation / evaluation JSONs (ch04, ch07 tables) | un-ignored, committed | ~56 KB |
+| 4 cited figures (`arch-diagram-jetson-edge.mmd`, 2 relation PNGs, `embedding_tsne_raw.png`) | un-ignored, committed | ~124 KB |
+| `tegrastats-soak30min.log`, `tegrastats-pwr{0,1,2}.log` | force-added (ch05 evidence of record) | ~1.3 MB |
+| `live-demo-stream.jsonl` | force-added | 1.9 MB |
+| `frame_manifest.csv` | un-ignored via entry-form rule | 244 KB |
+| weights + feature caches (`*.pt`, 18 MB + 125 MB), `train_run.log` (2.8 MB), `gradcam/` (94 MB) | **disclosed as not distributed**, §3.6 and ch07 provenance | — |
+
+`.gitignore` was restructured from directory-form to entry-form only where a
+negation was needed. Privacy re-verified afterwards: of everything under
+`annotation_guide/`, exactly one file (the metadata CSV — class, clip, frame
+index, split; no imagery, no timestamps) becomes committable, and **no `.jpg`,
+`.mp4`, `.avi` or `.mov` anywhere in the tree** is newly committable.
+
+### 4. §3.6 claimed the weights were in the repository
+
+"All training and inference scripts, trained weights (~300 MB), and ONNX exports
+are included in the repository" — false on two of three counts. Rewritten to say
+what is distributed (scripts + ~164 KB of result JSONs) and what is not
+(`sweep_results/**/*.pt`, `deployment/artifacts/`, `figures/gradcam/`), and to
+distinguish **re-derivable** (from committed JSONs) from **re-computable** (needs
+the caches regenerated). The same false-availability claim in ch07's detector
+provenance paragraph ("the training log kept in the repo") is corrected.
+
+### 5. BLOCKING — six artifacts behind the headline edge numbers are not on this machine
+
+`r48-composed-cadence-fp16-20261001T{233159,233324,233449}.json` (Bảng 5.5O) and
+`r48-idle-droop-probe-fp16-20261001T{234145,234242,234322}.json` (Bảng 5.5P) exist
+**nowhere on the Mac** — not ignored, absent. Their benchmark script
+(`deployment/scripts/benchmark-r48-composed-cadence.py`) and its test are present;
+sibling families from the same evening (`r48-pipeline`, `r48-parity`) were pulled
+back and are tracked, so these two were measured on the device and never rsync'd.
+
+What rests on them: **289,672 ms/decision = 3,452 decisions/s**, the p95 322,708 ms,
+the 2,76× and 1,38× margins, the 76,1 % duty factor, and the entire pre-registered
+H-sụt-nhịp adjudication (2,088 ≥ 1,8; 55,231 ms inside [46,90 ; 70,36]). The numbers
+in those tables are internally consistent and were quoted from the artifacts when
+written, but **right now they cannot be re-read from the artifact**, which is the
+standard this exercise holds every other number to.
+
+Not written into the chapter yet — one rsync fixes it. Added as the **first** device
+action in the runbook, ahead of Step 8. If the files turn out to be gone, both tables
+must be re-measured or marked unverifiable.
+
+### 6. Figure 4.1 — five of six panels were never committed
+
+`figures/` was wholly ignored, so only `embedding_tsne_raw.png` exists at all. §4.8.4
+previously implied all six were saved. Now states which one is committed, names the
+five exactly, and gives the regeneration path (`run_probe_tsne.py` against the
+checkpoints in `sweep_results/pairwise/` and the feature cache). Both inputs are
+present in the working tree; neither is distributed.
+
+### Method note
+
+Three of the five findings above came from the same move: take a claim the prose
+makes *about the repository itself* ("included in", "kept in the repo", "saved as
+PNG under") and check it against `git ls-files` rather than the filesystem. The
+working tree flatters the repository; a sweep that uses `os.path.exists` cannot
+see the difference.
+
+### Unresolved questions
+
+5. Can the six `r48-composed-cadence` / `r48-idle-droop-probe` artifacts be pulled
+   off the device? Blocking for Bảng 5.5O/5.5P provenance. Device down since 01-10.
+6. `live-demo-stream.jsonl` (1.9 MB) and `tegrastats-soak30min.log` (924 KB) were
+   force-added against a directory ignore. Is force-add the right convention here,
+   or should `deployment/artifacts/` be restructured to entry-form like the others?
+   91 files were already tracked there by force-add, so this follows precedent.
+7. Table 4.19 was wrong in three of four rows while Tables 4.20 and 4.21 — from the
+   same artifact — were exact. That asymmetry suggests 4.19 was typed from memory
+   rather than read. No other table in ch04 has been checked value-by-value against
+   its artifact; §4.3–§4.5 remain unaudited at this level.

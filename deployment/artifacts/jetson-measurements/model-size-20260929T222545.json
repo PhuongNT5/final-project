@@ -1,0 +1,22 @@
+{
+  "engine_dir": "deployment/export/jetson-p3",
+  "sizes_mb": {
+    "p3-appearance-fp16.engine": 2.862,
+    "p3-appearance-fp32.engine": 4.473,
+    "p3-detector-fp16.engine": 21.457,
+    "p3-detector-fp32.engine": 38.299,
+    "p3-relation-head-bin-e3-fp16.engine": 0.19,
+    "p3-relation-head-bin-e3-fp32.engine": 0.19,
+    "p3-relation-head-fp16.engine": 0.996,
+    "p3-relation-head-fp32.engine": 1.42
+  },
+  "git_commit": "unknown",
+  "timestamp": "2026-09-29T22:25:45.155497",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12"
+  }
+}

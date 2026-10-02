@@ -1,0 +1,80 @@
+{
+  "engine_dir": "/home/phuongnguyen/my-project/deployment/export/jetson",
+  "sizes_mb": {
+    "backbone-fp16.engine": 18.818,
+    "backbone-fp32.engine": 34.127,
+    "backbone-int8.engine": 10.093,
+    "direct4-s314-fp16.engine": 24.345,
+    "direct4-s314-fp32.engine": 46.648,
+    "direct4-s314-int8.engine": 24.347,
+    "p3-appearance-fp16-batch1.engine": 2.949,
+    "p3-appearance-fp16.engine": 2.728,
+    "p3-appearance-fp32.engine": 4.473,
+    "p3-detector-fp16.engine": 21.543,
+    "p3-detector-fp32.engine": 38.299,
+    "p3-relation-head-bin-e3-fp16.engine": 0.19,
+    "p3-relation-head-bin-e3-fp32.engine": 0.19,
+    "p3-relation-head-fp16.engine": 0.991,
+    "p3-relation-head-fp32.engine": 1.42,
+    "pair0-s7-fp16.engine": 4.662,
+    "pair0-s7-fp32.engine": 8.007,
+    "pair0-s7-int8.engine": 4.665,
+    "pair1-s7-fp16.engine": 4.662,
+    "pair1-s7-fp32.engine": 7.992,
+    "pair1-s7-int8.engine": 4.665,
+    "pair2-s7-fp16.engine": 4.662,
+    "pair2-s7-fp32.engine": 7.992,
+    "pair2-s7-int8.engine": 4.665,
+    "pair3-s7-fp16.engine": 4.662,
+    "pair3-s7-fp32.engine": 8.007,
+    "pair3-s7-int8.engine": 4.665,
+    "r48-b1-clip-temporal-3seed-fp16.engine": 1.874,
+    "r48-clip-vit-b32-vision-fp16.engine": 174.022,
+    "scenario-s7-fp16.engine": 24.345,
+    "scenario-s7-fp32.engine": 46.67,
+    "scenario-s7-int8.engine": 24.347
+  },
+  "git_commit": "9c1e219",
+  "timestamp": "2026-10-01T22:40:28.766894",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 729600,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 729600,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 306000000,
+        "cur_hz": 306000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": false,
+      "gpu": false,
+      "any": false
+    },
+    "load_average": [
+      2.4716796875,
+      1.61572265625,
+      1.576171875
+    ],
+    "competing_processes": [],
+    "quiet": true
+  }
+}

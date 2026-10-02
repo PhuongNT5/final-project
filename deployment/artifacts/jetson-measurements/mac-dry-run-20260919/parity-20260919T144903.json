@@ -1,0 +1,17 @@
+{
+  "engine_dir": "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/deployment/export/jetson",
+  "rule": "argmax",
+  "threshold": 0.5,
+  "input_source": "random-fixed-seed(0)",
+  "stages": {},
+  "skipped_reason": "dry-run: tensorrt/pycuda not available on this machine",
+  "git_commit": "43657ea",
+  "timestamp": "2026-09-19T14:49:03.536325",
+  "device_state": {
+    "dry_run": true,
+    "nvpmodel_q": null,
+    "jetson_clocks_show": null,
+    "platform": "macOS-14.6-arm64-arm-64bit-Mach-O",
+    "python_version": "3.13.5"
+  }
+}

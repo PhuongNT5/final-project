@@ -1,0 +1,32 @@
+{
+  "mode": "fp16",
+  "host_peak_rss_mb": 33.957,
+  "device_total_mb": 7607.06,
+  "device_free_mb": 4973.27,
+  "device_used_mb": 2633.79,
+  "device_used_note": "system-wide (unified memory shared with OS), not a model footprint",
+  "engines_loaded": [
+    "backbone",
+    "direct4-s314",
+    "p3-appearance",
+    "p3-detector",
+    "p3-relation-head",
+    "p3-relation-head-bin-e3",
+    "pair0-s7",
+    "pair1-s7",
+    "pair2-s7",
+    "pair3-s7",
+    "scenario-s7"
+  ],
+  "n_engines_resident": 11,
+  "engines_resident_delta_mb": 417.84,
+  "git_commit": "unknown",
+  "timestamp": "2026-10-01T21:09:38.213590",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12"
+  }
+}

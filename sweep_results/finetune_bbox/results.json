@@ -1,0 +1,93 @@
+{
+  "individual": {
+    "direct4_s42": {
+      "correct": 52,
+      "macro": 86.15056818181819
+    },
+    "direct4_s123": {
+      "correct": 52,
+      "macro": 83.16761363636364
+    },
+    "direct4_s314": {
+      "correct": 52,
+      "macro": 86.15056818181819
+    },
+    "direct4_s7": {
+      "correct": 34,
+      "macro": 65.32998251748252
+    },
+    "direct4_s2024": {
+      "correct": 54,
+      "macro": 84.73011363636364
+    },
+    "eight_s42": {
+      "correct": 47,
+      "macro": 72.41040209790211
+    },
+    "eight_s123": {
+      "correct": 48,
+      "macro": 72.04982517482517
+    },
+    "eight_s314": {
+      "correct": 43,
+      "macro": 65.85992132867133
+    },
+    "eight_s7": {
+      "correct": 48,
+      "macro": 74.68312937062936
+    },
+    "eight_s2024": {
+      "correct": 47,
+      "macro": 71.61822552447552
+    },
+    "cascade_s42": {
+      "correct": 28,
+      "macro": 66.25874125874125
+    },
+    "pairwise_s42": {
+      "correct": 19,
+      "macro": 45.34527972027972
+    },
+    "cascade_s123": {
+      "correct": 42,
+      "macro": 68.24737762237763
+    },
+    "pairwise_s123": {
+      "correct": 34,
+      "macro": 49.19689685314685
+    },
+    "cascade_s314": {
+      "correct": 52,
+      "macro": 85.00874125874127
+    },
+    "pairwise_s314": {
+      "correct": 18,
+      "macro": 38.76748251748252
+    },
+    "cascade_s7": {
+      "correct": 46,
+      "macro": 72.8638548951049
+    },
+    "pairwise_s7": {
+      "correct": 16,
+      "macro": 29.807692307692307
+    },
+    "cascade_s2024": {
+      "correct": 51,
+      "macro": 83.8778409090909
+    },
+    "pairwise_s2024": {
+      "correct": 25,
+      "macro": 45.05572552447552
+    }
+  },
+  "ensemble_members": [
+    "direct4_s2024"
+  ],
+  "ensemble_correct": 54,
+  "ensemble_macro": 84.73011363636364,
+  "calibrated_correct": 54,
+  "best_single": "direct4_s2024",
+  "model_path": "runs/detect/sweep_results/finetune_bbox/yolo_finetuned/weights/best.pt",
+  "total_time_s": 31035.908239126205
+}

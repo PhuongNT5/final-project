@@ -1,0 +1,206 @@
+{
+  "backend": "tensorrt",
+  "mode": "fp16",
+  "frames": 16,
+  "stages": {
+    "tower": {
+      "path": "deployment/export/jetson/r48-clip-vit-b32-vision-fp16.engine",
+      "batch": 16,
+      "runs": 100,
+      "median_ms": 23.567,
+      "p95_ms": 35.418,
+      "p99_ms": 35.498,
+      "min_ms": 22.859,
+      "max_ms": 35.514,
+      "params": 87849216
+    },
+    "head": {
+      "path": "deployment/export/jetson/r48-b1-clip-temporal-3seed-fp16.engine",
+      "batch": 1,
+      "runs": 100,
+      "median_ms": 0.391,
+      "p95_ms": 0.484,
+      "p99_ms": 0.512,
+      "min_ms": 0.319,
+      "max_ms": 0.628,
+      "params": 603270
+    }
+  },
+  "extras": {
+    "detector": {
+      "path": "deployment/export/jetson/p3-detector-fp16.engine",
+      "batch": 1,
+      "runs": 100,
+      "median_ms": 12.741,
+      "p95_ms": 14.736,
+      "p99_ms": 14.854,
+      "min_ms": 12.081,
+      "max_ms": 14.88
+    },
+    "legacy_appearance": {
+      "path": "deployment/export/jetson/p3-appearance-fp16.engine",
+      "batch": 16,
+      "runs": 100,
+      "median_ms": 7.645,
+      "p95_ms": 7.818,
+      "p99_ms": 7.884,
+      "min_ms": 6.958,
+      "max_ms": 7.923
+    }
+  },
+  "per_decision_ms": 23.958,
+  "decisions_per_sec": 41.74,
+  "backbone_share_pct": 98.37,
+  "is_device_number": true,
+  "tegrastats": {
+    "dry_run": false,
+    "n_samples": 6,
+    "samples": [
+      {
+        "raw": "10-01-2026 22:39:15 RAM 2830/7607MB (lfb 42x4MB) SWAP 14/3804MB (cached 0MB) CPU [0%@1728,98%@1728,0%@1728,0%@1728,0%@729,0%@729] GR3D_FREQ 0% cpu@52.968C soc2@53.375C soc0@53.468C gpu@54.593C tj@54.593C soc1@53.937C VDD_IN 5931mW/5931mW VDD_CPU_GPU_CV 1470mW/1470mW VDD_SOC 1391mW/1391mW",
+        "ram_used_mb": 2830,
+        "ram_total_mb": 7607,
+        "power_now_mw": 5931,
+        "power_avg_mw": 5931,
+        "gpu_util_pct": 0,
+        "temps_c": {
+          "cpu": 52.968,
+          "soc2": 53.375,
+          "soc0": 53.468,
+          "gpu": 54.593,
+          "tj": 54.593,
+          "soc1": 53.937
+        },
+        "ts": 1790869155.2512317
+      },
+      {
+        "raw": "10-01-2026 22:39:16 RAM 2872/7607MB (lfb 42x4MB) SWAP 14/3804MB (cached 0MB) CPU [8%@729,24%@729,0%@729,0%@729,0%@729,0%@729] GR3D_FREQ 84% cpu@53.468C soc2@55.218C soc0@54.562C gpu@55.75C tj@55.968C soc1@53.906C VDD_IN 13539mW/9735mW VDD_CPU_GPU_CV 6501mW/3986mW VDD_SOC 2397mW/1894mW",
+        "ram_used_mb": 2872,
+        "ram_total_mb": 7607,
+        "power_now_mw": 13539,
+        "power_avg_mw": 9735,
+        "gpu_util_pct": 84,
+        "temps_c": {
+          "cpu": 53.468,
+          "soc2": 55.218,
+          "soc0": 54.562,
+          "gpu": 55.75,
+          "tj": 55.968,
+          "soc1": 53.906
+        },
+        "ts": 1790869156.2574744
+      },
+      {
+        "raw": "10-01-2026 22:39:17 RAM 2872/7607MB (lfb 42x4MB) SWAP 14/3804MB (cached 0MB) CPU [5%@729,14%@729,0%@729,0%@729,0%@729,0%@729] GR3D_FREQ 83% cpu@54.156C soc2@56.656C soc0@55.531C gpu@57.437C tj@57.437C soc1@54.437C VDD_IN 19533mW/13001mW VDD_CPU_GPU_CV 9973mW/5981mW VDD_SOC 4156mW/2648mW",
+        "ram_used_mb": 2872,
+        "ram_total_mb": 7607,
+        "power_now_mw": 19533,
+        "power_avg_mw": 13001,
+        "gpu_util_pct": 83,
+        "temps_c": {
+          "cpu": 54.156,
+          "soc2": 56.656,
+          "soc0": 55.531,
+          "gpu": 57.437,
+          "tj": 57.437,
+          "soc1": 54.437
+        },
+        "ts": 1790869157.2632542
+      },
+      {
+        "raw": "10-01-2026 22:39:18 RAM 2867/7607MB (lfb 43x4MB) SWAP 14/3804MB (cached 0MB) CPU [38%@1728,0%@1728,1%@1728,0%@1728,7%@729,0%@729] GR3D_FREQ 26% cpu@54.875C soc2@55.406C soc0@55.406C gpu@56.906C tj@56.906C soc1@54.875C VDD_IN 15222mW/13556mW VDD_CPU_GPU_CV 6988mW/6233mW VDD_SOC 3558mW/2876mW",
+        "ram_used_mb": 2867,
+        "ram_total_mb": 7607,
+        "power_now_mw": 15222,
+        "power_avg_mw": 13556,
+        "gpu_util_pct": 26,
+        "temps_c": {
+          "cpu": 54.875,
+          "soc2": 55.406,
+          "soc0": 55.406,
+          "gpu": 56.906,
+          "tj": 56.906,
+          "soc1": 54.875
+        },
+        "ts": 1790869158.26883
+      },
+      {
+        "raw": "10-01-2026 22:39:19 RAM 2954/7607MB (lfb 36x4MB) SWAP 14/3804MB (cached 0MB) CPU [56%@729,1%@729,1%@729,0%@729,0%@729,0%@729] GR3D_FREQ 76% cpu@54.843C soc2@56.125C soc0@55.687C gpu@56.937C tj@56.937C soc1@54.968C VDD_IN 15706mW/13986mW VDD_CPU_GPU_CV 7015mW/6389mW VDD_SOC 3871mW/3075mW",
+        "ram_used_mb": 2954,
+        "ram_total_mb": 7607,
+        "power_now_mw": 15706,
+        "power_avg_mw": 13986,
+        "gpu_util_pct": 76,
+        "temps_c": {
+          "cpu": 54.843,
+          "soc2": 56.125,
+          "soc0": 55.687,
+          "gpu": 56.937,
+          "tj": 56.937,
+          "soc1": 54.968
+        },
+        "ts": 1790869159.274814
+      },
+      {
+        "raw": "10-01-2026 22:39:20 RAM 2991/7607MB (lfb 28x4MB) SWAP 14/3804MB (cached 0MB) CPU [44%@729,1%@729,0%@729,0%@729,19%@729,0%@729] GR3D_FREQ 65% cpu@54.656C soc2@55.625C soc0@55.625C gpu@56.593C tj@56.593C soc1@54.968C VDD_IN 12910mW/13807mW VDD_CPU_GPU_CV 4943mW/6148mW VDD_SOC 3497mW/3145mW",
+        "ram_used_mb": 2991,
+        "ram_total_mb": 7607,
+        "power_now_mw": 12910,
+        "power_avg_mw": 13807,
+        "gpu_util_pct": 65,
+        "temps_c": {
+          "cpu": 54.656,
+          "soc2": 55.625,
+          "soc0": 55.625,
+          "gpu": 56.593,
+          "tj": 56.593,
+          "soc1": 54.968
+        },
+        "ts": 1790869160.2810922
+      }
+    ]
+  },
+  "git_commit": "9c1e219",
+  "timestamp": "2026-10-01T22:39:20.714040",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 729600,
+        "cur_khz": 1113600,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 729600,
+        "cur_khz": 729600,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 306000000,
+        "cur_hz": 816000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": false,
+      "gpu": false,
+      "any": false
+    },
+    "load_average": [
+      0.2109375,
+      1.20458984375,
+      1.4560546875
+    ],
+    "competing_processes": [],
+    "quiet": true
+  }
+}

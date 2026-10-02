@@ -1,0 +1,45 @@
+{
+  "engine_dir": "deployment/export/jetson-p3",
+  "rule": "argmax",
+  "threshold": 0.5,
+  "input_source": "random-fixed-seed(0)",
+  "stages": {
+    "p3-appearance": {
+      "reference_precision": "fp32",
+      "fp16": {
+        "max_abs_diff": 0.025275826454162598,
+        "decision_agreement_rate": 1.0
+      }
+    },
+    "p3-detector": {
+      "reference_precision": "fp32",
+      "fp16": {
+        "max_abs_diff": 794.4246215820312,
+        "decision_agreement_rate": 0.6333333333333333
+      }
+    },
+    "p3-relation-head-bin-e3": {
+      "reference_precision": "fp32",
+      "fp16": {
+        "max_abs_diff": 0.0,
+        "decision_agreement_rate": 1.0
+      }
+    },
+    "p3-relation-head": {
+      "reference_precision": "fp32",
+      "fp16": {
+        "max_abs_diff": 0.0016644001007080078,
+        "decision_agreement_rate": 1.0
+      }
+    }
+  },
+  "git_commit": "unknown",
+  "timestamp": "2026-09-29T22:10:55.063329",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12"
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "models": {
+    "direct4_s314": {
+      "emb_dim": 384,
+      "pairs": {
+        "WalkwayViol_vs_UnauthorInt": {
+          "between_mean": 0.3751929998397827,
+          "between_max": 1.0000003576278687,
+          "within_c1_mean": 0.6878620982170105,
+          "within_c2_mean": 0.4795528054237366
+        },
+        "WalkwayViol_vs_OpenedPanel": {
+          "between_mean": -0.353099524974823,
+          "between_max": 0.9796549677848816,
+          "within_c1_mean": 0.6878620982170105,
+          "within_c2_mean": 0.7848336100578308
+        },
+        "WalkwayViol_vs_CarryOverload": {
+          "between_mean": -0.0231187604367733,
+          "between_max": 0.30818796157836914,
+          "within_c1_mean": 0.6878620982170105,
+          "within_c2_mean": 0.9849505424499512
+        },
+        "UnauthorInt_vs_OpenedPanel": {
+          "between_mean": -0.3482022285461426,
+          "between_max": 0.9841739535331726,
+          "within_c1_mean": 0.4795528054237366,
+          "within_c2_mean": 0.7848336100578308
+        },
+        "UnauthorInt_vs_CarryOverload": {
+          "between_mean": -0.2329631745815277,
+          "between_max": 0.23404432833194733,
+          "within_c1_mean": 0.4795528054237366,
+          "within_c2_mean": 0.9849505424499512
+        },
+        "OpenedPanel_vs_CarryOverload": {
+          "between_mean": -0.061403658241033554,
+          "between_max": 0.2725900113582611,
+          "within_c1_mean": 0.7848336100578308,
+          "within_c2_mean": 0.9849505424499512
+        }
+      }
+    },
+    "pair0_Walkway": {
+      "emb_dim": 192,
+      "pairs": {
+        "WalkwayViol_vs_UnauthorInt": {
+          "between_mean": 0.6760859489440918,
+          "between_max": 1.0,
+          "within_c1_mean": 0.6597869396209717,
+          "within_c2_mean": 0.6537703275680542
+        },
+        "WalkwayViol_vs_OpenedPanel": {
+          "between_mean": 0.29864275455474854,
+          "between_max": 0.9952288866043091,
+          "within_c1_mean": 0.6597869396209717,
+          "within_c2_mean": 0.9422751069068909
+        },
+        "WalkwayViol_vs_CarryOverload": {
+          "between_mean": 0.8052982687950134,
+          "between_max": 0.9880503416061401,
+          "within_c1_mean": 0.6597869396209717,
+          "within_c2_mean": 0.9765750765800476
+        },
+        "UnauthorInt_vs_OpenedPanel": {
+          "between_mean": 0.309704452753067,
+          "between_max": 0.9877397418022156,
+          "within_c1_mean": 0.6537703275680542,
+          "within_c2_mean": 0.9422751069068909
+        },
+        "UnauthorInt_vs_CarryOverload": {
+          "between_mean": 0.8163794875144958,
+          "between_max": 0.9938640594482422,
+          "within_c1_mean": 0.6537703275680542,
+          "within_c2_mean": 0.9765750765800476
+        },
+        "OpenedPanel_vs_CarryOverload": {
+          "between_mean": 0.35850000381469727,
+          "between_max": 0.8130650520324707,
+          "within_c1_mean": 0.9422751069068909,
+          "within_c2_mean": 0.9765750765800476
+        }
+      }
+    },
+    "pair1_Intervention": {
+      "emb_dim": 192,
+      "pairs": {
+        "WalkwayViol_vs_UnauthorInt": {
+          "between_mean": 0.7878357172012329,
+          "between_max": 0.9999998211860657,
+          "within_c1_mean": 0.8349587917327881,
+          "within_c2_mean": 0.7480773329734802
+        },
+        "WalkwayViol_vs_OpenedPanel": {
+          "between_mean": -0.017974330112338066,
+          "between_max": 0.9915067553520203,
+          "within_c1_mean": 0.8349587917327881,
+          "within_c2_mean": 0.965235710144043
+        },
+        "WalkwayViol_vs_CarryOverload": {
+          "between_mean": 0.5851162672042847,
+          "between_max": 0.9775921702384949,
+          "within_c1_mean": 0.8349587917327881,
+          "within_c2_mean": 0.9763736128807068
+        },
+        "UnauthorInt_vs_OpenedPanel": {
+          "between_mean": 0.15191364288330078,
+          "between_max": 0.9812095761299133,
+          "within_c1_mean": 0.7480773329734802,
+          "within_c2_mean": 0.965235710144043
+        },
+        "UnauthorInt_vs_CarryOverload": {
+          "between_mean": 0.6815426349639893,
+          "between_max": 0.9900242686271667,
+          "within_c1_mean": 0.7480773329734802,
+          "within_c2_mean": 0.9763736128807068
+        },
+        "OpenedPanel_vs_CarryOverload": {
+          "between_mean": 0.7206208109855652,
+          "between_max": 0.9716275930404663,
+          "within_c1_mean": 0.965235710144043,
+          "within_c2_mean": 0.9763736128807068
+        }
+      }
+    },
+    "pair2_Panel": {
+      "emb_dim": 192,
+      "pairs": {
+        "WalkwayViol_vs_UnauthorInt": {
+          "between_mean": 0.8425034880638123,
+          "between_max": 0.9999998807907104,
+          "within_c1_mean": 0.879845917224884,
+          "within_c2_mean": 0.7940601706504822
+        },
+        "WalkwayViol_vs_OpenedPanel": {
+          "between_mean": 0.6455224752426147,
+          "between_max": 0.9843116998672485,
+          "within_c1_mean": 0.879845917224884,
+          "within_c2_mean": 0.7114052176475525
+        },
+        "WalkwayViol_vs_CarryOverload": {
+          "between_mean": 0.8192949891090393,
+          "between_max": 0.9904472827911377,
+          "within_c1_mean": 0.879845917224884,
+          "within_c2_mean": 0.9332684874534607
+        },
+        "UnauthorInt_vs_OpenedPanel": {
+          "between_mean": 0.6564897894859314,
+          "between_max": 0.9824078679084778,
+          "within_c1_mean": 0.7940601706504822,
+          "within_c2_mean": 0.7114052176475525
+        },
+        "UnauthorInt_vs_CarryOverload": {
+          "between_mean": 0.7496404051780701,
+          "between_max": 0.9933525323867798,
+          "within_c1_mean": 0.7940601706504822,
+          "within_c2_mean": 0.9332684874534607
+        },
+        "OpenedPanel_vs_CarryOverload": {
+          "between_mean": 0.38824743032455444,
+          "between_max": 0.9798772931098938,
+          "within_c1_mean": 0.7114052176475525,
+          "within_c2_mean": 0.9332684874534607
+        }
+      }
+    },
+    "pair3_Forklift": {
+      "emb_dim": 192,
+      "pairs": {
+        "WalkwayViol_vs_UnauthorInt": {
+          "between_mean": 0.9836750626564026,
+          "between_max": 0.9999999403953552,
+          "within_c1_mean": 0.9861607551574707,
+          "within_c2_mean": 0.98052978515625
+        },
+        "WalkwayViol_vs_OpenedPanel": {
+          "between_mean": 0.9278783202171326,
+          "between_max": 0.9986895322799683,
+          "within_c1_mean": 0.9861607551574707,
+          "within_c2_mean": 0.8692476153373718
+        },
+        "WalkwayViol_vs_CarryOverload": {
+          "between_mean": 0.941158652305603,
+          "between_max": 0.9947668313980103,
+          "within_c1_mean": 0.9861607551574707,
+          "within_c2_mean": 0.9070090055465698
+        },
+        "UnauthorInt_vs_OpenedPanel": {
+          "between_mean": 0.9269702434539795,
+          "between_max": 0.9985259771347046,
+          "within_c1_mean": 0.98052978515625,
+          "within_c2_mean": 0.8692476153373718
+        },
+        "UnauthorInt_vs_CarryOverload": {
+          "between_mean": 0.9427158832550049,
+          "between_max": 0.995132565498352,
+          "within_c1_mean": 0.98052978515625,
+          "within_c2_mean": 0.9070090055465698
+        },
+        "OpenedPanel_vs_CarryOverload": {
+          "between_mean": 0.8908513784408569,
+          "between_max": 0.9970070123672485,
+          "within_c1_mean": 0.8692476153373718,
+          "within_c2_mean": 0.9070090055465698
+        }
+      }
+    }
+  },
+  "raw_yolo_baseline": {
+    "WalkwayViol_vs_UnauthorInt": {
+      "between_mean": 0.933773398399353,
+      "between_max": 0.9999997019767761,
+      "within_c1_mean": 0.9627441763877869,
+      "within_c2_mean": 0.9107503294944763
+    },
+    "WalkwayViol_vs_OpenedPanel": {
+      "between_mean": 0.8732566833496094,
+      "between_max": 0.9958502054214478,
+      "within_c1_mean": 0.9627441763877869,
+      "within_c2_mean": 0.9634861350059509
+    },
+    "WalkwayViol_vs_CarryOverload": {
+      "between_mean": 0.830885648727417,
+      "between_max": 0.9212587475776672,
+      "within_c1_mean": 0.9627441763877869,
+      "within_c2_mean": 0.9495680928230286
+    },
+    "UnauthorInt_vs_OpenedPanel": {
+      "between_mean": 0.8884600400924683,
+      "between_max": 0.9945220351219177,
+      "within_c1_mean": 0.9107503294944763,
+      "within_c2_mean": 0.9634861350059509
+    },
+    "UnauthorInt_vs_CarryOverload": {
+      "between_mean": 0.8342912793159485,
+      "between_max": 0.9176267385482788,
+      "within_c1_mean": 0.9107503294944763,
+      "within_c2_mean": 0.9495680928230286
+    },
+    "OpenedPanel_vs_CarryOverload": {
+      "between_mean": 0.8231064081192017,
+      "between_max": 0.9238043427467346,
+      "within_c1_mean": 0.9634861350059509,
+      "within_c2_mean": 0.9495680928230286
+    }
+  }
+}

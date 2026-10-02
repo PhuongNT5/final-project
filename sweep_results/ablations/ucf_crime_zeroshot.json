@@ -1,0 +1,65 @@
+{
+  "dataset": "UCF-Crime (Anomaly subset, partial)",
+  "ucf_classes_evaluated": [
+    "Burglary",
+    "Fighting",
+    "RoadAccidents"
+  ],
+  "total_clips": 267,
+  "thesis_classes": [
+    "WalkwayViol",
+    "UnauthorInt",
+    "OpenedPanel",
+    "CarryOverload"
+  ],
+  "overall_pred_dist": {
+    "WalkwayViol": 7,
+    "UnauthorInt": 42,
+    "OpenedPanel": 10,
+    "CarryOverload": 208
+  },
+  "overall_frac_unauthor_int": 0.1573,
+  "overall_mean_max_prob": 0.7473,
+  "overall_frac_high_conf": 0.8801,
+  "baseline_uniform_25pct": 0.25,
+  "in_domain_unsafenet_test_mean_max_prob": 0.8042,
+  "per_ucf_class": {
+    "Burglary": {
+      "n_clips": 100,
+      "pred_dist": {
+        "WalkwayViol": 3,
+        "UnauthorInt": 20,
+        "OpenedPanel": 4,
+        "CarryOverload": 73
+      },
+      "frac_unauthor_int": 0.2,
+      "mean_max_prob": 0.7568,
+      "frac_high_conf": 0.88
+    },
+    "Fighting": {
+      "n_clips": 50,
+      "pred_dist": {
+        "WalkwayViol": 1,
+        "UnauthorInt": 9,
+        "OpenedPanel": 0,
+        "CarryOverload": 40
+      },
+      "frac_unauthor_int": 0.18,
+      "mean_max_prob": 0.7637,
+      "frac_high_conf": 0.88
+    },
+    "RoadAccidents": {
+      "n_clips": 117,
+      "pred_dist": {
+        "WalkwayViol": 3,
+        "UnauthorInt": 13,
+        "OpenedPanel": 6,
+        "CarryOverload": 95
+      },
+      "frac_unauthor_int": 0.1111,
+      "mean_max_prob": 0.7322,
+      "frac_high_conf": 0.8803
+    }
+  },
+  "note": "UCF-Crime labels do not map to Unsafe-Net classes; the metric is structural (prediction distribution + confidence), not top-1."
+}

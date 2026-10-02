@@ -1,0 +1,276 @@
+{
+  "components": {
+    "direct4_only": {
+      "correct": 55,
+      "macro": 87.35,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        92.3,
+        100.0
+      ]
+    },
+    "scenario_only": {
+      "correct": 54,
+      "macro": 85.43,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        84.6,
+        100.0
+      ]
+    },
+    "pair_unsafe_only": {
+      "correct": 11,
+      "macro": 30.27,
+      "per_class_pct": [
+        0.0,
+        18.2,
+        15.4,
+        87.5
+      ]
+    },
+    "cascade_no_pair": {
+      "correct": 54,
+      "macro": 85.43,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        84.6,
+        100.0
+      ]
+    },
+    "cascade_full": {
+      "correct": 51,
+      "macro": 84.23,
+      "per_class_pct": [
+        71.9,
+        72.7,
+        92.3,
+        100.0
+      ]
+    },
+    "ensemble_full": {
+      "correct": 56,
+      "macro": 89.28,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        100.0,
+        100.0
+      ]
+    }
+  },
+  "leave_one_pair_out": {
+    "loo_pair0_Walkway_cascade": {
+      "correct": 54,
+      "macro": 85.08,
+      "per_class_pct": [
+        84.4,
+        63.6,
+        92.3,
+        100.0
+      ]
+    },
+    "loo_pair0_Walkway_ensemble": {
+      "correct": 56,
+      "macro": 89.28,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        100.0,
+        100.0
+      ]
+    },
+    "loo_pair1_Intervention_cascade": {
+      "correct": 49,
+      "macro": 81.52,
+      "per_class_pct": [
+        68.8,
+        72.7,
+        84.6,
+        100.0
+      ]
+    },
+    "loo_pair1_Intervention_ensemble": {
+      "correct": 52,
+      "macro": 83.87,
+      "per_class_pct": [
+        78.1,
+        72.7,
+        84.6,
+        100.0
+      ]
+    },
+    "loo_pair2_Panel_cascade": {
+      "correct": 52,
+      "macro": 86.15,
+      "per_class_pct": [
+        71.9,
+        72.7,
+        100.0,
+        100.0
+      ]
+    },
+    "loo_pair2_Panel_ensemble": {
+      "correct": 56,
+      "macro": 89.28,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        100.0,
+        100.0
+      ]
+    },
+    "loo_pair3_Forklift_cascade": {
+      "correct": 51,
+      "macro": 84.23,
+      "per_class_pct": [
+        71.9,
+        72.7,
+        92.3,
+        100.0
+      ]
+    },
+    "loo_pair3_Forklift_ensemble": {
+      "correct": 56,
+      "macro": 89.28,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        100.0,
+        100.0
+      ]
+    }
+  },
+  "alpha_sweep": [
+    {
+      "alpha": 0.0,
+      "correct": 51,
+      "macro": 84.23,
+      "per_class_pct": [
+        71.9,
+        72.7,
+        92.3,
+        100.0
+      ]
+    },
+    {
+      "alpha": 0.1,
+      "correct": 52,
+      "macro": 85.01,
+      "per_class_pct": [
+        75.0,
+        72.7,
+        92.3,
+        100.0
+      ]
+    },
+    {
+      "alpha": 0.2,
+      "correct": 53,
+      "macro": 85.79,
+      "per_class_pct": [
+        78.1,
+        72.7,
+        92.3,
+        100.0
+      ]
+    },
+    {
+      "alpha": 0.3,
+      "correct": 54,
+      "macro": 86.57,
+      "per_class_pct": [
+        81.2,
+        72.7,
+        92.3,
+        100.0
+      ]
+    },
+    {
+      "alpha": 0.4,
+      "correct": 55,
+      "macro": 88.49,
+      "per_class_pct": [
+        81.2,
+        72.7,
+        100.0,
+        100.0
+      ]
+    },
+    {
+      "alpha": 0.5,
+      "correct": 56,
+      "macro": 89.28,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        100.0,
+        100.0
+      ]
+    },
+    {
+      "alpha": 0.6,
+      "correct": 56,
+      "macro": 89.28,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        100.0,
+        100.0
+      ]
+    },
+    {
+      "alpha": 0.7,
+      "correct": 56,
+      "macro": 89.28,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        100.0,
+        100.0
+      ]
+    },
+    {
+      "alpha": 0.8,
+      "correct": 55,
+      "macro": 87.35,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        92.3,
+        100.0
+      ]
+    },
+    {
+      "alpha": 0.9,
+      "correct": 55,
+      "macro": 87.35,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        92.3,
+        100.0
+      ]
+    },
+    {
+      "alpha": 1.0,
+      "correct": 55,
+      "macro": 87.35,
+      "per_class_pct": [
+        84.4,
+        72.7,
+        92.3,
+        100.0
+      ]
+    }
+  ],
+  "n_test": 64,
+  "n_per_class": [
+    32,
+    11,
+    13,
+    8
+  ]
+}

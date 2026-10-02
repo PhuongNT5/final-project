@@ -237,15 +237,18 @@ of where the accuracy gap lives.
    "57/64 calibrated" figure (test-set bias tuning; honest train-fit
    reduces test to 53.4 ± 1.2 / 64), and reports 5 000-sample bootstrap
    CIs and a [CLS]-embedding cosine probe quantifying the raw-feature
-   collapse (0.82–0.93) and head-level recovery (WalkwayViol ↔
-   UnauthorInt cosine 0.834 → 0.375). (Chapter 4 §4.7)
+   collapse (0.823–0.934) and head-level recovery (WalkwayViol ↔
+   UnauthorInt cosine 0.934 → 0.375). (Chapter 4 §4.8)
 
 6. **Reproducible open-source artifacts** — all trained weights, ONNX exports, INT8-quantized
    models, parity reports, ablation JSON outputs, t-SNE figures, the
    per-clip CSV under CC BY 4.0 attribution, and benchmark logs are
-   included in `deployment/artifacts/`, `sweep_results/ablations/`,
-   and `figures/`, and can be re-executed end-to-end from the
-   `run_ablation_*.py` and `plot_figures_binary.py` scripts.
+   included in `deployment/artifacts/` and `sweep_results/ablations/`,
+   and can be re-executed end-to-end from the `run_ablation_*.py`,
+   `run_pairwise_contrastive.py` and `run_probe_tsne.py` scripts. Figures
+   are written to `figures/`, which is under `.gitignore` and therefore not
+   distributed; the scripts above regenerate them from the committed
+   checkpoints and feature caches.
 
 ## 1.5 Scope and Limitations
 

@@ -1,0 +1,155 @@
+{
+  "backend": "tensorrt",
+  "mode": "fp16",
+  "frames": 16,
+  "stages": {
+    "tower": {
+      "path": "deployment/export/jetson/r48-clip-vit-b32-vision-fp16.engine",
+      "batch": 16,
+      "runs": 100,
+      "median_ms": 23.481,
+      "p95_ms": 25.359,
+      "p99_ms": 28.589,
+      "min_ms": 22.235,
+      "max_ms": 29.17,
+      "params": 87849216
+    },
+    "head": {
+      "path": "deployment/export/jetson/r48-b1-clip-temporal-3seed-fp16.engine",
+      "batch": 1,
+      "runs": 100,
+      "median_ms": 0.351,
+      "p95_ms": 0.397,
+      "p99_ms": 0.414,
+      "min_ms": 0.32,
+      "max_ms": 0.426,
+      "params": 603270
+    }
+  },
+  "extras": {
+    "detector": {
+      "path": "deployment/export/jetson/p3-detector-fp16.engine",
+      "batch": 1,
+      "runs": 100,
+      "median_ms": 11.802,
+      "p95_ms": 12.188,
+      "p99_ms": 12.97,
+      "min_ms": 11.733,
+      "max_ms": 13.334
+    },
+    "legacy_appearance": {
+      "path": "deployment/export/jetson/p3-appearance-fp16.engine",
+      "batch": 16,
+      "runs": 100,
+      "median_ms": 6.231,
+      "p95_ms": 6.352,
+      "p99_ms": 6.886,
+      "min_ms": 6.179,
+      "max_ms": 7.439
+    }
+  },
+  "per_decision_ms": 23.832,
+  "decisions_per_sec": 41.96,
+  "backbone_share_pct": 98.53,
+  "is_device_number": true,
+  "tegrastats": {
+    "dry_run": false,
+    "n_samples": 5,
+    "samples": [
+      {
+        "raw": "10-01-2026 22:25:00 RAM 2838/7607MB (lfb 42x4MB) SWAP 14/3804MB (cached 0MB) CPU [1%@1728,99%@1728,0%@1728,0%@1728,0%@1728,0%@1728] GR3D_FREQ 17% cpu@54.281C soc2@54.656C soc0@54.5C gpu@55.812C tj@55.812C soc1@54.843C VDD_IN 7737mW/7737mW VDD_CPU_GPU_CV 2218mW/2218mW VDD_SOC 2341mW/2341mW",
+        "ram_used_mb": 2838,
+        "ram_total_mb": 7607,
+        "power_now_mw": 7737,
+        "power_avg_mw": 7737,
+        "gpu_util_pct": 17,
+        "temps_c": {
+          "cpu": 54.281,
+          "soc2": 54.656,
+          "soc0": 54.5,
+          "gpu": 55.812,
+          "tj": 55.812,
+          "soc1": 54.843
+        },
+        "ts": 1790868300.2975533
+      },
+      {
+        "raw": "10-01-2026 22:25:01 RAM 2874/7607MB (lfb 42x4MB) SWAP 14/3804MB (cached 0MB) CPU [6%@1728,32%@1728,3%@1728,5%@1728,0%@1728,0%@1728] GR3D_FREQ 99% cpu@55.218C soc2@56.968C soc0@56C gpu@57.75C tj@57.75C soc1@55C VDD_IN 18981mW/13359mW VDD_CPU_GPU_CV 9408mW/5813mW VDD_SOC 4163mW/3252mW",
+        "ram_used_mb": 2874,
+        "ram_total_mb": 7607,
+        "power_now_mw": 18981,
+        "power_avg_mw": 13359,
+        "gpu_util_pct": 99,
+        "temps_c": {
+          "cpu": 55.218,
+          "soc2": 56.968,
+          "soc0": 56.0,
+          "gpu": 57.75,
+          "tj": 57.75,
+          "soc1": 55.0
+        },
+        "ts": 1790868301.3028097
+      },
+      {
+        "raw": "10-01-2026 22:25:02 RAM 2874/7607MB (lfb 42x4MB) SWAP 14/3804MB (cached 0MB) CPU [0%@1728,15%@1728,0%@1728,1%@1728,0%@1728,0%@1728] GR3D_FREQ 99% cpu@55.562C soc2@57.312C soc0@56.812C gpu@58.187C tj@58.187C soc1@55.531C VDD_IN 20550mW/15756mW VDD_CPU_GPU_CV 10111mW/7246mW VDD_SOC 4421mW/3642mW",
+        "ram_used_mb": 2874,
+        "ram_total_mb": 7607,
+        "power_now_mw": 20550,
+        "power_avg_mw": 15756,
+        "gpu_util_pct": 99,
+        "temps_c": {
+          "cpu": 55.562,
+          "soc2": 57.312,
+          "soc0": 56.812,
+          "gpu": 58.187,
+          "tj": 58.187,
+          "soc1": 55.531
+        },
+        "ts": 1790868302.3083851
+      },
+      {
+        "raw": "10-01-2026 22:25:03 RAM 2955/7607MB (lfb 39x4MB) SWAP 14/3804MB (cached 0MB) CPU [5%@1728,43%@1728,0%@1728,0%@1728,0%@1728,1%@1728] GR3D_FREQ 89% cpu@55.531C soc2@57.218C soc0@56.656C gpu@57.781C tj@57.781C soc1@55.718C VDD_IN 15510mW/15695mW VDD_CPU_GPU_CV 6792mW/7132mW VDD_SOC 3675mW/3650mW",
+        "ram_used_mb": 2955,
+        "ram_total_mb": 7607,
+        "power_now_mw": 15510,
+        "power_avg_mw": 15695,
+        "gpu_util_pct": 89,
+        "temps_c": {
+          "cpu": 55.531,
+          "soc2": 57.218,
+          "soc0": 56.656,
+          "gpu": 57.781,
+          "tj": 57.781,
+          "soc1": 55.718
+        },
+        "ts": 1790868303.3135977
+      },
+      {
+        "raw": "10-01-2026 22:25:04 RAM 2955/7607MB (lfb 39x4MB) SWAP 14/3804MB (cached 0MB) CPU [1%@1728,38%@1728,0%@1728,1%@1728,0%@1728,0%@1728] GR3D_FREQ 80% cpu@55.875C soc2@57.281C soc0@57.093C gpu@58.218C tj@58.218C soc1@55.875C VDD_IN 17685mW/16093mW VDD_CPU_GPU_CV 8119mW/7330mW VDD_SOC 4170mW/3754mW",
+        "ram_used_mb": 2955,
+        "ram_total_mb": 7607,
+        "power_now_mw": 17685,
+        "power_avg_mw": 16093,
+        "gpu_util_pct": 80,
+        "temps_c": {
+          "cpu": 55.875,
+          "soc2": 57.281,
+          "soc0": 57.093,
+          "gpu": 58.218,
+          "tj": 58.218,
+          "soc1": 55.875
+        },
+        "ts": 1790868304.318827
+      }
+    ]
+  },
+  "git_commit": "9c1e219",
+  "timestamp": "2026-10-01T22:25:05.143182",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12"
+  }
+}

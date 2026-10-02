@@ -1,0 +1,74 @@
+%%{init: {'theme': 'default', 'flowchart': {'htmlLabels': true, 'curve': 'basis'}}}%%
+flowchart TB
+    classDef camera fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#333
+    classDef edge   fill:#e3f2fd,stroke:#1976d2,stroke-width:2px,color:#333
+    classDef trans  fill:#f3e5f5,stroke:#7b1fa2,stroke-width:1px,color:#333
+    classDef server fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#333
+    classDef ui     fill:#fce4ec,stroke:#c2185b,stroke-width:2px,color:#333
+    classDef boundary fill:none,stroke:#d32f2f,stroke-width:3px,stroke-dasharray:8 4,color:#d32f2f
+
+    subgraph CAM["📹 Layer 1 — Camera (or video file proxy)"]
+        direction LR
+        C1[Cam 0<br/>30 FPS]
+        C2[Cam 1<br/>30 FPS]
+        C3[Cam 2<br/>30 FPS]
+        C4[Cam 3<br/>30 FPS]
+    end
+
+    subgraph EDGE["🛡️ Layer 2 — Edge: Jetson Orin Nano Super (15 W, MAXN)"]
+        direction TB
+        READ[Async video reader pool<br/>4× cv2.VideoCapture]
+        QUEUE[Pre-processed frame queue<br/>QUEUE_MAX = 4 per stream]
+        BB[Backbone TRT engine<br/>FP16 · 18.82 MB · 3.95 ms]
+        BUF[Per-stream sliding window<br/>T = 32 frames]
+        HEAD[Head TRT engines<br/>direct4 + scenario + 4× pair<br/>FP16 · 67.6 MB · 5.7 ms]
+        ENS[Ensemble<br/>d4 + cascade / 2<br/>L1 normalised]
+        JSONL[(jetson-stream.jsonl<br/>predictions only)]
+    end
+
+    subgraph TRANS["🔒 Layer 3 — Transport: SSH + AES-256"]
+        direction LR
+        RSYNC[rsync over SSH<br/>poll every 1 s<br/>key-only auth]
+    end
+
+    subgraph SRV["💻 Layer 4 — Server + Dashboard: MacBook M4"]
+        direction TB
+        CACHE[/tmp local cache<br/>JSONL events]
+        AGG[Rolling 3-second window<br/>per-stream aggregation<br/>argmax of average probs]
+        POLICY[Decision policy<br/>conf ≥ 0.75 → 🚨 ALERT<br/>conf ≥ 0.55 → ⚠️ WARNING<br/>else 🟢 MONITORING]
+        DASH[Streamlit dashboard<br/>localhost:8501]
+    end
+
+    OP([👤 Security operator])
+
+    C1 --> READ
+    C2 --> READ
+    C3 --> READ
+    C4 --> READ
+    READ --> QUEUE
+    QUEUE --> BB
+    BB --> BUF
+    BUF --> HEAD
+    HEAD --> ENS
+    ENS --> JSONL
+    JSONL -.->|"📡 events only<br/>(class, prob, ts, head_ms)"| RSYNC
+    RSYNC --> CACHE
+    CACHE --> AGG
+    AGG --> POLICY
+    POLICY --> DASH
+    DASH --> OP
+
+    %% Privacy boundary — raw frames never cross
+    PRIV[/"🚫 PRIVACY BOUNDARY<br/>Raw frames never cross this line"/]:::boundary
+    JSONL --- PRIV
+    PRIV --- RSYNC
+
+    class CAM camera
+    class EDGE edge
+    class TRANS trans
+    class SRV server
+    class OP ui
+    class C1,C2,C3,C4 camera
+    class READ,QUEUE,BB,BUF,HEAD,ENS,JSONL edge
+    class RSYNC trans
+    class CACHE,AGG,POLICY,DASH server

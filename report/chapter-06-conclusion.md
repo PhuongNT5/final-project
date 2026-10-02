@@ -95,7 +95,7 @@ own mechanism beats this ceiling is the core evidence the gap is
 **Finding 3 — Annotation, not architecture, is the bottleneck.** The
 residual error is concentrated on the WalkwayViol ↔ UnauthorInt
 confusion pair, where the frozen-COCO features place the two classes
-at cosine 0.834 (Table 4.19). A direct test — annotating 400 frames
+at cosine 0.934 (Table 4.19). A direct test — annotating 400 frames
 with behaviour-class bounding boxes and fine-tuning YOLOv11s on them
 (V10) — *regressed* to 54/64 (Table 4.6), a cross-ensemble of frozen
 and bbox branches capped at 55/64, and a 267-clip UCF-Crime zero-shot

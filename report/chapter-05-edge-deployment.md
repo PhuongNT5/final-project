@@ -760,7 +760,7 @@ Phép đo ngày 29/09/2026 không ghi được trạng thái xung nhịp của t
 | trần = 128 crop | 420,25 | 2,380 | −20,7 % | 362,32 | 2,760 | −8,0 % |
 
 Nguồn: `decision-latency-fp16-20261001T{220144,220543,220925}.json` (DVFS) và
-`...T{222854,223216,223538}.json` (ghim nhịp).
+`decision-latency-fp16-20261001T{222854,223216,223538}.json` (ghim nhịp).
 
 **Phát biểu đúng là một phát biểu hai điều kiện.** Dưới DVFS mặc định, P3 **không đạt**
 hợp đồng 3,0 quyết định/giây ở mọi tải crop, kể cả trung vị. Khi ghim xung nhịp, P3 đạt

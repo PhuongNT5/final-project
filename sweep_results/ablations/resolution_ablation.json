@@ -1,0 +1,65 @@
+{
+  "seed": 314,
+  "frames": 32,
+  "configurations": {
+    "224x224 (baseline)": {
+      "top1": 55,
+      "total": 64,
+      "top1_pct": 85.94,
+      "macro": 0.8736,
+      "per_class": {
+        "WalkwayViol": {
+          "n": 32,
+          "correct": 27,
+          "acc": 0.8438
+        },
+        "UnauthorInt": {
+          "n": 11,
+          "correct": 8,
+          "acc": 0.7273
+        },
+        "OpenedPanel": {
+          "n": 13,
+          "correct": 12,
+          "acc": 0.9231
+        },
+        "CarryOverload": {
+          "n": 8,
+          "correct": 8,
+          "acc": 1.0
+        }
+      }
+    },
+    "384x384": {
+      "top1": 52,
+      "total": 64,
+      "top1_pct": 81.25,
+      "macro": 0.772,
+      "per_class": {
+        "WalkwayViol": {
+          "n": 32,
+          "correct": 29,
+          "acc": 0.9062
+        },
+        "UnauthorInt": {
+          "n": 11,
+          "correct": 2,
+          "acc": 0.1818
+        },
+        "OpenedPanel": {
+          "n": 13,
+          "correct": 13,
+          "acc": 1.0
+        },
+        "CarryOverload": {
+          "n": 8,
+          "correct": 8,
+          "acc": 1.0
+        }
+      }
+    }
+  },
+  "delta_top1_pp": -4.69,
+  "delta_macro_pp": -10.16,
+  "note": "direct4 single-head only (no cascade, no ensemble); fair isolation of the resolution effect at the dominant computational stage."
+}

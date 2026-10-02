@@ -1,0 +1,124 @@
+{
+  "ablation_A_T_robustness": [
+    {
+      "T": 8,
+      "direct4": 52,
+      "cascade": 48,
+      "ensemble": 52,
+      "macro": 83.17,
+      "per_class": [
+        78.1,
+        54.5,
+        100.0,
+        100.0
+      ]
+    },
+    {
+      "T": 16,
+      "direct4": 52,
+      "cascade": 51,
+      "ensemble": 51,
+      "macro": 83.09,
+      "per_class": [
+        75.0,
+        72.7,
+        84.6,
+        100.0
+      ]
+    },
+    {
+      "T": 24,
+      "direct4": 53,
+      "cascade": 51,
+      "ensemble": 54,
+      "macro": 87.71,
+      "per_class": [
+        78.1,
+        72.7,
+        100.0,
+        100.0
+      ]
+    },
+    {
+      "T": 32,
+      "direct4": 55,
+      "cascade": 51,
+      "ensemble": 56,
+      "macro": 89.28,
+      "per_class": [
+        84.4,
+        72.7,
+        100.0,
+        100.0
+      ]
+    }
+  ],
+  "ablation_B_member_audit": [
+    {
+      "member": "direct4_s314",
+      "correct_4cls": 55,
+      "shape": [
+        64,
+        4
+      ]
+    },
+    {
+      "member": "scenario_s7",
+      "correct_4cls": null,
+      "shape": [
+        125,
+        4
+      ],
+      "note": "evaluated on all 8-class test set, not 4-class"
+    },
+    {
+      "member": "pair0_Walkway_s7",
+      "correct_4cls": 14,
+      "shape": [
+        64,
+        2
+      ]
+    },
+    {
+      "member": "pair1_Intervention_s7",
+      "correct_4cls": 13,
+      "shape": [
+        64,
+        2
+      ]
+    },
+    {
+      "member": "pair2_Panel_s7",
+      "correct_4cls": 25,
+      "shape": [
+        64,
+        2
+      ]
+    },
+    {
+      "member": "pair3_Forklift_s7",
+      "correct_4cls": 11,
+      "shape": [
+        64,
+        2
+      ]
+    }
+  ],
+  "ablation_C_pool_robustness": [
+    {
+      "pool_grid": 1,
+      "tokens": 1,
+      "direct4_correct": 32
+    },
+    {
+      "pool_grid": 2,
+      "tokens": 4,
+      "direct4_correct": 53
+    },
+    {
+      "pool_grid": 4,
+      "tokens": 16,
+      "direct4_correct": 55
+    }
+  ]
+}

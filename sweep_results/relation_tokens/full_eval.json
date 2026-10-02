@@ -1,0 +1,141 @@
+{
+  "source_logits": "logits_yolo26.pt",
+  "pred_basis": "blind_seed_softmax (val-selected single seed)",
+  "source_provenance": "run_relation_transformer.py --tag yolo26app_ --seeds 5 --aux_w 0.5 --epochs 120 (recovered+verified 2026-09-06, run bacckkzbm)",
+  "blind_pred_top1_correct": "54/64",
+  "blind_vs_ensemble_pred_agree_frac": 0.9688,
+  "blind_vs_ensemble_note": "blind_pred is the val-selected single-seed decision (the brief.md headline protocol tag). When pred_basis is blind_seed_softmax, every metric in this JSON describes that same predictor and blind_pred_top1_correct will equal top1_correct. When it is the ensemble fallback, the calibration/AUC numbers characterise the seed-averaged variant instead, and a difference between those two counts is the size of that mismatch.",
+  "top1": 84.38,
+  "top1_correct": "54/64",
+  "macro_recall": 88.41,
+  "macro_f1": 85.56,
+  "balanced_acc": 88.41,
+  "cohen_kappa": 0.775,
+  "mcc": 0.785,
+  "per_class": {
+    "WalkwayViol": {
+      "precision": 96.2,
+      "recall": 78.1,
+      "fnr": 21.9,
+      "n": 32
+    },
+    "UnauthorInt": {
+      "precision": 58.8,
+      "recall": 90.9,
+      "fnr": 9.1,
+      "n": 11
+    },
+    "OpenedPanel": {
+      "precision": 84.6,
+      "recall": 84.6,
+      "fnr": 15.4,
+      "n": 13
+    },
+    "CarryOverload": {
+      "precision": 100.0,
+      "recall": 100.0,
+      "fnr": 0.0,
+      "n": 8
+    }
+  },
+  "confusion": [
+    [
+      25,
+      6,
+      1,
+      0
+    ],
+    [
+      0,
+      10,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      11,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      8
+    ]
+  ],
+  "cost_sensitive_miss_x10": 100.0,
+  "roc_auc_ovr_macro": 0.951,
+  "pr_auc_ovr_macro": 0.88,
+  "ece_15bin": 0.0967,
+  "top1_bca_ci95": [
+    71.9,
+    90.6
+  ],
+  "macro_bca_ci95": [
+    78.1,
+    94.3
+  ],
+  "top1_wilson_ci95": [
+    73.6,
+    91.3
+  ],
+  "mcnemar_vs_scene_only": {
+    "b01": 7,
+    "b10": 9,
+    "b": 9,
+    "c": 7,
+    "n_discordant": 16,
+    "p_value": 0.803619384765625,
+    "diff_accuracy_pp": 3.125,
+    "diff_accuracy_ci95_pp": [
+      -9.375,
+      15.625
+    ],
+    "ci_method": "percentile_bootstrap_over_clips_5000",
+    "underpowered": false,
+    "note": "N=64: few discordant cells -> use bootstrap CIs as primary evidence"
+  },
+  "vs_paper_no_bbox_top1": {
+    "label": "paper no-bbox (57/64)",
+    "n": 64,
+    "our_correct": 54,
+    "other_correct": 57,
+    "primary_test": "mcnemar_discordance_bound (baseline per-clip predictions unavailable)",
+    "p_value_bound": [
+      0.25,
+      0.8013064925040663
+    ],
+    "min_p_over_splits": 0.25,
+    "max_p_over_splits": 0.8013064925040663,
+    "diff": -3,
+    "favours_b": true,
+    "delta_pp": -4.6875,
+    "diagnostic_two_proportion_z": {
+      "z": -0.7813404160716143,
+      "p_value": 0.434602305330289
+    },
+    "diagnostic_warning": "INVALID independence assumption on same-clip paired data (assumes 2 independent n=64 samples) \u2014 kept only for continuity with older reports; do NOT cite this p as the significance test."
+  },
+  "vs_paper_full_bbox_top1": {
+    "label": "paper full-bbox (62/64)",
+    "n": 64,
+    "our_correct": 54,
+    "other_correct": 62,
+    "primary_test": "mcnemar_discordance_bound (baseline per-clip predictions unavailable)",
+    "p_value_bound": [
+      0.0078125,
+      0.3817327947933377
+    ],
+    "min_p_over_splits": 0.0078125,
+    "max_p_over_splits": 0.3817327947933377,
+    "diff": -8,
+    "favours_b": true,
+    "delta_pp": -12.5,
+    "diagnostic_two_proportion_z": {
+      "z": -2.425913739452491,
+      "p_value": 0.015269899244800822
+    },
+    "diagnostic_warning": "INVALID independence assumption on same-clip paired data (assumes 2 independent n=64 samples) \u2014 kept only for continuity with older reports; do NOT cite this p as the significance test."
+  }
+}

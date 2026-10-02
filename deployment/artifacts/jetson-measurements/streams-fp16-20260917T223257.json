@@ -1,0 +1,17 @@
+{
+  "mode": "fp16",
+  "streams_requested": [
+    1,
+    2
+  ],
+  "skipped_reason": "dry-run: multi-stream saturation needs a real Jetson + source videos",
+  "git_commit": "43657ea",
+  "timestamp": "2026-09-17T22:32:57.279465",
+  "device_state": {
+    "dry_run": true,
+    "nvpmodel_q": null,
+    "jetson_clocks_show": null,
+    "platform": "macOS-14.6-arm64-arm-64bit-Mach-O",
+    "python_version": "3.13.5"
+  }
+}

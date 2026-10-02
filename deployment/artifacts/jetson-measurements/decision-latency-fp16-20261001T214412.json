@@ -1,0 +1,133 @@
+{
+  "mode": "fp16",
+  "engine_dir": "deployment/export/jetson-p3",
+  "warmup": 10,
+  "runs": 100,
+  "frames_per_decision": 16,
+  "imgsz": 800,
+  "crop_size": 224,
+  "head_stage": "p3-relation-head-bin-e3",
+  "crop_scenarios": {
+    "p50": 54,
+    "p95": 106,
+    "p99": 119,
+    "cap": 128,
+    "source": "fallback"
+  },
+  "stages_found": [
+    "p3-appearance",
+    "p3-detector",
+    "p3-relation-head",
+    "p3-relation-head-bin-e3"
+  ],
+  "stages_included": [
+    "detector",
+    "postprocess(select+geometry)",
+    "crop_extract(cv2)",
+    "appearance(batched)",
+    "head"
+  ],
+  "formula": "T_FRAMES*detector_p50 + postprocess_p50 + crop_extract_p50 + appearance_p50 + head_p50",
+  "baseline_ref": "deployment/artifacts/benchmarks-p3-onnx-cpu.json",
+  "detector_ms_per_frame": {
+    "p50": 13.668,
+    "p95": 17.66,
+    "p99": 22.539,
+    "n": 100
+  },
+  "postprocess_ms_per_decision": {
+    "p50": 47.843,
+    "p95": 48.205,
+    "p99": 48.257,
+    "n": 100
+  },
+  "head_ms_per_decision": {
+    "p50": 0.282,
+    "p95": 0.312,
+    "p99": 2.254,
+    "n": 100
+  },
+  "by_scenario": {
+    "p50": {
+      "n_crops": 54,
+      "crop_extract_ms": {
+        "p50": 18.677,
+        "p95": 18.768,
+        "p99": 18.868,
+        "n": 100
+      },
+      "appearance_ms": {
+        "p50": 26.638,
+        "p95": 43.416,
+        "p99": 46.786,
+        "n": 100
+      },
+      "ms_per_decision_p50": 312.13,
+      "decisions_per_sec_p50": 3.2,
+      "meets_3_per_sec_cadence": true
+    },
+    "p95": {
+      "n_crops": 106,
+      "crop_extract_ms": {
+        "p50": 38.911,
+        "p95": 39.246,
+        "p99": 39.438,
+        "n": 100
+      },
+      "appearance_ms": {
+        "p50": 45.307,
+        "p95": 51.897,
+        "p99": 56.527,
+        "n": 100
+      },
+      "ms_per_decision_p50": 351.03,
+      "decisions_per_sec_p50": 2.85,
+      "meets_3_per_sec_cadence": false
+    },
+    "p99": {
+      "n_crops": 119,
+      "crop_extract_ms": {
+        "p50": 43.616,
+        "p95": 43.711,
+        "p99": 43.743,
+        "n": 100
+      },
+      "appearance_ms": {
+        "p50": 50.039,
+        "p95": 53.228,
+        "p99": 55.856,
+        "n": 100
+      },
+      "ms_per_decision_p50": 360.47,
+      "decisions_per_sec_p50": 2.77,
+      "meets_3_per_sec_cadence": false
+    },
+    "cap": {
+      "n_crops": 128,
+      "crop_extract_ms": {
+        "p50": 47.06,
+        "p95": 47.241,
+        "p99": 47.333,
+        "n": 100
+      },
+      "appearance_ms": {
+        "p50": 49.984,
+        "p95": 58.821,
+        "p99": 66.417,
+        "n": 100
+      },
+      "ms_per_decision_p50": 363.86,
+      "decisions_per_sec_p50": 2.75,
+      "meets_3_per_sec_cadence": false
+    }
+  },
+  "git_commit": "unknown",
+  "timestamp": "2026-10-01T21:44:12.004201",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12"
+  }
+}

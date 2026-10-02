@@ -1,0 +1,15 @@
+{
+  "mode": "fp16",
+  "stage": "backbone",
+  "duration_sec": 60,
+  "skipped_reason": "engine not found: backbone-fp16.engine in /Users/nguyenthiphuong/Learning/Proposal/project/my-project/deployment/export/jetson",
+  "git_commit": "43657ea",
+  "timestamp": "2026-09-19T14:49:17.829443",
+  "device_state": {
+    "dry_run": true,
+    "nvpmodel_q": null,
+    "jetson_clocks_show": null,
+    "platform": "macOS-14.6-arm64-arm-64bit-Mach-O",
+    "python_version": "3.13.5"
+  }
+}

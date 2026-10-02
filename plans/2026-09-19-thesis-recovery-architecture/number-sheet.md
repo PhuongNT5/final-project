@@ -562,6 +562,50 @@ never existed — that screenshot claim is removed, and `Figure 5.6` is no longe
 **Caveat:** `fps-vs-streams.png` plots the same hand-reconstructed rows as Table 5.4, so it carries
 that table's deferred-re-run warning, not independent support.
 
+## Artifact-number check (2026-10-03 — every cited number read back out of its file)
+
+Two tables disagreed with their own evidence. Both corrected; see
+`reports/review-2026-10-02-adversarial-defence-audit.md` §"Artifact-number sweep".
+
+| Key | Table | Was | Is | Artifact |
+|---|---|---|---|---|
+| `GATEROW` | 4.6b, bbox + frame-gate, blind | 49/64, 75.3 % | **51/64, 80.1 %** | `plans/260613-thesis-defense-revision/reports/feature-sweep-result.json` (fixed τ = 0.15, as every other row) |
+| `GATETAU` | same config, τ selected on val | — | 49.33/64, 75.32 % | `plans/260613-thesis-defense-revision/reports/framegate-result.json` (`blind_val_selected_tau: 0.5`) — now disclosed in a note, not in the table |
+| `RAWCOS` | 4.19, WalkwayViol ↔ UnauthorInt raw cosine | 0.834 | **0.934** (max-pair **1.000**) | `sweep_results/ablations/embedding_probe.json` → `raw_yolo_baseline` |
+| `RAWCOSRANGE` | 4.19 range over all six pairs | 0.82–0.93 (4 rows) | **0.823–0.934** (6 rows) | same |
+| `D4DELTA` | 4.20 Δ vs raw, hard pair | −0.459 | **−0.559** | recomputed against corrected 4.19 |
+
+**Numeral warning.** 0.834 is now a *collision*: it was printed as the
+WalkwayViol ↔ UnauthorInt raw cosine (wrong) and it is genuinely the
+**UnauthorInt ↔ CarryOverload** raw cosine (right). Any surviving 0.834 in a
+draft must be checked against which pair it names.
+
+Both corrections move the thesis's own claims in the honest direction: `GATEROW`
+makes the *paper's* mechanism look better, and `RAWCOS` makes the raw-feature
+collapse this thesis argues for look worse. Neither touches an accuracy number.
+
+Tables 4.20 and 4.21 were checked value-by-value against the same artifact and
+match exactly. §4.3–§4.5 have **not** been checked at this level.
+
+## Distribution check (2026-10-03 — cited vs `git ls-files`, not the filesystem)
+
+30 of 123 cited paths resolved on disk but were absent from the repository
+(directory-level ignores). 22 are now tracked (~3.5 MB total: result JSONs,
+four cited figures, the tegrastats logs, the demo stream, the frame manifest);
+the large binaries are **disclosed as not distributed** instead — weights and
+feature caches (~300 MB), `train_run.log` (2.8 MB), `figures/gradcam/` (94 MB).
+§3.6's claim that the weights "are included in the repository" was false and is
+corrected. Privacy re-verified: no image or video becomes committable.
+
+**Open gap (blocking).** Six artifacts behind the headline edge numbers exist
+nowhere on this machine:
+`r48-composed-cadence-fp16-20261001T{233159,233324,233449}.json` (Bảng 5.5O) and
+`r48-idle-droop-probe-fp16-20261001T{234145,234242,234322}.json` (Bảng 5.5P).
+They carry **3,452 decisions/s**, p95 322,708 ms, the 2,76×/1,38× margins, the
+76,1 % duty factor, and the whole H-sụt-nhịp adjudication. Measured on the device
+2026-10-01 and never pulled back. **Until they are rsync'd, every number in those
+two tables is quoted but not re-readable.** First device action in the runbook.
+
 ## Unresolved questions
 
 1. ~~Does the thesis headline become the iSafetyBench 75.2% or stay Unsafe-Net?~~ **RESOLVED

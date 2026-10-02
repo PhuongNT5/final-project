@@ -1,0 +1,17 @@
+{
+  "mode": "fp16",
+  "host_peak_rss_mb": 26.578,
+  "device_free_mb": null,
+  "device_total_mb": null,
+  "device_used_mb": null,
+  "skipped_reason": "dry-run: no CUDA device on this machine",
+  "git_commit": "43657ea",
+  "timestamp": "2026-09-19T14:49:03.529158",
+  "device_state": {
+    "dry_run": true,
+    "nvpmodel_q": null,
+    "jetson_clocks_show": null,
+    "platform": "macOS-14.6-arm64-arm-64bit-Mach-O",
+    "python_version": "3.13.5"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "engine_dir": "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/deployment/export/jetson",
+  "sizes_mb": {},
+  "git_commit": "43657ea",
+  "timestamp": "2026-09-17T22:33:11.867086",
+  "device_state": {
+    "dry_run": true,
+    "nvpmodel_q": null,
+    "jetson_clocks_show": null,
+    "platform": "macOS-14.6-arm64-arm-64bit-Mach-O",
+    "python_version": "3.13.5"
+  }
+}

@@ -10,6 +10,18 @@ features/*.zip
 **/best_model.pth
 sweep_results/**/*.pt
 sweep_results/**/*.json
+# ...but the result JSONs the thesis cites as evidence of record are kept
+# (all <= 12 KB; Chapter 4 tables and Chapter 7 relation-token results)
+!sweep_results/ablations/cross_ensemble.json
+!sweep_results/ablations/embedding_probe.json
+!sweep_results/ablations/resolution_ablation.json
+!sweep_results/ablations/significance.json
+!sweep_results/ablations/ucf_crime_zeroshot.json
+!sweep_results/relation_tokens/full_eval.json
+!sweep_results/ablations/calibration.json
+!sweep_results/ablations/cascade_decomposition.json
+!sweep_results/ablations/decorrelation.json
+!sweep_results/ablations/inference_ablation.json
 deployment/*.pt
 deployment/*.onnx
 s11042-024-19276-8.pdf
@@ -29,9 +41,17 @@ deployment/jp*.img
 deployment/jetsoninstaller-*
 deployment/artifacts/
 deployment/features/
-figures/
+figures/*
+# ...but the figures the thesis cites are kept (all <= 48 KB)
+!figures/*.mmd
+!figures/embedding_tsne_raw.png
+!figures/relation_confusion.png
+!figures/relation_reliability.png
+!figures/error_analysis_binary.png
+!figures/error_analysis_binary.pdf
 dataset/
-sweep_results/finetune_bbox/
+sweep_results/finetune_bbox/*
+!sweep_results/finetune_bbox/results.json
 
 # Phase 01 multi-entity annotation — ignore large frame binaries only
 # (keep tracked: frame_manifest.csv, ontology-multi-entity.md, cvat-labels.json,
@@ -51,7 +71,10 @@ sweep_results/entity_detector/
 # Colab dataset package (large, regenerate via zip of dataset/)
 unsafe-net-detector-dataset.zip
 cache_r2/
-annotation_guide/
+# Entry-form (not `annotation_guide/`) so the negation below takes effect; every
+# subdirectory still matches as an entry, so the real worker frames stay ignored.
+annotation_guide/*
+!annotation_guide/frame_manifest.csv
 # Kaggle upload staging - real frames of identifiable workers, never commit.
 # (the old rule named unsafe-net-detector-dataset.zip; the actual file is unsafenet-detector.zip)
 kaggle-detector-retrain/upload/

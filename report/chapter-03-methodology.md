@@ -224,9 +224,10 @@ as a **frozen** feature extractor with COCO-pretrained weights. Inputs are
 resized to 224 × 224, which keeps the end-to-end latency under the 33 ms
 real-time budget while preserving enough spatial resolution for the
 downstream Transformer to distinguish behaviour categories. The hook-based
-extractor in `model_arch.py` taps the **layer-22 C3k2 output** and applies
-adaptive average pooling to a 4 × 4 spatial grid, yielding 16 tokens of
-512-dim features per frame.
+extractor in `run_pairwise_contrastive.py` (`target_idx = 22`,
+`pool_size = 4`) taps the **layer-22 C3k2 output** and applies adaptive
+average pooling to a 4 × 4 spatial grid, yielding 16 tokens of 512-dim
+features per frame.
 
 Rationale for layer 22 over deeper (layer 23) or shallower (layer 15/19)
 taps was established in preliminary multi-scale fusion sweeps:
@@ -402,21 +403,38 @@ at the head of this chapter.
 
 ## 3.6 Reproducibility
 
-All training and inference scripts, trained weights (~300 MB), and ONNX
-exports are included in the repository:
+All training and inference scripts are in the repository, together with
+the small result artifacts the thesis cites as evidence (the ablation and
+evaluation JSONs under `sweep_results/`, ~164 KB total, explicitly
+un-ignored in `.gitignore`). The **trained weights and feature caches are
+not distributed** — `sweep_results/**/*.pt` (~300 MB, including the 125 MB
+`all8_test.pt` feature cache and the 18 MB `detector_best.pt`) stays under
+`.gitignore`, as does `deployment/artifacts/` and the 94 MB `figures/gradcam/`.
+Every number in Chapters 4 and 7 is therefore re-derivable from the committed
+JSONs, and re-*computable* only after regenerating those caches with the
+scripts below:
 
 - `run_pairwise_contrastive.py` — produces the 56/64 ensemble.
 - `run_yoloworld_push.py` — produces the 55/64 YOLO-World baseline.
-- `run_finetune_e2e.py` — end-to-end fine-tuning script (not used in
-  the final ensemble).
-- `plot_figures_binary.py` — regenerates Chapter 4 and Chapter 5 figures
-  from saved artifacts.
+- `run_probe_tsne.py` — regenerates the Chapter 4 interpretability
+  artifacts: the cosine tables (§4.8.1–§4.8.3) and the Figure 4.1 t-SNE
+  panels, from the checkpoints in `sweep_results/pairwise/`.
+- `run_ablation_*.py` (7 scripts) — regenerate the ablation JSONs under
+  `sweep_results/ablations/`.
+
+Two scripts cited in earlier drafts have been removed from the tree and are
+not part of the reproduction path: `run_finetune_e2e.py` (end-to-end
+fine-tuning, never used in the final ensemble) and `plot_figures_binary.py`
+(a superseded 125-clip *binary* experiment, not a Chapter 4/5 figure
+generator — its last version is recoverable from git history at `6f780cd`
+and `cedc678` respectively).
 
 Each training run produces a `results.json` checkpoint containing: seed,
 config, per-class confusion, per-epoch training / validation curves, and
 the full set of test-set logits for every clip. These logit tensors are
 the inputs to the ensemble and calibration code and guarantee exact
-reproducibility of the headline numbers.
+reproducibility of the headline numbers — for a reader who regenerates
+them, since the `.pt` tensors themselves are not in the distribution.
 
 ---
 

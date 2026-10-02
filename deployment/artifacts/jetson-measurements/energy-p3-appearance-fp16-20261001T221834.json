@@ -1,0 +1,33 @@
+{
+  "mode": "fp16",
+  "stage": "p3-appearance",
+  "duration_sec_requested": 60,
+  "what": "per-invocation energy for ONE engine; NOT per-decision",
+  "n_inferences": 2481,
+  "fps": 41.341,
+  "avg_power_w": 15.01,
+  "idle_power_w": 5.618,
+  "delta_power_w": 9.391,
+  "joules_per_inference_total_board": 0.36307,
+  "joules_per_inference_delta_idle": 0.22716,
+  "fps_per_watt_total_board": 2.7543,
+  "fps_per_watt_delta_idle": 4.4021,
+  "duration_sec_measured": 60.013,
+  "warmup_inferences": 20,
+  "idle_baseline_sec": 10,
+  "idle_n_samples": 19,
+  "tegrastats": {
+    "dry_run": false,
+    "n_samples": 118,
+    "power_rail": "VDD_IN (total module input, not a GPU-only rail)"
+  },
+  "git_commit": "9c1e219",
+  "timestamp": "2026-10-01T22:18:34.728930",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12"
+  }
+}

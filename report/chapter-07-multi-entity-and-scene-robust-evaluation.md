@@ -84,12 +84,15 @@ class (365 instances) was learned well — confirming the vest-colour cue surviv
 `Safe_Walkway` and `Restricted_Zone` carry no val instances — they are per-view zone polygons, not
 detected objects — so the overall figure is a mean over the six detected classes.
 
-*Provenance.* The training log kept in the repo (`sweep_results/entity_detector/train_run.log`) is
-truncated mid-epoch 20 of the 30-epoch freeze stage and never reaches the reported validation, so
-every number in this section was re-measured on 2026-10-02 from the saved weights
+*Provenance.* The training log (`sweep_results/entity_detector/train_run.log`) is truncated
+mid-epoch 20 of the 30-epoch freeze stage and never reaches the reported validation, so every
+number in this section was re-measured on 2026-10-02 from the saved weights
 (`sweep_results/entity_detector/detector_best.pt`) against the same held-out split. All of them
 reproduce to the printed precision; the run is logged in
-`sweep_results/entity_detector/reval-2026-10-02-detector-best-val343.log`.
+`sweep_results/entity_detector/reval-2026-10-02-detector-best-val343.log`, **which is in the
+repository**. The two inputs to that re-measurement are not: the weights (18 MB) and the training
+log (2.8 MB) stay under `.gitignore` with the other large binaries (§3.6), so the re-measurement
+is auditable from its log but repeatable only after retraining the detector.
 
 ## 7.4 Stage B — box-token spatial-relation Transformer
 
@@ -227,7 +230,8 @@ single-repeat run.
 indistinguishable across 50 folds each with overlapping NB intervals, so the ceiling documented in
 Chapter 4 is not detector-limited. Canonical runs:
 `sweep_results/relation_tokens/canonical/kfold_repeats10_yolo26app_HEADLINE.log` and
-`…/kfold_repeats10_yoloapp_YOLO11.log`.
+`sweep_results/relation_tokens/canonical/kfold_repeats10_yoloapp_YOLO11.log`.
+Both logs are in the repository.
 
 ### 7.7.2 Leave-camera-out — the confound measured from the outside
 

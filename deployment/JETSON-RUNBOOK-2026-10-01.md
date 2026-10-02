@@ -231,6 +231,40 @@ before 2026-10-01 22:38 do not carry them and cannot be cleared from the record 
     state the device boots or deploys in. Block 3b-note 11 records the decision and its reason; the
     whole series stays unpinned.
 
+## Step 7b — DO THIS FIRST when the board answers: pull six missing artifacts  *(host)*
+
+Found 2026-10-03 by the citation-vs-index sweep. Six result files measured on the device
+on 2026-10-01 were never rsync'd back and exist **nowhere** on the Mac:
+
+```
+r48-composed-cadence-fp16-20261001T233159.json   # Bảng 5.5O
+r48-composed-cadence-fp16-20261001T233324.json
+r48-composed-cadence-fp16-20261001T233449.json
+r48-idle-droop-probe-fp16-20261001T234145.json   # Bảng 5.5P
+r48-idle-droop-probe-fp16-20261001T234242.json
+r48-idle-droop-probe-fp16-20261001T234322.json
+```
+
+They carry the headline **3,452 decisions/s**, p95 322,708 ms, the 2,76×/1,38× margins,
+the 76,1 % duty factor and the entire pre-registered H-sụt-nhịp adjudication. Until they
+are here, those two tables are quoted but not re-readable — the one standard the 02-10/03-10
+audits hold every other number to. Runs **before** Step 8 because Step 8 overwrites the
+device's measurement directory state and because a re-measure cannot restore 01-10 evidence.
+
+```bash
+ssh jetson 'ls -la ~/r48/out/ | grep -E "composed-cadence|idle-droop"'
+rsync -av jetson:'~/r48/out/r48-composed-cadence-fp16-20261001T23*.json' \
+          jetson:'~/r48/out/r48-idle-droop-probe-fp16-20261001T23*.json' \
+          deployment/artifacts/jetson-measurements/
+# then: confirm each carries quiet=true, clocks_pinned.any=false, competing_processes=[]
+#       and that the quoted p50s match Bảng 5.5O/5.5P before committing
+git add -f deployment/artifacts/jetson-measurements/r48-composed-cadence-*.json \
+           deployment/artifacts/jetson-measurements/r48-idle-droop-probe-*.json
+```
+
+**If they are gone from the device:** both tables must be re-measured under the same
+protocol, or marked unverifiable. Do not re-quote them from the chapter text.
+
 ## Step 8 — QUEUED: re-measure after the preprocessing fix  *(device, blocked)*
 
 **Blocked since 2026-10-02 ~21:00: the board is unreachable — `ping` 100 % loss and ARP incomplete,

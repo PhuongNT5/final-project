@@ -1,0 +1,67 @@
+{
+  "mode": "fp16",
+  "stage": "p3-relation-head-bin-e3",
+  "duration_sec_requested": 5,
+  "what": "per-invocation energy for ONE engine; NOT per-decision",
+  "n_inferences": 17309,
+  "fps": 3461.781,
+  "avg_power_w": 5.896,
+  "idle_power_w": 4.691,
+  "delta_power_w": 1.205,
+  "joules_per_inference_total_board": 0.0017,
+  "joules_per_inference_delta_idle": 0.00035,
+  "fps_per_watt_total_board": 587.1737,
+  "fps_per_watt_delta_idle": 2872.8336,
+  "duration_sec_measured": 5.0,
+  "warmup_inferences": 20,
+  "idle_baseline_sec": 60,
+  "idle_n_samples": 118,
+  "tegrastats": {
+    "dry_run": false,
+    "n_samples": 9,
+    "power_rail": "VDD_IN (total module input, not a GPU-only rail)"
+  },
+  "git_commit": "9c1e219",
+  "timestamp": "2026-10-01T22:55:23.906750",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 729600,
+        "cur_khz": 1574400,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 729600,
+        "cur_khz": 729600,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 306000000,
+        "cur_hz": 306000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": false,
+      "gpu": false,
+      "any": false
+    },
+    "load_average": [
+      0.080078125,
+      0.58349609375,
+      1.15673828125
+    ],
+    "competing_processes": [],
+    "quiet": true
+  }
+}
