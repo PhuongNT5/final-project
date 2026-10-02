@@ -59,7 +59,8 @@ JetPack 6.2 + TensorRT 10.3): TRT-FP16 single-stream **8.62 ms p50 /
 116 FPS** (3.11 × faster than M3 CPU FP32); TRT-INT8 with 256 real-frame
 entropy calibration **8.24 ms / 121 FPS**; **4-stream zero-drop
 throughput demonstrated (88 FPS aggregate, Table 5.5C)**; and a **2-stream
-soak sustained for 36.2 minutes at 30 FPS with zero dropped frames**
+soak sustained for 36.2 minutes at 49.2 FPS aggregate (24.6 FPS per stream)
+with zero dropped frames**
 at **7.03 W average power** (peak 7.34 W; junction temperature ≈ 24 °C
 below throttle at steady-state, 23 °C at peak). The absolute watts are the
 claim — the power *profile* in force during that June run was not logged,
@@ -310,7 +311,8 @@ throughout — all computed on **one** predictor, the blind 54/64 rule
 
 **Third, a delivered, measured, open-source real-time edge system.** The
 pipeline sustains 4-stream zero-drop throughput and a 2-stream 36.2-minute soak
-at 30 FPS on a USD 249–499 Jetson at 7.03 W, keeps raw video on the device, and
+at 49.2 FPS aggregate on a USD 249–499 Jetson at 7.03 W, keeps raw video on the
+device, and
 reproduces from a clean clone — a capability no published baseline for this task
 demonstrates. Those throughput and power figures are for the **P1** graph; the P3
 architecture Chapter 4 evaluates was measured separately on the same device and

@@ -441,9 +441,20 @@ artifacts are now force-added so each row resolves.
 | Power/latency vs nvpmodel mode | tegrastats sweep | mode 0: 8.6 ms / 116.3 FPS / 45.69 mJ per inference; mode 1: 7.13 ms / 140.3; mode 2: 6.55 ms / 152.6 / 34.18 mJ | — | `deployment/artifacts/power-sweep-summary.json` | measured |
 | Multi-stream, zero drop | fp16, 240 frames per stream | 1–4 streams all zero-drop; aggregate 24.3 / 48.2 / 70.6 FPS at 1/2/3 streams | head p50 6.86–6.98 ms | `deployment/artifacts/multi-stream-jetson-fp16-realtime.json` | measured |
 
-**Open against these rows.** Ch6 calls the soak a *2-stream* soak; `soak-jetson-summary.json`
-records duration, power and temperature but not the stream count, so that one qualifier is not
-substantiated by the artifact and must be traced to `tegrastats-soak30min.log` or dropped.
+**~~Open against these rows.~~ Closed 2026-10-02.** Ch6 calls the soak a *2-stream* soak;
+`soak-jetson-summary.json` records duration, power and temperature but not the stream count. The
+qualifier traces to a different artifact, `deployment/artifacts/soak-30min.log`, whose header reads
+`=== N=2 streams, mode=fp16 === aggFPS=49.24 drops=0 elapsed=2193.509s` — 2,193.5 s = 36.6 min,
+consistent with the summary's 36.2 min active. So **"2-stream" is substantiated**.
+
+**"At 30 FPS" was not, and is corrected.** 49.24 FPS aggregate over two streams is **24.6 FPS per
+stream**, not 30. The per-stream pacing target is unlogged, and the JSON that `soak-30min.log`
+points to (`multi-stream-jetson-fp16.json`) was never pulled off the device, so no stronger
+statement is available. Both occurrences in Ch6 now quote **49.2 FPS aggregate (24.6 per stream)**.
+
+| Quantity | Protocol | Value | Spread | Artifact | Status |
+|---|---|---|---|---|---|
+| Soak stream count and rate | 2 streams, fp16, 2,193.5 s | **N=2, 49.24 FPS aggregate, 0 drops** | 24.6 FPS/stream | `deployment/artifacts/soak-30min.log` | measured |
 
 ### Historical — 4-class accuracy surface (added 2026-10-02 by the trace audit)
 
