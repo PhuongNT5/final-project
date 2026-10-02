@@ -519,10 +519,10 @@ see the difference.
 
 5. Can the six `r48-composed-cadence` / `r48-idle-droop-probe` artifacts be pulled
    off the device? Blocking for Bảng 5.5O/5.5P provenance. Device down since 01-10.
-6. `live-demo-stream.jsonl` (1.9 MB) and `tegrastats-soak30min.log` (924 KB) were
-   force-added against a directory ignore. Is force-add the right convention here,
-   or should `deployment/artifacts/` be restructured to entry-form like the others?
-   91 files were already tracked there by force-add, so this follows precedent.
+6. ~~force-add vs entry-form for `deployment/artifacts/`~~ — **resolved, see finding
+   18.** Entry-form: `deployment/artifacts/*` + one negation, the `annotation_guide/*`
+   precedent. The 91 already-force-added files stay tracked (an ignore rule does not
+   untrack); new distributable artifacts get a negation line with its reason.
 7. Table 4.19 was wrong in three of four rows while Tables 4.20 and 4.21 — from the
    same artifact — were exact. That asymmetry suggests 4.19 was typed from memory
    rather than read. No other table in ch04 has been checked value-by-value against
@@ -732,6 +732,40 @@ Scope check, deliberately: every zero-drop row in ch05 — Tables 5.4, 5.5C, soa
 is **unaffected**, because read and processed counts coincide when nothing is dropped.
 Only the two drop-bearing unbounded rows moved. H5's emit-cadence gate keys off the
 same read count, so those two rows' `n_predictions` are unreliable as well; also noted.
+
+### 18. The reverse sweep found Table 4.5's independent arbiter sitting un-cited (question 6, resolved)
+
+Findings 1–17 all ran prose → artifact. Running it backwards — every file in
+`deployment/artifacts/` grepped for across the chapters — leaves 15 files that no
+chapter mentions. One of them matters: `per-clip-logits-test64.csv`, 64 rows, 12 KB,
+written by `run_export_perclip_csv.py` (tracked), carrying per-clip direct4 logits and
+probabilities, cascade probabilities, ensemble probabilities, prediction and
+correctness.
+
+It is a **second, independent** route to Table 4.5: a different exporter, not the
+`run_ablation_significance.py` loader the table cites. Checked against the table as
+rewritten in finding 8 it agrees on every value — error set `{1,2,14,29,30,37,38,40}`,
+all eight confidences to within 0.0003, the 5 WalkwayViol + 3 UnauthorInt split,
+ensemble 56/64, direct4_s314 55/64 with errors = ensemble's + {51}, cascade 51/64 with
+errors = ensemble's + {0,6,11,13,50}, and the three-way intersection property. Finding 8
+rewrote that table from a nine-clip list belonging to a different model; this is the
+arbitration finding 8 did not have, arriving after the fact and confirming it.
+
+Why it was invisible: `.gitignore:45` ignored `deployment/artifacts/` wholesale, so the
+file existed on disk, was reproducible, and could not be cited as evidence of record.
+That is **question 6**, and the answer is entry-form, not `git add -f`: the rule is now
+`deployment/artifacts/*` plus a single negation for this CSV, matching the
+`annotation_guide/*` precedent at `.gitignore:87`. Verified with
+`git check-ignore --no-index` that all five subdirectories — `calib-jetson/`,
+`features/`, `figures/`, `jetson-measurements/`, `r48-parity-fixture/` — still match the
+entry rule, so the real worker frames and the TRT engines stay out. Entry form beats
+force-add here because a force-added file is invisible in the ignore file: nothing in
+`.gitignore` records that `live-demo-stream.jsonl` is meant to be in history, whereas a
+negation line says so and carries its reason.
+
+Method consequence: a one-directional sweep cannot find an artifact that is *missing a
+citation*, only a citation that is missing an artifact. Both directions are needed, and
+the backward one is cheaper — it is a directory listing against a grep.
 
 ### Method note, revised
 

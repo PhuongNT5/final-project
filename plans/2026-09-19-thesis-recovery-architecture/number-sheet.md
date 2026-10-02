@@ -629,6 +629,7 @@ two tables is quoted but not re-readable.** First device action in the runbook.
 | `CEILING` | Jetson aggregate **inference** ceiling = **≈ 103 FPS at N = 2–3**; falls to **90.12** at N = 4. The published 136.89 / 119.27 counted dropped frames. 4×30 = 120 FPS is **above** the ceiling — four true-30 FPS streams excluded; three (90) fit. | `…fp16-unbounded.json`, processed-only: (720−96)/6.037, (960−328)/7.013 |
 | `HEADROOM` | paced N = 4 (88.06 FPS, zero drops) = **≈ 85 % of ceiling, ≈ 15 % headroom**. The old "approximately 54 %" is **withdrawn** — it was Table 5.4's M3 batch-utilisation cell, not a Jetson measurement. | computed 2026-10-03 |
 | `SOAKFPS` | soak **49.24 FPS aggregate / 24.62 per stream**, drops 0, elapsed 2,193.5 s. Frames ≈ 107,000 = 49.24 × 2,172 s (tegrastats active window); the pipeline clock gives 108,008. Quote the smaller. | `soak-30min.log` + `soak-jetson-summary.json` |
+| `PERCLIP` | Table 4.5's independent arbiter: error set `{1,2,14,29,30,37,38,40}`, confidences to within 0.0003, 5 WalkwayViol + 3 UnauthorInt, ensemble **56/64**, direct4_s314 **55/64** (errors = ensemble's + {51}, clip 51 conf 0.5771), cascade **51/64** (errors = ensemble's + {0,6,11,13,50}). Different exporter from the cited loader, so it arbitrates rather than echoes. | `deployment/artifacts/per-clip-logits-test64.csv` (tracked 2026-10-03 via entry-form negation) |
 
 **Numeral warning — 55/64 now has four readings.** (i) our direct4_s314 top-1;
 (ii) V7 YOLO-World top-1 (§4.2.1, macro 89.54); (iii) the honest

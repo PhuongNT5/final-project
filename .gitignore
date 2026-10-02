@@ -42,7 +42,15 @@ sd-blob*
 deployment/jp*.zip
 deployment/jp*.img
 deployment/jetsoninstaller-*
-deployment/artifacts/
+# Entry-form (not `deployment/artifacts/`) so the negation below takes effect; every
+# subdirectory still matches as an entry, so calib-jetson/, features/, figures/,
+# jetson-measurements/ and r48-parity-fixture/ stay ignored - they hold real worker
+# frames, TRT engines and multi-MB logs. Only files named below are distributable.
+deployment/artifacts/*
+# Per-clip ensemble logits for the 64-clip test subset (12 KB, CC BY 4.0 with
+# attribution to [5] in its header). It is the only artifact that makes Table 4.5
+# independently checkable, and run_export_perclip_csv.py regenerates it.
+!deployment/artifacts/per-clip-logits-test64.csv
 deployment/features/
 figures/*
 # ...but the figures the thesis cites are kept (all <= 48 KB)
