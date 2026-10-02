@@ -606,6 +606,39 @@ They carry **3,452 decisions/s**, p95 322,708 ms, the 2,76×/1,38× margins, the
 2026-10-01 and never pulled back. **Until they are rsync'd, every number in those
 two tables is quoted but not re-readable.** First device action in the runbook.
 
+## Chapter 4 full value-by-value check (2026-10-03 — all 24 tables vs their artifacts)
+
+21 of 24 exact. Three moved. Freeze these.
+
+| key | value | source |
+| --- | --- | --- |
+| `ERRSET` | ensemble errors = 8 clips {1, 2, 14, 29, 30, 37, 38, 40}; per-class 5 W / 3 U / 0 P / 0 C | enumerated from `sweep_results/pairwise/` over `features/all8_test.pt` |
+| `ERRPAIR` | **7 of 8** on WalkwayViol ↔ UnauthorInt (was printed 6 of 9) | same |
+| `ERRCONF` | 0.778, 0.727, 0.699, 0.806, 0.743, 0.795, 0.853, 0.675 in clip order | same |
+| `PAPERBASE` | paper no-bbox ConvLSTM = **57/64**, macro 85.78 — never 55 | [17] Table 5/7, = 31+9+10+7 |
+| `ZBASE` | ours 56/64 vs paper 57/64: Δ −1.56 pp, z **−0.275**, p **0.7835** | `ablations/significance.json` (regenerated) |
+| `BOUNDFULL` | 56/64 vs 62/64 exact McNemar bound **[0.031, 0.109]** | same; matches Table 4.16c |
+| `BOOTSTD` | top-1 std **4.13**, macro std **3.87**; WalkwayViol 84.48 / 6.27; UnauthorInt 72.62 / 13.60 | same, `bootstrap_5000` |
+| `TSTAR` | honest temperature **T\* = 0.5** selected on train → **55/64, macro 88.49** | `ablations/calibration.json` → `honest_test_at_T_star` |
+
+**Numeral warning — 55/64 now has four readings.** (i) our direct4_s314 top-1;
+(ii) V7 YOLO-World top-1 (§4.2.1, macro 89.54); (iii) the honest
+temperature-scaled ensemble (T\* = 0.5, macro 88.49); (iv) **wrongly**, the paper's
+no-bbox baseline, as hard-coded at `run_ablation_significance.py:155` until
+2026-10-03. Readings (i) and (iii) also share 85.94 % with the 224² resolution row
+of Table 4.22. Never write "55/64" without naming which.
+
+**Direction of every correction.** Table 4.5 → pair share 6/9 → 7/8 (argument
+strengthens, error count drops 9 → 8 to match the headline). `PAPERBASE` → the Δ
+sign flips to the deficit the chapter always claimed (artifact was wrong, prose
+right). `TSTAR` → costs one sample, newly disclosed. `BOOTSTD` → dispersion only.
+No headline accuracy moves; three tables now agree with artifacts they contradicted.
+
+**Newly distributable (+16 KB, 2026-10-03):** `ablations/bootstrap.json`
+(Tables 4.14–4.15), `ablations/retrain.json` (4.16–4.18),
+`ablations/calibration_holdout.json` (4.13a). The first two were never cited by
+name anywhere in the thesis — a citation sweep is structurally blind to them.
+
 ## Unresolved questions
 
 1. ~~Does the thesis headline become the iSafetyBench 75.2% or stay Unsafe-Net?~~ **RESOLVED

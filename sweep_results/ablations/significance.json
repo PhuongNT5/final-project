@@ -88,7 +88,8 @@
       ],
       "ci_method": "percentile_bootstrap_over_clips_5000",
       "underpowered": true,
-      "note": "N=64: few discordant cells -> use bootstrap CIs as primary evidence"
+      "n_clips": 64,
+      "note": "N=64, 1 discordant cells -> underpowered, use bootstrap CIs as primary evidence"
     },
     "ensemble_vs_cascade": {
       "b01": 0,
@@ -104,28 +105,29 @@
       ],
       "ci_method": "percentile_bootstrap_over_clips_5000",
       "underpowered": true,
-      "note": "N=64: few discordant cells -> use bootstrap CIs as primary evidence"
+      "n_clips": 64,
+      "note": "N=64, 5 discordant cells -> underpowered, use bootstrap CIs as primary evidence"
     }
   },
   "top1_vs_paper": {
     "ours_vs_paper_baseline": {
-      "label": "paper ConvLSTM baseline (55/64)",
+      "label": "paper ConvLSTM baseline (57/64)",
       "n": 64,
       "our_correct": 56,
-      "other_correct": 55,
+      "other_correct": 57,
       "primary_test": "mcnemar_discordance_bound (baseline per-clip predictions unavailable)",
       "p_value_bound": [
-        0.9999999999999996,
+        1.0,
         1.0
       ],
-      "min_p_over_splits": 0.9999999999999996,
+      "min_p_over_splits": 1.0,
       "max_p_over_splits": 1.0,
-      "diff": 1,
-      "favours_b": false,
-      "delta_pp": 1.5625,
+      "diff": -1,
+      "favours_b": true,
+      "delta_pp": -1.5625,
       "diagnostic_two_proportion_z": {
-        "z": 0.26044680535720477,
-        "p_value": 0.7945191428350273
+        "z": -0.2748021546290905,
+        "p_value": 0.7834682426536266
       },
       "diagnostic_warning": "INVALID independence assumption on same-clip paired data (assumes 2 independent n=64 samples) \u2014 kept only for continuity with older reports; do NOT cite this p as the significance test."
     },
@@ -137,10 +139,10 @@
       "primary_test": "mcnemar_discordance_bound (baseline per-clip predictions unavailable)",
       "p_value_bound": [
         0.03125,
-        0.5323087760278422
+        0.109375
       ],
       "min_p_over_splits": 0.03125,
-      "max_p_over_splits": 0.5323087760278422,
+      "max_p_over_splits": 0.109375,
       "diff": -6,
       "favours_b": true,
       "delta_pp": -9.375,

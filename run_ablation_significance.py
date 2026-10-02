@@ -152,8 +152,11 @@ def main():
     # plans/2026-09-06-thesis-2week-final/reports/review-2026-09-13-eval-statistics.md finding #1
     # and reports/laneb-2026-09-16-paired-significance-fix.md for the old-vs-new bound comparison. ──
     print(f"\n[3] McNemar bound vs paper (primary) + two_proportion_z (labelled diagnostic only)")
-    cmp_baseline = paired_vs_aggregate_baseline(64, 56, 55, label='paper ConvLSTM baseline (55/64)')
-    print(f"  top-1  ours 56/64 vs paper 55/64:  McNemar bound p∈[{cmp_baseline['min_p_over_splits']:.4f},"
+    # 57/64, not 55: the paper's ConvLSTM-only confusion (Table 5 of [17]) decomposes per class as
+    # 31+9+10+7 = 57 — the figure every chapter cites (ch02 S2.4, ch04 Tables 4.3/4.4/4.6b/4.16c/4.24,
+    # ch05 S5.5). The previous 55 was our own direct4 count, not the paper's.
+    cmp_baseline = paired_vs_aggregate_baseline(64, 56, 57, label='paper ConvLSTM baseline (57/64)')
+    print(f"  top-1  ours 56/64 vs paper 57/64:  McNemar bound p∈[{cmp_baseline['min_p_over_splits']:.4f},"
           f"{cmp_baseline['max_p_over_splits']:.4f}]  Δ={cmp_baseline['delta_pp']:+.2f}pp  "
           f"(diagnostic two_proportion_z p={cmp_baseline['diagnostic_two_proportion_z']['p_value']:.4f}, invalid independence)")
 

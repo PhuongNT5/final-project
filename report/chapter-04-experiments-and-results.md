@@ -253,26 +253,50 @@ Comparison to the paper baseline:
 
 ## 4.5 Persistent Error Analysis
 
-**Table 4.5 — The 9 persistently misclassified clips (pairwise ensemble)**
+**Table 4.5 — The 8 persistently misclassified clips (4-class test index)**
 
-| # | True Class     | Predicted   | Confidence | Diagnosis                                                                 |
-| -: | ------------- | ----------- | ---------: | ------------------------------------------------------------------------- |
-|  1 | WalkwayViol   | UnauthorInt |    80–90 % | Worker near equipment; unauthorized-access cue dominates                  |
-|  2 | WalkwayViol   | UnauthorInt |    80–90 % | (same as #1)                                                              |
-| 14 | WalkwayViol   | OpenedPanel |     56 %   | Low-confidence ambiguous scene                                            |
-| 29 | WalkwayViol   | UnauthorInt |    80–90 % | (same as #1)                                                              |
-| 30 | WalkwayViol   | UnauthorInt |    80–90 % | (same as #1)                                                              |
-| 37 | UnauthorInt   | WalkwayViol |    94–96 % | Worker walking; walkway cue dominates                                     |
-| 38 | UnauthorInt   | WalkwayViol |    94–96 % | (same as #37)                                                             |
-| 44 | OpenedPanel   | WalkwayViol |     67 %   | Worker foregrounds scene; panel not visually salient                      |
-| 51 | OpenedPanel   | UnauthorInt |     74 %   | Worker standing near panel; ambiguous intent                              |
+| #  | True Class     | Predicted   | Ens. conf | Diagnosis                                                 |
+| -: | -------------- | ----------- | --------: | --------------------------------------------------------- |
+|  1 | WalkwayViol    | UnauthorInt |     0.778 | Worker near equipment; unauthorized-access cue dominates  |
+|  2 | WalkwayViol    | UnauthorInt |     0.727 | (same as #1)                                              |
+| 14 | WalkwayViol    | OpenedPanel |     0.699 | Low-confidence ambiguous scene — the one non-pair error   |
+| 29 | WalkwayViol    | UnauthorInt |     0.806 | (same as #1)                                              |
+| 30 | WalkwayViol    | UnauthorInt |     0.743 | (same as #1)                                              |
+| 37 | UnauthorInt    | WalkwayViol |     0.795 | Worker walking; walkway cue dominates                     |
+| 38 | UnauthorInt    | WalkwayViol |     0.853 | (same as #37)                                             |
+| 40 | UnauthorInt    | WalkwayViol |     0.675 | (same as #37)                                             |
 
-**Pattern.** Six of nine errors (67 %) are on the
-**WalkwayViol ↔ UnauthorInt** confusion pair — the two classes that are
-visually identical at the token level (a worker is present in a
+*Source:* enumerated from the ensemble's per-clip predictions
+(`sweep_results/pairwise/` checkpoints over `features/all8_test.pt`, the
+loader in `run_ablation_significance.py`). **Persistently** is literal: these
+eight clips are wrong under the headline ensemble *and* under direct4_s314
+alone *and* under the cascade alone — they are the intersection of all three
+error sets, as well as being exactly the ensemble's 8 errors (64 − 56). The
+per-class split, 5 WalkwayViol + 3 UnauthorInt + 0 OpenedPanel + 0
+CarryOverload, is the one Tables 4.4 and 4.16a report.
+
+> **Correction (2026-10-03).** An earlier draft gave this table as *nine* clips
+> ending `| 44 | OpenedPanel | WalkwayViol | 67 % |` and `| 51 | OpenedPanel |
+> UnauthorInt | 74 % |`, with confidences as coarse ranges. Enumerating the
+> actual predictions shows that set was neither the ensemble's (8 errors) nor
+> direct4_s314's (9), and was wrong three ways. **Clip 44 is misclassified by no
+> model** in the comparison. **Clip 40** (UnauthorInt → WalkwayViol) was omitted
+> although it is wrong under all three variants, so it belongs in the table.
+> Clip 51 *is* a genuine error, but direct4's alone — OpenedPanel → UnauthorInt
+> at confidence 0.577, not 74 % — and the ensemble fixes it, which is why Tables
+> 4.4 and 4.16a put OpenedPanel at 13/13 while that draft's table implied 11/13. The table now reports the ensemble,
+> the model every other number in this chapter describes. The correction
+> *strengthens* §4.5's argument: the pair share rises from 6/9 to 7/8.
+
+**Pattern.** Seven of eight errors (87.5 %) are on the
+**WalkwayViol ↔ UnauthorInt** confusion pair — four WalkwayViol clips read as
+UnauthorInt, three UnauthorInt clips read as WalkwayViol — the two classes that
+are visually identical at the token level (a worker is present in a
 restricted area). The **discriminator is which restricted area**: the
 walkway boundary vs a machine-access zone. This information is
-geometric, not photometric.
+geometric, not photometric. The one non-pair error (clip 14) carries the
+table's second-lowest confidence, 0.699, so the sole error outside the pair is
+also among the least confident the ensemble makes.
 
 **Evidence of data-bound ceiling.**
 
@@ -379,8 +403,9 @@ backbone's 9.4 M parameters, the COCO inductive prior is washed out
 faster than the 4-class behavioural signal can replace it. The pair
 heads, which depend on fine-grained features the frozen YOLO already
 encodes, suffer most — their individual accuracies collapse to 16–34 / 64
-versus 13–25 / 64 from the frozen branch (and the cascade as a whole
-drops from 51 to 52 / 64, but the ensemble loses 2 net samples).
+versus 13–25 / 64 from the frozen branch (the cascade as a whole *rises*
+one sample, 51 → 52 / 64 — the only column where the bbox branch wins —
+but the ensemble still loses 2 net samples).
 
 ### 4.6.1 Cross-ensemble of frozen + bbox branches
 
@@ -408,7 +433,11 @@ saved `cross_ensemble.json`, not from a live re-run.
 | 0.5·frozen_d4 + 0.5·bbox_avg                     |   52/64 |   83.52 |  78.1 % |      63.6 % |      92.3 % |       100.0 % |
 
 *Source: `sweep_results/ablations/cross_ensemble.json`. `bbox_avg` =
-mean of bbox direct4 seeds {s42, s123, s314, s7}.*
+mean of bbox direct4 seeds {s42, s123, s314, s7}. Six of the eleven blends
+in the artifact are shown; the five omitted are the 0.7 / 0.8 frozen-weight
+blends (both 55/64, 88.49 macro, identical to the 0.9 row) and three
+single-seed blends at 54/64 (86.57–87.71 macro). None of the eleven exceeds
+the frozen-only baseline, so the omission is presentational, not selective.*
 
 **Result.** No blend exceeds the frozen-only baseline. Even at 90 %
 frozen / 10 % bbox weight, the result holds at 55/64 — meaning the
@@ -650,10 +679,32 @@ component's logits before cascade fusion, sweeping T ∈ [0.5, 2.0]:
 | 1.5 | 56/64 |   89.28 | 0.4956 | 0.182 |           0.693 |
 | 2.0 | 56/64 |   89.28 | 0.5845 | 0.257 |           0.618 |
 
+*Source:* `sweep_results/ablations/calibration.json` (`test_sweep_diagnostic`,
+5 of its 16 rows shown; the 11 omitted lie between these and change nothing —
+every T ≤ 0.9 gives 55/64 and every T ≥ 1.0 gives 56/64), produced by
+`run_ablation_calibration.py`.
+
 Top-1 saturates at 56/64 for T ≥ 1.0; NLL is minimized at T ≈ 0.8 (where
-top-1 is 55/64 — the trade-off between sharpness and accuracy). The
-**defensible test-selected top-1 is 56/64**, not 57/64 (the honest blind
-figure is ≈ 52/64, §4.7.11). The bias-search calibration
+top-1 is 55/64 — the trade-off between sharpness and accuracy).
+
+**But reading T off the test sweep is the same defect §4.7.7 withdraws for
+the bias search**, which is why the artifact names that array
+`test_sweep_diagnostic` and also carries the honest protocol: T is selected
+on the 452-clip train set, where NLL is minimised at **T\* = 0.5** (train NLL
+0.1615, ECE 0.0267, top-1 420/452 = 92.92 %, macro 95.45), and the test set
+is then touched once. The honest temperature-scaled result is
+**55/64 = 85.94 %, macro 88.49 %** (`honest_test_at_T_star`) — one sample
+*below* the uncalibrated 56/64, which mirrors the bias-search outcome of
+Table 4.13a exactly: at this annotation scale no calibration fitted away
+from the test set survives contact with it. Earlier drafts reported only
+the T = 1.0 column; the honest row is added here because omitting it left
+§4.7.6 holding the test-selected number while §4.7.7 withdrew a different
+one for the same reason.
+
+The **defensible test-selected top-1 is therefore 56/64** — uncalibrated, at
+T = 1.0, where temperature scaling is the identity — not 57/64, and not a
+calibrated figure of any kind (the honest calibration costs a sample). The
+honest blind figure is ≈ 52/64, §4.7.11. The bias-search calibration
 of the original code is now reported as a methodological caveat in §4.7.7.
 
 ### 4.7.7 Methodology note on the previously reported 57/64
@@ -700,7 +751,8 @@ not generalize.
 ### 4.7.8 Architecture and training-stage ablations (retraining)
 
 Three retraining studies were run on the frozen-COCO train feature cache
-(566 train clips, all 8 classes, 593 MB) using `run_ablation_retrain.py`.
+(566 train clips, all 8 classes, 593 MB) using `run_ablation_retrain.py`
+(→ `sweep_results/ablations/retrain.json`, the source of Tables 4.16–4.18).
 Each variant trains three seeds (42, 123, 7) on the 4-class subset for up
 to 200 epochs (early stop after 40 stale epochs); the same focal-γ=2,
 label-smoothing 0.05, EMA 0.998, cosine schedule, and weighted-random
@@ -787,7 +839,10 @@ space changes that fact.
 
 A test set of 64 clips is small enough that any single-number accuracy
 must be reported with an interval. The 95 % bootstrap CI (5 000 resamples
-with replacement of the 64-clip test set) is given below:
+with replacement of the 64-clip test set) is given below
+(`sweep_results/ablations/bootstrap.json`, the source of Tables 4.14–4.15;
+the component columns report the bootstrap mean, which coincides with the
+point estimate to three decimals for every row):
 
 **Table 4.14 — Bootstrap 95 % CIs on top-1 and macro-F1**
 
@@ -834,10 +889,10 @@ per-class rows so that the resampled set preserves class size.
 
 | Metric                  | n  | Point estimate | Bootstrap mean | 95 % CI            | Std    |
 | ----------------------- | -: | -------------: | -------------: | ------------------ | -----: |
-| Top-1 (overall)         | 64 |     87.50 %    | 87.46 %        | [79.69, 95.31]     | 4.04   |
-| **Macro (mean of 4)**   |  — |   **89.28 %**  | **89.34 %**    | **[81.32, 96.32]** | 3.79   |
-| Per-class WalkwayViol   | 32 |     84.38 %    | 84.43 %        | [71.88, 96.88]     | 6.36   |
-| Per-class UnauthorInt   | 11 |     72.73 %    | 72.85 %        | [45.45, 100.00]    | 13.53  |
+| Top-1 (overall)         | 64 |     87.50 %    | 87.46 %        | [79.69, 95.31]     | 4.13   |
+| **Macro (mean of 4)**   |  — |   **89.28 %**  | **89.34 %**    | **[81.32, 96.32]** | 3.87   |
+| Per-class WalkwayViol   | 32 |     84.38 %    | 84.48 %        | [71.88, 96.88]     | 6.27   |
+| Per-class UnauthorInt   | 11 |     72.73 %    | 72.62 %        | [45.45, 100.00]    | 13.60  |
 | Per-class OpenedPanel   | 13 |    100.00 %    | 100.00 %       | [100.00, 100.00]   | 0.00   |
 | Per-class CarryOverload |  8 |    100.00 %    | 100.00 %       | [100.00, 100.00]   | 0.00   |
 
@@ -860,7 +915,7 @@ macro advantage.*
 
 | Comparison                                 | Δ        |     z   |    p   | Interpretation                  |
 | ------------------------------------------ | -------- | ------: | -----: | ------------------------------- |
-| top-1: ours 56/64 vs paper 57/64 (no-bbox, Table 5)  | −1.56 pp | −0.270  | 0.7872 | not significant on N = 64 — parity |
+| top-1: ours 56/64 vs paper 57/64 (no-bbox, Table 5)  | −1.56 pp | −0.275  | 0.7835 | not significant on N = 64 — parity |
 | top-1: ours 56/64 vs paper 62/64 (full, Table 6)     | −9.38 pp | −1.976  | 0.0481 | borderline significant deficit  |
 | macro: ours 89.28 vs paper 85.78 (no-bbox, Table 7)  | +3.50 pp | +0.599  | 0.5490 | not significant — directional lift |
 | macro: ours 89.28 vs paper 95.81 (full, Table 7)     | −6.53 pp | −1.406  | 0.1596 | not significant                 |
@@ -870,6 +925,24 @@ Both directions of the comparison fail at the 1 % level on N = 64. The
 N = 64) cannot be defended as a *significant* deficit, and the +3.50 pp
 macro lift over the same baseline cannot be defended as a *significant*
 improvement.
+
+> **Artifact correction (2026-10-03).** Reading Tables 4.16a–4.16c back out of
+> `sweep_results/ablations/significance.json` found the artifact, not the chapter, at
+> fault on the baseline row: `run_ablation_significance.py` hard-coded the paper's
+> no-bbox ConvLSTM score as **55/64**, where the paper's own Table 5 confusion
+> decomposes per class as 31 + 9 + 10 + 7 = **57/64** — the figure Tables 4.3, 4.4,
+> 4.6b, 4.16c and 4.24, §2.2 and §5.6.7 all use. (55/64 is this thesis's *direct4* count,
+> and separately the V7 YOLO-World variant of §4.2.1 — a third reading of the same numeral.)
+> The constant is corrected and the artifact regenerated: the diagnostic z for the
+> baseline row moves from +0.260 / p = 0.794 to **−0.275 / p = 0.7835**, i.e. the sign of
+> Δ flips to the deficit the chapter always reported, and the conclusion is unchanged.
+> The regenerated run also refreshes the stale `ours_vs_paper_full` bound, which still
+> carried the pre-2026-09-29 unconstrained enumerator's `[0.031, 0.532]`; it is now
+> `[0.031, 0.109]`, matching Table 4.16c. The 5 000-resample bootstrap block reproduced
+> byte-identically (seed 20260505), which also showed four dispersion cells in Table
+> 4.16a had been typed from an earlier run — std 4.04 → **4.13** (top-1), 3.79 → **3.87**
+> (macro), and the WalkwayViol/UnauthorInt bootstrap means and stds; all point estimates
+> and all six confidence intervals were already exact. No reading in §4.7.9 changes.
 
 > **Superseded in part, 2026-09-29.** The z-test is the wrong instrument here (it
 > assumes two independent samples; both classifiers are scored on the *same* 64 clips),
@@ -1001,7 +1074,7 @@ were run (val_frac 0.20 with the fixed headline ensemble, and val_frac
 | Best-case (test-selected epoch, lucky seed 314, greedy ensemble) | 56/64 = 87.5 % | 89.28 % | the deployed checkpoint; optimistic upper bound |
 | Typical (test-selected, standard seeds, single direct-4) | 53.3/64 | ~84.8 % | seed-honest, still selects on test |
 | **Blind — single direct-4, val-selected epoch** | **51.7 ± 2.0 / 64 ≈ 80.8 %** | **~84 %** | honest generalization estimate |
-| Blind — direct-4 + cascade ensemble, val-selected | 50.7 / 64 | 83.9 % | ensemble *underperforms* the single head |
+| Blind — direct-4 + cascade ensemble, val-selected | 50.7 / 64 | 83.9 % | ensemble *underperforms* the single head (val_frac 0.20; under val_frac 0.15 it falls further, to 48.5 / 64 and 81.6 % macro) |
 | Paper ConvLSTM-only (no bbox) baseline | 57/64 = 89.06 % | 85.78 % | protocol not reported |
 
 *Source:* `plans/260613-thesis-defense-revision/reports/blind-eval-result.json`

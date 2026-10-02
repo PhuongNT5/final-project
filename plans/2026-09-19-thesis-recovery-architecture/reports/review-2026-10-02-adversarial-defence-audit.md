@@ -527,3 +527,120 @@ see the difference.
    same artifact — were exact. That asymmetry suggests 4.19 was typed from memory
    rather than read. No other table in ch04 has been checked value-by-value against
    its artifact; §4.3–§4.5 remain unaudited at this level.
+
+## Full value-by-value sweep of Chapter 4, 2026-10-03 — answering question 7
+
+Question 7 asked whether 4.19 was an isolated lapse. It was not: every table in
+ch04 is now checked cell-by-cell against its artifact. 21 of 24 are exact. Three
+carried errors, and in two of the three the **artifact** was at fault, not the prose
+— the opposite of 4.19's failure mode and a correction to the method note above,
+which assumed the chapter drifts from a trustworthy artifact.
+
+**Exact as printed (21):** 4.6, 4.6a, 4.7, 4.8, 4.9, 4.10, 4.11, 4.12, 4.13, 4.13a,
+4.14, 4.15, 4.16, 4.16c, 4.17, 4.18, 4.20, 4.21, 4.22, 4.23, 4.24. Includes
+Table 4.24's two blind-eval runs (51.75 ± 2.28, macro 83.14; `direct4` val-selected
+on all four seeds) and the 16 CI bounds of 4.14–4.15.
+
+### 8. Table 4.5 listed the wrong model's errors, and got two of its rows wrong
+
+The worst finding of this sweep, because it is the chapter's only per-clip table and
+§4.5's whole argument rests on it. Printed as "The 9 persistently misclassified clips
+(pairwise ensemble)", but the headline ensemble has 8 errors (64 − 56), and the nine
+listed clips were neither the ensemble's set nor direct4_s314's. Enumerated from the
+checkpoints:
+
+| set | errors | per-class (W/U/P/C) |
+| --- | --- | --- |
+| ensemble (headline) | 8 — {1,2,14,29,30,37,38,40} | 5 / 3 / 0 / 0 |
+| direct4_s314 | 9 — the above + {51} | 5 / 3 / 1 / 0 |
+| cascade | 13 — the above + {0,6,11,13,50} | 9 / 3 / 1 / 0 |
+| **old Table 4.5** | 9 — {1,2,14,29,30,37,38,**44**,**51**} | 5 / 2 / 2 / 0 |
+
+Three defects. **Clip 44 is misclassified by no model.** **Clip 40 was omitted**
+though wrong under all three variants. **Clip 51** is direct4's error only (and at
+0.577, not the printed 74 %); the ensemble fixes it. The printed per-class split
+(5/2/2) contradicted Tables 4.4 and 4.16a, which both put OpenedPanel at 13/13 — a
+contradiction visible without any artifact, had anyone added the column.
+
+Rewritten to the ensemble's 8 clips with measured confidences. "Persistently" is now
+literal and checkable: the 8 are the *intersection* of all three error sets. The
+pair share rises 6/9 → **7/8**, so §4.5's data-bound argument strengthens.
+
+### 9. `run_ablation_significance.py` hard-coded the paper baseline as 55/64
+
+Line 155 passed `other_correct=55` for the paper's no-bbox ConvLSTM score. Every
+chapter says **57/64** — and Table 4.4 decomposes it per class (31+9+10+7) from the
+paper's own Table 5/7. 55/64 is *our* direct4 count, and separately V7 YOLO-World:
+a fourth numeral collision. Fixed, artifact regenerated. The 5 000-resample
+bootstrap reproduced byte-identically (`default_rng(20260505)`), so only the
+baseline block moved: Δ +1.56 → **−1.56 pp**, z +0.260 → **−0.275**, p 0.794 →
+**0.7835**, bound [0.99999, 1.0] → [1.0, 1.0]. No conclusion changes — the chapter
+had always reported the deficit direction; the artifact disagreed with it.
+
+The same re-run refreshed a second staleness: `ours_vs_paper_full`'s bound still
+carried the pre-2026-09-29 unconstrained enumerator's `[0.031, 0.532]`. It is now
+`[0.031, 0.109]`, which is what Table 4.16c already printed. So 4.16c had been
+*right against a wrong artifact* for four days.
+
+### 10. Table 4.16a's four dispersion cells were typed from an earlier run
+
+Point estimates and all six CIs exact; the bootstrap means/stds were not —
+std 4.04 → **4.13** (top-1), 3.79 → **3.87** (macro), WalkwayViol mean 84.43 →
+**84.48** / std 6.36 → **6.27**, UnauthorInt mean 72.85 → **72.62** / std 13.53 →
+**13.60**. Reproducible seed ⇒ the chapter, not the run, had drifted. No reading moves.
+
+### 11. Three artifacts sourced tables while un-cited and un-tracked
+
+`bootstrap.json` (Tables 4.14–4.15) and `retrain.json` (Tables 4.16–4.18) are named
+nowhere in the thesis — only their generator scripts are — so the 10-02 "cited vs
+`git ls-files`" sweep could not have caught them: **a sweep over citations cannot
+find an artifact that is never cited.** `calibration_holdout.json` (Table 4.13a) was
+cited but outside backticks, invisible to the extractor until the 10-03 bare-mention
+pass. All three un-ignored (+16 KB) and source lines added. Table 4.13 had no source
+line at all; `calibration.json` appeared only in a bulk list at ch04:517.
+
+### 12. §4.7.6 kept a test-selected temperature while §4.7.7 withdrew a test-selected bias
+
+`calibration.json` names its test sweep `test_sweep_diagnostic` and carries the
+honest protocol the chapter never reported: T selected on the 452-clip train set
+(T\* = 0.5, train NLL 0.1615) → **55/64, macro 88.49** on one test touch. §4.7.7
+withdraws the bias search for exactly this protocol defect; §4.7.6 was keeping
+T = 1.0's 56/64 on the same footing it condemned. Now reported. It costs one sample
+and changes no headline (T = 1.0 is the identity, so 56/64 stays the defensible
+*uncalibrated* test-selected figure), but the asymmetry is gone.
+
+### 13. Two prose errors found alongside
+
+§4.6 read "the cascade as a whole drops from 51 to 52 / 64" — 51 → 52 is a rise, and
+the only column where the bbox branch wins. Table 4.6a showed 6 of 11 blends without
+saying so; now disclosed, with the 5 omitted characterised (none beats the baseline,
+so the omission was presentational).
+
+### Method note, revised
+
+The 10-02 note said: check prose against the artifact. This sweep shows the arrow
+runs both ways. In 4.19 the prose was wrong; in 4.16a/4.16b/4.16c the artifact was
+wrong, stale, or both, and in 4.16c the prose was right *against* its own cited
+source. So the check is not "trust the artifact" but **"make them agree, then ask
+which one moved"** — and when an artifact is regenerable under a fixed seed, re-run
+it, because a reproducible artifact is the only one that can arbitrate.
+
+Second: a citation-based sweep has a blind spot it cannot see from the inside
+(finding 11). The complement is to walk the *artifacts* and ask which table each one
+feeds — the reverse direction.
+
+### Unresolved questions
+
+8. `finetune_bbox/results.json` and `cross_ensemble.json` disagree on the bbox
+   direct4 seeds they share: s314 = 52 vs 50, s7 = 34 vs 45 (s42, s123 agree at 52).
+   No table cell depends on the overlap, but two artifacts describing "bbox direct4
+   seed N" should not differ by 11 samples. Different epoch selection, or a
+   different finetune generation? Unresolved; flagged, not guessed.
+9. Table 4.5's confidences are the ensemble's mean-of-two-softmax maxima. The old
+   table's "94–96 %" for clips 37/38 does not correspond to anything measured here
+   (0.795, 0.853). Provenance of the original ranges unknown.
+10. Tables 4.1–4.4 are not artifact-backed in the same way: 4.1's per-track numbers
+   cite `sweep_results/` collectively, and 4.3/4.4's paper columns come from the
+   paper PDF, which is `.gitignore`d for copyright. 4.3/4.4 are internally
+   consistent (27+8+13+8 = 56; 31+9+10+7 = 57; 32+10+12+8 = 62) but the paper side
+   cannot be machine-checked from this repository.

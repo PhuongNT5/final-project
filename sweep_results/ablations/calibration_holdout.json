@@ -1,0 +1,197 @@
+{
+  "baseline": {
+    "train": {
+      "correct": 419,
+      "total": 452,
+      "macro": 95.31
+    },
+    "test": {
+      "correct": 56,
+      "total": 64,
+      "macro": 89.28
+    }
+  },
+  "test_set_tuning_reference": {
+    "description": "Bias search fit directly on test set (Ch4 \u00a74.7.7 audit target)",
+    "test_correct": 57,
+    "test_total": 64,
+    "test_macro": 90.06,
+    "bias": [
+      0.4741,
+      0.1509,
+      -0.0344,
+      -0.3443
+    ]
+  },
+  "full_train_calibration": {
+    "description": "Bias search fit on full 4-class train (452 clips), applied to test",
+    "train_fit_correct": 429,
+    "train_total": 452,
+    "test_correct": 53,
+    "test_total": 64,
+    "test_acc": 82.81,
+    "test_macro": 82.36,
+    "bias": [
+      0.3638,
+      0.2016,
+      -0.2061,
+      0.2677
+    ]
+  },
+  "kfold_holdout_calibration": {
+    "description": "5-fold stratified train holdout (frac=0.2 per fold); bias fit on holdout, applied to test",
+    "folds": [
+      {
+        "fold": 0,
+        "holdout_size": 91,
+        "holdout_fit_correct": 86,
+        "holdout_fit_acc": 94.51,
+        "test_correct": 54,
+        "test_acc": 84.38,
+        "test_macro": 85.43,
+        "bias": [
+          0.4884,
+          0.3922,
+          0.0196,
+          -0.2918
+        ]
+      },
+      {
+        "fold": 1,
+        "holdout_size": 91,
+        "holdout_fit_correct": 88,
+        "holdout_fit_acc": 96.7,
+        "test_correct": 51,
+        "test_acc": 79.69,
+        "test_macro": 78.52,
+        "bias": [
+          0.4634,
+          0.2246,
+          -0.3096,
+          0.0107
+        ]
+      },
+      {
+        "fold": 2,
+        "holdout_size": 91,
+        "holdout_fit_correct": 88,
+        "holdout_fit_acc": 96.7,
+        "test_correct": 54,
+        "test_acc": 84.38,
+        "test_macro": 84.73,
+        "bias": [
+          0.2147,
+          -0.2014,
+          0.0672,
+          -0.2982
+        ]
+      },
+      {
+        "fold": 3,
+        "holdout_size": 91,
+        "holdout_fit_correct": 86,
+        "holdout_fit_acc": 94.51,
+        "test_correct": 54,
+        "test_acc": 84.38,
+        "test_macro": 85.43,
+        "bias": [
+          0.2521,
+          0.2231,
+          -0.1596,
+          0.0975
+        ]
+      },
+      {
+        "fold": 4,
+        "holdout_size": 91,
+        "holdout_fit_correct": 87,
+        "holdout_fit_acc": 95.6,
+        "test_correct": 54,
+        "test_acc": 84.38,
+        "test_macro": 85.43,
+        "bias": [
+          0.3051,
+          0.1112,
+          -0.1635,
+          -0.0874
+        ]
+      }
+    ],
+    "mean_test_correct": 53.4,
+    "std_test_correct": 1.2000000000000002,
+    "min_test_correct": 51,
+    "max_test_correct": 54
+  },
+  "multi_seed_full_train": {
+    "description": "5 random-search seeds, fit on full train, applied to test",
+    "seeds": [
+      {
+        "search_seed": 2000,
+        "train_fit_correct": 429,
+        "test_correct": 54,
+        "test_acc": 84.38,
+        "test_macro": 85.43,
+        "bias": [
+          0.2529,
+          0.0826,
+          -0.226,
+          0.3133
+        ]
+      },
+      {
+        "search_seed": 2001,
+        "train_fit_correct": 429,
+        "test_correct": 54,
+        "test_acc": 84.38,
+        "test_macro": 85.43,
+        "bias": [
+          0.0617,
+          -0.1406,
+          -0.4356,
+          -0.3719
+        ]
+      },
+      {
+        "search_seed": 2002,
+        "train_fit_correct": 429,
+        "test_correct": 54,
+        "test_acc": 84.38,
+        "test_macro": 84.29,
+        "bias": [
+          0.4047,
+          0.2372,
+          -0.1504,
+          0.2194
+        ]
+      },
+      {
+        "search_seed": 2003,
+        "train_fit_correct": 429,
+        "test_correct": 53,
+        "test_acc": 82.81,
+        "test_macro": 82.36,
+        "bias": [
+          0.2539,
+          0.0798,
+          -0.4882,
+          -0.2219
+        ]
+      },
+      {
+        "search_seed": 2004,
+        "train_fit_correct": 429,
+        "test_correct": 53,
+        "test_acc": 82.81,
+        "test_macro": 83.51,
+        "bias": [
+          0.1866,
+          -0.0093,
+          -0.3006,
+          0.3503
+        ]
+      }
+    ],
+    "mean_test_correct": 53.6,
+    "std_test_correct": 0.4898979485566356
+  }
+}
