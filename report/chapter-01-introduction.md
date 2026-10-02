@@ -11,13 +11,27 @@
 > |---|---|---|---|---|
 > | Ch1, Ch3, Ch4 | **P1** frozen-COCO YOLO -> multi-stream Transformer | 56/64 (87.5 %) | **53/64** (82.8 %) | same-dist, N=64 |
 > | Ch5 | **P1** as exported to Jetson | 55/64 (TRT engine, as recorded in `benchmarks-jetson-*.json`) | **53/64** | same-dist, N=64 |
-> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 %, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 % **top-1**, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+> | Ch5 §5.6.9 | **R48** whole-frame CLIP ViT-B/32 -> B1 temporal Transformer — the engine actually on the device | **84.2 % balanced accuracy** (B1, N=1,100) | same number: the protocol cannot leak a source, so there is no separate honest column | **P-D LSO-1100**, folds grouped by source video, N=1,100 |
 >
-> **The thesis headline is P3 (Ch7).** P1's 56/64 is **test-selected** (the ensemble was chosen
-> using the test clips) and must never be presented as the result; its honest blind counterpart is
-> 53/64. P3 is the only pipeline with evidence beyond N=64, which is why it leads.
-> Chapters 1-6 are retained as the experimental record of how the design was arrived at, not as
-> the final claim.
+> **The headline is the R48 lane: CLIP + temporal Transformer under LSO-1100.** It is the only
+> accuracy in this thesis measured on all 1,100 clips under a protocol that cannot put one source
+> video in both the train and the evaluation fold, and it is the model that was exported, deployed
+> and measured on the Jetson (§5.6.9). YOLO's role in that lane is **localisation** — the system
+> must say *where*, not only *whether* — and localisation latency is timed separately, never summed
+> into the class decision. P3's 54/64 is the entity-relation lane's result at N=64 and is what Ch7
+> and the abstract report; it keeps its own evidence beyond N=64 (k-fold and LCO at N=516). P1's
+> 56/64 is **test-selected** (the ensemble was chosen using the test clips) and must never be
+> presented as the result; its honest blind counterpart is 53/64. Chapters 1-6 are retained as the
+> experimental record of how the design was arrived at, not as the final claim.
+>
+> **Caution — "84.4 %" denotes two different quantities here. Never write it bare.** 84.4 %
+> *top-1* (P3, blind same-dist split, N=64) is Ch7's figure. 84.4 % *balanced accuracy* (B1w,
+> LSO-1100, N=1,100) is the R48 lane's best head — and B1w is **not** the head on the device. The
+> deployed engine is B1 (201,090 params x 3 seeds), whose own figure is **84.2 %**; B1 was chosen on
+> the pre-registered *edge* criterion, smallest model, not on accuracy, so its own number is the one
+> to quote and never max(B1, B1w). §5.6.9 quotes 84.2 % throughout for that reason
+> (`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-two-different-84-4-percent.md`).
 
 ## 1.1 Background and Motivation
 
@@ -90,7 +104,7 @@ Table 6 confusion matrix as 62/64).
 **Objective 3 — Edge Deployment.** Apply model-optimization techniques
 (ONNX export, INT8 quantization, potentially TensorRT compilation) so that
 the pipeline meets real-time multi-stream constraints on edge hardware
-(Apple M4 CPU and NVIDIA Jetson Orin Nano Super, both measured end-to-end).
+(Apple M3 CPU and NVIDIA Jetson Orin Nano Super, both measured end-to-end).
 
 ### 1.3.1 Scope evolution from the approved proposal
 
@@ -102,7 +116,7 @@ deliberate scientific outcomes rather than as gaps to be discovered.
 |---|---|---|
 | YOLO (spatial) → **Transformer temporal-reasoning** stage → MLP, with the encoder named **RT-DETR** | **Substantially met:** YOLOv11s spatial encoder → a multi-stream **Transformer encoder** temporal-reasoning head → MLP. The Transformer temporal stage *is* built; only the specific *RT-DETR* encoder was dropped. | RT-DETR is an end-to-end *object detector*, not a sequence/temporal encoder; the proposal conflated "Transformer" with "RT-DETR." A Transformer encoder over the frame sequence realizes the temporal-reasoning intent directly. RT-DETR is itself COCO-pretrained and would hit the same data-bound ceiling, so building it would not change the finding (argued in §6.2). |
 | Test accuracy **> 95.8 %** | Best zero-bbox config (hybrid+gate, §4.6.2): **blind 53/64 (82.8 % top-1, 85.4 % macro)** — macro parity with the no-bbox baseline (85.78 %) even blind; best-case 86.9–87.7 % macro > baseline; top-1 below (53–54 vs 57). Full-bbox 95.81 % not reached. Ladder: best-case 56/64 → blind 53/64. | Twelve+ tracks (incl. VideoMAE and the paper's exact frame-gate mechanism @1,200 bbox) converge on the ≈54/64 ceiling; the gap to full-bbox is **data-volume-bound**, not architecture-bound (cosine ≈ 0.83 collapse, §4.6.2). The earlier "+3.5 pp macro win" was a test-set-selection artifact and is withdrawn (§4.7.11). |
-| **8-class** (4 safe + 4 unsafe) classification | **4-class unsafe** subset as the headline; 8-class joint (~78 %) and binary safe/unsafe scoped to future work (§6.4) | The 4-class subset isolates the WalkwayViol ↔ UnauthorInt confusion pair that drives the entire shortfall, giving a clean object of study. |
+| **8-class** (4 safe + 4 unsafe) classification | **4-class unsafe** subset as the headline; 8-class joint and binary safe/unsafe scoped to future work (§6.4). **No 8-class accuracy is reported: no 8-class run exists on disk.** (An earlier draft quoted "~78 %"; that figure had no run behind it and is withdrawn, 2026-09-29.) | The 4-class subset isolates the WalkwayViol ↔ UnauthorInt confusion pair that drives the entire shortfall, giving a clean object of study. |
 
 The consequence for **positioning** is explicit, and it defines the spine of
 this thesis. The contribution is *not* a novel architectural mechanism, and
@@ -137,12 +151,13 @@ of where the accuracy gap lives.
    single-stream; INT8 with 256 real-frame entropy calibration at FP16
    accuracy; **4-stream zero-drop throughput (88 FPS aggregate, Table 5.5C)
    and a 2-stream soak sustained for 36.2 minutes with zero dropped frames
-   at 7.0 W average power** (47 % of the 15 W budget, ≈ 23 °C below
-   throttle); a power-efficiency Pareto across nvpmodel
+   at 7.03 W average power** (peak 7.34 W, ≈ 23 °C below throttle; the
+   run's power profile was not logged, so no share-of-budget figure is
+   claimed — §5.6.3); a power-efficiency Pareto across nvpmodel
    profiles; and a live operator dashboard with rolling-window
    dual-threshold alerting whose only network egress is metadata
    (≈ 50 kbps, *privacy by construction* — raw frames never leave the
-   edge). On **Apple M4 CPU**: 26.8 ms p50 / 37.3 FPS, ONNX + dynamic INT8
+   edge). On **Apple M3 CPU**: 26.8 ms p50 / 37.3 FPS, ONNX + dynamic INT8
    compressing the deployed ensemble 156 → 40 MB (3.8×). No published
    baseline for this task reports edge deployment, multi-stream
    throughput, sustained soak, or per-frame energy. This is the primary
@@ -230,7 +245,7 @@ of where the accuracy gap lives.
 
 **In scope.** Classification of behaviours on the Unsafe-Net 4-class unsafe
 subset; frozen-backbone + trained-head approaches; ONNX + INT8 deployment
-on Apple M4 CPU; **TensorRT FP16/INT8 deployment with measured cross-precision,
+on Apple M3 CPU; **TensorRT FP16/INT8 deployment with measured cross-precision,
 multi-stream, and 36-minute sustained-soak data on Jetson Orin Nano Super
 (§5.6)**.
 
@@ -271,7 +286,7 @@ plus edge), not a single competitive top-1 number.
   the per-class accuracy breakdown, confusion analysis, and the gap
   analysis supporting the data-not-architecture conclusion.
 - **Chapter 5 — Edge Deployment** reports the ONNX export, INT8
-  quantization, M4 CPU latency benchmarks, multi-stream pipeline
+  quantization, M3 CPU latency benchmarks, multi-stream pipeline
   measurements, and the **measured Jetson Orin Nano Super deployment**
   (cross-precision benchmarks, 4-stream zero-drop throughput + 2-stream
   36.2-minute sustained soak, power-efficiency

@@ -22,7 +22,12 @@ clock). That is a CPU number with no tensor cores and is **not** a device projec
 
 Derived from the 2026-09-29 device session (`decision-latency-fp16-20260929T221836.json`):
 YOLOv11s FP16 @imgsz800 = **12.90 ms/frame** p50; 16-frame stream decode = **38.71 ms/decision**;
-P3 relation head = 0.164 ms. CLIP ViT-B/32 @224 ≈ 4.4 GFLOPs/image → 70.4 GFLOPs per 16-frame
+P3 relation head = 0.164 ms. *(Inputs superseded 2026-10-01. Taking the median-total
+run in each clock condition: detector **11.724** ms/frame pinned vs **14.246** DVFS, decode
+**37.61** vs **43.41** ms/decision, head **0.158** ms. The projection below is left at its
+pre-registered values — it was written before any device number existed and is not renegotiated;
+on the pinned detector the tower estimate would be 70.4/14.7 × 11.724 ≈ **56 ms** rather than
+~62 ms.)* CLIP ViT-B/32 @224 ≈ 4.4 GFLOPs/image → 70.4 GFLOPs per 16-frame
 decision; YOLOv11s @800 ≈ 14.7 GFLOPs/frame. Equal-efficiency scaling gives
 70.4/14.7 × 12.90 ≈ **62 ms** for the tower.
 
@@ -190,13 +195,86 @@ before 2026-10-01 22:38 do not carry them and cannot be cleared from the record 
 
 ### Still open after this session
 
-- Device memory for the B1 engine set is **provisional**: the artifact self-labels `quiet: false`
-  (`memory-fp16-20261001T224929.json`, 92.24 MB resident delta). Re-run
-  `--memory --engine-dir deployment/export/jetson-r48` in a quiet window.
-- No **composed** live-pipeline measurement exists for B1 — only per-stage numbers and a stage-sum
-  duty budget (Block 3b-note 4), which must not be presented as a measured cadence.
-- The idle power baseline disagrees between sessions (4.842 W here, 7.563 W on 09-29). A concurrent
-  session measured a 60 s settled baseline at ~22:54 which should supersede both.
+- ~~Device memory for the B1 engine set is **provisional**.~~ **RESOLVED 2026-10-01 23:28:** three
+  repeats in a guarded quiet window give **90.01 MB** median (91.36 / 90.01 / 89.61;
+  `memory-fp16-20261001T{232747,232808,232830}.json`), spread **1.94 %**, which passes the rule
+  pre-registered before the run (`max − min ≤ 0.10 × median`). The withdrawn `quiet: false` reading
+  was 92.24 MB, only 2.5 % off, so the guard protected against a risk that did not materialise.
+  Surviving caveat: 90.01 MB is **less than half** the 197.4 MB engine-file total, so the field is a
+  **system-wide free-memory delta**, not "weights resident", and must be worded that way.
+- ~~No **composed** live-pipeline measurement exists for B1.~~ **RESOLVED 2026-10-01 23:35, and it
+  refuted the stage-sum budget.** Three repeats at fixed seed 0 (24 clips, 201 decisions, 5559
+  frames, `--window 48 --stride 24`, all `quiet: true`, clocks unpinned):
+  **289.672 ms/decision = 3.452 decisions/s**, p95 322.708 ms, duty **76.1 %**, spread 1.21 %
+  (`r48-composed-cadence-fp16-20261001T{233159,233324,233449}.json`). The stage sum understates that
+  by **3.97x**. Four consequences, all in Block 3b-note 9 and
+  `plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-stage-sum-is-not-a-cadence.md`:
+  **preprocessing** (160.765 ms, 73.4 % of compute) was absent from every budget and is now the top
+  optimisation target; the **tower costs 2.51x more in the loop**, adjudicated by a pre-registered
+  probe to **GPU clock droop over the idle gap** (idle alone reproduces 94.2 %), not contention, so
+  pinning clocks is worth at most **+12.5 %**; the **"1.05 dec/s contract" is withdrawn** (it assumed
+  25.1 fps, which 1.0 % of the corpus has — median is 29.97 and 19.8 % of clips are 60 fps, where the
+  margin is **1.38x**); and **decode cost is resolution-dependent** (2.048 ms/frame on this corpus
+  against 5.047 at 1080p), so a 1080p 60 fps source would leave only ~1.10x — **unmeasured, and the
+  most likely way the deployment misses real time.**
+- **New, opened by the above:** none on a **60 fps 1080p** source, no **soak**; and two of the four
+  items opened here are now closed or decided.
+  - ~~preprocessing has not been profiled internally~~ **PROFILED 2026-10-02, on host, and the cause
+    is a defect in our own code.** The BGR→RGB swap ran **before** the resize on a negative-stride
+    view, forcing OpenCV to copy each frame at **source** resolution: 90.3 of 101.6 ms at 1080p, 5.5
+    of 15.5 ms at 480×270. Swapping after the resize is **bit-identical** and 7.46× / 1.36× faster.
+    Applied to `verify-r48-device-parity.preprocess` and `build-isafetybench-clip-features.to_batch`;
+    gated by 11 tests against the hard-coded pre-change formula. **The device re-measurement has not
+    run** — see the queued step below — so no Block 3b row and no table in §5.6.9 has been changed.
+  - ~~no composed measurement with **clocks pinned**~~ **DECIDED: will not be measured.** The cause
+    is already adjudicated, the arithmetic ceiling is **+12.5 %**, and pinned clocks are not the
+    state the device boots or deploys in. Block 3b-note 11 records the decision and its reason; the
+    whole series stays unpinned.
+
+## Step 8 — QUEUED: re-measure after the preprocessing fix  *(device, blocked)*
+
+**Blocked since 2026-10-02 ~21:00: the board is unreachable — `ping` 100 % loss and ARP incomplete,
+i.e. powered off or unplugged, not an ssh problem.** Run this in order the moment it answers. The
+predictions each step adjudicates are registered, with falsifiers, in
+`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-02-preprocessing-cost-is-a-channel-swap.md`
+and are not renegotiated after seeing the output.
+
+```bash
+# host: ship the four changed files (engines and artifacts stay where they are)
+rsync -av deployment/scripts/{verify-r48-device-parity.py,benchmark-r48-composed-cadence.py,\
+profile-r48-preprocess.py,preprocess-variants-utils.py} jetson:my-project/deployment/scripts/
+
+# device, in a quiet window (check load, temp, clocks_pinned first, as every step above does)
+cd ~/my-project
+# 1. the gate itself, on THIS machine's OpenCV build -- adjudicates P-PRE1's premise
+python3 deployment/scripts/profile-r48-preprocess.py --data-root data/isafetybench --json
+python3 deployment/scripts/profile-r48-preprocess.py --data-root data/test --json     # 1080p
+# 2. pixel checksums vs a fixture built by the PRE-change host code -- adjudicates P-PRE1
+python3 deployment/scripts/verify-r48-device-parity.py --mode fp16
+# 3. same 24 clips, same seed, 3 repeats -- adjudicates P-PRE2 and P-PRE3
+for i in 1 2 3; do python3 deployment/scripts/benchmark-r48-composed-cadence.py \
+  --engine-dir deployment/export/jetson-r48 --mode fp16 --clips 24 --seed 0 --json; done
+# 4. the 1080p risk, which no run has ever closed -- adjudicates P-PRE4
+for i in 1 2 3; do python3 deployment/scripts/benchmark-r48-composed-cadence.py \
+  --engine-dir deployment/export/jetson-r48 --mode fp16 --data-root data/test \
+  --clips 24 --seed 0 --json; done
+```
+
+Check before step 4 that `data/test` is present on the device; if not, rsync it (125 clips, all
+1920×1080). **If step 2 reports any pixel mismatch, stop: revert the fix rather than patch it, and
+withdraw the 02-10 finding** — that is P-PRE1's falsifier and it is not negotiable.
+- ~~The idle power baseline disagrees between sessions (4.842 W here, 7.563 W on 09-29).~~
+  **RESOLVED 2026-10-01 22:55:** one settled 60 s baseline was measured after a 300 s settle —
+  **4.691 W** (n=118, `quiet: true`, clocks not pinned, load 0.08, 50 °C,
+  `energy-p3-relation-head-bin-e3-fp16-20261001T225523.json`). It supersedes both earlier figures.
+  Every `*_delta_idle` field in the stage artifacts is computed against that stage's own 10 s
+  window and is **not quotable**; recompute marginal energy against 4.691 W instead.
+  Consequence for the R48 row, recomputed: **total board 0.4811 J per decision is unchanged** --
+  it is `P_avg / fps` and never touches the baseline -- while the marginal figure moves from
+  0.36522 to **0.36885 J** per tower invocation, a 1.0 % shift. The settled baseline was taken with
+  only the 0.190 MB head engine resident, so it is a lower bound on engine-resident idle and that
+  marginal figure is correspondingly a mild upper bound. The B1 head's own energy was never measured
+  separately; it is bounded by its 1.7 % share of decision wall clock.
 
 ## Unresolved questions
 

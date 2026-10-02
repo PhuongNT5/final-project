@@ -54,10 +54,18 @@ def _load(name, fname):
 
 
 def preprocess(frames, mean, std):
-    """BGR uint8 frames -> CLIP input (T,3,224,224). Mirrors build-isafetybench-clip-features
-    .to_batch exactly: RGB, resize 224, /255, then the processor's own mean/std. The mean/std come
-    from the fixture, not from a constant retyped here, so host and device cannot diverge."""
-    ims = [cv2.resize(f[:, :, ::-1], (224, 224)).astype('float32') / 255.0 for f in frames]
+    """BGR uint8 frames -> CLIP input (T,3,224,224). Numerically identical to
+    build-isafetybench-clip-features.to_batch: RGB, resize 224, /255, then the processor's own
+    mean/std. The mean/std come from the fixture, not from a constant retyped here, so host and
+    device cannot diverge.
+
+    The channel swap is applied to the 224x224 RESULT, not to the full-resolution frame. Both
+    orders give bit-identical pixels -- cv2.resize weights within a channel and never across
+    channels -- but `f[:, :, ::-1]` is a negative-stride view, so OpenCV materialises a contiguous
+    copy of the whole frame first: 90,9 of 101,0 ms of this function at 1080p
+    (profile-r48-preprocess.py). Bit-equality is not assumed here; it is gated by that script and
+    by tests/test-r48-preprocess-variants.py."""
+    ims = [cv2.resize(f, (224, 224))[:, :, ::-1].astype('float32') / 255.0 for f in frames]
     x = np.stack(ims).transpose(0, 3, 1, 2)
     return (x - mean) / std
 

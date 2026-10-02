@@ -33,10 +33,28 @@ weights and per-clip predictions are unreleased, so it cannot be run under this 
 about the *metric*, not about their system. The work is supported by a full multi-lens evaluation (macro-F1,
 balanced accuracy, Cohen's κ = 0.775, MCC = 0.785, per-class miss-rate and cost-sensitive safety
 metrics, one-vs-rest ROC-AUC = 0.951, PR-AUC = 0.880, ECE = 0.097, and BCa/Wilson/McNemar statistics)
-and an edge-deployment characterisation (YOLO26 + Jetson TensorRT-INT8). Every figure quoted here comes
+and an edge-deployment characterisation (YOLO26 + Jetson TensorRT **FP16** — INT8 was never built for
+P3, no calibration set exists for it; the measured verdict is that P3's cadence is
+decided by the device's clock state: with the clocks pinned it reaches 3.23 dec/s at median crop
+load, clearing the 3.0 dec/s contract by 7.5 %, while under the default dynamic-frequency governor
+it reaches only 2.73 dec/s and misses the contract at every crop load; above the median it misses
+in both conditions, 2.88-2.76 dec/s pinned). Every figure quoted here comes
 from the **same predictor** — the val-selected blind rule scoring 54/64 — including the probability-based
 ones; earlier drafts had to compute those on a seed-averaged ensemble (52/64) because the blind seed's
 softmax had not been persisted, and that mismatch is now resolved (§7.5).
+
+A **second lane** carries this thesis's leak-free accuracy, and it is the lane that was actually
+deployed. On **iSafetyBench** (1,100 clips, binary hazard/normal — a different corpus and a different
+task from the 4-class Unsafe-Net protocol above) a frozen CLIP ViT-B/32 tower feeding a small
+temporal Transformer head (B1, 201,090 parameters x 3 seeds) scores **84.2 % balanced accuracy under
+LSO-1100**: ten folds grouped by *source video*, so no source can supply clips to both sides of a
+split. That head is the one exported to TensorRT FP16 and measured on an Orin Nano Super 8 GB
+(§5.6.9), where the **composed** loop — decode, preprocess, tower, head, nothing omitted — sustains
+**3.45 decisions/s**, and where the detector is not in the class decision at all: YOLO supplies
+localisation and is timed separately, never summed into the decision cost. 84.2 % balanced accuracy
+over 1,100 source-grouped clips and the 84.4 % top-1 over 64 same-distribution clips are different
+metrics, under different protocols, on different data; they are **not** comparable, and this thesis
+never averages them or quotes the larger of the two.
 
 ---
 

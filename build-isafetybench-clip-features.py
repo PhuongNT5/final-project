@@ -52,8 +52,12 @@ def load_clip(device):
 
 
 def to_batch(crops_bgr, clip):
-    """BGR uint8 crops -> normalised CLIP input tensor (K,3,224,224)."""
-    ims = [cv2.resize(c[:, :, ::-1], (224, 224)).astype('float32') / 255.0 for c in crops_bgr]
+    """BGR uint8 crops -> normalised CLIP input tensor (K,3,224,224).
+
+    The channel swap follows the resize, not precedes it: bit-identical pixels (gated by
+    deployment/scripts/profile-r48-preprocess.py and tests/test-r48-preprocess-variants.py), but it
+    does not force OpenCV to copy the full-resolution crop to escape a negative-stride view."""
+    ims = [cv2.resize(c, (224, 224))[:, :, ::-1].astype('float32') / 255.0 for c in crops_bgr]
     x = torch.from_numpy(np.stack(ims)).permute(0, 3, 1, 2).to(clip['device'])
     return (x - clip['mean']) / clip['std']
 

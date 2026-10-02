@@ -11,13 +11,27 @@
 > |---|---|---|---|---|
 > | Ch1, Ch3, Ch4 | **P1** frozen-COCO YOLO -> multi-stream Transformer | 56/64 (87.5 %) | **53/64** (82.8 %) | same-dist, N=64 |
 > | Ch5 | **P1** as exported to Jetson | 55/64 (TRT engine, as recorded in `benchmarks-jetson-*.json`) | **53/64** | same-dist, N=64 |
-> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 %, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 % **top-1**, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+> | Ch5 §5.6.9 | **R48** whole-frame CLIP ViT-B/32 -> B1 temporal Transformer — the engine actually on the device | **84.2 % balanced accuracy** (B1, N=1,100) | same number: the protocol cannot leak a source, so there is no separate honest column | **P-D LSO-1100**, folds grouped by source video, N=1,100 |
 >
-> **The thesis headline is P3 (Ch7).** P1's 56/64 is **test-selected** (the ensemble was chosen
-> using the test clips) and must never be presented as the result; its honest blind counterpart is
-> 53/64. P3 is the only pipeline with evidence beyond N=64, which is why it leads.
-> Chapters 1-6 are retained as the experimental record of how the design was arrived at, not as
-> the final claim.
+> **The headline is the R48 lane: CLIP + temporal Transformer under LSO-1100.** It is the only
+> accuracy in this thesis measured on all 1,100 clips under a protocol that cannot put one source
+> video in both the train and the evaluation fold, and it is the model that was exported, deployed
+> and measured on the Jetson (§5.6.9). YOLO's role in that lane is **localisation** — the system
+> must say *where*, not only *whether* — and localisation latency is timed separately, never summed
+> into the class decision. P3's 54/64 is the entity-relation lane's result at N=64 and is what Ch7
+> and the abstract report; it keeps its own evidence beyond N=64 (k-fold and LCO at N=516). P1's
+> 56/64 is **test-selected** (the ensemble was chosen using the test clips) and must never be
+> presented as the result; its honest blind counterpart is 53/64. Chapters 1-6 are retained as the
+> experimental record of how the design was arrived at, not as the final claim.
+>
+> **Caution — "84.4 %" denotes two different quantities here. Never write it bare.** 84.4 %
+> *top-1* (P3, blind same-dist split, N=64) is Ch7's figure. 84.4 % *balanced accuracy* (B1w,
+> LSO-1100, N=1,100) is the R48 lane's best head — and B1w is **not** the head on the device. The
+> deployed engine is B1 (201,090 params x 3 seeds), whose own figure is **84.2 %**; B1 was chosen on
+> the pre-registered *edge* criterion, smallest model, not on accuracy, so its own number is the one
+> to quote and never max(B1, B1w). §5.6.9 quotes 84.2 % throughout for that reason
+> (`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-two-different-84-4-percent.md`).
 
 Objective 2 of this thesis is to train and evaluate the YOLO–Transformer
 on Unsafe-Net and compare against the 96.88 % top-1 (95.81 % macro) baseline reported by
@@ -58,9 +72,12 @@ the confusion matrix reported in Table 6 of [17].
 calibration uses a single scalar T* fit on a 12-clip held-out slice of
 the training set.
 
-**Hardware.** All experiments run on an Apple MacBook Pro M4 (12-core
-CPU, 18-core GPU, 36 GB unified memory, MPS backend). Training time per
-experiment is summarized in Table 4.1.
+**Hardware.** All experiments in this chapter run on an Apple MacBook Air
+M3 (8-core CPU: 4 performance + 4 efficiency, 16 GB unified memory, macOS
+14.6, MPS backend). The one exception is the YOLO detector retrain, which
+runs on a Kaggle GPU runtime; its weights are downloaded and every
+downstream experiment consumes them as a frozen checkpoint on the M3 host.
+Training time per experiment is summarized in Table 4.1.
 
 **Disclosure — re-use of the test set during head training.** The 64-clip
 unsafe-test subset was used as a *validation set during head training*:
@@ -824,12 +841,24 @@ Both directions of the comparison fail at the 1 % level on N = 64. The
 −1.56 pp top-1 deficit vs the no-bbox ConvLSTM baseline (one sample on
 N = 64) cannot be defended as a *significant* deficit, and the +3.50 pp
 macro lift over the same baseline cannot be defended as a *significant*
-improvement; conversely, the −6.53 pp macro deficit vs the paper's full
-pipeline cannot be defended as a significant *deficit* either, simply
-because N = 64 leaves z-tests under-powered. The honest reading is that
-**the test set is too small for either claim**; the structural argument
-(V10 negative result) is the more reliable evidence for the data-bound
-thesis.
+improvement.
+
+> **Superseded in part, 2026-09-29.** The z-test is the wrong instrument here (it
+> assumes two independent samples; both classifiers are scored on the *same* 64 clips),
+> and §4.7.9.3's paired bounds replace it. Two consequences. First, the row reading
+> "top-1 56/64 vs 62/64, p = 0.048, borderline significant deficit" is not the paired
+> answer: the exact paired bound is [0.031, 0.109], which brackets 0.05 and decides
+> nothing. Second — and this cuts against the thesis — for the figures actually
+> defended (54/64, 51/64) the paired deficit against the full-bbox pipeline **is**
+> significant under every feasible split. The sentence this paragraph used to end with,
+> that the deficit vs the paper's full pipeline "cannot be defended as a significant
+> deficit either", is **withdrawn**. The macro rows are untestable by McNemar at all
+> (macro accuracy is not a per-clip binary outcome), so they remain z-tests and remain
+> non-significant.
+
+The structural argument (V10 negative result, §4.6.2) remains the more
+reliable evidence for the data-bound thesis — and it now agrees with,
+rather than merely substitutes for, the significance test.
 
 #### 4.7.9.3 McNemar marginal bounds
 
@@ -840,18 +869,36 @@ N = 64, the discordant cell sum D = b₀₁ + b₁₀ satisfies
 |b₀₁ − b₁₀| = |k_a − k_b| and is bounded by both classifiers'
 individual accuracy levels.
 
-**Table 4.16c — McNemar marginal bounds (paired N = 64)**
+**Table 4.16c — McNemar marginal bounds (paired N = 64, exact binomial)**
 
-| Comparison                              | D range          | χ² range             | p range                |
-| --------------------------------------- | ---------------- | -------------------- | ---------------------- |
-| ours 56/64 vs paper full 62/64          | [6, 10]          | [2.50, 4.17]         | [0.041, 0.114]         |
-| ours 56/64 vs paper baseline 57/64      | [1, 15]          | [0.00, 0.07]         | [0.79, 1.00]           |
+*Revised 2026-09-29: these are now **exact** two-sided McNemar p-values, replacing the
+asymptotic χ² approximation the table previously carried, and the enumeration now
+respects each side's own wrong-count (the earlier enumerator constrained only the
+difference, admitting infeasible 2×2 tables — see
+`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-09-29-mcnemar-bound-marginal-constraint.md`).*
 
-The full-pipeline comparison brackets p ≈ 0.05; whether the deficit
-is paired-significant depends on the unobservable per-clip overlap.
-The baseline comparison (now correctly anchored on 57/64) is
-unambiguously non-significant at all bounds — a 1-sample swing on
-64 samples carries no signal.
+| Comparison                                   | D range   | exact p range        | Reading                             |
+| -------------------------------------------- | --------- | -------------------- | ----------------------------------- |
+| best-case 56/64 vs paper full 62/64          | [6, 10]   | **[0.031, 0.109]**   | brackets 0.05 — undetermined        |
+| best-case 56/64 vs paper baseline 57/64      | [1, 15]   | **[1.000, 1.000]**   | p = 1 at *every* split              |
+| blind-ladder 54/64 vs paper full 62/64       | [8, 12]   | **[0.008, 0.039]**   | **significant at every split**      |
+| blind-ladder 54/64 vs paper baseline 57/64   | [3, 17]   | **[0.250, 0.629]**   | not significant at any split        |
+| hybrid 51/64 vs paper full 62/64             | [11, 15]  | **[0.001, 0.007]**   | **significant at every split**      |
+| hybrid 51/64 vs paper baseline 57/64         | [6, 20]   | **[0.031, 0.263]**   | brackets 0.05 — undetermined        |
+
+Three readings, and one of them is uncomfortable for this thesis and is stated
+plainly. **(i) Against the paper's full-bbox pipeline the deficit is statistically
+significant** for the figures the thesis actually defends (54/64 and 51/64): every
+feasible per-clip overlap yields p < 0.05. An earlier version of this table, computed
+with an unconstrained enumerator, reported [0.008, 0.382] and [0.001, 0.207] and
+concluded the deficit was not robustly significant; that conclusion is **withdrawn**.
+The deficit is real, and it is precisely what the data-volume-bound diagnosis (§4.6.2,
+V10 negative result) predicts — 400–1,200 bbox frames against the paper's 2,262.
+**(ii) Against the no-bbox ConvLSTM baseline nothing is significant** at any bound, so
+the macro-parity claim stands unchanged. **(iii) The one-clip gap (56/64 vs 57/64)
+yields p = 1.000 at every split** — not merely non-significant but entirely
+uninformative, which is the honest way to describe a 1-sample swing on N = 64 and is
+weaker than the z-test's p = 0.787 implied.
 
 ### 4.7.10 Input resolution ablation (224² vs 384², direct4 single-head)
 

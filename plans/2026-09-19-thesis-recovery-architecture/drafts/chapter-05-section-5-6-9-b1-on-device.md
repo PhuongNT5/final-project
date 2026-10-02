@@ -349,9 +349,11 @@ tại thời điểm viết.
 
 ---
 
-**Trạng thái chèn.** Mục này **chưa được chèn** vào `report/chapter-05-edge-deployment.md` (1024
+**Trạng thái chèn — ĐÃ CHÈN 02/10/2026** vào `report/chapter-05-edge-deployment.md` (sau §5.6.8, trước `## 5.7 Limitations`; chương thành 1.399 dòng). Bản dưới đây được giữ làm bản nháp gốc; **bản trong chương là bản có hiệu lực** và mọi cập nhật số liệu phải sửa ở chương, không sửa ở đây.
+
+~~**Trạng thái chèn.** Mục này **chưa được chèn** vào `report/chapter-05-edge-deployment.md` (1024
 dòng tại thời điểm viết, chương chưa có §5.6.9 và đang được một phiên khác chỉnh sửa). Chèn ngay
 sau §5.6.8, trước `## 5.7 Limitations`. Nhãn bảng 5.5N / 5.5O / 5.5P đã kiểm tra không trùng với
 5.5J-5.5M của §5.6.8. Mọi con số trong mục này có tạo tác thiết bị tương ứng và được đối chiếu với
 Block 3b của number sheet; bằng chứng và quy tắc phân xử ở
-`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-stage-sum-is-not-a-cadence.md`.
+`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-stage-sum-is-not-a-cadence.md`.~~

@@ -11,13 +11,27 @@
 > |---|---|---|---|---|
 > | Ch1, Ch3, Ch4 | **P1** frozen-COCO YOLO -> multi-stream Transformer | 56/64 (87.5 %) | **53/64** (82.8 %) | same-dist, N=64 |
 > | Ch5 | **P1** as exported to Jetson | 55/64 (TRT engine, as recorded in `benchmarks-jetson-*.json`) | **53/64** | same-dist, N=64 |
-> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 %, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 % **top-1**, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+> | Ch5 §5.6.9 | **R48** whole-frame CLIP ViT-B/32 -> B1 temporal Transformer — the engine actually on the device | **84.2 % balanced accuracy** (B1, N=1,100) | same number: the protocol cannot leak a source, so there is no separate honest column | **P-D LSO-1100**, folds grouped by source video, N=1,100 |
 >
-> **The thesis headline is P3 (Ch7).** P1's 56/64 is **test-selected** (the ensemble was chosen
-> using the test clips) and must never be presented as the result; its honest blind counterpart is
-> 53/64. P3 is the only pipeline with evidence beyond N=64, which is why it leads.
-> Chapters 1-6 are retained as the experimental record of how the design was arrived at, not as
-> the final claim.
+> **The headline is the R48 lane: CLIP + temporal Transformer under LSO-1100.** It is the only
+> accuracy in this thesis measured on all 1,100 clips under a protocol that cannot put one source
+> video in both the train and the evaluation fold, and it is the model that was exported, deployed
+> and measured on the Jetson (§5.6.9). YOLO's role in that lane is **localisation** — the system
+> must say *where*, not only *whether* — and localisation latency is timed separately, never summed
+> into the class decision. P3's 54/64 is the entity-relation lane's result at N=64 and is what Ch7
+> and the abstract report; it keeps its own evidence beyond N=64 (k-fold and LCO at N=516). P1's
+> 56/64 is **test-selected** (the ensemble was chosen using the test clips) and must never be
+> presented as the result; its honest blind counterpart is 53/64. Chapters 1-6 are retained as the
+> experimental record of how the design was arrived at, not as the final claim.
+>
+> **Caution — "84.4 %" denotes two different quantities here. Never write it bare.** 84.4 %
+> *top-1* (P3, blind same-dist split, N=64) is Ch7's figure. 84.4 % *balanced accuracy* (B1w,
+> LSO-1100, N=1,100) is the R48 lane's best head — and B1w is **not** the head on the device. The
+> deployed engine is B1 (201,090 params x 3 seeds), whose own figure is **84.2 %**; B1 was chosen on
+> the pre-registered *edge* criterion, smallest model, not on accuracy, so its own number is the one
+> to quote and never max(B1, B1w). §5.6.9 quotes 84.2 % throughout for that reason
+> (`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-two-different-84-4-percent.md`).
 
 ## 6.1 Summary of Findings
 
@@ -30,18 +44,20 @@ elsewhere. Four findings stand out, in order of contribution strength.
 
 **Finding 1 — Real-time edge deployment is solved and measured on
 embedded hardware (the primary delivered contribution).** End-to-end
-inference on Apple M4 CPU (FP32 ONNX) runs at 26.8 ms p50 / 37.3 FPS
+inference on Apple M3 CPU (FP32 ONNX) runs at 26.8 ms p50 / 37.3 FPS
 single-stream, sustains 29.1 FPS aggregate at N = 2 concurrent streams
 with zero dropped frames, and INT8 dynamic weight quantization shrinks
 the deployed graph from 156 MB → 40 MB (3.8 ×). The same pipeline was
 then deployed and **measured** on a Jetson Orin Nano Super (USD 249–499,
 JetPack 6.2 + TensorRT 10.3): TRT-FP16 single-stream **8.62 ms p50 /
-116 FPS** (3.11 × faster than M4 CPU FP32); TRT-INT8 with 256 real-frame
+116 FPS** (3.11 × faster than M3 CPU FP32); TRT-INT8 with 256 real-frame
 entropy calibration **8.24 ms / 121 FPS**; **4-stream zero-drop
 throughput demonstrated (88 FPS aggregate, Table 5.5C)**; and a **2-stream
 soak sustained for 36.2 minutes at 30 FPS with zero dropped frames**
-at **7.0 W average power** (47 % of the 15 W MAXN budget, junction
-temperature ≈ 24 °C below throttle at steady-state, 23 °C at peak). A live operator dashboard with
+at **7.03 W average power** (peak 7.34 W; junction temperature ≈ 24 °C
+below throttle at steady-state, 23 °C at peak). The absolute watts are the
+claim — the power *profile* in force during that June run was not logged,
+so no percentage-of-budget figure is quoted (§5.6.3 caveat, `risks.md` R32c). A live operator dashboard with
 rolling-window dual-threshold alerting (≥ 0.75 ALERT, ≥ 0.55 WARNING)
 achieved 100 % recall on true-unsafe streams and 0 % false-alarm on a
 safe-input stream in a 12.9-minute multi-stream demonstration, with raw
@@ -224,9 +240,11 @@ SKU-agnostic; the work is operating-cost rather than engineering-cost.
 classes (4 unsafe + 4 safe paired). Extending the head from 4-class
 unsafe to 8-class joint safe/unsafe classification — and reframing
 the problem as binary safe/unsafe with 8 sub-class evidence — would
-provide a more deployment-realistic target. Preliminary 8-class runs
-(§4.4) show ~78 % top-1, which is not yet competitive but is a
-sensible next milestone after Priority 1 closes the bbox gap.
+provide a more deployment-realistic target — a sensible next milestone
+after Priority 1 closes the bbox gap. **No 8-class accuracy is quoted
+here: no 8-class run exists.** An earlier draft cited "~78 % top-1
+(§4.4)"; §4.4 is the 4-class per-class breakdown and contains no such
+result, so the figure is withdrawn (2026-09-29).
 
 **Priority 5 — Larger seed pool for retraining ablations.** Tables
 4.16–4.18 use three seeds per variant; expanding to seven or ten
@@ -281,9 +299,15 @@ throughout — all computed on **one** predictor, the blind 54/64 rule
 
 **Third, a delivered, measured, open-source real-time edge system.** The
 pipeline sustains 4-stream zero-drop throughput and a 2-stream 36.2-minute soak
-at 30 FPS on a USD 249–499 Jetson at 7 W, keeps raw video on the device, and
+at 30 FPS on a USD 249–499 Jetson at 7.03 W, keeps raw video on the device, and
 reproduces from a clean clone — a capability no published baseline for this task
-demonstrates.
+demonstrates. Those throughput and power figures are for the **P1** graph; the P3
+architecture Chapter 4 evaluates was measured separately on the same device and
+meets or misses the 3 decisions/s cadence according to the device's clock
+state — **3.23 decisions/s** with clocks pinned, **2.73** under default DVFS —
+drawing **16.98 W** mean under a 30-minute saturated load with no throttling
+(§5.6.8). Board power here tracks GPU duty cycle, so a single headline wattage
+would misrepresent both.
 
 **Fourth, the corrected-mechanism replication and the causal isolation of the
 gap.** We identify that the paper's YOLO stage is a frame *filter*, not a feature

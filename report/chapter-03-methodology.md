@@ -11,13 +11,27 @@
 > |---|---|---|---|---|
 > | Ch1, Ch3, Ch4 | **P1** frozen-COCO YOLO -> multi-stream Transformer | 56/64 (87.5 %) | **53/64** (82.8 %) | same-dist, N=64 |
 > | Ch5 | **P1** as exported to Jetson | 55/64 (TRT engine, as recorded in `benchmarks-jetson-*.json`) | **53/64** | same-dist, N=64 |
-> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 %, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 % **top-1**, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+> | Ch5 §5.6.9 | **R48** whole-frame CLIP ViT-B/32 -> B1 temporal Transformer — the engine actually on the device | **84.2 % balanced accuracy** (B1, N=1,100) | same number: the protocol cannot leak a source, so there is no separate honest column | **P-D LSO-1100**, folds grouped by source video, N=1,100 |
 >
-> **The thesis headline is P3 (Ch7).** P1's 56/64 is **test-selected** (the ensemble was chosen
-> using the test clips) and must never be presented as the result; its honest blind counterpart is
-> 53/64. P3 is the only pipeline with evidence beyond N=64, which is why it leads.
-> Chapters 1-6 are retained as the experimental record of how the design was arrived at, not as
-> the final claim.
+> **The headline is the R48 lane: CLIP + temporal Transformer under LSO-1100.** It is the only
+> accuracy in this thesis measured on all 1,100 clips under a protocol that cannot put one source
+> video in both the train and the evaluation fold, and it is the model that was exported, deployed
+> and measured on the Jetson (§5.6.9). YOLO's role in that lane is **localisation** — the system
+> must say *where*, not only *whether* — and localisation latency is timed separately, never summed
+> into the class decision. P3's 54/64 is the entity-relation lane's result at N=64 and is what Ch7
+> and the abstract report; it keeps its own evidence beyond N=64 (k-fold and LCO at N=516). P1's
+> 56/64 is **test-selected** (the ensemble was chosen using the test clips) and must never be
+> presented as the result; its honest blind counterpart is 53/64. Chapters 1-6 are retained as the
+> experimental record of how the design was arrived at, not as the final claim.
+>
+> **Caution — "84.4 %" denotes two different quantities here. Never write it bare.** 84.4 %
+> *top-1* (P3, blind same-dist split, N=64) is Ch7's figure. 84.4 % *balanced accuracy* (B1w,
+> LSO-1100, N=1,100) is the R48 lane's best head — and B1w is **not** the head on the device. The
+> deployed engine is B1 (201,090 params x 3 seeds), whose own figure is **84.2 %**; B1 was chosen on
+> the pre-registered *edge* criterion, smallest model, not on accuracy, so its own number is the one
+> to quote and never max(B1, B1w). §5.6.9 quotes 84.2 % throughout for that reason
+> (`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-two-different-84-4-percent.md`).
 
 This chapter specifies (3.1) the Unsafe-Net dataset used throughout the
 thesis, (3.2) the YOLO–Transformer architecture, (3.3) the multi-stream
@@ -222,8 +236,10 @@ hybrid + frame-gate §4.6.2, achieves 53/64 = 85.4 % macro.)
 
 - **Optimizer:** AdamW, lr = 1e-4, weight_decay = 0.05.
 - **Schedule:** cosine decay to 1e-6 over 60 epochs, with 5-epoch warmup.
-- **Batch size:** 16 clips (limited by Apple M4 36 GB unified memory).
-- **Device:** Apple M4 Pro (MPS backend in PyTorch).
+- **Batch size:** 16 clips (limited by the host's 16 GB unified memory).
+- **Device:** Apple M3, MPS backend in PyTorch. (The YOLO detector is
+  retrained separately on a Kaggle GPU runtime; every head trained in this
+  chapter runs on the M3 host.)
 - **Early stopping:** validation macro accuracy, patience 10 epochs.
 - **Seed sweep:** 7–10 random seeds per configuration to quantify
   run-to-run variance; best single seed is selected for ensemble

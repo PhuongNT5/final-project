@@ -65,7 +65,7 @@ def run_clip(path, tower, head, mean, std, window, stride, prep, sample):
             continue
         since = 0
         t0 = time.perf_counter()
-        x = prep(sample(buf), mean, std).astype('float32')
+        x = prep(sample(buf), mean, std).astype('float32', copy=False)
         t_prep = (time.perf_counter() - t0) * 1000
         t0 = time.perf_counter()
         emb = tower.run(pixel_values=x)
@@ -156,7 +156,7 @@ def main():
                 raise SystemExit(f'{paths[0]} has fewer than {FRAMES} frames')
             frames.append(fr)
         cap.release()
-        x = PAR.preprocess(frames, mean, std).astype('float32')
+        x = PAR.preprocess(frames, mean, std).astype('float32', copy=False)
         print(f'[probe] tower only, idle gap {args.idle_gap_ms:.0f} ms, '
               f'{args.probe_runs} runs/arm, clocks as found')
         r = probe_idle(tower, x, args.idle_gap_ms, args.probe_runs, 10, U.percentiles)
