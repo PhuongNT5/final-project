@@ -535,6 +535,33 @@ command. They were therefore recomputed on 2026-10-02 from `LOGITS` using `blind
 `run_relation_transformer.py --tag yolo26app_ --seeds 5 --aux_w 0.5 --epochs 120`
 (recovered+verified 2026-09-06). The ensemble/blind mismatch is resolved and is not re-opened.
 
+## Citation-existence check (2026-10-02 — every cited path opened, not trusted)
+
+85 backtick-quoted artifact paths across `report/*.md`; 5 did not resolve, all now closed.
+Full table in `reports/review-2026-10-02-adversarial-defence-audit.md`. Sheet-relevant outcome:
+
+| Key | Artifact | Status | Backs |
+|---|---|---|---|
+| KAPPA | `plans/260613-thesis-defense-revision/reports/kappa-result.json` | **restored** from `a93a997^` | ch04 §4.5 κ = 0.65, raw 72 %, n = 100; off-diagonal 6/20 and 7/20. Reproduce the thesis exactly. |
+| BLIND1 | `.../reports/blind-eval-result.json` | **restored** | val_frac 0.20, seeds 314/42/123. direct-4 51.7 ± 1.9 (per-seed 53/53/49), macro 85.0 %. Ensemble 50.7 ± 1.3, macro 83.9 %. |
+| BLIND2 | `.../reports/blind-eval-v2-vf0.15.json` | **restored** | val_frac 0.15, seeds 314/42/123/7. direct-4 51.8 ± 2.3, macro 83.1 %. |
+| SEC | `plans/260430-2336-thesis-completion/security-narrative.md` | **restored** | ch05 §5.6.6 threat model / T1–T5. |
+| BBOXCACHE | `sweep_results/finetune_bbox/features/bbox_test.pt` | **gone, documented** | ch04 §4.6.1. Dir absent and `.gitignore`d, so never in git. Prose now says so; Table 4.6a reads from `sweep_results/ablations/cross_ensemble.json`, which is present. |
+
+**Correction this exercise produced.** ch04's blind-eval row quotes **51.7 ± 2.0 / 64 ≈ 80.8 %,
+macro ~84 %**. Neither restored run yields exactly that: it is the two runs rounded together
+(± 1.9 and ± 2.3; macro 85.0 and 83.1). The source line now states both runs separately, so the
+blend is visible rather than implied. **The headline numbers are unchanged** — 51.7 and ≈80 %
+hold under both.
+
+**Figure paths.** Five callouts cited `figures/…` for files that live in
+`deployment/artifacts/figures/` (`arch-diagram.mmd` — cited by *both* ch03 Fig 3.1 and ch05
+Fig 5.1 — `latency-by-stage.png`, `accuracy-by-config.png`, `model-size-comparison.png`,
+`fps-vs-streams.png`). All exist and are tracked; repointed. `figures/jetson-live-dashboard-demo.png`
+never existed — that screenshot claim is removed, and `Figure 5.6` is no longer double-assigned.
+**Caveat:** `fps-vs-streams.png` plots the same hand-reconstructed rows as Table 5.4, so it carries
+that table's deferred-re-run warning, not independent support.
+
 ## Unresolved questions
 
 1. ~~Does the thesis headline become the iSafetyBench 75.2% or stay Unsafe-Net?~~ **RESOLVED

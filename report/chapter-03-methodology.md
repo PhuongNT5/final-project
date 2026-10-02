@@ -195,7 +195,7 @@ existing building blocks** (frozen YOLOv11s + standard
 Transformer-encoder head + multi-stream gating) optimised for
 small-N edge deployment, not a new architectural mechanism.
 
-Figure 3.1 (see `figures/arch-diagram.mmd`) shows the overall
+Figure 3.1 (see `deployment/artifacts/figures/arch-diagram.mmd`) shows the overall
 YOLO–Transformer pipeline. The pipeline comprises four stages:
 
 ```

@@ -84,7 +84,7 @@ Section 5.7 enumerates limitations, and Section 5.8 concludes.
 
 ## 5.2 System Architecture
 
-Figure 5.1 (`figures/arch-diagram.mmd`) shows the end-to-end deployment
+Figure 5.1 (`deployment/artifacts/figures/arch-diagram.mmd`) shows the end-to-end deployment
 pipeline. The pipeline takes a video source (file upload or live camera) and
 emits a 4-class unsafe-behavior prediction every K = 8 frames over a
 sliding window of T = 32 sampled frames.
@@ -194,7 +194,7 @@ Four configurations were measured: CPU-FP32, CPU-INT8, CoreML-FP32, and
 CoreML-INT8. Each end-to-end run consists of the full pipeline (preprocess →
 backbone → stats aggregation → Direct4 head + scenario/pair cascade →
 ensemble). 100 runs per configuration. Figure 5.3
-(`figures/latency-by-stage.png`) shows the stacked-bar breakdown per stage.
+(`deployment/artifacts/figures/latency-by-stage.png`) shows the stacked-bar breakdown per stage.
 
 **Table 5.2 — End-to-end latency and throughput (batch = 1, 100 runs)**
 
@@ -227,7 +227,7 @@ transformer-head-friendly hardware (A18-class devices or later).
 
 Accuracy was measured on the 4-class unsafe subset of Unsafe-Net (64 videos,
 16 per class) using the same evaluation protocol as Chapter 4. Figure 5.4
-(`figures/accuracy-by-config.png`) visualizes the three head outputs (Direct4,
+(`deployment/artifacts/figures/accuracy-by-config.png`) visualizes the three head outputs (Direct4,
 cascade, ensemble) across the four configurations.
 
 **Table 5.3 — Accuracy preservation (top-1 correct / 64)**
@@ -252,7 +252,7 @@ production-grade configuration for Chapter 5.
 
 ### 5.4.3 Model size
 
-Figure 5.5 (`figures/model-size-comparison.png`) shows FP32 vs INT8 sizes for
+Figure 5.5 (`deployment/artifacts/figures/model-size-comparison.png`) shows FP32 vs INT8 sizes for
 each ONNX file. The backbone shrinks from 33 MB (FP32) to 9 MB (INT8), a 3.8×
 reduction. The larger transformer heads (direct4, scenario, eight) shrink from
 46 MB to 12 MB (3.9×); the four pair heads shrink from 7.7 MB to 2.0 MB (3.8×).
@@ -292,7 +292,7 @@ source of inflation discovered during development).
 ### 5.5.2 Measured results
 
 Each configuration runs with four distinct test videos (240 frames each) at
-30 FPS reader pacing. Figure 5.6 (`figures/fps-vs-streams.png`) plots
+30 FPS reader pacing. Figure 5.6 (`deployment/artifacts/figures/fps-vs-streams.png`) plots
 aggregate FPS against N, with an ideal-linear reference.
 
 **Table 5.4 — Multi-stream scaling (CPU-FP32, 240 frames/stream, drain-on-shutdown)**
@@ -616,8 +616,9 @@ unauthorized intervention and walkway violation discussed in §4.7.6). The
 session log captured every threshold crossing with timestamps. The
 demonstration is recorded in `deployment/artifacts/live-demo-stream.jsonl`
 (**8,988 prediction events over 772 seconds** ≈ 3.75 emissions/stream/sec,
-verified by byte-level audit of the JSONL); a screenshot is included as
-Figure 5.6 (`figures/jetson-live-dashboard-demo.png`).
+verified by byte-level audit of the JSONL). No dashboard screenshot is
+reproduced here: the live session was never captured to an image file, so
+the demonstration is evidenced by the event log alone.
 
 ### 5.6.6 Security and privacy properties
 

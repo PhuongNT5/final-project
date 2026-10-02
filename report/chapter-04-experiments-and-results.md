@@ -362,7 +362,7 @@ This is convergent evidence for the data-bound diagnosis: the boundary is
 semantically ambiguous at the single-frame level even for human experts. It
 also implies the single-annotator 1 200-frame labels carry ~30 % ambiguity
 on the hardest pair, so any frame-gate result on this pair should be read as
-a lower bound. (κ artifact: `plans/.../reports/kappa-result.json`.)
+a lower bound. (κ artifact: `plans/260613-thesis-defense-revision/reports/kappa-result.json`.)
 
 **Table 4.6 — Bbox-finetuned vs frozen-COCO branch (4-class unsafe)**
 
@@ -389,8 +389,12 @@ across branches: if the two backbones make decorrelated errors, even a
 weaker bbox branch could lift the overall accuracy. Both feature caches
 (`sweep_results/pairwise/features/all8_test.pt` for frozen,
 `sweep_results/finetune_bbox/features/bbox_test.pt` for bbox) and both
-sets of head checkpoints exist, so the cross-ensemble was evaluated
-without retraining (`run_cross_ensemble.py`).
+sets of head checkpoints were present when the blend was run, so the
+cross-ensemble was evaluated without retraining (`run_cross_ensemble.py`).
+The frozen cache is still in the tree; the bbox cache has since been
+deleted and its directory is under `.gitignore`, so reproducing the blend
+requires regenerating that cache first. The rows below are read from the
+saved `cross_ensemble.json`, not from a live re-run.
 
 **Table 4.6a — Cross-ensemble blends, sorted by top-1**
 
@@ -985,7 +989,12 @@ were run (val_frac 0.20 with the fixed headline ensemble, and val_frac
 | Blind — direct-4 + cascade ensemble, val-selected | 50.7 / 64 | 83.9 % | ensemble *underperforms* the single head |
 | Paper ConvLSTM-only (no bbox) baseline | 57/64 = 89.06 % | 85.78 % | protocol not reported |
 
-*Source:* `plans/.../reports/blind-eval-result.json`, `blind-eval-v2-vf0.15.json`.
+*Source:* `plans/260613-thesis-defense-revision/reports/blind-eval-result.json`
+(val_frac 0.20, seeds 314/42/123: direct-4 51.7 ± 1.9, macro 85.0 %) and
+`plans/260613-thesis-defense-revision/reports/blind-eval-v2-vf0.15.json`
+(val_frac 0.15, seeds 314/42/123/7: direct-4 51.8 ± 2.3, macro 83.1 %).
+The row quotes the two runs rounded together, hence the ± 2.0 and the
+hedged macro.
 
 Three conclusions. **(i)** The honest, leakage-free top-1 is **≈ 52/64
 (≈ 81 %)** — roughly 4–5 samples of the best-case 56/64 were

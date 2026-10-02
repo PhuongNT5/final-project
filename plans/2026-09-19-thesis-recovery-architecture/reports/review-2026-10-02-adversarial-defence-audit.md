@@ -311,3 +311,43 @@ benchmark needed.
    ensemble/blind mismatch is closed and is not re-opened.
 6. Device unreachable since 2026-10-02, so P-PRE1..P-PRE4 remain un-adjudicated and every composed
    cadence number in the thesis is pre-fix. Re-run this trace audit after that measurement.
+
+---
+
+## Artifact-existence sweep, 2026-10-02
+
+The §7.3 defect was caught by opening an artifact rather than trusting its citation. Run
+mechanically across all chapters: does every backtick-quoted path the thesis cites actually
+exist? 85 path-like citations scanned; **5 did not resolve**. All five are now closed.
+
+| Citation | Site | Diagnosis | Fix |
+|---|---|---|---|
+| `plans/.../reports/kappa-result.json` | ch04:365 | Path was *elided with `...`*, so unresolvable as written. Real file deleted in `a93a997` "Remove figures and reports" (75 files). | Restored from `a93a997^`; citation now gives the full path. κ 0.65 / raw 72 % / n=100 reproduce the thesis exactly, including the 6/20 and 7/20 off-diagonal counts. |
+| `plans/.../reports/blind-eval-result.json` | ch04:988 | Same elision, same removal commit. | Restored both JSONs; full paths; per-run values now printed in the source line. |
+| `plans/260430-2336-thesis-completion/security-narrative.md` | ch05:626 | Deleted in `a93a997`. | Restored. |
+| `sweep_results/finetune_bbox/features/bbox_test.pt` | ch04:391 | **Genuinely gone** — whole `features/` dir absent, and `sweep_results/finetune_bbox/` is `.gitignore:34`, so never in git. Prose asserted both caches "exist" — false. | Prose corrected to past tense + states the cache is deleted and the blend is read from the saved `cross_ensemble.json`. Deliberate, documented absence. |
+| `figures/jetson-live-dashboard-demo.png` | ch05:620 | Never existed in git under any name. | Screenshot claim removed; demo rests on `live-demo-stream.jsonl` alone. |
+
+**Second defect the sweep exposed — mispointed figure directory.** Five further figure callouts
+cited `figures/…` for files that live in `deployment/artifacts/figures/`: `arch-diagram.mmd`
+(ch03 Fig 3.1 *and* ch05 Fig 5.1), `latency-by-stage.png` (5.3), `accuracy-by-config.png` (5.4),
+`model-size-comparison.png` (5.5), `fps-vs-streams.png` (5.6). All five exist and are git-tracked.
+Repointed. Not counted in the 5 above because the earlier pass flagged only two of them.
+
+**Third defect — duplicate figure number.** `Figure 5.6` was assigned twice in ch05: to
+`fps-vs-streams.png` at line 295 and to the dashboard screenshot at line 620. Resolved by the
+screenshot removal; 5.1–5.6 are now unique.
+
+### Unresolved questions
+
+1. **Figure 5.2 has no stored asset.** ch05:137 says "Figure 5.2 shows the exported graph rendered
+   in Netron" and describes C3k2 at layer 22 + the tokenizer reshape — i.e. the *backbone* graph.
+   The only Netron render in the repo is `deployment/artifacts/figures/onnx-graph-direct4.png`,
+   which is the *head* graph (long single chain, no early C3k2 branching). Not a substitute, so it
+   was not cited. Either re-export the backbone graph or drop the Figure 5.2 callout. Author call.
+2. **Figure 5.6 inherits Table 5.4's provenance warning.** `fps-vs-streams.png` plots the same
+   hand-reconstructed multi-stream rows that chapter note 6 already discloses and defers. The
+   figure now resolves, but it is no better sourced than the table it draws. Flag or re-run with
+   the table, not separately.
+3. Why `a93a997` removed 75 reports/figures is not recorded anywhere. Four were load-bearing
+   citations. Worth a line in the repo history note so it is not repeated.
