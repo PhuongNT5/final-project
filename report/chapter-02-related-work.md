@@ -140,7 +140,7 @@ WS-VAD evaluation protocol is AUC over per-frame anomaly scores,
 not top-1/macro on clip labels. They are, however, the closest
 related family to this thesis's frozen-feature regime and are the
 basis of the cross-dataset zero-shot evaluation reported in Ch4
-§4.5.4 — applying our frozen features to UCF-Crime tests whether
+§4.8.5 — applying our frozen features to UCF-Crime tests whether
 the zone-pattern collapse documented in Ch4 §4.8 also limits
 transfer to a different surveillance domain.
 

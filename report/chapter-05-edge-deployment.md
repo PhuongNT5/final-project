@@ -1425,3 +1425,14 @@ the upper and lower bounds of the Jetson family for this workload, and
 (b) a live USB-camera capture path integrated into the Streamlit dashboard
 to replace the file-uploads-as-cameras demo. Both are engineering extensions
 rather than research contributions and are left as follow-on development.
+
+## References
+
+Per-chapter numbering, shared with Chapter 1; merged at final compilation.
+The paper of record is [17] under the Chapter 2 scheme used by Chapters 3–4
+and [1] under the per-chapter lists of Chapters 6–7.
+
+[5] O. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based computer
+    vision system for real-time detection of unsafe behaviours in workplace,"
+    *Multimedia Tools and Applications*, vol. 84, no. 29, pp. 34967–34993,
+    2024. DOI: 10.1007/s11042-024-19276-8.

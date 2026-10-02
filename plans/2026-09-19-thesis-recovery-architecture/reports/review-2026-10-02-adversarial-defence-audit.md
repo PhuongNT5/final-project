@@ -351,3 +351,45 @@ screenshot removal; 5.1–5.6 are now unique.
    the table, not separately.
 3. Why `a93a997` removed 75 reports/figures is not recorded anywhere. Four were load-bearing
    citations. Worth a line in the repo history note so it is not repeated.
+
+---
+
+## Cross-reference integrity sweep, 2026-10-02
+
+Same discipline, internal targets: do `Table X.Y`, `§X.Y` and `[n]` resolve? The duplicate
+Figure 5.6 was found by accident, so the check was made mechanical.
+
+**Tables / figures.** No table defined twice, no figure number duplicated (5.1–5.6 unique after
+the screenshot removal), every `Table X.Y` reference resolves to a definition in some chapter.
+
+**Sections.** One genuine dangler: ch02:143 cited **`§4.5.4`** for the UCF-Crime cross-dataset
+probe. No such section; the probe is **§4.8.5**. Fixed. (`§4.9` flagged initially but resolves —
+it is the title of `chapter-04-section-kfold-cross-validation.md`, which ch04 skips 4.8→4.10 for.)
+
+**Bibliography — the significant finding.** The thesis runs **two incompatible numbering
+conventions**, undeclared at three of the sites that use them:
+
+| Scheme | Chapters | Paper of record (Önal & Dandıl) |
+|---|---|---|
+| Chapter 2 scheme (1–25, +26 iSafetyBench) | ch03, ch04 — both declare it | `[17]` |
+| Per-chapter lists | ch01, ch05, ch06, ch07 | `[5]` in ch01/ch05, `[1]` in ch06/ch07 |
+
+Consequences found and fixed:
+
+1. **ch05 cited `[5]` three times and had no References section at all** — unresolvable for a
+   reader. Section added defining `[5]`, with a note giving the paper's number under the other
+   scheme.
+2. **`[1]` meant three different papers inside Chapter 4.** ch04 declares the Chapter 2 scheme
+   (`[1]` = Redmon, YOLOv1), but §4.9's section file numbered Nadeau–Bengio as `[1]`. Since §4.9
+   compiles *into* Chapter 4, that is a direct collision. NB renumbered to **`[27]`** (26 taken by
+   iSafetyBench) and the file now declares the Chapter 2 scheme like its parent chapter.
+3. **ch07 declared no scheme**, so its `[1]`/`[2]` read as Chapter 2's. Declaration added.
+
+After the fixes: **0 dangling reference markers across all 8 report files.**
+
+### Unresolved questions
+
+4. The two conventions still coexist. Every chapter promises "merged at final compilation" and
+   nothing now misresolves, so this is deferred, not broken — but the merge is real work and is
+   not scheduled. The paper of record appearing as [17]/[5]/[1] in one document is the kind of
+   thing a reader notices.

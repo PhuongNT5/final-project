@@ -403,6 +403,10 @@ metrics `sweep_results/relation_tokens/full_eval.json`; reports under
 3. Is 2,262 entity frames vs 2,262 behaviour frames a fair head-to-head, or should a behaviour-detector control (S3) be run to bound the scene ceiling under LCO?
 
 ## References
+
+Per-chapter numbering; merged at final compilation. Note the paper of record is
+[17] under the Chapter 2 scheme used by Chapters 3–4.
+
 [1] O. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based computer vision system for
 real-time detection of unsafe behaviours in workplace," *Multimedia Tools and Applications*, vol. 84,
 no. 29, pp. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
