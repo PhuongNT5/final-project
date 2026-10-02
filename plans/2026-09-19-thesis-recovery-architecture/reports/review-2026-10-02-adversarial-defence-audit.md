@@ -120,7 +120,7 @@ project page — the headline corpus had been cited nowhere.
 
 | # | Category | Verdict | Evidence |
 |---|---|---|---|
-| a | `two_proportion_z` on paired data | **PASS with one exception** | `run_full_eval.py`, `ensemble_relation.py`, `run_ablation_significance.py`, `run_relation_transformer.py` all compute McNemar as the test and print `two_proportion_z` labelled "diagnostic-only ... invalid independence". **Exception:** `eval_utils/suite.py:115` writes `out['two_proportion_z']` unconditionally with no `diagnostic_` prefix and no flag, unlike `paired_tests.py:186` which namespaces it as `diagnostic_two_proportion_z`. Any consumer reading `suite.py`'s dict by key gets an unlabelled unpaired p-value. **Proposed fix:** rename the key to `diagnostic_two_proportion_z` in `suite.py` and update `eval_utils/tests/test_suite_integration.py:49`. |
+| a | `two_proportion_z` on paired data | **PASS with one exception** | `run_full_eval.py`, `ensemble_relation.py`, `run_ablation_significance.py`, `run_relation_transformer.py` all compute McNemar as the test and print `two_proportion_z` labelled "diagnostic-only ... invalid independence". **Exception:** `eval_utils/suite.py:115` writes `out['two_proportion_z']` unconditionally with no `diagnostic_` prefix and no flag, unlike `paired_tests.py:186` which namespaces it as `diagnostic_two_proportion_z`. Any consumer reading `suite.py`'s dict by key gets an unlabelled unpaired p-value. **FIXED 2026-10-02:** the key is now `diagnostic_two_proportion_z` and a `diagnostic_warning` string is emitted alongside it whenever the two arms share n, mirroring `paired_tests.py`. `test_suite_integration.py` now asserts the new key is present, the bare key is **absent**, and the warning is emitted. 11 tests pass. |
 | b | Selection on test | **PASS** | No "chosen/selected/tuned on test" phrasing in `report/**`. Threshold is the untuned 0.5; folds fixed seed 0 before scoring; test-touch log shows 2 pre-registered / 0 spent. |
 | c | 4-class / binary mixing in comparison tables | **PASS** | No line in `report/**` carries 84.4 % and 84.2 % together outside the explicit caution blocks. The byte-identical banner + the "84.2 % likewise denotes two quantities" block now sit in ch01/03/04/05/06. **Residual risk:** the banner is absent from the abstract, ch02, ch04-section-kfold and ch07 — see the blocking finding. |
 | d | Residual "detector undertrained" language | **PASS** | no match for `undertrained`, `under-trained`, `retrain the detector` in `report/**`. |
@@ -141,7 +141,7 @@ Required framing, each checked against `report/**`:
 | zone | the genuine cross-camera positive | **YES** — the +16.9 pp margin is the zone-carried result |
 | encoder search | **closed** (E3 frozen), not "ongoing" | **YES** — G14/G15/G16/G17 all adjudicated in Block 1; G14 FAILS is reported against our own interest |
 
-No deviation serious enough to block. Recommend naming the panel mechanism explicitly in §7.5 so the
+No deviation serious enough to block. **Done 2026-10-02:** the panel mechanism is now named explicitly in §7.5 — the object-visible classes are structurally unanswerable by protocol construction (the benchmark has no spatially-defined panel class), so the tie is evidence about class design, not about the representation. Original recommendation retained below for the record: name the panel mechanism explicitly in §7.5 so the
 hedge does not have to carry it.
 
 ## 5. The 15 defence questions, rehearsed against the current thesis
@@ -256,12 +256,49 @@ benchmark needed.
    **Resolved 2026-10-02:** abstract re-led by the binary lane; banner extended to all eight chapter
    files. Remaining judgement call for the author: whether the abstract's second-lane paragraph is
    still too long for an abstract now that it is no longer the lead.
-2. Will the 4-class accuracy surface (19 numbers) get sheet rows, or will the sheet's own
-   "must first get a row here" rule be relaxed and stated as relaxed?
-3. `eval_utils/suite.py:115` — rename the unlabelled `two_proportion_z` key? It is the last place an
-   unpaired p-value is exposed without the diagnostic prefix.
-4. Nadeau–Bengio has no bibliography entry in any of the three files that rely on it.
-5. §7.5's κ/MCC/ROC-AUC/PR-AUC/ECE were wrong twice before (wrong artifact, then wrong predictor).
-   They have no recorded generating command. Re-derive from `logits_yolo26.pt` before the freeze?
+2. ~~Will the 4-class accuracy surface (19 numbers) get sheet rows?~~ **Resolved 2026-10-02.**
+   The rule was kept, not relaxed: `number-sheet.md` now carries **Historical — 4-class accuracy
+   surface**, rows H1–H22, each naming its artifact. Nothing was re-run to fit; every value was
+   read back out of an artifact that already existed, except the Stage-A detector rows (see below).
+   The exercise produced two corrections:
+   - **§7.3's detector numbers had no artifact at all.** `train_run.log` is truncated mid-epoch 20
+     of the 30-epoch freeze stage and the only `results.csv` in the repo (`stage1_frozen/`,
+     3 epochs) peaks at mAP@50 **0.462**. The published **0.969 / 0.894** was therefore ungrounded.
+     Weights and the 343-image split were both still present, so §7.3 was re-measured end to end
+     (`.venv/bin/python` + ultralytics 8.4.27, `detector_best.pt`, imgsz 800, cpu):
+     **mAP@50 0.9695, mAP@50-95 0.8939**, and all six per-class values match to the printed
+     precision. Logged at `sweep_results/entity_detector/reval-2026-10-02-detector-best-val343.log`
+     and cited from §7.3. The number was right; the provenance was missing.
+   - **§7.9 quoted the wrong p-value.** It paired the 80.8 % headline with `p = 0.057`, which is the
+     **YOLO11 ablation's** p (on 80.7 %). The headline run's own p is **0.0600**, as §7.7.1 states
+     and as the dedupe log's header records. Corrected in both places in §7.9.
+3. ~~`eval_utils/suite.py:115` — rename the unlabelled `two_proportion_z` key?~~ **Resolved
+   2026-10-02.** Renamed to `diagnostic_two_proportion_z`, with the same `diagnostic_warning`
+   `paired_tests.py` emits. The test now asserts the bare key is gone, so it cannot come back
+   silently. No other consumer read that key.
+4. ~~Nadeau–Bengio has no bibliography entry in any of the three files that rely on it.~~
+   **Resolved 2026-10-02.** Added as ch07 `[2]`, ch06 `[4]`, and `[1]` under a new References
+   section in `chapter-04-section-kfold-cross-validation.md` (which had none), each wired to an
+   in-text marker at the first substantive mention.
+5. ~~§7.5's κ/MCC/ROC-AUC/PR-AUC/ECE were wrong twice before and have no recorded generating
+   command. Re-derive before the freeze?~~ **Resolved 2026-10-02 — re-derived, all values hold.**
+   Recomputed from `sweep_results/relation_tokens/logits_yolo26.pt` using the val-selected blind
+   predictor (`blind_pred`, `blind_softmax`, `labels`; seed 1, 54/64) with scikit-learn, **not** the
+   5-seed ensemble that caused the second error. Every value reproduces the thesis exactly:
+
+   | Metric | Thesis | Re-derived |
+   |---|---|---|
+   | top-1 | 54/64 = 84.4 % | 54/64 = 84.4 % |
+   | macro-recall / balanced accuracy | 88.4 % | 88.4 % |
+   | macro-F1 | 85.6 % | 85.6 % |
+   | Cohen's κ | 0.775 | 0.775 |
+   | MCC | 0.785 | 0.785 |
+   | ROC-AUC (one-vs-rest) | 0.951 | 0.951 |
+   | PR-AUC (one-vs-rest) | 0.880 | 0.880 |
+   | ECE (15-bin) | 0.097 | 0.097 |
+
+   Artifact provenance string: `run_relation_transformer.py --tag yolo26app_ --seeds 5 --aux_w 0.5
+   --epochs 120` (recovered+verified 2026-09-06). Recorded as sheet rows H12–H18. The
+   ensemble/blind mismatch is closed and is not re-opened.
 6. Device unreachable since 2026-10-02, so P-PRE1..P-PRE4 remain un-adjudicated and every composed
    cadence number in the thesis is pre-fix. Re-run this trace audit after that measurement.

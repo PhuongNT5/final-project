@@ -112,7 +112,15 @@ def _compare(y_true, pred, correct, n, compare_to):
         out['mcnemar_discordance_bound'] = {
             **bound, 'a_is': 'this_result', 'b_is': compare_to.get('name', 'baseline'),
         }
-    out['two_proportion_z'] = two_proportion_z(correct, n, other_correct, other_n)
+    # Unpaired z-test. Namespaced and flagged exactly as in paired_tests.py:186 so no
+    # consumer can read an unpaired p-value out of this dict by an innocent-looking key.
+    z = two_proportion_z(correct, n, other_correct, other_n)
+    out['diagnostic_two_proportion_z'] = z
+    if other_n == n:
+        out['diagnostic_warning'] = (
+            'INVALID independence assumption on same-clip paired data (assumes 2 '
+            'independent n=' + str(n) + ' samples) — use mcnemar_exact or '
+            'mcnemar_discordance_bound; do NOT cite this p as the significance test.')
     return out
 
 

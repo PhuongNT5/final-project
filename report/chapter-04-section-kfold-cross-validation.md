@@ -149,7 +149,7 @@ are reported as complementary, not competing.
 
 To test whether the temporal Transformer machinery earns its place, an identical k-fold was run
 with a logistic-regression probe on the time-averaged frozen features, and the two were compared
-with the Nadeau–Bengio corrected resampled t-test (the correct test for k-fold comparisons, which
+with the Nadeau–Bengio [1] corrected resampled t-test (the correct test for k-fold comparisons, which
 accounts for the dependence between overlapping training sets).
 
 **Table 4.9.2 — Transformer head vs. linear probe (same folds).**
@@ -240,3 +240,8 @@ relevant miss rate is concentrated in the two restricted-zone classes. Both find
 zone-prior intervention evaluated next and support the deployment-led framing of the thesis: the
 contribution is a rigorously characterised, honestly bounded, safety-aware edge system rather than
 an accuracy advance over the baseline.
+
+## References
+
+[1] C. Nadeau and Y. Bengio, "Inference for the Generalization Error," *Machine Learning*,
+vol. 52, no. 3, pp. 239–281, 2003. DOI: 10.1023/A:1024068626366.

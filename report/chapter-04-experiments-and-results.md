@@ -1236,8 +1236,8 @@ into a unified bibliography at final thesis compilation).
 
 [17] O. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based
      computer vision system for real-time detection of unsafe behaviours
-     in workplace," *Multimedia Tools and Applications*, vol. 84, pp.
-     34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
+     in workplace," *Multimedia Tools and Applications*, vol. 84, no. 29,
+     pp. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
      Dataset: O. Önal and E. Dandıl, "Video Dataset for Safe and Unsafe
      Behaviours," Mendeley Data, 2024, CC BY 4.0.
      DOI: 10.17632/xjmtb22pff.1.

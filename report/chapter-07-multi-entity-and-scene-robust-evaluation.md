@@ -81,6 +81,15 @@ lr 0.01→0.001, imgsz 800, `hsv_h=0` to preserve the vest-colour signal). Train
 Per-class mAP@50: Person_Authorized 0.938 (R 0.921), Person_Unauthorized 0.928 (R 0.937), Panel_Closed
 0.989, Panel_Opened 0.972, Forklift_Safe 0.995, Forklift_Overload 0.995. The rare `Person_Authorized`
 class (365 instances) was learned well — confirming the vest-colour cue survives with `hsv_h=0`.
+`Safe_Walkway` and `Restricted_Zone` carry no val instances — they are per-view zone polygons, not
+detected objects — so the overall figure is a mean over the six detected classes.
+
+*Provenance.* The training log kept in the repo (`sweep_results/entity_detector/train_run.log`) is
+truncated mid-epoch 20 of the 30-epoch freeze stage and never reaches the reported validation, so
+every number in this section was re-measured on 2026-10-02 from the saved weights
+(`sweep_results/entity_detector/detector_best.pt`) against the same held-out split. All of them
+reproduce to the printed precision; the run is logged in
+`sweep_results/entity_detector/reval-2026-10-02-detector-best-val343.log`.
 
 ## 7.4 Stage B — box-token spatial-relation Transformer
 
@@ -145,6 +154,18 @@ OpenedPanel 84.6 / 84.6 / 15.4 · CarryOverload 100 / 100 / 0. Confusion + relia
 Transformer classifier runs at **0.9 ms/clip**; the full detector+classifier pipeline ≈ **200 ms/clip**
 on an M3 (detector-bound), vs the paper's 0.14 s on a 2×GTX-1080 workstation.
 
+*On the object-visible classes, a tie is the expected result, not a defect.* `OpenedPanel` and
+`CarryOverload` are defined by the appearance of a single object — an open panel, a stacked load —
+so a whole-frame appearance baseline can read them off the pixels without any geometry at all.
+Under LCO the two models duly tie on them (OpenedPanel 88.7 vs 88.0, CarryOverload 100 vs 100,
+§7.7). This is **structurally unanswerable by protocol construction**: the benchmark contains no
+class in which panel state is spatially defined, so there exists no measurement on this corpus that
+could show geometry helping on panels. The tie is therefore evidence about the benchmark's class
+design, not evidence that the entity representation fails. It also sets the honest ceiling on the
+mechanism argument — only `WalkwayViol` and `UnauthorInt` are spatially defined, so only two of the
+four classes can carry it, and §7.8 shows even those two are individually unstable. The claim
+accordingly rests on the aggregate margin, never on the per-class split.
+
 Two statistics are decisive and honest: **McNemar vs a scene-only baseline is not significant**
 (p = 0.804, blind basis; 0.815 on the superseded ensemble basis) and **vs the paper's no-bbox baseline Δ = −4.7 pp is not significant** (p = 0.435). i.e. on
 the *same-distribution* protocol our model is statistically indistinguishable from camera-guessing — which
@@ -191,7 +212,7 @@ training, a model that ignores behaviour entirely is already within noise of one
 
 Two methodological points travel with this table.
 
-*Nadeau–Bengio is not optional here.* Folds share training data, so fold scores are positively
+*Nadeau–Bengio [2] is not optional here.* Folds share training data, so fold scores are positively
 correlated and the naive standard error is badly anti-conservative: on the headline run naive
 SE = 0.58 pp versus **NB-corrected SE = 2.12 pp**, a factor of 3.7. The uncorrected interval would have
 made the same +3.7 pp look comfortably significant. Corrected 95 % CI: **76.7–85.0 %**.
@@ -332,12 +353,12 @@ per-class pattern is the more rhetorically appealing evidence, and it is the wea
 
 *A second, unrelated finding from (c), reported because it bears on the k-fold analysis of §7.7.1:*
 removing those 51 clips raises random-k-fold top-1 from 80.8 to 86.6 % and moves the Nadeau–Bengio test
-from p = 0.057 (n.s.) to p = 0.0014 (significant). **This is not evidence of a better model.** Scoring
+from p = 0.0600 (n.s.) to p = 0.0014 (significant). **This is not evidence of a better model.** Scoring
 the unchanged canonical model's own out-of-fold predictions on the two subsets shows it gets
 **43.1 % (22/51)** on the dropped clips — at the coin-flip level their 25/25 class-0/class-1 mix implies
 — and 85.8 % on the 465 kept clips. So removing them from the *denominator* alone accounts for
 80.8 → 85.8 %; at most ≈ 0.8 pp of the 5.8 pp gain is attributable to training on cleaner labels. The
-headline k-fold figures in §7.7.1 therefore remain **80.8 % and p = 0.057 (n.s.)** on the full 516
+headline k-fold figures in §7.7.1 therefore remain **80.8 % and p = 0.0600 (n.s.)** on the full 516
 clips. The finding worth reporting is the diagnosis, not the number: the benchmark's own duplicate
 contradictions are large enough to move a significance test across the 0.05 threshold, and they
 systematically penalise an input-dependent behaviour model relative to an input-independent scene
@@ -385,3 +406,6 @@ metrics `sweep_results/relation_tokens/full_eval.json`; reports under
 [1] O. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based computer vision system for
 real-time detection of unsafe behaviours in workplace," *Multimedia Tools and Applications*, vol. 84,
 no. 29, pp. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
+
+[2] C. Nadeau and Y. Bengio, "Inference for the Generalization Error," *Machine Learning*, vol. 52,
+no. 3, pp. 239–281, 2003. DOI: 10.1023/A:1024068626366.

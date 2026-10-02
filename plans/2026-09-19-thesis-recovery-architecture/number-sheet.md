@@ -445,6 +445,70 @@ artifacts are now force-added so each row resolves.
 records duration, power and temperature but not the stream count, so that one qualifier is not
 substantiated by the artifact and must be traced to `tegrastats-soak30min.log` or dropped.
 
+### Historical — 4-class accuracy surface (added 2026-10-02 by the trace audit)
+
+The trace audit found 19 4-class accuracy numbers live in `report/**` with **no sheet row**, in
+breach of this sheet's own rule. Each is given a row below. None was re-run to make it fit: every
+value here was read back out of an artifact that already existed, except the Stage-A detector rows,
+whose training log is truncated and which were therefore **re-measured from the saved weights** on
+the same held-out split (noted per row). Two corrections came out of the exercise and are recorded
+at the end.
+
+Artifact keys used in the Source column:
+`LCO` = `sweep_results/relation_tokens/canonical/lco_seeds5_yolo26L1_CANONICAL.log`;
+`KF` = `sweep_results/relation_tokens/canonical/kfold_repeats10_yolo26app_HEADLINE.log`;
+`KF11` = `sweep_results/relation_tokens/canonical/kfold_repeats10_yoloapp_YOLO11.log`;
+`LOGITS` = `sweep_results/relation_tokens/logits_yolo26.pt`;
+`DEDUPE` = `sweep_results/relation_tokens/dedupe_drop_all/dedupe_drop_all_ablation.log`;
+`REVAL` = `sweep_results/entity_detector/reval-2026-10-02-detector-best-val343.log`.
+
+| # | Quantity | Protocol | Value | Source | Status |
+|---|---|---|---|---|---|
+| H1 | relation-Transformer, LCO | P-C LCO, 516 pooled, 8 camera-groups, 5 seeds | **401/516 = 77.7 % top-1, macro 81.2 %** | `LCO` L14 | measured |
+| H2 | scene-appearance baseline, LCO | same folds; logistic regression on whole-frame MobileNetV3 features, train cameras only | **274/516 = 53.1 % top-1, macro 64.4 %** | `LCO` L16 | measured |
+| H3 | honest LCO margin | H1 macro − H2 macro, bootstrap over the 516 pooled clips | **+16.9 pp, 95 % CI [+12.5, +21.2], n_boot = 5 000** | `LCO` L31 | measured |
+| H4 | trivial constant floor, LCO | train global-majority predictor | 85/516 = 16.5 % top-1, macro 10.1 % | `LCO` L15 | measured; **arithmetic, not a model** — the withdrawn "+58.7 pp / +60.3 pp" framing was against this |
+| H5 | scene-only, same-distribution | P-A blind, N=64 | **52/64 = 81.2 %** | `LCO` L35 | measured |
+| H6 | relation model, same-distribution | P-A blind, N=64, val-selected blind rule | **54/64 = 84.4 % top-1** | `LCO` L35; `LOGITS` `blind_top1` | measured |
+| H7 | LCO per-class recall, relation | P-C LCO | WalkwayViol 70.5, UnauthorInt 65.7, OpenedPanel 88.7, CarryOverload 100.0 | `LCO` L18 | measured; **descriptive only** — §7.8 finds up to ~20 pp instability |
+| H8 | LCO per-class recall, scene-appearance | same | WalkwayViol 17.6, UnauthorInt 51.9, OpenedPanel 88.0, CarryOverload 100.0 | `LCO` L19 | measured; descriptive only |
+| H9 | k-fold fold-mean top-1 | P-B stratified 5-fold × 10 repeats, 516 pooled | **80.8 %**, naive SE 0.58 pp, **NB-corrected SE 2.12 pp**, 95 % CI 76.7–85.0 % | `KF` L55 | measured |
+| H10 | k-fold margin vs scene-only | same; Nadeau–Bengio corrected resampled *t* | Δ = +3.7 pp, t = 1.93, df = 49, **p = 0.0600 (n.s.)** | `KF` L57 | measured |
+| H11 | YOLO11 ablation, k-fold | same protocol, YOLOv11 features | 80.7 ± 3.6 % fold-mean, pooled 421/516 = 81.6 %, macro 85.1 %; Δ = +3.6 pp, t = 1.95, **p = 0.0574 (n.s.)** | `KF11` L53–57 | measured |
+| H12 | §7.5 scorecard — macro-recall / balanced accuracy | P-A blind, N=64, blind predictor | **88.4 %** (both) | `LOGITS` | **re-derived 2026-10-02**, see note below |
+| H13 | §7.5 scorecard — macro-F1 | same | **85.6 %** | `LOGITS` | re-derived 2026-10-02 |
+| H14 | §7.5 scorecard — Cohen's κ | same | **0.775** | `LOGITS` | re-derived 2026-10-02 |
+| H15 | §7.5 scorecard — MCC | same | **0.785** | `LOGITS` | re-derived 2026-10-02 |
+| H16 | §7.5 scorecard — ROC-AUC (one-vs-rest) | same, `blind_softmax` | **0.951** | `LOGITS` | re-derived 2026-10-02 |
+| H17 | §7.5 scorecard — PR-AUC (one-vs-rest) | same | **0.880** | `LOGITS` | re-derived 2026-10-02 |
+| H18 | §7.5 scorecard — ECE (15-bin) | same | **0.097** | `LOGITS` | re-derived 2026-10-02 |
+| H19 | Stage-A entity detector | 343-image held-out val, 988 instances, imgsz 800 | **mAP@50 = 0.9695**, mAP@50-95 = 0.8939, P 0.934, R 0.967 | `REVAL` | **re-measured 2026-10-02** from `detector_best.pt`; matches the published 0.969 / 0.894 |
+| H20 | Stage-A per-class mAP@50 | same | Person_Authorized 0.9377 (R 0.9211), Person_Unauthorized 0.9277 (R 0.9368), Panel_Closed 0.9895, Panel_Opened 0.9719, Forklift_Safe_Load 0.9950, Forklift_Overload 0.9950 | `REVAL` | re-measured 2026-10-02; all match |
+| H21 | dedupe ablation (context for §7.9) | P-B k-fold after dropping 51 of 516 near-duplicate clips | 86.6 % fold-mean, pooled 400/465, p = 0.0014 | `DEDUPE` L60–64 | measured; **not a better model** — 80.8 → 85.8 pp of the gain is denominator change |
+| H22 | paper baseline (Önal & Dandıl, 2024) | their protocol, not ours | 95.81 % macro, YOLO v4 trained on 2,262 boxes | citation [17] | **not our measurement**; never re-run, never compared same-protocol |
+
+**Two corrections this exercise produced.**
+
+1. **§7.3's detector numbers had no artifact.** `train_run.log` stops mid-epoch 20 of the 30-epoch
+   freeze stage, and the only `results.csv` in the repo (`stage1_frozen/`, 3 epochs) peaks at
+   mAP@50 **0.462** — three epochs of a frozen backbone, not the finished detector. An examiner
+   grepping for 0.969 would have found nothing. The weights and the 343-image split were both
+   still present, so the section was re-measured end to end (H19, H20) and **every published value
+   reproduced**. The number was right; the provenance was missing, and now exists.
+2. **§7.9 quoted the wrong p-value.** It paired the 80.8 % headline with `p = 0.057`, which is the
+   **YOLO11 ablation's** p (H11, on 80.7 %). The headline run's own p is **0.0600** (H10), as
+   §7.7.1 states and as `DEDUPE`'s header line records for its canonical counterpart. Corrected in
+   both places in §7.9.
+
+**On the §7.5 re-derivation (H12–H18).** §7.5 records that these five metrics were wrong twice
+before — first computed on the wrong artifact, then on the wrong predictor (the 5-seed ensemble,
+52/64, because the blind seed's softmax had not been persisted) — and they carried no generating
+command. They were therefore recomputed on 2026-10-02 from `LOGITS` using `blind_pred`,
+`blind_softmax` and `labels` (the val-selected blind rule, seed 1, 54/64), with scikit-learn.
+**All nine values reproduce the thesis exactly.** The artifact's own provenance string is
+`run_relation_transformer.py --tag yolo26app_ --seeds 5 --aux_w 0.5 --epochs 120`
+(recovered+verified 2026-09-06). The ensemble/blind mismatch is resolved and is not re-opened.
+
 ## Unresolved questions
 
 1. ~~Does the thesis headline become the iSafetyBench 75.2% or stay Unsafe-Net?~~ **RESOLVED

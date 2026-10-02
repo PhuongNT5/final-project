@@ -46,7 +46,10 @@ def test_comparison_block_with_per_clip_predictions():
                                      'n': 40, 'pred': other_pred})
     assert 'mcnemar_exact' in res['comparison']
     assert 'mcnemar_discordance_bound' in res['comparison']
-    assert 'two_proportion_z' in res['comparison']
+    assert 'diagnostic_two_proportion_z' in res['comparison']
+    # the unpaired test must never be exposed under an unqualified key
+    assert 'two_proportion_z' not in res['comparison']
+    assert 'diagnostic_warning' in res['comparison']
 
 
 def test_result_is_json_serialisable_and_markdown_renders():

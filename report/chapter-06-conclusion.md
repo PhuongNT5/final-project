@@ -282,7 +282,7 @@ measured. Four contributions.
 **First, the scene confound — the finding that reframes the benchmark.** Under
 random k-fold every camera appears in training, and a *scene-only* baseline that
 ignores behaviour entirely already reaches **77.1 %**; our model adds
-**+3.7 pp, Nadeau–Bengio p = 0.0600 over 50 folds — not significant**. We report
+**+3.7 pp, Nadeau–Bengio [4] p = 0.0600 over 50 folds — not significant**. We report
 this against our own interest, because the complement is the point: under
 leave-camera-out, where camera identity is structurally unavailable, the same
 model leads a transferable scene-appearance baseline by **+16.9 pp macro, 95 %
@@ -349,7 +349,12 @@ Per-chapter numbering; merged at final compilation.
     pp. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
 
 [2] N. Carion et al., "End-to-End Object Detection with Transformers,"
-    *Proc. ECCV*, 2020. arXiv:2005.12872.
+    *Proc. ECCV*, 2020, pp. 213–229. arXiv:2005.12872.
+    DOI: 10.1007/978-3-030-58452-8_13.
 
-[3] A. Dosovitskiy et al., "An Image is Worth 16×16 Words: Transformers
-    for Image Recognition at Scale," *Proc. ICLR*, 2021.
+[3] A. Dosovitskiy et al., "An Image is Worth 16x16 Words: Transformers
+    for Image Recognition at Scale," *Proc. ICLR*, 2021. arXiv:2010.11929.
+
+[4] C. Nadeau and Y. Bengio, "Inference for the Generalization Error,"
+    *Machine Learning*, vol. 52, no. 3, pp. 239–281, 2003.
+    DOI: 10.1023/A:1024068626366.
