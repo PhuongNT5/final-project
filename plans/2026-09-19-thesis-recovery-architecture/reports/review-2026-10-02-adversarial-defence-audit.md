@@ -73,7 +73,16 @@ Sampling weighted to the abstract (densest headline surface) plus §7.5's multi-
 | 24 | 2.73 dec/s governor; 2.88–2.76 above median | abstract | yes | same | **PASS** |
 | 25 | 1,100 / 420 / 680 / 151 sources | ch03 §3.1.1, ch05 | yes, corpus-facts block | measured from `data/isafetybench/` | **PASS** |
 
-**Result: 9 PASS, 16 sheet-coverage FAIL.** Fifteen of the sixteen failures do trace to a real
+**UPDATE 2026-10-02, after the fix.** All sixteen sheet-coverage failures are closed: rows 1–19
+now resolve to `number-sheet.md` rows **H1–H22**, each naming its artifact, and the P1-edge rows
+remain as before. **Result after the fix: 24 PASS, 0 sheet FAIL, 1 PASS-but-stale** (row 22, the
+3.45 dec/s composed cadence, which pre-dates the preprocessing fix and awaits P-PRE2..4 on the
+device). Closing the gap also surfaced two defects the sampling itself had missed — §7.3's detector
+numbers had no artifact at all, and §7.9 quoted the YOLO11 ablation's p-value against the headline
+run — both now fixed; see unresolved question 2. A full re-run of this audit still waits on the
+device measurement (unresolved question 6).
+
+**Result as originally sampled: 9 PASS, 16 sheet-coverage FAIL.** Fifteen of the sixteen failures do trace to a real
 primary artifact — they are not fabricated — but the number sheet states its own rule in the
 Historical block: *"Any 4-class number that appears in the final thesis must first get a row here."*
 The entire 4-class accuracy surface (rows 1–19) violates it. The Historical block currently holds
