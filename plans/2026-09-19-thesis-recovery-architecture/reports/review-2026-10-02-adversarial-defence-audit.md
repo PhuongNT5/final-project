@@ -12,15 +12,26 @@ Findings below that are already fixed are marked **FIXED IN PLACE**, not left as
 
 ## Verdict on G9 (15 answers rehearsed)
 
-**NOT MET — one blocking defect, one framing defect.**
+**MET for items 1 and 3 after the same-day fixes below; item 2's rehearsed answers await adoption.**
 
-1. **BLOCKING — the abstract contradicts the headline banner.** Four of nine report files carry
+1. **BLOCKING — RESOLVED IN PLACE 2026-10-02 (after this audit was first written).** The abstract now
+   leads with the R48 binary lane, states the pre-registered 63.3 % floor beside the 84.2 %, demotes
+   the 4-class lane to "a second lane ... the thesis's evaluation-rigour contribution", drops the
+   overclaim that the entity-relation formulation is what a deployed system requires (the entity
+   gate G14 **failed**, and the abstract now says so with its CI), and closes on the deployed lane.
+   The attribution banner is now byte-identical across all eight chapter files
+   (md5 `7f5c08ae…`), including ch02, ch07 and the standalone k-fold section, which lacked it.
+   The abstract itself still carries no banner — deliberate; a thesis abstract should not open with
+   a caution blockquote, and the contradiction it was flagged for is gone.
+
+   *Original finding, kept for the record:*
+   **the abstract contradicted the headline banner.** Four of nine report files carry
    the "The headline is the R48 lane: CLIP + temporal Transformer under LSO-1100" banner
    (ch01, ch03, ch04, ch05, ch06). The **abstract does not**, and it leads with the 4-class
    Unsafe-Net lane, calling the scene-confounding result "the thesis's central contribution" and
    relegating the binary lane to "a second lane". A committee reads the abstract first. Either the
    abstract is re-led by the R48 lane, or the banner is wrong. They cannot both stand.
-   Also missing the banner: ch02, ch04-section-kfold, ch07.
+   Also missing the banner: ch02, ch04-section-kfold, ch07. (All three now carry it.)
 2. **FRAMING — the 15 base answers are written for the superseded lane.** researcher-02 §6 answers
    Q1-Q15 in terms of 691 clips / 8 camera clusters / 69.5 % LCO vs 83.8 % k-fold. That lane is now
    Chapter 7, not the headline. All 15 are rehearsed below against the current two-lane thesis.
@@ -115,7 +126,7 @@ project page — the headline corpus had been cited nowhere.
 | d | Residual "detector undertrained" language | **PASS** | no match for `undertrained`, `under-trained`, `retrain the detector` in `report/**`. |
 | e | "zones are unused" phrasing | **PASS** | verbatim grep clean. |
 | f | "16 entity slots" (tokens are 16 frames × 8 slots) | **PASS** | no match for `16 slots` / `16 entity slots`. |
-| g | Headline consistency across files | **FIXED IN PLACE then re-broken at the abstract** | Five sentences naming P3 as the thesis headline were corrected (e489ac5). The abstract was not, and still leads with the 4-class lane. |
+| g | Headline consistency across files | **FIXED IN PLACE** | Five sentences naming P3 as the thesis headline were corrected (e489ac5); the abstract was re-led by the binary lane and the banner extended to all eight chapter files on 2026-10-02. |
 | h | Stale numbers pending re-measure | **OPEN, declared** | abstract's `3.45 decisions/s`, Bảng 5.5N/5.5O/5.5P and §5.6.9 shares all pre-date the preprocessing fix. Predictions P-PRE1..P-PRE4 are pre-registered in `finding-2026-10-02-preprocessing-cost-is-a-channel-swap.md`; device unreachable since 2026-10-02, so the re-measure has not run. Not a defect — a declared pending state — provided no number moves before the falsifiers are adjudicated. |
 
 ## 4. Confounding-finding framing check (phase-10 step 7)
@@ -241,9 +252,10 @@ benchmark needed.
 
 ## Unresolved questions
 
-1. Does the abstract get re-led by the R48 binary lane, or does the banner get withdrawn? These
-   contradict each other today and the abstract is what a committee reads first. **This is the one
-   blocking item.**
+1. ~~Does the abstract get re-led by the R48 binary lane, or does the banner get withdrawn?~~
+   **Resolved 2026-10-02:** abstract re-led by the binary lane; banner extended to all eight chapter
+   files. Remaining judgement call for the author: whether the abstract's second-lane paragraph is
+   still too long for an abstract now that it is no longer the lead.
 2. Will the 4-class accuracy surface (19 numbers) get sheet rows, or will the sheet's own
    "must first get a row here" rule be relaxed and stated as relaxed?
 3. `eval_utils/suite.py:115` — rename the unlabelled `two_proportion_z` key? It is the last place an

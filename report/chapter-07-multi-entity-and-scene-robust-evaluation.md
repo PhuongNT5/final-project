@@ -1,5 +1,44 @@
 # Chapter 7 — Multi-Entity Spatial-Relation Recognition and Scene-Robust Evaluation
 
+> ### Pipeline attribution — read before citing any number in this chapter
+>
+> This project evolved through **three non-interchangeable pipelines** (full map:
+> `docs/system-architecture.md`). Chapters were written at different points in that evolution, so
+> their headline accuracies are **not** competing estimates of one system — they describe different
+> systems, and mixing them is the single most common error this project has made internally.
+>
+> | | Pipeline | Best cited | Blind/honest | Protocol |
+> |---|---|---|---|---|
+> | Ch1, Ch3, Ch4 | **P1** frozen-COCO YOLO -> multi-stream Transformer | 56/64 (87.5 %) | **53/64** (82.8 %) | same-dist, N=64 |
+> | Ch5 | **P1** as exported to Jetson | 55/64 (TRT engine, as recorded in `benchmarks-jetson-*.json`) | **53/64** | same-dist, N=64 |
+> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 % **top-1**, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+> | Ch5 §5.6.9 | **R48** whole-frame CLIP ViT-B/32 -> B1 temporal Transformer — the engine actually on the device | **84.2 % balanced accuracy** (B1, N=1,100) | same number: the protocol cannot leak a source, so there is no separate honest column | **P-D LSO-1100**, folds grouped by source video, N=1,100 |
+>
+> **The headline is the R48 lane: CLIP + temporal Transformer under LSO-1100.** It is the only
+> accuracy in this thesis measured on all 1,100 clips under a protocol that cannot put one source
+> video in both the train and the evaluation fold, and it is the model that was exported, deployed
+> and measured on the Jetson (§5.6.9). YOLO's role in that lane is **localisation** — the system
+> must say *where*, not only *whether* — and localisation latency is timed separately, never summed
+> into the class decision. P3's 54/64 is the entity-relation lane's result at N=64 and is what Ch7
+> and the abstract report; it keeps its own evidence beyond N=64 (k-fold and LCO at N=516). P1's
+> 56/64 is **test-selected** (the ensemble was chosen using the test clips) and must never be
+> presented as the result; its honest blind counterpart is 53/64. Chapters 1-6 are retained as the
+> experimental record of how the design was arrived at, not as the final claim.
+>
+> **Caution — "84.4 %" denotes two different quantities here. Never write it bare.** 84.4 %
+> *top-1* (P3, blind same-dist split, N=64) is Ch7's figure. 84.4 % *balanced accuracy* (B1w,
+> LSO-1100, N=1,100) is the R48 lane's best head — and B1w is **not** the head on the device. The
+> deployed engine is B1 (201,090 params x 3 seeds), whose own figure is **84.2 %**; B1 was chosen on
+> the pre-registered *edge* criterion, smallest model, not on accuracy, so its own number is the one
+> to quote and never max(B1, B1w). §5.6.9 quotes 84.2 % throughout for that reason
+> (`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-two-different-84-4-percent.md`).
+>
+> **"84.2 %" likewise denotes two different quantities. Never write it bare either.** 84.2 %
+> *balanced accuracy* (B1, LSO-1100, N=1,100, binary) is the deployed figure above. 84.2 % *macro*
+> is P3's k-fold mean over 516 ESTA clips on the 4-class task (Ch7 §7.7.1). Different corpus,
+> different task, different metric: the two must never be compared, summed, or carried into one
+> sentence without their qualifiers.
+
 > **New contribution chapter (2026).** Consolidates the multi-entity ontology + YOLOv11/Transformer
 > pipeline and the scene-confounding analysis of the Unsafe-Net benchmark. Additive to the existing
 > deployment-led thesis; integration notes in §7.8. All numbers reproduce from committed scripts/artifacts.
@@ -236,8 +275,9 @@ this baseline and is superseded.
 
 ### 7.8.1 Stability of the LCO result under perturbation (what each number can bear)
 
-Two perturbations were applied that a reader could reasonably object were arbitrary choices, to see
-which conclusions survive them. Both run on the pooled 516-clip set and consume **no test evaluations**.
+Three perturbations were applied that a reader could reasonably object were arbitrary choices, to see
+which conclusions survive them — the scene clustering, the training seed, and the label-contradictory
+duplicates. All run on the pooled 516-clip set and consume **no test evaluations**.
 
 **(a) Re-seeding the scene clustering.** The camera proxy is `KMeans(8, random_state=0)`; the seed was
 hardcoded, so the grouping carried no measurable uncertainty. Exposing it (`--cluster_seed`) and
@@ -249,22 +289,48 @@ same three clusterings is **38.6 / 24.7 / 45.1 % — a 20.4 pp swing from re-see
 WalkwayViol moves 9.7 pp, while the object-visible classes barely move (OpenedPanel 5.0 pp,
 CarryOverload 0.0 pp).
 
-**(b) Removing the label-contradictory duplicates.** The dataset contains 691 clips of which only 658
+The same sweep was then run on the **LCO** scene grouping itself, which is the grouping the
+cross-camera claim actually rests on. Re-clustering moves the aggregate margin over the
+scene-appearance baseline to **+16.9 / +13.3 / +16.9 pp** (CIs [+12.5, +21.2], [+9.2, +17.3],
+[+12.5, +21.2]). All three exclude zero and mutually overlap, so the sign and the significance of the
+cross-camera margin survive re-clustering; the magnitude moves by 3.6 pp, and the margin is therefore
+quoted in this thesis as **+13.3 to +16.9 pp**, not as a single figure.
+
+One caveat is stated because it limits how much the sweep is worth. The `cluster_seed = 2` grouping
+returned results identical to the canonical grouping in every field. This was checked rather than
+accepted: the two partitions genuinely differ (ARI 0.9952), the run demonstrably loads its own map
+and builds its own folds from it, and the identity turns out to be forced by the data — the only
+clips the re-clustering moves are 56 clips of a single class (CarryOverload), reshuffled between two
+folds whose union is unchanged and which the model classifies perfectly under both groupings, so
+every per-clip prediction is necessarily unchanged. `cluster_seed = 2` is thus a degenerate
+perturbation rather than an independent replicate, and the clustering term above rests on **two**
+distinct partitions, not three.
+
+**(b) Varying only the training seed.** Holding the clustering fixed and varying the seed (five seeds, identical folds,
+data and hyperparameters) separates the last confounded term. Aggregate LCO top-1 moves 4.8 pp
+(72.9–77.7 %, SD 2.08), but per-class LCO recall moves **15.3–21.1 pp** — WalkwayViol 15.3,
+UnauthorInt 19.4, OpenedPanel 21.1, CarryOverload 0.0. This is a direct measurement of the effect
+that (b) below can only infer, and it is larger than the 18.5 pp that (b) attributes to training
+variance. It is also the reason the headline is reported as a **5-seed ensemble**: 77.7 % is the
+ensemble, while individual seeds average 75.2 %.
+
+**(c) Removing the label-contradictory duplicates.** The dataset contains 691 clips of which only 658
 are byte-distinct, in **32 md5-identical groups carrying two or more different class labels** (26 of the
 32 conflate WalkwayViolation with UnauthorizedIntervention). These clips are unlearnable by
 construction: identical pixels, contradictory targets. Dropping them (465 clips) leaves the LCO
 aggregate margin intact — **+17.7 pp macro, CI [+12.9, +22.4]**, against the canonical
 **+16.9 pp, CI [+12.5, +21.2]** — but moves OpenedPanel LCO recall by **18.5 pp** (88.7 → 70.2 %) even
 though **one** single clip of that class was removed. A change that large from a one-clip change of
-population is training variance, not a population effect.
+population is training variance, not a population effect — and (b) measures that variance directly at
+21.1 pp for this class, which is larger than the 18.5 pp being explained.
 
-**What follows.** The aggregate cross-camera margin is robust to both perturbations and is the
+**What follows.** The aggregate cross-camera margin is robust to all three perturbations and is the
 quantity this thesis claims. Individual LCO per-class recalls are **not** stable to within the
 differences the mechanism argument would need to read off them, and are reported here as descriptive.
 This ordering is the reverse of an earlier draft's and is stated against our own interest: the
 per-class pattern is the more rhetorically appealing evidence, and it is the weaker evidence.
 
-*A second, unrelated finding from (b), reported because it bears on the k-fold analysis of §7.7.1:*
+*A second, unrelated finding from (c), reported because it bears on the k-fold analysis of §7.7.1:*
 removing those 51 clips raises random-k-fold top-1 from 80.8 to 86.6 % and moves the Nadeau–Bengio test
 from p = 0.057 (n.s.) to p = 0.0014 (significant). **This is not evidence of a better model.** Scoring
 the unchanged canonical model's own out-of-fold predictions on the two subsets shows it gets
@@ -318,4 +384,4 @@ metrics `sweep_results/relation_tokens/full_eval.json`; reports under
 ## References
 [1] O. Önal and E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based computer vision system for
 real-time detection of unsafe behaviours in workplace," *Multimedia Tools and Applications*, vol. 84,
-pp. 34967–34993, 2024.
+no. 29, pp. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.

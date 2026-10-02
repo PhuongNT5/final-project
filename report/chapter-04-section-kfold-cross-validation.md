@@ -1,5 +1,44 @@
 # §4.9 Cross-Validated Generalisation (Leakage-Free k-Fold)
 
+> ### Pipeline attribution — read before citing any number in this chapter
+>
+> This project evolved through **three non-interchangeable pipelines** (full map:
+> `docs/system-architecture.md`). Chapters were written at different points in that evolution, so
+> their headline accuracies are **not** competing estimates of one system — they describe different
+> systems, and mixing them is the single most common error this project has made internally.
+>
+> | | Pipeline | Best cited | Blind/honest | Protocol |
+> |---|---|---|---|---|
+> | Ch1, Ch3, Ch4 | **P1** frozen-COCO YOLO -> multi-stream Transformer | 56/64 (87.5 %) | **53/64** (82.8 %) | same-dist, N=64 |
+> | Ch5 | **P1** as exported to Jetson | 55/64 (TRT engine, as recorded in `benchmarks-jetson-*.json`) | **53/64** | same-dist, N=64 |
+> | Ch7 + Abstract | **P3** entity detector + spatial-relation Transformer | **54/64** (84.4 % **top-1**, 88.4 % macro) | 54/64 | same-dist N=64, **plus k-fold and LCO at N=516** |
+> | Ch5 §5.6.9 | **R48** whole-frame CLIP ViT-B/32 -> B1 temporal Transformer — the engine actually on the device | **84.2 % balanced accuracy** (B1, N=1,100) | same number: the protocol cannot leak a source, so there is no separate honest column | **P-D LSO-1100**, folds grouped by source video, N=1,100 |
+>
+> **The headline is the R48 lane: CLIP + temporal Transformer under LSO-1100.** It is the only
+> accuracy in this thesis measured on all 1,100 clips under a protocol that cannot put one source
+> video in both the train and the evaluation fold, and it is the model that was exported, deployed
+> and measured on the Jetson (§5.6.9). YOLO's role in that lane is **localisation** — the system
+> must say *where*, not only *whether* — and localisation latency is timed separately, never summed
+> into the class decision. P3's 54/64 is the entity-relation lane's result at N=64 and is what Ch7
+> and the abstract report; it keeps its own evidence beyond N=64 (k-fold and LCO at N=516). P1's
+> 56/64 is **test-selected** (the ensemble was chosen using the test clips) and must never be
+> presented as the result; its honest blind counterpart is 53/64. Chapters 1-6 are retained as the
+> experimental record of how the design was arrived at, not as the final claim.
+>
+> **Caution — "84.4 %" denotes two different quantities here. Never write it bare.** 84.4 %
+> *top-1* (P3, blind same-dist split, N=64) is Ch7's figure. 84.4 % *balanced accuracy* (B1w,
+> LSO-1100, N=1,100) is the R48 lane's best head — and B1w is **not** the head on the device. The
+> deployed engine is B1 (201,090 params x 3 seeds), whose own figure is **84.2 %**; B1 was chosen on
+> the pre-registered *edge* criterion, smallest model, not on accuracy, so its own number is the one
+> to quote and never max(B1, B1w). §5.6.9 quotes 84.2 % throughout for that reason
+> (`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-two-different-84-4-percent.md`).
+>
+> **"84.2 %" likewise denotes two different quantities. Never write it bare either.** 84.2 %
+> *balanced accuracy* (B1, LSO-1100, N=1,100, binary) is the deployed figure above. 84.2 % *macro*
+> is P3's k-fold mean over 516 ESTA clips on the 4-class task (Ch7 §7.7.1). Different corpus,
+> different task, different metric: the two must never be compared, summed, or carried into one
+> sentence without their qualifiers.
+
 > **Status:** standalone draft section for review; slots into Chapter 4 after §4.8
 > (Interpretability) and before the chapter summary, which is renumbered §4.10 accordingly.
 >
