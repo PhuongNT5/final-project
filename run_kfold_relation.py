@@ -115,6 +115,20 @@ def _grouped_folds(args, y, clip_ids, groups=None):
                     f"in train AND held-out. Source identity is a perfect label proxy here (R41). "
                     f"This number measures protocol inflation and is NOT a generalisation result.")
             proto = f'rand-{len(y)}'
+        elif args.permute_sources is not None:
+            # G19 CONTROL: grouped folds over PLACEBO sources -- same group count, same per-class
+            # group-size multiset, same class purity, same StratifiedGroupKFold machinery, but each
+            # real video's clips are scattered. Isolates source identity from fold geometry: if this
+            # lands near the random-split number, the leave-source-out drop is leakage, not difficulty.
+            real = groups
+            groups = ISB.placebo_groups(y, real, seed=args.permute_sources)
+            splits = ISB.folds(y, groups, n_splits=args.folds, seed=0)
+            note = (f"[G19 CONTROL — PLACEBO GROUPING, seed={args.permute_sources}] "
+                    f"{len(set(groups))} fake sources matched to the {len(set(real))} real ones on "
+                    f"count, per-class size multiset and class purity, but carrying no provenance. "
+                    f"Fold geometry is held constant; only source identity is destroyed. This number "
+                    f"is a CONTROL for the inflation measurement and is NOT a generalisation result.")
+            proto = f'plc{args.permute_sources}-{len(y)}'
         else:
             splits = ISB.folds(y, groups, n_splits=args.folds, seed=0)
             note = (f"[grouping] source YouTube video id from filename: {len(set(groups))} sources, "
@@ -261,6 +275,9 @@ def main():
                     help='iSafetyBench fold construction. group = leave-source-out (the only valid '
                          'protocol on this corpus). random = G12 diagnostic that deliberately leaks '
                          'source identity, to measure protocol inflation; never a headline number.')
+    ap.add_argument('--permute_sources', type=int, default=None,
+                    help='G19 control: replace real source ids with structure-matched placebo ones '
+                         'at this seed (iSafetyBench, --split group only). Never a headline number.')
     ap.add_argument('--folds', type=int, default=10,
                     help='grouped folds for --dataset isafetybench (ignored by unsafenet, which uses '
                          'one fold per scene group)')

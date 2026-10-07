@@ -46,6 +46,35 @@ def folds(y, groups, n_splits=10, seed=0):
     return list(sgkf.split(np.zeros(len(yn)), yn, groups))
 
 
+def placebo_groups(y, groups, seed):
+    """Fake source ids that preserve every structural property of the real ones EXCEPT provenance.
+
+    The G19 control for the confound the inflation measurement cannot otherwise rule out: the
+    leave-source-out number could be lower simply because grouped folds are structurally harder
+    (whole indivisible single-class sources, uneven fold sizes), not because source identity leaks.
+    This builds groups that match the real ones on all three of those properties --
+      * the same number of groups,
+      * the same multiset of group sizes, within each class,
+      * the same class purity (every group single-class, as all 151 real sources are, R41) --
+    while scattering each real video's clips across different fake groups. Source identity is the
+    only thing removed, so whatever accuracy survives here is NOT attributable to fold geometry.
+    """
+    yn = y.numpy() if torch.is_tensor(y) else np.asarray(y)
+    rng = np.random.default_rng(seed)
+    fake = np.empty(len(yn), dtype=object)
+    for c in np.unique(yn):
+        idx = np.where(yn == c)[0]
+        # group-size multiset of the REAL sources of this class, preserved exactly
+        sizes = [int((groups[idx] == g).sum()) for g in dict.fromkeys(groups[idx])]
+        order = rng.permutation(idx)
+        at = 0
+        for j, n in enumerate(sizes):
+            fake[order[at:at + n]] = f'plc{c}_{j}'
+            at += n
+        assert at == len(idx), f'size multiset did not tile class {c}: {at} vs {len(idx)}'
+    return np.array([str(v) for v in fake])
+
+
 def count_features(X, M):
     """The 3 features of the pre-registered R42 count-rule shortcut: persons/frame, objects/frame,
     mean detection confidence. Recomputed here from the same T=16 tokens the encoder consumes, so the
