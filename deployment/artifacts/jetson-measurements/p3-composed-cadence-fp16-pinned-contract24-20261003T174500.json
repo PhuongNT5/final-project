@@ -1,0 +1,301 @@
+{
+  "git_commit": "6319b21-dirty",
+  "timestamp": "2026-10-03T17:45:02.938059",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 1728000,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 1728000,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 1020000000,
+        "cur_hz": 1020000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": true,
+      "gpu": true,
+      "any": true
+    },
+    "load_average": [
+      1.13525390625,
+      0.93798828125,
+      1.33251953125
+    ],
+    "competing_processes": [],
+    "quiet": true
+  },
+  "mode": "fp16",
+  "cadence_contract_decisions_per_sec": 3.0,
+  "configs": [
+    {
+      "n_streams": 1,
+      "target_fps": 24.0,
+      "max_frames": 480,
+      "imgsz": 800,
+      "crop_px": 224,
+      "t_window": 16,
+      "n_max": 8,
+      "conf": 0.25,
+      "app_buckets": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "token_input": "tokens",
+      "mask_input": "mask",
+      "detector_stage": "p3-detector",
+      "head_stage": "p3-relation-head-bin-e3",
+      "elapsed_sec": 26.833,
+      "aggregate_fps": 17.89,
+      "read_fps": 17.89,
+      "drop_rate": 0.0,
+      "worst_stream_decisions_per_sec": 2.199,
+      "meets_cadence_all_streams": false,
+      "streams": [
+        {
+          "id": 0,
+          "source": "1_te10.mp4",
+          "view": "3",
+          "has_zones": true,
+          "frames": 480,
+          "processed": 480,
+          "dropped": 0,
+          "n_decisions": 59,
+          "decisions_per_sec": 2.199,
+          "frame_latency_ms": {
+            "p50": 20.27,
+            "p95": 25.07,
+            "p99": 25.88
+          },
+          "head_latency_ms": {
+            "p50": 0.5,
+            "p95": 0.53,
+            "p99": 0.54
+          }
+        }
+      ]
+    },
+    {
+      "n_streams": 2,
+      "target_fps": 24.0,
+      "max_frames": 480,
+      "imgsz": 800,
+      "crop_px": 224,
+      "t_window": 16,
+      "n_max": 8,
+      "conf": 0.25,
+      "app_buckets": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "token_input": "tokens",
+      "mask_input": "mask",
+      "detector_stage": "p3-detector",
+      "head_stage": "p3-relation-head-bin-e3",
+      "elapsed_sec": 31.816,
+      "aggregate_fps": 30.17,
+      "read_fps": 30.17,
+      "drop_rate": 0.0,
+      "worst_stream_decisions_per_sec": 1.854,
+      "meets_cadence_all_streams": false,
+      "streams": [
+        {
+          "id": 0,
+          "source": "1_te10.mp4",
+          "view": "3",
+          "has_zones": true,
+          "frames": 480,
+          "processed": 480,
+          "dropped": 0,
+          "n_decisions": 59,
+          "decisions_per_sec": 1.854,
+          "frame_latency_ms": {
+            "p50": 20.28,
+            "p95": 25.0,
+            "p99": 25.88
+          },
+          "head_latency_ms": {
+            "p50": 0.5,
+            "p95": 0.51,
+            "p99": 0.52
+          }
+        },
+        {
+          "id": 1,
+          "source": "3_te1.mp4",
+          "view": "7",
+          "has_zones": false,
+          "frames": 480,
+          "processed": 480,
+          "dropped": 0,
+          "n_decisions": 59,
+          "decisions_per_sec": 1.854,
+          "frame_latency_ms": {
+            "p50": 17.24,
+            "p95": 17.59,
+            "p99": 18.03
+          },
+          "head_latency_ms": {
+            "p50": 0.53,
+            "p95": 0.54,
+            "p99": 0.56
+          }
+        }
+      ]
+    },
+    {
+      "n_streams": 3,
+      "target_fps": 24.0,
+      "max_frames": 480,
+      "imgsz": 800,
+      "crop_px": 224,
+      "t_window": 16,
+      "n_max": 8,
+      "conf": 0.25,
+      "app_buckets": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "token_input": "tokens",
+      "mask_input": "mask",
+      "detector_stage": "p3-detector",
+      "head_stage": "p3-relation-head-bin-e3",
+      "elapsed_sec": 51.738,
+      "aggregate_fps": 27.83,
+      "read_fps": 27.83,
+      "drop_rate": 0.0,
+      "worst_stream_decisions_per_sec": 1.14,
+      "meets_cadence_all_streams": false,
+      "streams": [
+        {
+          "id": 0,
+          "source": "1_te10.mp4",
+          "view": "3",
+          "has_zones": true,
+          "frames": 480,
+          "processed": 480,
+          "dropped": 0,
+          "n_decisions": 59,
+          "decisions_per_sec": 1.14,
+          "frame_latency_ms": {
+            "p50": 20.61,
+            "p95": 25.4,
+            "p99": 26.22
+          },
+          "head_latency_ms": {
+            "p50": 0.5,
+            "p95": 0.51,
+            "p99": 0.52
+          }
+        },
+        {
+          "id": 1,
+          "source": "3_te1.mp4",
+          "view": "7",
+          "has_zones": false,
+          "frames": 480,
+          "processed": 480,
+          "dropped": 0,
+          "n_decisions": 59,
+          "decisions_per_sec": 1.14,
+          "frame_latency_ms": {
+            "p50": 17.67,
+            "p95": 18.47,
+            "p99": 19.18
+          },
+          "head_latency_ms": {
+            "p50": 0.53,
+            "p95": 0.54,
+            "p99": 0.54
+          }
+        },
+        {
+          "id": 2,
+          "source": "4_te10.mp4",
+          "view": "1",
+          "has_zones": true,
+          "frames": 480,
+          "processed": 480,
+          "dropped": 0,
+          "n_decisions": 59,
+          "decisions_per_sec": 1.14,
+          "frame_latency_ms": {
+            "p50": 37.65,
+            "p95": 39.93,
+            "p99": 40.57
+          },
+          "head_latency_ms": {
+            "p50": 0.49,
+            "p95": 0.51,
+            "p99": 0.52
+          }
+        }
+      ]
+    }
+  ],
+  "device_state_after": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 1728000,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 1728000,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 1020000000,
+        "cur_hz": 1020000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": true,
+      "gpu": true,
+      "any": true
+    },
+    "load_average": [
+      1.73583984375,
+      1.25,
+      1.400390625
+    ],
+    "competing_processes": [],
+    "quiet": true
+  },
+  "clock_state_stable": true
+}

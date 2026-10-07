@@ -109,7 +109,11 @@ Corrected shares, replacing "decode 83,6 % / model 16,4 %":
 | decode (24 frames x 2,048 ms) | -- | 17,0 % |
 | unattributed (loop overhead, `cap.read()` outside the timed span, ring-buffer indexing) | -- | 7,4 % |
 
-The 1,05 decisions/s contract is still met, with **3,29x** margin -- not 6,6x. Single-threaded, so
+The 1,05 decisions/s contract is still met, with **3,29x** margin -- not 6,6x. **[Retired
+2026-10-03: the 1,05 contract was itself withdrawn later the same day (it comes from 25,1 fps,
+11 of 1.100 clips). Against the corpus-median 1,249 dec/s contract this margin is 2,76x. The
+3,29x above is kept as the record of what was reported on 10-01, not as a quotable figure.]**
+Single-threaded, so
 3,452 decisions/s is a LOWER bound and 76,1 % duty an UPPER bound.
 
 ### 4.2 Verdict on the probe: H-droop CONFIRMED, H-contend not needed
@@ -214,7 +218,7 @@ cannot reach because it was compiled without GStreamer -- is also unmeasured.
 ## 5. What this changes in the write-up
 
 - §5.6.9 draft: the Bang 5.5O stage-sum subsection is **false and must be deleted**, not softened.
-  Replace with 4.1's table and the 3,29x margin. The "83,6 % / 16,4 %" split is replaced by the
+  Replace with 4.1's table and the margin against the corpus-median 1,249 dec/s contract (2,76x; **not** the 3,29x figure, retired — see above). The "83,6 % / 16,4 %" split is replaced by the
   corrected-shares table.
 - Number sheet Block 3b-note 4: the duty budget must be marked **superseded by measurement**, with
   the composed rows added.

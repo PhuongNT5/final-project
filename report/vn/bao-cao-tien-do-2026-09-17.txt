@@ -1,0 +1,315 @@
+BÁO CÁO TIẾN ĐỘ — ĐỀ ÁN PHÁT HIỆN HÀNH VI KHÔNG AN TOÀN (UNSAFE-NET)
+Ngày lập: 17/09/2026
+Trạng thái: bản làm việc để tác giả kiểm tra, CHƯA phải văn bản luận văn.
+Quy ước: mọi con số dưới đây đều đã được đo hoặc kiểm chứng trên máy. Mục nào chưa có số
+được ghi rõ "ĐANG CHẠY" hoặc "CHƯA ĐO". Không có con số ước đoán nào được trình bày như kết quả.
+
+======================================================================
+1. MỤC TIÊU ĐÃ CHỐT (16/09/2026)
+======================================================================
+
+1.1. Bài toán chính là PHÂN LOẠI NHỊ PHÂN mức clip:
+     - An toàn  (Safe)   = 4 lớp gốc 4, 5, 6, 7
+     - Không an toàn (Unsafe) = 4 lớp gốc 0, 1, 2, 3
+     Tám lớp con chỉ dùng làm giám sát phụ trợ và bằng chứng chẩn đoán (recall từng lớp con),
+     KHÔNG phải mục tiêu chính.
+
+1.2. Dữ liệu: toàn bộ 691 clip của Unsafe-Net, giữ nguyên cách chia của bài báo gốc.
+     - Train: 566 clip (452 không an toàn / 114 an toàn) — lệch lớp khoảng 4:1
+     - Test : 125 clip (64 không an toàn / 61 an toàn) — gần cân bằng
+
+1.3. Các quyết định khác của tác giả:
+     - Thiết kế lại bộ mã hóa (encoder), không chỉ thay đầu ra.
+     - Chỉ viết luận văn tiếng Việt; bỏ bản tiếng Anh.
+     - Đầu ra dạng .txt; tác giả tự định dạng theo mẫu của trường.
+     - Slide và bộ hỏi–đáp: tạm hoãn, làm sau nếu cần.
+     - Hạn chót có thể lùi khoảng 1 tuần sau 19/9; riêng ngày đo Jetson 19/9 (buổi sáng) là cố định.
+     - Giữ lại các đóng góp cũ (kết quả 4 lớp, so sánh YOLO11–YOLO26, triển khai Jetson P1)
+       làm bối cảnh lịch sử, KHÔNG dùng làm dòng baseline trong bảng nhị phân.
+
+======================================================================
+2. CHUẨN BỊ DỮ LIỆU NHỊ PHÂN (ĐÃ XONG)
+======================================================================
+
+2.1. Sinh token thực thể cho đủ 691 clip (bộ phát hiện YOLO26, đặc trưng ngoại hình 64 chiều).
+     - Số clip từng lớp khớp đúng thư mục dữ liệu:
+       train {0:178, 1:97, 2:129, 3:48, 4:50, 5:23, 6:19, 7:22} = 566
+       test  {0:32, 1:11, 2:13, 3:8, 4:25, 5:15, 6:13, 7:8}   = 125
+     - Không clip nào có 0 phát hiện.
+     - Token của 516 clip không an toàn trùng khớp tuyệt đối với bộ token cũ (sai khác tối đa 0).
+
+2.2. Gán vùng (lối đi / vùng cấm) cho 175 clip an toàn:
+     - Gom cụm nền (k=8) trên cả 691 clip, gán view theo view chiếm đa số của clip không an toàn cùng cụm.
+     - 175/175 clip an toàn nhận view thật (0–7); không clip nào phải dùng view dự phòng.
+     - Tỉ lệ clip có đặc trưng hình học khác 0 gần nhau giữa hai lớp
+       (test: an toàn 86.9%, không an toàn 87.5%) => KHÔNG có lối tắt "hình học bằng 0 = an toàn".
+
+======================================================================
+3. PHÁT HIỆN QUAN TRỌNG CẦN ĐƯA VÀO LUẬN VĂN
+======================================================================
+
+3.1. Nhiễu do nền cảnh (hạn chế L1 — đã cam kết công bố trước)
+     Mức các cặp an toàn / không an toàn tương ứng rơi vào cùng cụm nền:
+       - Chở quá tải (3)       <-> chở an toàn (7)          : 1.00
+       - Vi phạm lối đi (0)    <-> lối đi an toàn (4)       : 0.73
+       - Can thiệp trái phép (1) <-> can thiệp có phép (5)  : 0.46
+       - Tủ điện mở (2)        <-> tủ điện đóng (6)         : 0.12  <= kết quả tiêu cực
+     Diễn giải: riêng cặp tủ điện, clip mở và clip đóng chủ yếu đến từ các cụm nền khác nhau,
+     nên mô hình có thể phân biệt bằng cảnh thay vì bằng hành vi.
+     Lưu ý công bằng: đặc trưng nền là ảnh trung vị theo thời gian của khung hình gốc, mà trạng thái
+     tủ mở/đóng tự nó là thay đổi tĩnh lớn trong khung hình, nên con số 0.12 lẫn giữa "khác camera"
+     và "đặc trưng bị trạng thái tủ làm nhiễu"; phương pháp này không tách bạch được hai nguyên nhân.
+     Hệ quả thiết kế thực nghiệm: baseline "chỉ nhìn nền" (S2) là đối chứng chính; giao thức
+     leave-camera-out (LCO) là bắt buộc cho mọi kết luận chính; báo cáo recall đủ 8 lớp con.
+
+3.2. Clip trùng lặp byte (đã kiểm chứng bằng md5 trên cả 691 clip)
+     - 691 clip, 658 mã md5 khác nhau, 32 nhóm trùng, 33 bản sao thừa.
+     - Phân loại theo nhãn nhị phân:
+         22 nhóm: cùng nhãn nhị phân, cùng tập                 — vô hại
+          6 nhóm: vắt ngang train/test, cùng nhãn nhị phân     — rò rỉ nhưng không mâu thuẫn nhãn
+          4 nhóm: NHÃN NHỊ PHÂN NGƯỢC NHAU                     — nghiêm trọng
+     - Bốn nhóm mâu thuẫn:
+         0_te23 ≡ 4_te9                 (cả hai trong test)
+         4_te4  ≡ 0_tr123 ≡ 1_tr55      (test an toàn trùng train không an toàn)
+         5_te13 ≡ 0_tr136
+         4_te7  ≡ 0_tr138
+     - Điểm có lợi cho cách đặt bài toán nhị phân: ở mức 8 lớp, cả 32/32 nhóm đều mâu thuẫn nhãn
+       (26 nhóm là cặp 0<->1). Ở mức nhị phân chỉ còn 4/32 — tức 28/32 (87.5%) mâu thuẫn tự biến mất
+       vì lớp 0 và lớp 1 đều là "không an toàn". Không được phóng đại: 4 nhóm mâu thuẫn thật vẫn còn.
+
+3.3. Trần độ chính xác (in trong mọi bảng kết quả nhị phân)
+       Chính sách                              | Số clip test | Trần cứng       | Trần thực tế
+       không khử trùng (raw)                   | 125          | 124/125 = 99.2% | 121/125 = 96.8%
+       khử mâu thuẫn ở train (CHÍNH THỨC)      | 125          | 124/125 = 99.2% | 124/125 = 99.2%
+       khử mâu thuẫn ở train + test (độ nhạy)  | 120          | 100%            | 100%
+     Chính sách chính thức (tác giả chốt 16/9, ghi sổ 17/9 trước mọi lần chạm test):
+     giữ nguyên 125 clip test; bỏ 4 clip train mâu thuẫn (0_tr123, 1_tr55, 0_tr136, 0_tr138);
+     báo cáo kèm số raw và dòng độ nhạy.
+     Cân bằng lớp sau khi áp dụng: train 448/114 (tỉ lệ 3.93, cải thiện nhẹ); test giữ 64/61.
+
+3.4. Sửa lỗi kiểm định thống kê (ảnh hưởng tới văn bản luận văn hiện có)
+     Lỗi: mã cũ dùng kiểm định z hai tỉ lệ (giả định hai mẫu ĐỘC LẬP) để so sánh hai mô hình
+     đánh giá trên CÙNG bộ clip. Lỗi này đã được ghi nhận trong bản rà soát thống kê ngày 13/9,
+     trước khi biết kết quả sửa sẽ nghiêng về phía nào.
+     Đã thay bằng McNemar chính xác (khi có dự đoán từng clip) hoặc chặn McNemar (khi chỉ có số tổng).
+       [SỬA 29/09/2026 23:05 — cột "chặn cũ" bị NỚI QUÁ RỘNG do lỗi lập trình: phép liệt kê chỉ
+        ràng buộc b+c <= n, KHÔNG ràng buộc số clip sai của mỗi bên, nên nhận cả những bảng 2x2
+        bất khả thi (ví dụ 8 clip paper sai, trong khi paper chỉ sai 2). Cận DƯỚI không bị ảnh
+        hưởng; chỉ cận TRÊN sai. Chi tiết + bản vá + test hồi quy:
+        plans/2026-09-19-thesis-recovery-architecture/reports/
+        finding-2026-09-29-mcnemar-bound-marginal-constraint.md]
+
+       So sánh (n = 64)                          | p cũ (z-test)   | Chặn cũ (NỚI, bỏ) | Chặn ĐÚNG
+       ensemble 54/64  vs paper no-bbox 57/64    | 0.435           | [0.250, 0.801]    | [0.250, 0.629]
+       ensemble 54/64  vs paper full-bbox 62/64  | 0.015 "có ý nghĩa" | [0.008, 0.382] | [0.008, 0.039]
+       hybrid 51/64    vs paper no-bbox 57/64    | 0.144           | [0.031, 0.532]    | [0.031, 0.263]
+       hybrid 51/64    vs paper full-bbox 62/64  | 0.003 "có ý nghĩa" | [0.001, 0.207] | [0.001, 0.007]
+       blind 54/64     vs paper no-bbox 57/64    | 0.435           | [0.250, 0.801]    | [0.250, 0.629]
+       gated 53/64     vs paper no-bbox 57/64    | 0.309           | [0.125, 0.708]    | [0.125, 0.481]
+       best-case 56/64 vs paper no-bbox 57/64    | 0.787           | —                 | [1.000, 1.000]
+       best-case 56/64 vs paper full-bbox 62/64  | 0.048 "gần ngưỡng" | —              | [0.031, 0.109]
+     Kết luận:
+       - [ĐÃ BỊ BÁC BỎ 29/09/2026] Câu cũ: "Không còn kết quả nào trước đây ghi 'có ý nghĩa thống
+         kê' đứng vững. Hai kết quả mất tính ý nghĩa đều là các kết luận rằng mô hình của ta KÉM HƠN
+         paper; việc sửa có lợi cho ta."
+       - Kết luận ĐÚNG: hai kết quả đó KHÔNG mất tính ý nghĩa. Với chặn đúng, ensemble 54/64 vs
+         full-bbox 62/64 cho p thuộc [0.008, 0.039] và hybrid 51/64 vs full-bbox 62/64 cho
+         p thuộc [0.001, 0.007] — CÓ Ý NGHĨA ở mức 0.05 với MỌI cách chia khả thi. Nghĩa là:
+         **khoảng cách so với pipeline full-bbox của paper là có ý nghĩa thống kê**, luận văn không
+         được mô tả nó là "không vững". Điều này CỦNG CỐ lập luận "thiếu dữ liệu bbox" (§4.6.2,
+         kết quả âm V10), chứ không làm yếu nó.
+       - Lỗi này nghiêng về phía có lợi cho tác giả, nên phải nêu rõ; phần so với no-bbox baseline
+         không đổi (vẫn không có ý nghĩa), tuyên bố ngang macro vẫn giữ nguyên.
+       - Chênh lệch 1 clip (56/64 vs 57/64) cho p = 1.000 ở mọi cách chia — không chỉ "không có ý
+         nghĩa" mà là hoàn toàn vô thông tin; z-test cũ (p = 0.787) đã nói nhẹ đi.
+       - Mốc 13/9 vẫn phải ghi rõ để thể hiện việc thay z-test bằng McNemar là sửa lỗi phương pháp,
+         không phải chọn kiểm định theo kết quả.
+       - Khi so với con số tổng mà paper công bố, KHÔNG THỂ làm kiểm định ghép cặp về nguyên tắc
+         (không có dự đoán từng clip của họ). Chặn McNemar là câu trả lời cuối cùng.
+       - Trong so sánh nội bộ ablation, trường hợp gần ý nghĩa nhất: ensemble vs cascade p = 0.0625
+         (không có ý nghĩa ở mức 0.05).
+       - Không có so sánh nào đổi chiều từ "không ý nghĩa" sang "có ý nghĩa".
+     Việc phải làm trong văn bản: xóa mọi tuyên bố "có ý nghĩa thống kê" so với baseline của paper;
+     mọi dòng so sánh phải ghi b, c (số cặp bất đồng), p chính xác hoặc khoảng chặn, và CI ghép cặp.
+
+3.5. Baseline theo luật của bộ phát hiện (chỉ trên TRAIN, chưa chạm test)
+     Luật: nếu có >= k khung (trong 16 khung) chứa thực thể không an toàn
+     (Person_Unauthorized / Panel_Opened / Forklift_Overload) với độ tin cậy >= tau => Unsafe.
+       - Điểm vận hành tốt nhất (tau 0.25–0.60, k = 2–3): accuracy 0.843, recall unsafe 0.998,
+         recall safe 0.228, F1 0.910.
+       - Baseline tầm thường "luôn đoán Unsafe": accuracy 0.799.
+     Diễn giải: bộ phát hiện đơn thuần chỉ hơn baseline tầm thường 4.4 điểm phần trăm. Nó báo
+     "có thực thể không an toàn" trên khoảng 75–80% clip thực sự an toàn. Muốn recall an toàn vượt 0.5
+     phải tăng ngưỡng rất cao, khi đó recall không an toàn sụt theo (0.52 ở cực trị).
+     => Mô hình quan hệ/thời gian có việc thực sự phải làm; đây là lập luận ủng hộ đóng góp của đề án.
+     (Phiên bản học máy của baseline này — S1 — đang chạy, xem mục 5.)
+
+======================================================================
+4. KIẾN TRÚC MỚI (THIẾT KẾ XONG, ĐANG CÀI ĐẶT)
+======================================================================
+
+4.1. Chẩn đoán kiến trúc cũ (encoder phẳng, 1 + 16x8 token):
+     - Bảng nhúng vị trí 16,512 tham số theo chỉ số (khung x khe), nhưng khe thứ j KHÔNG phải cùng
+       một vật thể qua các khung (không có bộ theo vết; thứ tự khe là thứ hạng độ tin cậy).
+     - Không tách "thực thể nào cùng xuất hiện trong một khung" với "cảnh diễn biến theo thời gian".
+     - 54.3% khe token là đệm (trung bình 3.66/8 hộp hợp lệ mỗi khung).
+
+4.2. Kiến trúc đề xuất E1 "F-STE" (tách tập hợp rồi tới thời gian), d = 64:
+     - Tầng trong khung: các thực thể là TẬP HỢP không thứ tự (không nhúng vị trí), 1 lớp Transformer,
+       gộp bằng trung bình có mặt nạ + max có mặt nạ => vectơ khung.
+     - Tầng thời gian: [CLS] + 16 vectơ khung + nhúng vị trí thời gian (bảng vị trí duy nhất,
+       1,088 tham số), 1 lớp Transformer, gộp CLS + trung bình + max.
+     - Theo tính toán thiết kế: 94,380 tham số so với 297,860 của kiến trúc cũ (0.32 lần);
+       số cặp attention 1,313 so với 16,641. (Số tham số thực tế sẽ được xác nhận khi cài đặt.)
+     - Đầu ra: nhị phân 2-logit + 8 lớp con phụ trợ + đầu ra từng khung.
+       Hàm mất mát: CE_nhị_phân(có trọng số lớp) + 0.3 * CE_lớp_con + 0.5 * CE_khung.
+     - Ngưỡng quyết định chọn trên validation/OOF theo ma trận chi phí 10:1, đóng băng trước khi chạm test.
+
+4.3. Các biến thể đối chứng bắt buộc:
+     - E0: kiến trúc cũ huấn luyện lại đúng công thức nhị phân (giả thuyết không).
+     - E2: attention phẳng nhưng chỉ có vị trí theo khung (tách tác dụng của "bỏ vị trí khe").
+     - E3: mô hình gộp ~18k tham số KHÔNG có attention. Nếu E3 ngang E1, kết luận trung thực là
+       attention không mang lại lợi ích ở quy mô 691 clip.
+
+4.4. Quy tắc quyết định (đã đăng ký trước ngày 17/9):
+     E1 chỉ được công nhận nếu, dưới LCO-691, chênh lệch E1 - E0 > 0 với CI không chứa 0
+     VÀ chênh lệch E1 - S2 (chỉ nhìn nền) có CI không chứa 0.
+     Nếu E1 hơn ở chia ngẫu nhiên nhưng không hơn ở LCO => phải viết là "mô hình khớp theo cảnh".
+     Nếu không thắng: kết quả báo cáo là "E1 đạt ngang E0 với ít tham số hơn 3.2 lần" (hiệu quả tham số).
+     Lưu ý: KHÔNG được trình bày encoder nhỏ hơn như lời giải cho độ trễ trên thiết bị biên — chi phí
+     1825 ms/quyết định chủ yếu nằm ở bộ phát hiện và trích đặc trưng ngoại hình, không ở encoder.
+
+======================================================================
+5. VIỆC ĐANG CHẠY (17/09) — CHƯA CÓ SỐ
+======================================================================
+
+5.1. Cài đặt E0/E1/E2/E3 + kiểm thử + chạy hiệu chỉnh thời gian + sàng lọc k-fold (3 seed).
+     Mục tiêu: đóng băng đồ thị kiến trúc ngày 18/9.                                  ĐANG CHẠY
+5.2. Hai cổng baseline — ĐÃ XONG (17/9, 0 lần chạm test; OOF gộp trên 691 clip).
+       Mô hình              | Giao thức | Balanced acc | Macro-F1 | Recall an toàn
+       S1 luật (LogReg)     | k-fold    | 60.3–60.5%   | 61.4–61.5% | 23.4%
+       S1 luật (LogReg)     | LCO       | 59.2–59.7%   | 60.0–60.6% | 27.4–28.6%
+       S2 chỉ nhìn nền      | k-fold    | 74.1–74.6%   | 70.0–70.4% | 74.9–75.4%
+       S2 chỉ nhìn nền      | LCO       | 52.7–52.8%   | 46.6%      | 62.3%  (ROC-AUC 0.53 ≈ ngẫu nhiên)
+     (khoảng = hai chính sách khử trùng none / drop_conflict)
+     Kết luận:
+       - S1 còn xa trần (96.8–99.2%) => không phải cấu trúc lại luận điểm.
+       - S2 đạt ~74% ở k-fold nhưng rơi về mức ngẫu nhiên khi giữ lại camera chưa thấy (LCO):
+         toàn bộ lợi thế của S2 là ghi nhớ cảnh nền. Đây là bằng chứng định lượng mạnh nhất cho
+         hạn chế L1 và cho việc LCO là giao thức bắt buộc.
+       - Cặp tủ điện: Panel_Closed là lớp con khó nhất (S1 recall 0–3.1%); S2 ở LCO:
+         Panel_Opened 55% -> 19%, Panel_Closed 81–84% -> 56%.
+       - Hệ quả: tiêu chí đăng ký trước "E1 hơn S2 dưới LCO" nay là ngưỡng yếu. KHÔNG sửa tiêu chí
+         gốc; đã ghi sổ (17/9, trước khi có số LCO của encoder) một tiêu chí PHỤ, ghi rõ là hậu kiểm:
+         so E1 với S1-LogReg dưới LCO (~59.5% balanced acc). Chỉ được viết "vượt thông tin
+         của riêng bộ phát hiện trên camera chưa thấy" nếu CI của hiệu số không chứa 0.
+       - Lưu ý: dưới LCO, ROC-AUC gộp OOF bị méo do mỗi fold một thang điểm (S1 AUC < 0.5 dù
+         balanced acc 59%) => dùng balanced acc / macro-F1 làm chỉ số chính cho LCO.
+5.3. Công cụ đo Jetson — ĐÃ XONG: 6/6 lỗi review đã sửa và được review lần 2 xác nhận; sửa thêm
+     lỗi chưa đặt kích thước đầu vào động (dễ làm sập đầu quan hệ 2 đầu vào trên thiết bị);
+     26 test đạt trên Mac (chưa kiểm chứng trên phần cứng thật).
+5.4. Encoder — ĐÃ XONG (18/9). Kết quả quyết định, 0 lần chạm test, OOF gộp 687 clip:
+       Kiến trúc            | Tham số | Balanced acc (LCO) | Top-1 (k-fold)
+       E3 (KHÔNG attention) | 18,044  | 69.6%              | 82.1% (thấp nhất)
+       E0 (Transformer cũ)  | 298,892 | 66.7%              | 84.9%
+       E2 (phẳng, vị trí khung) | 284,556 | 66.7%          | 85.2%
+       E1@96 (thiết kế mới) | 197,292 | 63.9%              | 84.4%
+       E1@64 (thiết kế mới) | 94,380  | 62.3%              | 84.7%
+     - E1 BỊ BÁC BỎ theo đúng quy tắc đăng ký trước: Δ(E1−E0) dưới LCO là ÂM hoàn toàn
+       (E1@64 −4.5pp [−7.3,−1.6]; E1@96 −2.8pp [−5.2,−0.4]).
+     - Không phải do biến thể tọa độ: E1@64 chạy lại với T1 (giống các kiến trúc khác) = 61.8%
+       so với 62.3% ở T3 => nguyên nhân là kiến trúc.
+     - E3 vs E0: HÒA (CI chứa 0). E3 hơn E1@64 +7.3pp [+3.6,+10.9].
+     - Cả E0 và E3 đều vượt hai cổng baseline dưới LCO với CI không chứa 0
+       (E3−S1 +9.9pp, E3−S2 +16.8pp, E0−S1 +7.0pp) => có tín hiệu chuyển được sang camera mới.
+     - ĐẢO THỨ HẠNG: ở chia ngẫu nhiên, mọi mô hình attention đều hơn E3; giữ lại camera thì
+       mô hình gộp nhỏ nhất lại đứng đầu. Đây là kết quả đáng viết: ở n=687 clip, attention
+       có vẻ đang KHỚP dữ liệu chứ không TỔNG QUÁT HÓA.
+     - Cảnh báo phải ghi trong luận văn: việc chọn kiến trúc dùng OOF gộp trên 691 clip, nên
+       điểm trên tập test mù 125 clip sau này KHÔNG độc lập hoàn toàn với lựa chọn này.
+     - Trọng số thật đã huấn luyện (chỉ dùng 566 clip train; 460 fit / 102 val):
+       E3 val_macro 89.15%, E0 val_macro 90.92%. Hai đồ thị ONNX đã xuất lại từ trọng số này,
+       khớp PyTorch (sai khác ≤ 2.6e-06, 100% cùng quyết định trên 125 clip — chỉ là kiểm tra
+       số học, không đọc nhãn).
+     - Quyết định của tác giả (18/9): ĐO CẢ HAI (E3 và E0) trên Jetson 19/9 rồi mới chốt.
+
+======================================================================
+6. CHUẨN BỊ ĐO JETSON 19/09 (BUỔI SÁNG)
+======================================================================
+
+6.1. Đã sửa 3 lỗi đo, mỗi lỗi có test hồi quy (17/17 test đạt):
+     - Bộ chạy TensorRT chỉ gắn 1 đầu vào => không đo được đầu quan hệ (cần 2 đầu vào tokens + mask).
+     - FPS tổng hợp đếm cả khung bị rớt => thổi phồng thông lượng (ví dụ test: đúng 15.2, mã cũ báo 20.0).
+     - Benchmark P3 bỏ sót NMS, trích crop, tính hình học và dùng trung bình số crop => đánh giá thấp
+       độ trễ; nay đo toàn đường quyết định, báo p50/p95/p99.
+6.2. Công cụ đo đầy đủ: độ trễ p50/p95/p99 theo từng tầng, thông lượng, bão hòa đa luồng (1/2/4/8),
+     năng lượng (J/suy luận, FPS/W), ngâm nhiệt 30 phút, bộ nhớ, kích thước mô hình, đối chiếu
+     FP16/INT8 với FP32, trạng thái nguồn/xung nhịp. Kết quả ghi JSON kèm commit git và thời điểm.
+     Chế độ --dry-run chạy được trên Mac; mọi phép đo cần phần cứng trả về "bỏ qua" chứ không bịa số.
+6.3. Runbook: deployment/JETSON-RUNBOOK-2026-09-19.md (kiểm tra trước, các bước theo thứ tự,
+     hướng dẫn quay video demo dự phòng — hiện CHƯA có video demo nào, xử lý sự cố,
+     bộ đo tối thiểu nếu buổi đo bị cắt ngắn).
+6.4. Buổi đo KHÔNG tiêu tốn lượt chạm test nào (đo trên tensor giả/dữ liệu train; đối chiếu
+     FP16/INT8 là so khớp đầu ra với FP32).
+6.5. Còn thiếu trước 19/9: engine TensorRT cho P3 phải build trên thiết bị; chưa có dữ liệu hiệu chỉnh
+     INT8 cho P3; đồ thị nhị phân chưa xuất ONNX (phụ thuộc đóng băng kiến trúc 18/9).
+6.6. Điểm yếu đã biết: P3 hiện ước tính 1.13–1.71 quyết định/giây trên Jetson so với yêu cầu 3.0
+     => KHÔNG đạt thời gian thực ở cấu hình hiện tại. Phải báo cáo trung thực.
+     [ĐÃ BỊ THAY THẾ 29/09/2026, CẬP NHẬT 22:40 cùng ngày] Con số 1.13–1.71 là phép ngoại suy từ
+     một phép đo trên Mac (1825 ms/quyết định) nhân hệ số chuyển đổi của P1. Đo trực tiếp trên
+     Jetson Orin Nano Super (TensorRT FP16, MAXN_SUPER), lặp 5 lần: P3 NẰM TRÊN RANH GIỚI của
+     ngưỡng 3.0 chứ không "đạt" — 3.02–3.04 quyết định/giây ở mức crop trung vị khi đã tính giải
+     mã khung hình bằng CPU (biên chỉ 0.7–1.3%), và 2.60–2.72 ở các mức crop p95–cap, tức KHÔNG
+     đạt. Con số 3.05–3.62 ghi lần đầu là của tiến trình KHÔNG giải mã khung hình — điều kiện
+     không tồn tại trong triển khai thực — nên không được trích. Hệ số chuyển đổi thực của bộ phát
+     hiện là 9.1x chứ không phải 3.11x. Kể từ ngày này, không được trích 1.13–1.71 như một kết quả
+     và cũng không được nói "P3 đạt hợp đồng nhịp"; xem
+     plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-09-29-jetson-decision-latency.md.
+     Ghi chú này giữ nguyên câu gốc vì đây là bản báo cáo đã nộp ngày 17/09, không viết lại hồi tố.
+
+======================================================================
+7. LỊCH TRÌNH
+======================================================================
+
+     17/9  Cổng S1/S2; cài đặt encoder; sàng lọc.
+     18/9  Đóng băng kiến trúc; xuất ONNX + kiểm tra khớp; chạy thử --dry-run toàn bộ trên Mac.
+     19/9  (sáng) Đo Jetson — không có lần thứ hai.
+     20–21/9 Chạy xác nhận (5 seed, k-fold 2 lần lặp, LCO, blind) + ablation.
+     ~22/9 Hai lần chạm test đã đăng ký (E0 nhị phân, mô hình thắng) — cần tác giả đồng ý từng lần.
+     Sau đó: đóng băng bảng số liệu => viết luận văn tiếng Việt (.txt) => rà soát nhất quán.
+     Kế hoạch chi tiết: plans/2026-09-16-binary-safe-unsafe-reframe/plan.md
+
+======================================================================
+8. VIỆC CẦN SỬA TRONG VĂN BẢN CŨ (report/, tiếng Anh — nguồn để viết lại)
+======================================================================
+
+     [TIẾN ĐỘ 29/09/2026 23:00 — đã xử lý 2/7 mục: abstract.md dòng 36 và "8 lớp ~78%".]
+
+     - abstract.md dòng 36: tuyên bố đã đo YOLO26 + TensorRT-INT8 trên Jetson — CHƯA từng đo. Xóa.
+       [ĐÃ SỬA 29/09/2026] Đổi thành TensorRT FP16 (INT8 chưa từng dựng cho P3, không có tập
+       hiệu chuẩn) và bổ sung kết quả thực đo: P3 nằm TRÊN ranh giới 3,0 dec/s.
+     - chapter-05: 56/64 xuất hiện ở dòng 36, 203–209, 377–392, 601, 661, 700 (phần lớn là kiểm tra khớp
+       ONNX/TensorRT). Checkpoint đó được CHỌN THEO TEST; mỗi chỗ phải ghi rõ điều kiện này (số blind: 53/64).
+     - chapter-05 dòng 614: còn dùng kiểm định z (z = −0.27, p = 0.78) cho 56/64 vs 57/64 — thay bằng chặn McNemar.
+     - chapter-01 dòng 105 và chapter-06 dòng 228: "8 lớp ~78%" KHÔNG có lần chạy nào làm nguồn. Xóa.
+       [ĐÃ XÓA 29/09/2026] Đã rà `sweep_results/` — không có artifact phân loại 8 lớp nào; §4.4
+       là bảng per-class 4 lớp, không chứa kết quả đó. Cả hai chỗ nay ghi rõ "không báo cáo độ
+       chính xác 8 lớp vì không có lần chạy nào" và đánh dấu con số cũ là đã rút.
+     - Mọi tuyên bố "có ý nghĩa thống kê" so với paper (mục 3.4). Xóa/thay.
+     - README.md còn một dòng p-value kiểm định z (56/64 vs 57/64). Sửa.
+     - Nhật ký test-touch: mọi kết quả trước 06/9 là tái dựng hồi cứu, KHÔNG phải đăng ký trước;
+       luận văn phải nói rõ điều này.
+
+======================================================================
+9. CÂU HỎI CHƯA GIẢI QUYẾT
+======================================================================
+
+     1. Trong 4 nhóm clip mâu thuẫn, nhãn nào đúng? Cần xem lại hướng dẫn gán nhãn / xem video;
+        không suy ra được từ dữ liệu.
+     2. Vì sao bộ phát hiện báo thực thể không an toàn trên ~75–80% clip an toàn? (Nhầm lớp giữa các
+        cặp đối ứng như Panel_Opened/Panel_Closed?) Cần phân tích ma trận nhầm lẫn của bộ phát hiện.
+     3. Cụm nền số 1 gán view theo đa số yếu (~40%) — ảnh hưởng tới đặc trưng vùng của một phần clip an toàn.
+     4. Có tách được nguyên nhân "khác camera" với "trạng thái tủ điện" cho cặp tủ điện không?
+        (Đề xuất tùy chọn: gom cụm bằng đặc trưng chuyển động hoặc che vùng tủ — ngoài đường găng.)
+     5. Nếu cổng S1 đạt gần trần, luận điểm độ chính xác phải cấu trúc lại (giao thức đánh giá + LCO
+        + đặc tả thiết bị biên) — cần tác giả quyết định trước khi tiêu tốn thêm giờ CPU.

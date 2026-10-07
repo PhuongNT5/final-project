@@ -821,29 +821,242 @@ Phép đo ngày 29/09/2026 không ghi được trạng thái xung nhịp của t
 - **Ghim xung nhịp** — `jetson_clocks` đặt CPU 1.728 MHz và GPU 1020 MHz cố định
   (min = max). Đây là một hành động vận hành có thể khai báo, không phải trạng thái mặc định.
 
-**Bảng 5.5J — Nhịp quyết định P3 theo tải crop, hai điều kiện xung nhịp**
-(FP16, MAXN_SUPER, n = 100 lần/giai đoạn, trung vị của 3 lần chạy, đã tính giải mã khung)
+**Bảng 5.5J — Tổng giai đoạn mỗi quyết định P3 theo tải crop, hai điều kiện xung nhịp**
+(FP16, MAXN_SUPER, n = 100 lần/giai đoạn, trung vị của 3 lần chạy, đã tính giải mã khung.
+**Đây là tổng của các giai đoạn được đo rời, không phải một vòng lặp tổ hợp.** Các cột qđ/s
+**không** phải chặn trên, cũng không phải chặn dưới, của nhịp thực — xem mục ngay dưới bảng — nên
+chúng được in kèm hệ số sai đã đo so với nhịp tổ hợp ở mục 5.6.8.1, và các cột "Biên" đã bị rút
+lại hoàn toàn)
 
-| Tải crop | DVFS: ms | DVFS: qđ/s | Biên | Ghim nhịp: ms | Ghim nhịp: qđ/s | Biên |
-|---|---:|---:|---:|---:|---:|---:|
-| p50 = 54 crop | 365,88 | 2,733 | −8,9 % | **310,00** | **3,226** | **+7,5 %** |
-| p95 = 106 crop | 403,11 | 2,481 | −17,3 % | 346,87 | 2,883 | −3,9 % |
-| p99 = 119 crop | 413,03 | 2,421 | −19,3 % | 355,93 | 2,810 | −6,3 % |
-| trần = 128 crop | 420,25 | 2,380 | −20,7 % | 362,32 | 2,760 | −8,0 % |
+| Tải crop | DVFS: ms | DVFS: qđ/s | Ghim nhịp: ms | Ghim nhịp: qđ/s | Biên |
+|---|---:|---:|---:|---:|---|
+| p50 = 54 crop | 365,88 | 2,733 | **310,00** | **3,226** | rút lại — đo tổ hợp: 1,441 và 3,479 qđ/s |
+| p95 = 106 crop | 403,11 | 2,481 | 346,87 | 2,883 | rút lại — không có phân vị tổ hợp |
+| p99 = 119 crop | 413,03 | 2,421 | 355,93 | 2,810 | rút lại — không có phân vị tổ hợp |
+| trần = 128 crop | 420,25 | 2,380 | 362,32 | 2,760 | rút lại — không có phân vị tổ hợp |
 
 Nguồn: `decision-latency-fp16-20261001T{220144,220543,220925}.json` (DVFS) và
 `decision-latency-fp16-20261001T{222854,223216,223538}.json` (ghim nhịp).
 
-**Phát biểu đúng là một phát biểu hai điều kiện.** Dưới DVFS mặc định, P3 **không đạt**
-hợp đồng 3,0 quyết định/giây ở mọi tải crop, kể cả trung vị. Khi ghim xung nhịp, P3 đạt
-hợp đồng **chỉ ở tải crop trung vị** (3,226 qđ/s, biên +7,5 %) và vẫn trượt ở p95, p99 và
-trần. Luận văn này **không tuyên bố P3 là hệ thống thời gian thực**; nó tuyên bố một điều
-hẹp hơn và kiểm chứng được: nhịp 3 quyết định/giây chỉ đạt được ở tải trung vị và chỉ khi
-người vận hành ghim xung nhịp.
+**Toàn bộ các cột nhịp trong Bảng 5.5J đã được thay thế bằng một phép đo tổ hợp** (mục
+5.6.8.1). Bảng 5.5J được giữ lại vì nó vẫn là cơ sở duy nhất cho phân rã theo giai đoạn ở
+Bảng 5.5K, và vì chính sai số của nó là một kết quả phương pháp luận đáng ghi. Các cột "Biên" và
+nhãn `meets_3_per_sec_cadence` trong artifact **đã được rút lại ngày 03/10/2026**: một tổng các
+giai đoạn đo rời không thể phán quyết một hợp đồng nhịp.
 
-Việc ghim xung nhịp còn cải thiện **tính lặp lại** của phép đo: độ phân tán giữa 3 lần chạy
-giảm từ 2,42 % (DVFS) xuống 0,46 % (ghim nhịp). Phần lớn nhiễu run-to-run trong điều kiện
-DVFS là do nhịp độ tăng/giảm tần số của bộ điều khiển, chứ không phải do pipeline.
+Luận văn này **không tuyên bố P3 là hệ thống thời gian thực**; nó tuyên bố một điều hẹp hơn và
+kiểm chứng được: **nhịp của P3 do trạng thái xung nhịp của thiết bị và do chính đoạn video quyết
+định**. Phép đo tổ hợp ở mục 5.6.8.1 định lượng cả hai.
+
+Việc ghim xung nhịp còn cải thiện **tính lặp lại** của phép đo, và mức độ cải thiện phụ thuộc
+vào khoảng thời gian quan sát. Giữa **3 lần chạy liên tiếp trong cùng một phiên**, độ phân tán
+giảm từ 2,42 % (DVFS) xuống 0,46 % (ghim nhịp). Nhưng **giữa các phiên** thì khoảng cách rộng hơn
+nhiều: qua 11 lần chạy trong hai ngày, nhánh ghim nhịp vẫn giữ 0,49 % còn nhánh DVFS phân tán
+**20,3 %** (xem mục ngay dưới). Nghĩa là con số 2,42 % **không** đo được tính lặp lại của DVFS —
+nó chỉ đo độ ổn định của một trạng thái điều khiển tần số cụ thể trong vài phút. Phần lớn nhiễu
+run-to-run trong điều kiện DVFS là do nhịp độ tăng/giảm tần số của bộ điều khiển, chứ không phải
+do pipeline.
+
+#### Tổng giai đoạn không phải một nhịp — và điều đó áp dụng cho chính Bảng 5.5J
+
+Mục 5.6.9 chứng minh, trên nhánh B1, rằng một tổng các phép đo giai đoạn rời hiểu sai nhịp thực
+từ 2,0 đến 4,0 lần. Phát hiện đó áp dụng cho chính Bảng 5.5J. Hàm sinh ra các số này
+(`deployment/scripts/jetson-measure-latency.py:211`) tính
+
+```
+16 × det_p50 + post_p50 + crop_p50 + app_p50 + head_p50
+```
+
+trong đó **mỗi số hạng được đo khi chỉ giai đoạn đó chạy**, liên tiếp, sau khởi động, trên tensor
+tổng hợp cố định. Bản thân tệp artifact ghi lại công thức này trong trường `formula` của nó.
+
+Sáu chi phí bị bỏ ra ngoài, **ba trong số đó là trọn một giai đoạn**:
+
+| # | chi phí bị bỏ | bằng chứng |
+|---|---|---|
+| 1 | **Tiền xử lý đầu vào bộ phát hiện** — 16 khung → 800×800: resize, chuẩn hoá, HWC→CHW, dựng batch | tìm `resize`/`letterbox`/`blobFromImage` trong tệp: **không một lần xuất hiện nào**. Bộ phát hiện được nạp `rng.standard_normal(shape)`, một tensor đã đúng khuôn dạng engine |
+| 2 | **Tiền xử lý đầu vào bộ biểu diễn** — 54 crop uint8 HWC → batch float32 NCHW chuẩn hoá | `extract_crops()` trả về danh sách uint8 HWC; engine biểu diễn lại được nạp một tensor tổng hợp. Phép chuyển giữa hai thứ đó không bao giờ được đo |
+| 3 | **Dựng token quan hệ 74 chiều** | đầu vào head là tensor tổng hợp |
+| 4 | Chi phí vòng lặp — bộ đệm vòng, `cap.read()` ngoài khoảng đo | không tồn tại vòng lặp nào để mang nó |
+| 5 | **Tranh chấp tài nguyên** giữa các giai đoạn chạy đồng thời | mỗi giai đoạn được đo khi các giai đoạn khác rảnh |
+| 6 | Phân vị tổ hợp — `tổng các p50 ≠ p50 của tổng`; **không tồn tại p95/p99 tổ hợp** | công thức cộng các p50 |
+
+Chi phí 1, 4 và 5 đúng là ba lớp chi phí mà mục 5.6.9 nêu tên là **không thể thấy được bằng một
+tổng các phép đo rời**: tiền xử lý (vắng mặt, chứ không phải bị đo thiếu), trạng thái (chạy liên
+tiếp so với có chu kỳ nghỉ), và tranh chấp trên bus nhớ dùng chung của một SoC tích hợp.
+
+**Phép tính không đủ để kết luận — và lần đầu, nó đã dẫn tới kết luận sai.** Hợp đồng 3,0 quyết
+định/giây tương ứng ngân sách **333,33 ms**; tổng giai đoạn khi ghim nhịp là 310,00 ms, tức phần
+dư 23,33 ms. Lập luận ban đầu là: mọi chi phí bị bỏ đều cùng dấu, nên 3,226 qđ/s là một *chặn
+trên*, và chỉ riêng chi phí 1 — đo được 50,867 ms ở nhánh B1 cho 16 khung về đích 224² — đã bằng
+2,18 lần phần dư. **Lập luận đó sai, vì nó bỏ qua một sai số thứ bảy, lần này ngược dấu.**
+
+Ngay dòng kế tiếp của cùng tệp (`jetson-measure-latency.py:105-106`) định nghĩa:
+
+```python
+DECISION_T_FRAMES, DECISION_IMGSZ, DECISION_CROP = 16, 800, 224
+DECISION_EMIT_EVERY = 8   # cadence contract: one decision per 8 NEW frames (24 fps -> 3.0 dec/s)
+```
+
+Công thức nhân với `DECISION_T_FRAMES` = 16, tức **trọn một cửa sổ**. Nhưng hợp đồng được định
+nghĩa trên `DECISION_EMIT_EVERY` = 8, tức **bước trượt** — hằng số được khai báo ngay dòng dưới và
+**không bao giờ được dùng** trong tổng. Pipeline thực đệm công việc theo từng khung
+(`s.buf.append((rows, mask))`), nên mỗi khung chỉ chạy bộ phát hiện, hậu xử lý, trích crop và bộ
+biểu diễn **đúng một lần**, rồi quyết định kế tiếp dùng lại kết quả đó. Một quyết định mới chỉ
+phải trả cho **8 khung mới**, không phải 16.
+
+Năm nguồn độc lập xác nhận bước trượt bằng 8: hằng số ở L106; `jetson-p3-multi-stream.py:48`;
+`stream-pipeline-utils.py:27`; điều kiện phát quyết định `s.processed % EMIT_EVERY == 0`; và chính
+số hạng giải mã trong công thức, vốn đã tính đúng 8 khung. Bản thân hợp đồng 3,0 qđ/s là 24 ÷ 8.
+
+Hệ quả: **mọi số hạng theo khung bị tính hai lần.** Tái tổ hợp đúng bước trượt trên cùng các số
+đầu vào cho 174,24 ms = 5,739 qđ/s khi ghim nhịp, nghĩa là 310,00 ms **cao hơn 1,78 lần trên trục
+này**, trong khi sáu chi phí bị bỏ lại đẩy nó xuống. **Tổng giai đoạn không phải một chặn trên
+theo bất kỳ chiều nào**, và kết luận "P3 trượt hợp đồng ở cả hai điều kiện xung nhịp" **không**
+được thiết lập bằng phép tính. Nó phải được đo. Mục 5.6.8.1 đo nó — và cho thấy kết luận ấy sai ở
+nhánh ghim nhịp.
+
+Để đối chiếu quy mô: ở nhánh B1, nơi **cả hai** cấu trúc đều được đo trên cùng thiết bị này, tổng
+giai đoạn trung thực là 72,948 ms so với nhịp tổ hợp đo được 289,672 ms — **3,97 lần**; so với
+167,291 ms sau khi sửa lỗi tiền xử lý — **2,29 lần**. Khoảng này **không** được dùng làm dự báo
+cho P3 (khác đồ thị, khác cấu phần giai đoạn), nhưng nó cho thấy quy mô khả tín của khoảng cách,
+và mức sàn "2,18 lần phần dư" nói trên nằm ở đáy khoảng đó.
+
+**Điều gì còn đứng vững.** Hai nhánh bỏ *cùng* các giai đoạn dưới *cùng* một quy trình, nên phép
+so sánh ghim-nhịp/DVFS vẫn là một đối chứng A/B hợp lệ **về dấu** — nhưng không như một giá trị
+điểm. Qua 11 lần chạy tổng-giai-đoạn trong hai ngày: nhánh ghim nhịp lặp lại trong **0,49 %**
+(309,08-311,78 ms), nhánh DVFS phân tán **20,3 %** (365,88-440,01 ms), và **hai tập không giao
+nhau** (max ghim nhịp 311,78 < min DVFS 365,88). Vậy dấu của A/B là vững (+15 % đến +29 %) còn
+"+18,0 %" thì không: cặp đo có cổng nhiệt ngày 03/10 cho +26,4 %. Một cổng nhiệt **không** sửa
+được điều này — trung vị DVFS có cổng (421,52 ms) và không cổng (422,82 ms) chỉ cách nhau
+**0,31 %** — vì cổng cân bằng trạng thái đầu vào nhưng không kiểm soát được nhịp tăng/giảm tần số
+của bộ điều khiển trong lúc chạy. **DVFS không phải một điều kiện đo lặp lại được trên thiết bị
+này**; đó là một kết quả phương pháp luận, và nó biện minh cho yêu cầu ghi lại trạng thái xung
+nhịp trong mọi artifact. Kết quả về trạng thái xung nhịp — *nhịp của P3 do trạng thái xung nhịp
+quyết định* — không bị ảnh hưởng, và phép đo tổ hợp ở mục 5.6.8.1 làm nó **mạnh hơn**: ghim nhịp
+đáng **2,41 lần** trên nhịp tổ hợp, so với chỉ 1,26 lần trên tổng giai đoạn. Các con số theo giai đoạn ở Bảng 5.5K cũng vẫn đúng **với tư
+cách số liệu giai đoạn**, vì chúng vốn được báo cáo như vậy. Điều **không** còn đứng vững là mọi
+kết luận tuyệt đối về hợp đồng: biên +7,5 %, nhãn `meets_3_per_sec_cadence: true` trong artifact,
+và cách gọi 310,00 ms là một *khoảng thời gian giữa hai quyết định*.
+
+Điều này đảo ngược đúng nguyên tắc đã áp dụng cho P-PRE4. Ở đó, chỉ con số **tuyệt đối** được
+phép trích. Ở đây, chỉ con số **tương đối** được phép trích.
+
+**Vì sao việc này củng cố luận văn.** Đóng góp phương pháp luận cốt lõi của luận văn *chính là*
+phát biểu "tổng giai đoạn không phải một nhịp". Cho đến lần duyệt này, phát biểu đó được chứng
+minh trên một nhánh (B1) trong khi lại bị vi phạm ở một nhánh khác (P3). Việc hiệu chỉnh P3 biến
+mâu thuẫn đó thành **một trường hợp thứ hai, độc lập, của cùng phát hiện, trên một đồ thị khác**
+— và là trường hợp mạnh hơn cả B1, bởi ở đây sai số của tổng giai đoạn **đổi dấu theo trạng thái
+xung nhịp**: cao hơn thực tế 7,98 % khi ghim nhịp, thấp hơn 39,3 % dưới DVFS. Không một hệ số hiệu
+chỉnh nào có thể cứu được một cấu trúc như vậy; nó phải bị thay thế, không phải điều chỉnh.
+
+Nó cũng giải toả căng thẳng giữa nhánh này và quyết định D2 (hệ thống được triển khai là P1, và
+không còn buộc P3 phải đạt thời gian thực) **mà không cần P3 phải trượt hoàn toàn**: hợp đồng của
+P3 phụ thuộc vào đoạn video và chỉ đứng được khi xung nhịp bị ghim, nên một P3 được triển khai sẽ
+mang theo một hợp đồng đúng với một số góc camera và sai với những góc khác, và chỉ trong một
+trạng thái xung nhịp phải được áp đặt bằng tay sau mỗi lần khởi động. Đó là bảo đảm yếu hơn mức
+một hệ thống triển khai nên dựa vào — và là lý do trung thực, **đã đo**, để triển khai P1.
+
+Nguồn: `plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-03-p3-decision-latency-is-a-stage-sum.md`.
+
+#### 5.6.8.1 Phép đo nhịp tổ hợp của P3
+
+Thay vì hiệu chỉnh tổng giai đoạn, nhịp của P3 được **đo** bằng
+`deployment/scripts/jetson-p3-multi-stream.py`. Vòng lặp là tổ hợp và không bỏ sót giai đoạn nào:
+giải mã tệp → tiền xử lý letterbox 800×800 → bộ phát hiện → chọn hộp và hình học vùng → trích
+crop ngữ cảnh 224² → bộ biểu diễn ngoại hình → dựng token quan hệ 74 chiều → head nhị phân E3,
+toàn bộ nằm trong **một** đồng hồ treo tường. Sáu chi phí bị bỏ ở trên đều được đóng lại.
+
+Cả hai nhánh dùng cùng một cổng nhiệt (vào khi tj ≤ 56 °C và load ≤ 0,60, rồi để nguội 180 s),
+N = 1 luồng, 480 khung, ba clip kiểm tra, FP16, MAXN_SUPER. Nhịp phát quyết định được xác nhận
+đúng bước trượt 8 trên **khung đã xử lý**: `n_decisions = ⌊(processed − 16)/8⌋ + 1` khớp chính xác
+ở cả 12 bản ghi luồng. **Chỉ đo thời gian — không đọc nhãn, nên không tiêu một lượt chạm nào vào
+tập kiểm tra đã tiền đăng ký.**
+
+**Nhịp quyết định tổ hợp của P3, hai điều kiện xung nhịp** (`--fps 1000`, N = 1, trung vị 3 clip;
+hợp đồng 3,0 quyết định/giây)
+
+| Clip (góc camera) | Ghim nhịp: qđ/s | Ghim nhịp: ms/khung | DVFS: qđ/s | DVFS: ms/khung |
+|---|---:|---:|---:|---:|
+| `1_te10` (góc 3) | **3,479** ĐẠT | 35,32 | 1,441 TRƯỢT | 85,32 |
+| `3_te1` (góc 7) | **3,965** ĐẠT | 31,01 | 1,511 TRƯỢT | 81,37 |
+| `4_te10` (góc 1) | 2,493 TRƯỢT | 49,31 | 1,141 TRƯỢT | 107,76 |
+| **trung vị** | **3,479** | 35,32 | **1,441** | 85,32 |
+| **phán quyết** | **ĐẠT 2 / 3 clip** | — | **TRƯỢT 3 / 3 clip** | — |
+
+Nguồn: `p3-composed-cadence-fp16-{pinned,dvfs}-free-{1_te10,3_te1,4_te10}-20261003T17*.json`.
+
+Ba kết luận.
+
+**Thứ nhất, phán quyết phụ thuộc vào đoạn video.** Một P3 có ghim xung nhịp đạt hợp đồng ở hai
+trong ba clip và trượt ở clip thứ ba (`4_te10`, góc 1 — clip chậm nhất ở cả hai nhánh) với hệ số
+1,20 lần. Không phát biểu nào trong hai phát biểu "P3 đạt" và "P3 trượt ở cả hai điều kiện" là
+đúng. Phát biểu thứ hai chính là kết luận mà phần trên đã cố thiết lập bằng phép tính và đã rút
+lại — **và nó sai ở nhánh ghim nhịp**. Phép đo là cần thiết, không chỉ là chặt chẽ hơn.
+
+**Thứ hai, hai nhánh rời nhau hoàn toàn**: max DVFS 1,511 < min ghim nhịp 2,493. Ghim xung nhịp
+đáng **+141,4 % (2,41 lần)** trên nhịp tổ hợp, trong khi chỉ đáng +26,4 % (1,26 lần) trên tổng
+giai đoạn. Cơ chế được chính các artifact ghi lại: dưới `schedutil`, **cụm CPU thứ hai (`policy4`,
+lõi 4-5) nằm ở 115 200 kHz — mức sàn tuyệt đối — trong mọi lần lấy mẫu, trước và sau mọi lần
+chạy**, còn `policy0` thì trôi trong khoảng 192 000-1 728 000. Khi ghim nhịp, cả hai cụm giữ
+`cur = min = 1 728 000`. Vòng lặp tổ hợp bị chặn bởi CPU ở phần tiền xử lý — letterbox 800×800,
+chuẩn hoá, HWC→CHW mỗi khung, cộng 54 crop 224² — tức **đúng phần việc mà tổng giai đoạn bỏ ra
+ngoài**. Việc bỏ sót ấy không chỉ làm mất chi phí: nó làm mất **chính thành phần nhạy nhất với
+trạng thái xung nhịp**, nên tổng giai đoạn vừa hiểu sai nhịp vừa hiểu nhẹ tác động của xung nhịp
+gần 2 lần.
+
+**Thứ ba, sai số của tổng giai đoạn không cùng một dấu.**
+
+| Nhánh | tổng giai đoạn đã công bố | tái tổ hợp đúng bước trượt | **tổ hợp đo được** | công bố so với đo |
+|---|---:|---:|---:|---:|
+| ghim nhịp | 310,37 ms = 3,222 qđ/s | 174,24 ms = 5,739 | **287,44 ms = 3,479** | **cao hơn 7,98 %** |
+| DVFS | 421,52 ms = 2,372 qđ/s | 230,82 ms = 4,332 | **694,00 ms = 1,441** | **thấp hơn 39,3 %** |
+
+Ở nhánh ghim nhịp, phần tính hai lần (+136,13 ms) gần như triệt tiêu các chi phí bị bỏ
+(−113,20 ms), khiến con số công bố tình cờ sai chưa tới 8 %. Ở nhánh DVFS, các chi phí bị bỏ
+chiếm ưu thế và con số công bố lạc quan 272,48 ms. Sau khi loại phần tính hai lần, phép tái tổ hợp
+vẫn lạc quan ở **cả hai** nhánh — 1,65 lần (ghim nhịp) và 3,01 lần (DVFS) — đúng như lập luận về
+chi phí bị bỏ đã dự đoán. Phần việc bị bỏ: **18,89 ms/khung khi ghim nhịp (2,11 lần) và
+62,91 ms/khung dưới DVFS (3,64 lần)**.
+
+#### Ba quy tắc đọc artifact nhịp tổ hợp
+
+Việc kiểm tra chính bộ đo này trên đầu ra của nó phát hiện ba cách đọc sai. Một là lỗi thật, hai
+là bẫy trích dẫn trong mã vốn đúng. Cả ba được ghi lại **trước khi** chúng kịp vào bất kỳ con số
+nào của luận văn.
+
+1. **`--fps F` là một bộ điều nhịp cộng thêm, không phải một hạn kỳ.**
+   `stream-pipeline-utils.py:84` ngủ `period` **sau** toàn bộ phần việc mỗi khung, nên khoảng giữa
+   hai khung là `công việc + 1/F` và tốc độ đạt được là `1/(1/F + công việc) < F`. Ở `--fps 24`,
+   trần chỉ bằng 3,000 qđ/s nếu công việc **bằng 0**; với 20,27 ms/khung của nhánh ghim nhịp, trần
+   là ≈ 2,0 qđ/s. Chính dữ liệu tự chứng minh: thông lượng tổng khi ghim nhịp là **30,17 fps ở
+   N = 2 nhưng chỉ 17,89 fps ở N = 1** — con số N = 1 bị chặn bởi bộ điều nhịp, không bởi pipeline.
+   **Vì vậy các lần chạy `--fps 24` không phải một phán quyết hợp đồng**; phép so sánh hợp lệ là
+   thông lượng tổ hợp tự do ở bảng trên, đối chiếu với 24 fps đã xử lý.
+2. **`drop_rate = 0` không phải bằng chứng chạy đúng thời gian thực khi N ≤ 2.** Bộ đọc là một
+   coroutine nằm trên cùng event loop với bộ tiêu thụ, và `preprocess_fn` chạy trực tiếp trên loop
+   đó, nên bộ đọc bị **ép nhịp vào trạng thái khoá bước** thay vì bỏ khung. Dấu hiệu chính xác ở
+   cả năm cấu hình N ≤ 2: **`read_fps` bằng `aggregate_fps` đến từng phần trăm**, kể cả ở
+   `--fps 1000`, nơi bộ đọc yêu cầu 1000 fps và chỉ cấp 11,72. Chỉ ở N = 3 hai đại lượng mới tách
+   nhau (18,93 đọc so với 13,39 đã xử lý, 29,24 % bị bỏ). Hãy trích `read_fps` đối chiếu
+   `target_fps`, tuyệt đối không trích `drop_rate`.
+3. **`clock_state_stable` nghĩa là *chế độ* ghim nhịp và mức tranh chấp không đổi, chứ không phải
+   tần số giữ nguyên.** Trường này so sánh `clocks_pinned` và `quiet` trước/sau
+   (`stream-pipeline-utils.py:140`), nên nó bằng `true` ở mọi lần chạy DVFS trong khi
+   `policy0 cur_khz` đi từ 1 574 400 xuống 192 000 **trong cùng một lần chạy**. Mã làm đúng những
+   gì tài liệu của nó nói; *tên trường* mới là cái bẫy. Hãy trích `cur_khz` quan sát được, như
+   runbook vốn đã yêu cầu.
+
+#### Nhiều luồng
+
+Thông lượng tổ hợp tổng gần như **không đổi theo N** — khoảng 28-30 fps khi ghim nhịp, 13-15 fps
+dưới DVFS — nên việc tăng số luồng chỉ *phân phối lại* thông lượng chứ không cộng thêm. Nhịp của
+luồng chậm nhất giảm tương ứng (ghim nhịp: 2,199 / 1,854 / 1,140 qđ/s ở N = 1 / 2 / 3), và **không
+cấu hình N ≥ 2 nào đạt 3,0 qđ/s trên mỗi luồng**. Khung bị bỏ chỉ xuất hiện ở DVFS với N = 3
+(29,24 %); ghim nhịp ở N = 3 không bỏ khung nào. Theo quy tắc 1 ở trên, hãy đọc các số này như
+**trần của thiết bị**, không như phán quyết hợp đồng.
+
+Nguồn: `p3-composed-cadence-fp16-{pinned,dvfs}-contract24-20261003T17*.json`.
 
 **Bảng 5.5K — Phân bổ 310,00 ms mỗi quyết định (ghim nhịp, tải crop p50)**
 
@@ -905,6 +1118,77 @@ DVFS (14,246 → 21,575 ms) nhưng chỉ 1,03 khi ghim nhịp (11,724 → 12,030
 p99 vọt lên 1,915 ms dưới DVFS so với 0,208 ms khi ghim nhịp. Với một hợp đồng thời gian
 thực, đuôi phân phối mới là đại lượng ràng buộc, nên đây là một lý do độc lập để khai báo
 trạng thái xung nhịp trong mọi số liệu độ trễ được công bố.
+
+#### Biên khi ghim nhịp có sống qua 30 phút không? Có — và nó mua tính tiên đoán hơn là tốc độ
+
+Lợi ích của việc ghim xung nhịp ở Bảng 5.5J được đo trên các lần chạy ngắn, nên nó chưa trả lời
+được câu hỏi mà một hệ thống an toàn thực sự đặt ra: lợi ích đó có còn sau nửa giờ chạy liên tục,
+khi nhiệt độ đã bão hoà? Cần nói rõ phạm vi của phép đo này: nó ngâm **riêng giai đoạn bộ phát
+hiện**, nên nó chứng minh độ bền nhiệt của *giai đoạn đó*, chứ không chứng minh một biên ở mức
+quyết định — biên đó đã được rút lại ở mục trên, và một tổng giai đoạn bền vững vẫn chỉ là một
+tổng giai đoạn.
+Để trả lời, giai đoạn bộ phát hiện P3 được chạy ngâm **30 phút** trong hai điều kiện xung nhịp, cùng
+một giao thức (30 cửa sổ 60 s, `tegrastats` lấy mẫu 1 Hz). Số suy luận được tính bằng cách **cộng
+các cửa sổ**, không phải nhân một tốc độ với thời gian.
+
+| đại lượng | DVFS mặc định (01/10) | **ghim nhịp (03/10)** | thay đổi |
+|---|---:|---:|---|
+| thời lượng / số cửa sổ | 30 phút / 30 | 30 phút / 30 | giao thức trùng khớp |
+| `clocks_pinned.any` | false | **true** | trạng thái được ghi vào tạo tác |
+| `possible_throttling` | false | **false** | không điều kiện nào bị giảm nhịp nhiệt |
+| số suy luận (cộng cửa sổ) | 140.001 | **152.721** | **+9,09 %** |
+| n mỗi cửa sổ | 4.651–4.689 | 5.072–5.105 | |
+| trung vị p50 (ms) | 12,796 | **11,684** | **−8,69 %** |
+| khoảng p50 (ms) | 12,734–12,866 | 11,670–11,706 | |
+| **độ phân tán p50 (%)** | 1,03 | **0,31** | **chặt hơn 3,3×** |
+| trôi so với cửa sổ nhanh nhất (%) | 0,7 | **0,13** | |
+| trôi so với cửa sổ đầu (%) | 0,6 | **−0,06** | |
+| tj tối đa (°C) | 69,9 | **70,9** | +1,0 K |
+| công suất trung bình (W) | 16,98 | **17,93** | +5,55 % |
+| công suất đỉnh (W) | 18,02 | **19,07** | +5,87 % |
+| J/suy luận, phần biên | 0,1573 | **0,1547** | **−1,69 %** |
+| fps/W, phần biên | 6,357 | **6,466** | **+1,71 %** |
+
+Nguồn: `thermal-soak-p3-detector-fp16-20261001T232524.json` (DVFS) và
+`thermal-soak-p3-detector-fp16-20261003T163622.json` (ghim nhịp); năng lượng biên quy chiếu về mức
+rỗi đã bão hoà **4,691 W** (§5.6.7). Mức dùng GPU trung bình trong lần ghim nhịp là 85,3 %.
+
+Bốn kết luận:
+
+1. **Lợi ích của việc ghim nhịp trên giai đoạn bộ phát hiện sống qua 30 phút.** (Phát biểu này nói
+   về giai đoạn, không về biên hợp đồng ở mức quyết định.) Không có giảm nhịp nhiệt, tj tối đa
+   70,9 °C — còn rất xa ngưỡng
+   giảm nhịp của Orin — và độ trôi chỉ 0,13 %.
+2. **Trạng thái nhiệt đã bão hoà, nên 30 phút là đủ dài.** tj trong một phần ba mẫu cuối thay đổi
+   **−0,1 K** (điều kiện DVFS: +0,1 K); phép đo vì vậy đặc trưng cho chế độ chạy *bền*, không phải
+   một quá trình chuyển tiếp. Ngâm lâu hơn sẽ không thêm thông tin.
+3. **Ghim nhịp ở đây không phải phép đánh đổi điện năng lấy tốc độ — nó có lợi cả về năng lượng.**
+   Khối lượng công việc tăng 9,09 % trong khi công suất trung bình chỉ tăng 5,55 %, nên năng lượng
+   biên trên mỗi suy luận **giảm 1,69 %** và fps/W biên **tăng 1,71 %**. Phản biện thường gặp đối với
+   việc ghim nhịp — rằng nó đổi điện lấy nhịp — không áp dụng cho điểm làm việc này.
+4. **Lập luận thực sự cho việc ghim nhịp là tính tiên đoán, không phải thông lượng.** Độ phân tán độ
+   trễ chặt lại **3,3×** (1,03 % → 0,31 %) và độ trôi giảm từ 0,7 % xuống 0,13 %. Với một hợp đồng
+   thời gian thực, đuôi phân phối mới là đại lượng ràng buộc, nên 9 % ở trung vị là phần ít quan
+   trọng hơn của kết quả này. Đây là phiên bản *theo thời gian, trong cùng một lần chạy* của nhận
+   xét về tính lặp lại giữa các lần chạy trong cùng một phiên ở Bảng 5.5J (2,42 % → 0,46 %; giữa
+   các phiên là 20,3 % → 0,49 %), và của tỷ số p95/p50 ở mục
+   trên (1,51 → 1,03).
+
+**Một phép kiểm tra tính nhất quán, không phải một phát biểu.** Hiệu ứng của việc ghim xung nhịp
+lớn dần theo mức độ tổ hợp của đại lượng được đo: **+9,5 %** trên riêng giai đoạn bộ phát hiện
+(12,796 → 11,684 ms), **+26,4 %** trên tổng giai đoạn của cặp đo có cổng nhiệt
+(421,52 → 310,37 ms), và **+141,4 % (2,41 lần)** trên nhịp **tổ hợp** đo được (1,441 → 3,479 qđ/s,
+mục 5.6.8.1). Thứ tự tăng dần này **phù hợp** với cơ chế mà mục 5.6.8.1 ghi nhận trực tiếp từ
+artifact: phần việc bị `schedutil` bỏ đói nhất là tiền xử lý trên CPU, và tỷ trọng của nó trong
+đại lượng được đo càng lớn thì hiệu ứng ghim nhịp càng lớn — cụm CPU thứ hai nằm ở mức sàn
+115 200 kHz suốt mọi lần chạy DVFS, trong khi ghim nhịp giữ cả hai cụm ở 1 728 000. Ghim nhịp cũng
+mở khoá tần số EMC, và bus bộ nhớ là tài nguyên dùng chung trên một SoC tích hợp. Đây vẫn là các
+lần chạy dưới những giao thức khác nhau, nên nó **củng cố** cơ chế đó chứ **không kiểm định** nó.
+
+Trạng thái ghim nhịp đã được **giải phóng** sau phép đo và được xác minh bằng việc tần số thực sự
+tụt xuống dưới mức đã ghim khi rỗi, không chỉ bằng việc đọc lại các giá trị cấu hình; quy trình và
+một cái bẫy của `jetson_clocks --restore` được ghi trong `deployment/JETSON-RUNBOOK-2026-10-01.md`
+(Bước 9).
 
 #### Bộ nhớ và dấu chân engine
 
@@ -1022,8 +1306,11 @@ giai đoạn P1 cố định, nên chạy nó với P3 sẽ cho ra đường con
 kết quả bốn luồng ở mục 5.6.3 là kết quả **P1** và không chuyển giao được. Công suất tường
 của pipeline tổ hợp và soak của pipeline tổ hợp cùng bị chặn bởi lý do này. Độ tương đương
 đầu ra FP16-so-FP32 của bộ phát hiện cũng chưa được đo — bộ công cụ tương đương hiện có không
-biểu diễn được phép so sánh đó. Soak trong điều kiện **ghim xung nhịp** chưa được đo, nên
-biên +7,5 % ở hàng p50 chưa được chứng minh là bền trong 30 phút. Các engine FP32 và INT8
+biểu diễn được phép so sánh đó. Soak trong điều kiện **ghim xung nhịp** đã được đo ngày
+03/10/2026 (mục trên, 152.721 suy luận), nên giới hạn trước đây ở dòng này không còn; giới hạn
+còn lại là **không có soak nào ở mức quyết định tổ hợp** — cả hai lần ngâm đều chỉ ngâm giai
+đoạn bộ phát hiện, nên không có phép đo nào chứng minh độ bền của một nhịp quyết định, và biên
+hợp đồng ở mức quyết định đã được rút lại vì lý do cấu trúc nêu ở trên. Các engine FP32 và INT8
 chưa được dựng lại cho đúng thiết bị nên số của chúng chưa được trích dẫn.
 
 #### Xuất xứ tạo tác của mục này
@@ -1110,7 +1397,11 @@ khai — không có công việc tối ưu độ trễ nào thuộc về đầu 
 lại thuộc về xương sống" chỉ đúng *trong phạm vi các giai đoạn mô hình*. Khi đo cả vòng lặp
 (Bảng 5.5O), hạng mục chi phối **không phải** xương sống mà là **tiền xử lý trên CPU**, và tỷ lệ
 1,7 % / 98,3 % của bảng này trở thành 0,3 % / 20,2 % so với toàn bộ khoảng giữa hai quyết định.
-Một bảng giai đoạn không thể tự mình chỉ ra hạng mục tối ưu đúng.
+Một bảng giai đoạn không thể tự mình chỉ ra hạng mục tối ưu đúng. *(Phát biểu này mô tả trạng thái
+**trước khi sửa tiền xử lý**. Sau khi sửa — Bảng 5.5Q — tiền xử lý còn 30,4 % khoảng quyết định và
+hạng mục lớn nhất của phần tính toán trở lại là tháp CLIP; nhưng **kết luận phương pháp luận thì
+không đổi**, và nó mới là điều đáng giữ: chính vì một bảng giai đoạn không chỉ ra được hạng mục
+tối ưu đúng mà khiếm khuyết này đã sống sót qua mọi ngân sách trước đó.)*
 
 #### Bộ phát hiện là cái thước sai cho một ViT
 
@@ -1128,7 +1419,7 @@ mà một bộ phát hiện một-ảnh-một-lần ở 800 px không có. Hai m
 Tháp CLIP đắt hơn MobileNetV3-small **3,06×** ở cùng lô 16 — đó là giá phải trả cho 84,2 %, và
 nó là một con số nhỏ chứ không phải một rào cản triển khai.
 
-#### Tiền xử lý — không phải mô hình và cũng không phải giải mã — là chi phí chi phối
+#### Tiền xử lý — không phải mô hình và cũng không phải giải mã — là chi phí chi phối *(trạng thái trước khi sửa)*
 
 Có **hai** phép đo giải mã trên thiết bị và chúng lệch nhau 2,5×, nên phải nói rõ con số nào là
 con số triển khai. Phép đo cô lập cho **5,047 / 5,091 ms mỗi khung** (p95 6,259 / 6,943), nguồn
@@ -1145,9 +1436,19 @@ chia cho 8 khung, trong khi vòng lặp tổ hợp giải mã **liên tục cả
 phụ thuộc độ phân giải nên nó không phải một hằng số của thiết bị. **Rủi ro phải nêu rõ**: một
 camera 1080p sẽ tốn khoảng 5 ms/khung, tức theo số học khoảng quyết định tăng thêm ~72 ms lên
 ~362 ms = 2,76 quyết định/giây, chỉ còn khoảng **1,10×** so với hợp đồng 2,500 qđ/giây của nguồn
-1080p ở 60 fps. **Cấu hình đó chưa được đo.** Đây là cách khả dĩ nhất để bản triển khai trượt
-thời gian thực, và biện pháp giảm nhẹ — NVDEC — cũng chưa được đo vì OpenCV trên thiết bị này
-được biên dịch không có GStreamer. Cảnh báo của cả hai tạo tác được giữ nguyên: giải mã **từ
+1080p ở 60 fps.
+
+**Cấu hình đó đã được đo (03/10/2026) và phép ngoại suy số học trên sai — lệch về phía an toàn.**
+Trên 24 clip toàn bộ 1920×1080, giải mã là **4,432 ms/khung** (ước lượng ~5 ms là tốt), nhưng
+khoảng quyết định là **227,214 ms = 4,401 quyết định/giây**, không phải 362 ms — bởi phép số học
+trên được tính trên mã tiền xử lý **trước khi sửa**. Margin so với hợp đồng 2,500 qđ/giây của
+nguồn 1080p 60 fps là **1,76×**; so với hợp đồng trung vị kho 1,249 qđ/giây là **3,52×**, so với
+trung bình kho 1,427 qđ/giây là **3,08×**. (Không trích margin so với hợp đồng 1,05 qđ/giây: chính
+mục này đã loại bỏ con số đó vì không đại diện cho kho dữ liệu.) Xem Bảng 5.5R. Phép
+ngoại suy ~362 ms vì vậy **bị rút lại và thay bằng phép đo**. Biện pháp giảm nhẹ — NVDEC — vẫn
+chưa được đo vì OpenCV trên thiết bị này được biên dịch không có GStreamer, và sau khi sửa tiền xử
+lý thì **giải mã chính là hạng mục chi phối ở 1080p** (46,8 % khoảng quyết định), nên đòn bẩy của
+NVDEC giờ lớn hơn trước chứ không nhỏ hơn. Cảnh báo của cả hai tạo tác được giữ nguyên: giải mã **từ
 tệp, không phải từ luồng camera trực tiếp**, và không được làm nóng cache.
 
 Bản triển khai dùng `--window 48 --stride 24`; `sample()` lấy T = 16 khung bằng `np.linspace`
@@ -1163,18 +1464,24 @@ clip (1,0 %)**. Phân bố thực tế: 30,0 fps ở 653 clip (59,4 %), **60,0 f
 
 Vì vậy hợp đồng phải được phát biểu theo phân bố, không theo một giá trị:
 
-| nguồn ở | hợp đồng (quyết định/giây) | margin của 3,452 qđ/giây |
-|---|---:|---:|
-| trung vị kho (29,97 fps) | 1,249 | **2,76×** |
-| trung bình kho (34,25 fps) | 1,427 | 2,42× |
-| **p95 kho = tối đa (60,0 fps), 19,8 % clip** | **2,500** | **1,38×** |
+| nguồn ở | hợp đồng (quyết định/giây) | margin của 3,452 qđ/giây (trước khi sửa) | margin của **5,978 qđ/giây** (đã triển khai, Bảng 5.5Q) |
+|---|---:|---:|---:|
+| trung vị kho (29,97 fps) | 1,249 | 2,76× | **4,79×** |
+| trung bình kho (34,25 fps) | 1,427 | 2,42× | **4,19×** |
+| **p95 kho = tối đa (60,0 fps), 19,8 % clip** | **2,500** | 1,38× | **2,39×** |
 
-Hợp đồng vẫn **được đáp ứng trên toàn kho**, kể cả ở clip 60 fps, nhưng margin ở đó là **1,38×**
+Hợp đồng vẫn **được đáp ứng trên toàn kho**, kể cả ở clip 60 fps; trước khi sửa tiền xử lý margin ở đó là **1,38×**
 chứ không phải con số nhiều lần mà bản nháp trước nêu — và đó là margin của một vòng lặp **đơn
 luồng**, tức một chặn dưới. Mọi phát biểu "thời gian thực" trong chương phải đi kèm tần số khung
 mà nó áp dụng.
 
-**Bảng 5.5O — Nhịp **đo được** của vòng lặp tổ hợp B1** (giải mã → tiền xử lý → tháp → đầu;
+> **Lưu ý khi trích dẫn.** Bảng 5.5O dưới đây là **nhánh TRƯỚC khi sửa** của một phép so sánh
+> A/B có kiểm soát (commit `9c1e219`). Nó **không bị rút lại** và **không sai**: đó là phép đo
+> đúng của mã nguồn ở thời điểm đó, và là mốc để đo mức cải thiện. Nhưng **nhịp đã triển khai là
+> Bảng 5.5Q (167,291 ms = 5,978 quyết định/giây)**, không phải 3,452 quyết định/giây. Mọi phát
+> biểu về hệ thống triển khai phải trích Bảng 5.5Q.
+
+**Bảng 5.5O — Nhịp **đo được** của vòng lặp tổ hợp B1, *trước khi sửa tiền xử lý*** (giải mã → tiền xử lý → tháp → đầu;
 `--window 48 --stride 24`; 24 clip, 201 quyết định, 5.559 khung mỗi lần; 3 lần lặp ở **cùng**
 `--seed 0` để độ phân tán đo *thiết bị* chứ không đo biến thiên tập clip; FP16, DVFS mặc định,
 cửa sổ yên tĩnh)
@@ -1195,17 +1502,18 @@ Nguồn: `r48-composed-cadence-fp16-20261001T{233159,233324,233449}.json` (cả 
 `clocks_pinned.any = false`, `competing_processes` rỗng). Mọi hàng qua được phép kiểm lặp lại
 `max − min ≤ 0,10 × trung vị` đã dùng cho trường bộ nhớ.
 
-Nhịp đã triển khai là **289,672 ms/quyết định = 3,452 quyết định/giây** (p95 322,708 ms), tức
-margin **2,76×** so với hợp đồng của clip trung vị (1,249 qđ/giây) và **1,38×** so với clip
-60 fps — xem bảng hợp đồng ở trên. Vòng lặp **đơn luồng**: một triển khai
-thực tế sẽ gối giải mã lên suy luận, nên 3,452 quyết định/giây là **chặn dưới** của thông lượng
-và 76,1 % là **chặn trên** của hệ số hoạt động.
+Nhịp của mã **trước khi sửa** là **289,672 ms/quyết định = 3,452 quyết định/giây** (p95
+322,708 ms), tức margin **2,76×** so với hợp đồng của clip trung vị (1,249 qđ/giây) và **1,38×** so
+với clip 60 fps. Vòng lặp **đơn luồng**: một triển khai thực tế sẽ gối giải mã lên suy luận, nên
+3,452 quyết định/giây là **chặn dưới** của thông lượng và 76,1 % là **chặn trên** của hệ số hoạt
+động. **Nhịp đã triển khai không phải con số này** — xem Bảng 5.5Q (5,978 qđ/giây, margin 4,79× và
+2,39×); con số 3,452 chỉ được trích như nhánh trước-khi-sửa của phép so sánh A/B.
 
 Bảng này **thay thế** một ngân sách tổng giai đoạn mà các bản nháp trước của mục này trình bày
 như một nhịp. Phải nói rõ vì sao bản nháp đó sai, chứ không chỉ sửa số: một **tổng** các phép đo
 giai đoạn cô lập không thể thấy ba chi phí, và cả ba đều lớn.
 
-| | tỷ lệ của tính toán | tỷ lệ của khoảng 289,672 ms |
+| *(trước khi sửa — so sánh với bảng tỷ lệ sau khi sửa ở mục kế tiếp)* | tỷ lệ của tính toán | tỷ lệ của khoảng 289,672 ms |
 |---|---:|---:|
 | **tiền xử lý (resize + chuẩn hoá 16 khung, CPU)** | **73,4 %** | **55,5 %** |
 | tháp CLIP ViT-B/32 | 26,5 % | 20,2 % |
@@ -1223,7 +1531,9 @@ giai đoạn cô lập không thể thấy ba chi phí, và cả ba đều lớn
    **3,97**.
 
 Phát biểu "giải mã chiếm 83,6 % ngân sách và mô hình chiếm 16,4 %" của bản nháp trước vì vậy bị
-**rút lại**: giải mã chiếm 17,0 % khoảng quyết định, và hạng mục chi phối là tiền xử lý.
+**rút lại**: giải mã chiếm 17,0 % khoảng quyết định, và hạng mục chi phối là tiền xử lý. *(Cả hai
+con số này thuộc trạng thái trước khi sửa; xem Bảng 5.5Q cho hệ thống đã triển khai, nơi giải mã
+chiếm 31,3 % và ở 1080p là 46,8 % — tức hạng mục chi phối.)*
 
 Trích khung bằng **seek** ngẫu nhiên cho 16 khung đã lấy mẫu tốn **5.815,9 / 5.729,0 ms**, tức
 khoảng **1.140×** so với giải mã tuần tự — con số đó là chi phí chuẩn bị dữ liệu **ngoại tuyến**
@@ -1280,6 +1590,155 @@ nguồn dữ liệu vào; cùng engine, cùng trạng thái thiết bị). Đi�
 số độ trễ giai đoạn cô lập ở khoảng **±13 %**, nên trong chương này không con số nào thuộc loại
 đó được trích dẫn quá 3 chữ số có nghĩa.
 
+#### Khiếm khuyết tiền xử lý: tìm ra, sửa, và phân xử trên thiết bị
+
+Hạng mục chi phối ở Bảng 5.5O không phải là một giới hạn vật lý. Việc truy nguyên nó tới từng
+thao tác con cho thấy toàn bộ chi phí nằm ở **một dòng mã**: phép đổi kênh BGR→RGB được viết là
+`f[:, :, ::-1]`, một *view* có bước nhảy âm. OpenCV không nhận `view` như vậy, nên trước khi
+`resize` xuống 224×224 nó phải **vật chất hoá một bản sao liền mạch của toàn khung ở độ phân giải
+gốc**. Nói cách khác, phép đổi kênh được **trả giá trên số điểm ảnh của khung đầy**, rồi khung đó
+mới bị thu nhỏ đi và phần lớn công sức bị bỏ. Đảo thứ tự — `cv2.resize(f, SIZE)[:, :, ::-1]`, tức
+đổi kênh **sau** khi thu nhỏ — cho kết quả **giống hệt từng bit** và chỉ trả giá trên 224×224.
+
+Chi phí này **tuyến tính theo diện tích khung**, đúng như một phép `memcpy` phải vậy. Hai điểm đo
+độc lập trên thiết bị, cách nhau 16 lần về số điểm ảnh, cho cùng một độ dốc trong phạm vi 6,0 %:
+8,075·10⁻⁶ ms/điểm ảnh/khung ở 480×270 và 8,559·10⁻⁶ ở 1920×1080. Ở 1080p, riêng thao tác đổi
+kênh chiếm **283,969 trong 300,506 ms**, tức **94,5 %** toàn bộ hàm tiền xử lý.
+
+Bản sửa được thu nhận theo **một quy tắc ghi trước khi chạy lần đầu**: một biến thể chỉ được thay
+mã hiện hành khi (1) đầu ra **giống hệt từng bit** trên mọi khung — `np.array_equal` chính xác,
+không có ngưỡng sai số — **và** (2) p50 thấp hơn mã hiện hành ít nhất 10 %. Biến thể
+`flip_after_resize` đạt cả hai (1,38× ở 480×270 và **8,70×** ở 1080p, giống hệt từng bit) và được
+thu nhận. Biến thể `nhwc_normalise` cũng đạt cả hai nhưng **không** được thu nhận. Biến thể
+`area_interp` **bị loại** vì không giống hệt từng bit (sai lệch tuyệt đối lớn nhất 0,435 và
+1,981); nó được khai báo trong `EXPECT_DIFF` **trước** lần chạy đầu tiên, chính vì nó định giá một
+bộ lọc mà hệ thống không chọn, nên nó không thể được thu nhận một cách lặng lẽ.
+
+**Bảng 5.5Q — Nhịp vòng lặp tổ hợp B1 *sau khi sửa*: nhịp đã triển khai** (giao thức **trùng khớp
+từng tham số** với Bảng 5.5O — cùng 24 clip, 201 quyết định, 5.559 khung, `--window 48
+--stride 24`, `--seed 0`, FP16, DVFS mặc định, cửa sổ yên tĩnh; 3 lần lặp; thay đổi duy nhất là mã
+tiền xử lý)
+
+| Đại lượng | min | **trung vị** | max | phân tán | so với Bảng 5.5O |
+|---|---:|---:|---:|---:|---:|
+| **nhịp trạng thái dừng, ms/quyết định (p50)** | 167,009 | **167,291** | 167,690 | 0,41 % | **−42,2 %** |
+| nhịp trạng thái dừng, ms/quyết định (p95) | 196,750 | **198,224** | 198,611 | 0,94 % | −38,6 % |
+| nhịp tính cả lấp cửa sổ, ms/quyết định | 172,974 | **173,258** | 174,689 | 0,99 % | −33,4 % |
+| **tiền xử lý p50 (ms)** | 48,891 | **50,867** | 51,429 | 4,99 % | **−68,4 % (3,160×)** |
+| tháp CLIP p50 **trong vòng lặp** (ms) | 57,399 | **58,052** | 58,416 | 1,75 % | −1,0 % |
+| đầu B1 p50 (ms) | 0,840 | **0,842** | 0,854 | 1,66 % | +5,5 % |
+| tính toán p50 (ms/quyết định) | 109,040 | **109,114** | 110,201 | 1,06 % | −50,2 % |
+| giải mã p50 (ms/khung) | 2,172 | **2,182** | 2,197 | 1,15 % | +6,2 % |
+| hệ số hoạt động (tính toán/đồng hồ tường) | 0,6304 | **0,6311** | 0,6321 | 0,27 % | 0,761 → 0,631 |
+| tổng giai đoạn (ms/quyết định) | 161,242 | **161,768** | 162,569 | 0,82 % | −39,9 % |
+| tỷ số dừng/tổng giai đoạn | 1,032 | **1,034** | 1,036 | 0,39 % | 1,078 → 1,034 |
+
+Nguồn: `r48-composed-cadence-fp16-20261003T{155728,155806,155843}.json` (cả ba `quiet = true`,
+`clocks_pinned.any = false`, `competing_processes` rỗng, `is_device_number = true`). Mọi hàng qua
+được phép kiểm lặp lại `max − min ≤ 0,10 × trung vị`.
+
+**Nhịp đã triển khai là 167,291 ms/quyết định = 5,978 quyết định/giây** (p95 198,224 ms), tức
+margin **4,79×** so với hợp đồng của clip trung vị (1,249 qđ/giây), **4,19×** so với trung bình kho
+(1,427) và **2,39×** so với p95 = tối đa (2,500 qđ/giây của nguồn 60 fps). Margin so với hợp đồng
+1,05 qđ/giây **không được trích**: hợp đồng đó suy từ 25,1 fps, chỉ xuất hiện ở 11/1.100 clip
+(1,0 %), và đã bị loại bỏ ngay trong mục này. Vì giao thức trùng khớp từng tham số, cặp Bảng 5.5O–5.5Q là một **A/B sạch**: mức
+cải thiện **+73,2 %** không thể quy cho khác biệt tập clip, hạt giống, cửa sổ hay bước nhảy.
+
+Cấu trúc chi phí **đã đổi về bản chất**, nên bảng tỷ lệ của mục trước không còn mô tả hệ thống
+triển khai:
+
+| | tỷ lệ của tính toán | tỷ lệ của khoảng 167,291 ms |
+|---|---:|---:|
+| tiền xử lý (resize + chuẩn hoá 16 khung, CPU) | 46,6 % | **30,4 %** (trước: 55,5 %) |
+| **tháp CLIP ViT-B/32** | **53,2 %** | **34,7 %** |
+| đầu Transformer B1 | 0,8 % | 0,5 % |
+| giải mã (24 khung × 2,182 ms) | — | 31,3 % |
+| chưa quy được | — | 3,3 % (trước: 7,4 %) |
+
+Tiền xử lý vẫn là giai đoạn đơn lẻ tốn kém nhất tính trên mỗi quyết định, nhưng nó **không còn chi
+phối khoảng quyết định**; hạng mục lớn nhất của phần *tính toán* giờ là tháp CLIP, tức là xương
+sống mô hình — đúng như một pipeline suy luận lành mạnh phải thể hiện.
+
+**Hệ quả cho phát hiện "một tổng không phải một nhịp".** Tỷ số dừng/tổng giai đoạn giảm
+**1,078 → 1,034**, và phần dư chưa quy được giảm **20,426 → 5,523 ms**. Nghĩa là **một phần của
+khoảng hụt cấu trúc chính là do khiếm khuyết này gây ra**: bản sao toàn khung tạo áp lực lên bus bộ
+nhớ mà các phép đo giai đoạn cô lập không thể thấy. **Chiều** của phát hiện vẫn đứng vững
+(1,034 > 1 — một tổng vẫn ước thiếu nhịp), nhưng **độ lớn** của nó đã bị khiếm khuyết làm phồng
+lên. Phải ghi tỷ số này **theo từng độ phân giải**, không phải một con số duy nhất: ở 1080p tỷ số
+là **1,116**, tức khoảng hụt **tăng** theo kích thước khung.
+
+**Bảng 5.5R — Nhịp sau khi sửa ở 1920×1080** (`data/test`, 125 clip toàn bộ 1920×1080; 24 clip,
+209 quyết định, 5.836 khung; các tham số khác như Bảng 5.5Q; 3 lần lặp)
+
+| Đại lượng | min | **trung vị** | max | phân tán |
+|---|---:|---:|---:|---:|
+| **nhịp trạng thái dừng, ms/quyết định (p50)** | 226,316 | **227,214** | 228,368 | 0,90 % |
+| nhịp trạng thái dừng, ms/quyết định (p95) | 264,206 | **266,300** | 268,427 | 1,59 % |
+| tiền xử lý p50 (ms) | 36,916 | **37,293** | 37,564 | 1,74 % |
+| tháp CLIP p50 trong vòng lặp (ms) | 58,371 | **58,416** | 59,849 | 2,53 % |
+| đầu B1 p50 (ms) | 0,821 | **0,824** | 0,831 | 1,21 % |
+| tính toán p50 (ms/quyết định) | 97,184 | **97,864** | 99,059 | 1,92 % |
+| **giải mã p50 (ms/khung)** | 4,269 | **4,432** | 4,482 | 4,81 % |
+| hệ số hoạt động | 0,3768 | **0,3773** | 0,3840 | 1,91 % |
+| tỷ số dừng/tổng giai đoạn | 1,105 | **1,116** | 1,130 | 2,24 % |
+
+Nguồn: `r48-composed-cadence-fp16-20261003T{160245,160341,160439}.json`. Đây là **4,401 quyết
+định/giây**, margin **3,52×** so với hợp đồng trung vị kho 1,249 qđ/giây (3,08× so với trung bình 1,427 và
+**1,76×** so với p95 = 2,500 qđ/giây của nguồn 60 fps). Bảng này là **con số tuyệt đối sau khi
+sửa, không kèm bất kỳ phát biểu trước/sau nào ở 1080p**: không tồn tại mốc 1080p trước khi sửa, nên
+không có A/B để tuyên bố (xem phân xử P-PRE4 bên dưới).
+
+Việc dùng `data/test` ở đây **chỉ để đo thời gian**, không đọc nhãn và không đánh giá độ chính xác,
+nên theo giao thức nó **không tiêu một lần chạm** vào tập kiểm tra.
+
+Hai điều đáng ghi ở Bảng 5.5R. Thứ nhất, **giải mã giờ là hạng mục chi phối ở 1080p** — 24 khung ×
+4,432 ms = 106,368 ms, tức **46,8 %** khoảng quyết định, so với 16,4 % của tiền xử lý. Sau khi sửa,
+giai đoạn phi-mô hình lớn nhất còn lại là giải mã, mà OpenCV trên bo mạch này không có GStreamer
+nên **NVDEC chưa từng được đo**; đó là đòn đẩy tiếp theo và được ghi là việc chưa làm. Thứ hai,
+tiền xử lý *trong vòng lặp* ở 1080p (37,293 ms) lại **thấp hơn** ở kho clip trung vị 720p
+(50,867 ms) **dù khung lớn hơn 2,25 lần**, trong khi hệ số hoạt động khác nhau rõ rệt (37,7 % so
+với 63,1 %). Điều này **phù hợp** với cơ chế tranh chấp bus bộ nhớ, nhưng **không phải là một phép
+thử có kiểm soát**, nên ở đây nó được ghi là một **quan sát**, không phải một kết luận.
+
+#### Phân xử bốn dự đoán đã ghi trước: hai dự đoán bị bác bỏ
+
+Bản sửa không được thu nhận dựa trên kết quả quan sát được. Trước khi bo mạch được bật lại, bốn dự
+đoán kèm **điều kiện bác bỏ** đã được ghi vào hồ sơ nghiên cứu, và chúng **không được thương lượng
+lại sau khi thấy số**.
+
+| | dự đoán đã ghi trước | đo được | phán quyết |
+|---|---|---:|---|
+| P-PRE1 | khớp chính xác trên 24 clip | **0** sai khác, đồng thuận quyết định 1,0 | **ĐẠT** |
+| P-PRE2 | hệ số giảm p50 tiền xử lý thuộc [1,20 ; 1,55] | **3,160×** | **BỊ BÁC BỎ** |
+| P-PRE3 | nhịp trạng thái dừng thuộc [230 ; 275] ms | **167,291 ms** | **BỊ BÁC BỎ** |
+| P-PRE4 | mức lợi *giai đoạn* ở 1080p ≥ 3× | **8,70×** | **ĐẠT** |
+
+Cả hai lần bác bỏ đều lệch về phía **tốt hơn** dự đoán. Điều đó không phải là một lời bào chữa:
+một khoảng tin cậy bị chệch vẫn là bị chệch, và nó được báo cáo như vậy.
+
+Điều kiện bác bỏ của P-PRE2 đã **chỉ định sẵn nguyên nhân** nếu chệch: *"phép định hình trên máy
+chủ không chuyển được sang hệ thống bộ nhớ của thiết bị, và §5.6.9 phải nói rõ rằng phép tách
+được thiết lập trên máy chủ."* Nguyên nhân đó **bị chính lần chạy này bác bỏ**: ở cùng độ phân
+giải, máy chủ dự báo thiết bị rất sát — 1,362× so với **1,380×** ở 480×270 (lệch 1,3 %) và 7,625×
+so với **8,700×** ở 1080p (lệch 14,1 %). Phép định hình **có** chuyển được, nên §5.6.9 **không**
+cần lời cảnh báo đó.
+
+Điều kiện bác bỏ của P-PRE3 chỉ định: *"một giai đoạn nào khác đã dịch chuyển, và phép quy nguyên
+nhân ở §5.6.9 là sai."* Nguyên nhân đó cũng bị bác bỏ, bằng một **đẳng thức kế toán** trên toàn bộ
+mức giảm 122,381 ms của khoảng quyết định: tiền xử lý **+109,898 ms = 89,8 %**, phần dư chưa quy
+được +14,903 ms = 12,2 %, tháp +0,578 ms = 0,5 %, đầu −0,044 ms, giải mã (16 khung) −2,032 ms =
+−1,7 %; tổng **+123,303 ms**, khép lại cách mục tiêu **0,922 ms (0,75 %)**. Không giai đoạn nào
+ngoài tiền xử lý góp quá 1,7 %, nên phép quy nguyên nhân đứng vững.
+
+**Nguyên nhân thật của hai lần chệch là một sai sót trong cách tôi đặc tả khoảng tin cậy.** Trình
+định hình lấy mẫu **một** clip; với `data/isafetybench` đó là một clip 480×270 = 129.600 điểm ảnh.
+Vòng lặp nhịp lấy mẫu **24** clip. Trong 24 clip đó, clip 480×270 kia chỉ là **1/24 (4,2 %)** và
+có **ít hơn 7,1 lần** số điểm ảnh so với trung vị kho clip; **54,2 %** số clip ở 921.600 điểm ảnh.
+Một khoảng tin cậy cho kho clip **đa độ phân giải** đã được đọc ra từ clip **nhỏ nhất** của nó. Vì
+chi phí tuyến tính theo diện tích khung, hệ số trong vòng lặp **buộc phải** nằm giữa hai hệ số
+đơn-clip (1,380× và 8,700×), và nó đã nằm đúng ở đó: 3,160×. Khoảng tin cậy **không** được đặt lại;
+sai sót được ghi nhận.
+
 #### Năng lượng
 
 | | giá trị |
@@ -1328,8 +1787,10 @@ toàn hệ thống khi làm các engine này thường trú"*, còn kích thư�
 
 Phần 8 GB của thiết bị không phải ràng buộc tới hạn của đường B1: với 175,9 MB engine, **bộ nhớ
 không phải trục tới hạn**. Trục độ trễ thì **không còn thoải mái như bản nháp trước nghĩ**: ở clip
-60 fps (19,8 % kho) margin chỉ còn 1,38×, nên với đường B1 độ trễ là trục chặt hơn trong hai trục
-— cùng dấu với P3, chỉ là ở mức nhẹ hơn.
+60 fps (19,8 % kho) margin trước khi sửa tiền xử lý chỉ còn 1,38×, nên với đường B1 độ trễ là trục
+chặt hơn trong hai trục — cùng dấu với P3, chỉ là ở mức nhẹ hơn. **Sau khi sửa (Bảng 5.5Q) margin
+ở clip 60 fps là 2,39×**, nên kết luận "độ trễ là trục chặt hơn" **vẫn giữ** — bộ nhớ dùng 175,9
+trong 8.192 MB (46,6×) còn độ trễ chỉ còn 2,39× — nhưng mức chặt đã giảm đáng kể.
 
 #### DVFS tạo đuôi khi chạy liên tiếp — và dịch cả trung vị khi chạy theo chu kỳ công tác
 
@@ -1363,9 +1824,12 @@ trung vị và **1,24×** hợp đồng của clip 60 fps — khác với P3, n�
 ích của việc ghim nhịp đối với đuôi phân phối của B1 chưa được định lượng.
 Độ bão hoà **đa luồng** của đường B1 chưa được đo (bộ công cụ hiện có nạp danh sách giai đoạn
 P1 cố định, cùng lý do như ở mục 5.6.8). **Soak** của vòng lặp tổ hợp chưa được đo, nên margin
-2,76× (và 1,38× ở clip 60 fps) chưa được chứng minh là bền trong 30 phút. **Giải mã bằng phần cứng NVDEC** chưa được đo
-— OpenCV trên thiết bị này được biên dịch không có GStreamer — nhưng vì giải mã chỉ chiếm 17,0 %
-khoảng quyết định, trần của nó là 17 %; hạng mục có đòn bẩy lớn nhất là **tiền xử lý** (55,5 %).
+**4,79×** (và **2,39×** ở clip 60 fps) chưa được chứng minh là bền trong 30 phút. **Giải mã bằng
+phần cứng NVDEC** chưa được đo — OpenCV trên thiết bị này được biên dịch không có GStreamer. Trần
+của nó **đã đổi sau khi sửa tiền xử lý**: trên kho clip trung vị 720p giải mã chiếm **31,3 %**
+khoảng quyết định (trước: 17,0 %), và ở **1080p nó chiếm 46,8 % và là hạng mục chi phối** — nên
+giải mã, **không** còn là tiền xử lý, mới là hạng mục có đòn bẩy lớn nhất còn lại. Tiền xử lý giờ
+chiếm 30,4 % (trước: 55,5 %).
 Vòng lặp tổ hợp ở điều kiện **ghim xung nhịp** **không được đo**, và đây là một quyết định chứ
 không phải thiếu sót: nguyên nhân của hiện tượng đã được phân xử ở Bảng 5.5P, trần số học của
 việc ghim nhịp chỉ là **+12,5 %** (vì phần chi phối nằm ở CPU vốn đã bận liên tục), và **ghim
@@ -1382,17 +1846,31 @@ hệ thống **trước khi sửa** và không được thay đổi khi chưa đ
 trên host (M3, nên **không phải số thiết bị**) cho thấy phép đổi kênh BGR→RGB `f[:, :, ::-1]`
 được thực hiện **trước** khi thu nhỏ ảnh: đó là một khung nhìn có bước âm, nên OpenCV phải sao
 chép toàn bộ khung ở **độ phân giải gốc** (6,2 MB ở 1080p) trước khi resize về 224×224. Riêng
-bước này chiếm **90,3 / 101,6 ms** ở 1920×1080 và **5,5 / 15,5 ms** ở 480×270 — và nó là bước
-duy nhất có chi phí tỷ lệ với độ phân giải *nguồn*. Đổi thứ tự (resize trước, đổi kênh sau) cho
-pixel **giống hệt từng bit** — `cv2.resize` tổ hợp các điểm ảnh *trong cùng một kênh* và không
-bao giờ trộn giữa các kênh — và nhanh hơn **7,46×** ở 1080p, **1,36×** ở 480×270. Tính bit-giống
+bước này chiếm **91,408 / 101,614 ms** ở 1920×1080 và **5,495 / 15,766 ms** ở 480×270 — và nó là
+bước duy nhất có chi phí tỷ lệ với độ phân giải *nguồn*. Đổi thứ tự (resize trước, đổi kênh sau)
+cho pixel **giống hệt từng bit** — `cv2.resize` tổ hợp các điểm ảnh *trong cùng một kênh* và không
+bao giờ trộn giữa các kênh — và nhanh hơn **7,625×** ở 1080p, **1,362×** ở 480×270. Tính bit-giống
 nhau **không được giả định**: nó là điều kiện (1) của một quy tắc chấp nhận ghi trước khi chạy
 (`deployment/scripts/profile-r48-preprocess.py`), được kiểm tra lại ở mỗi lần chạy trên dữ liệu
 thật, và được chốt bằng 11 ca kiểm thử so khớp `np.array_equal` với công thức **trước khi sửa**.
-Sửa đổi đã được áp dụng vào mã; **việc đo lại trên thiết bị chưa thực hiện được** vì bo mạch mất
-nguồn từ 02/10. Dự đoán cho lần đo lại đã được **đăng ký trước** (P-PRE1…P-PRE4) ở
+Sửa đổi đã được áp dụng vào mã. Dự đoán cho lần đo lại đã được **đăng ký trước** (P-PRE1…P-PRE4) ở
 `plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-02-preprocessing-cost-is-a-channel-swap.md`,
 cùng với điều kiện phủ định của từng dự đoán.
+
+**Cập nhật 03/10/2026 — đã đo lại trên thiết bị và đã phân xử.** Bo mạch được bật lại và toàn bộ
+chuỗi đo được chạy đúng thứ tự đã đăng ký. Trên thiết bị, bước đổi kênh chiếm **283,969 /
+300,506 ms** ở 1080p (**94,5 %** toàn hàm) và **16,745 / 41,321 ms** ở 480×270; biến thể
+`flip_after_resize` nhanh hơn **8,70×** ở 1080p và **1,38×** ở 480×270, **giống hệt từng bit** ở cả
+hai. Phép định hình trên host **đã chuyển được sang thiết bị** (lệch 1,3 % ở 480×270, 14,1 % ở
+1080p). Nhịp triển khai đổi từ **3,452 lên 5,978 quyết định/giây (+73,2 %)** trên một phép so sánh
+A/B có giao thức trùng khớp từng tham số — xem **Bảng 5.5Q** và **Bảng 5.5R**. Phán quyết bốn dự
+đoán: **P-PRE1 ĐẠT, P-PRE2 BỊ BÁC BỎ (3,160× so với khoảng [1,20 ; 1,55]), P-PRE3 BỊ BÁC BỎ
+(167,291 ms so với [230 ; 275]), P-PRE4 ĐẠT (8,70×)**. Cả hai nguyên nhân mà điều kiện bác bỏ chỉ
+định sẵn đều **bị bác bỏ bằng phép đo**; nguyên nhân thật là khoảng tin cậy đã được đọc ra từ một
+clip chiếm 1/24 kho và nhỏ hơn trung vị kho 7,1 lần về số điểm ảnh. Vì vậy **các bảng ở trên không
+còn là số của hệ thống triển khai** — chúng là nhánh trước-khi-sửa của phép so sánh A/B, và được
+giữ lại đúng với vai trò đó. Phân xử đầy đủ:
+`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-03-preprocessing-fix-adjudicated-on-device.md`.
 
 #### Xuất xứ tạo tác của mục này
 

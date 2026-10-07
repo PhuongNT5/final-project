@@ -1,0 +1,217 @@
+{
+  "clip": "R4pN50yYI5k_trim_5.mp4",
+  "width": 480,
+  "height": 270,
+  "frames": 16,
+  "cv2_threads": 6,
+  "cv2_version": "4.13.0",
+  "runs": 40,
+  "repeats": 3,
+  "variants": {
+    "current": {
+      "bit_identical": true,
+      "max_abs_diff": 0.0,
+      "p50_ms_per_16_frames": 41.321,
+      "p50_ms_per_frame": 2.583,
+      "repeats": [
+        {
+          "p50": 41.321,
+          "p95": 41.483,
+          "p99": 41.576,
+          "n": 40
+        },
+        {
+          "p50": 41.405,
+          "p95": 41.587,
+          "p99": 41.62,
+          "n": 40
+        },
+        {
+          "p50": 41.3,
+          "p95": 41.402,
+          "p99": 41.532,
+          "n": 40
+        }
+      ],
+      "diff_expected": false,
+      "speedup_vs_current": 1.0,
+      "adoptable": false
+    },
+    "flip_after_resize": {
+      "bit_identical": true,
+      "max_abs_diff": 0.0,
+      "p50_ms_per_16_frames": 29.928,
+      "p50_ms_per_frame": 1.871,
+      "repeats": [
+        {
+          "p50": 29.985,
+          "p95": 30.041,
+          "p99": 30.148,
+          "n": 40
+        },
+        {
+          "p50": 29.928,
+          "p95": 30.076,
+          "p99": 30.224,
+          "n": 40
+        },
+        {
+          "p50": 29.925,
+          "p95": 30.04,
+          "p99": 30.152,
+          "n": 40
+        }
+      ],
+      "diff_expected": false,
+      "speedup_vs_current": 1.381,
+      "adoptable": true
+    },
+    "nhwc_normalise": {
+      "bit_identical": true,
+      "max_abs_diff": 0.0,
+      "p50_ms_per_16_frames": 31.869,
+      "p50_ms_per_frame": 1.992,
+      "repeats": [
+        {
+          "p50": 31.832,
+          "p95": 31.925,
+          "p99": 31.939,
+          "n": 40
+        },
+        {
+          "p50": 31.886,
+          "p95": 31.949,
+          "p99": 31.994,
+          "n": 40
+        },
+        {
+          "p50": 31.869,
+          "p95": 31.966,
+          "p99": 32.03,
+          "n": 40
+        }
+      ],
+      "diff_expected": false,
+      "speedup_vs_current": 1.297,
+      "adoptable": true
+    },
+    "area_interp": {
+      "bit_identical": false,
+      "max_abs_diff": 0.435225248336792,
+      "p50_ms_per_16_frames": 40.694,
+      "p50_ms_per_frame": 2.543,
+      "repeats": [
+        {
+          "p50": 40.694,
+          "p95": 40.812,
+          "p99": 40.852,
+          "n": 40
+        },
+        {
+          "p50": 40.715,
+          "p95": 40.808,
+          "p99": 40.833,
+          "n": 40
+        },
+        {
+          "p50": 40.601,
+          "p95": 40.712,
+          "p99": 40.85,
+          "n": 40
+        }
+      ],
+      "diff_expected": true,
+      "speedup_vs_current": 1.015,
+      "adoptable": false
+    }
+  },
+  "is_device_number": true,
+  "recommended": "flip_after_resize",
+  "stage_split_ms": {
+    "a_channel_flip_full_res": {
+      "p50": 16.745,
+      "p95": 16.845,
+      "p99": 16.856,
+      "n": 20
+    },
+    "b_resize_from_flipped": {
+      "p50": 6.217,
+      "p95": 6.335,
+      "p99": 6.398,
+      "n": 20
+    },
+    "c_resize_then_flip": {
+      "p50": 6.243,
+      "p95": 6.33,
+      "p99": 6.404,
+      "n": 20
+    },
+    "d_astype_div255_per_frame": {
+      "p50": 9.764,
+      "p95": 9.833,
+      "p99": 9.874,
+      "n": 20
+    },
+    "e_stack_transpose": {
+      "p50": 1.465,
+      "p95": 1.578,
+      "p99": 2.812,
+      "n": 20
+    },
+    "f_normalise": {
+      "p50": 14.634,
+      "p95": 16.517,
+      "p99": 16.661,
+      "n": 20
+    },
+    "g_redundant_astype_float32": {
+      "p50": 16.142,
+      "p95": 17.793,
+      "p99": 17.801,
+      "n": 20
+    }
+  },
+  "git_commit": "6319b21-dirty",
+  "timestamp": "2026-10-03T15:53:46.033941",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 729600,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 729600,
+        "cur_khz": 729600,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 306000000,
+        "cur_hz": 306000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": false,
+      "gpu": false,
+      "any": false
+    },
+    "load_average": [
+      0.72705078125,
+      0.60400390625,
+      0.2880859375
+    ],
+    "competing_processes": [],
+    "quiet": true
+  }
+}

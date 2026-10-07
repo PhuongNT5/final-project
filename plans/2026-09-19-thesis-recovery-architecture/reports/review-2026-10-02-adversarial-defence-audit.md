@@ -68,9 +68,16 @@ Sampling weighted to the abstract (densest headline surface) plus §7.5's multi-
 | 19 | NB SE 2.12 pp vs naive 0.58 pp | §7.7 | **none** | §7.7 | **sheet FAIL** |
 | 20 | 84.2 % BA, B1, LSO-1100 | abstract, banner, ch05 §5.6.9 | yes, Block 1 | `run-esta-lso.py` shard logs | **PASS** |
 | 21 | 201,090 params × 3 seeds | abstract, §5.6.9 | yes | export script | **PASS** |
-| 22 | 3.45 decisions/s composed | abstract | yes, Block 3b | `benchmark-r48-composed-cadence.py` | **PASS but STALE** — pre-dates the preprocessing fix; P-PRE2..4 re-measure pending |
-| 23 | 3.23 dec/s pinned, +7.5 % over 3.0 contract | abstract | yes (sheet L692) | 09-29 P3 runs | **PASS** |
-| 24 | 2.73 dec/s governor; 2.88–2.76 above median | abstract | yes | same | **PASS** |
+| 22 | 3.45 decisions/s composed | abstract | yes, Block 3b | `benchmark-r48-composed-cadence.py` | **PASS, no longer stale (2026-10-03)** — the P-PRE2..4 re-measure is done and adjudicated (P-PRE1 PASS, P-PRE2/3 FALSIFIED upward, P-PRE4 PASS). The deployed figure is now **167.291 ms = 5.978 dec/s**; 3.452 is the pre-fix arm of a protocol-identical A/B and is correctly labelled as such. Harness re-verified this pass: it percentiles **real inter-decision wall-clock gaps**, so it is a genuine cadence |
+| 23 | 3.23 dec/s pinned, +7.5 % over 3.0 contract | abstract | yes (sheet L692) | 09-29 P3 runs | **FAIL — claim WITHDRAWN 2026-10-03.** The figure is a **stage sum**, not a cadence; it omits detector input preprocessing entirely, so it is an upper bound, and the +7.5 % headroom (23.33 ms) is less than half the omitted stage's measured floor (50.867 ms). Corrected: >= 360.87 ms = <= 2.771 dec/s. P3 misses the contract in **both** clock conditions. See `finding-2026-10-03-p3-decision-latency-is-a-stage-sum.md` |
+| 24 | 2.73 dec/s governor; 2.88–2.76 above median | abstract | yes | same | **Direction PASS, construct FAIL.** Same stage-sum construct as row 23, so these too are upper bounds — which leaves the **FAIL** verdicts intact a fortiori (an upper bound that already misses, misses after correction). Quotable as FAILs, not as cadences |
+
+**Method limitation this pass exposed (recorded, not hidden).** Rows 23-24 were marked PASS by this
+audit on 10-02. The audit's question was *"is this number sourced to an artifact?"* — and it was.
+The audit never asked *"does the measurement construct support the claim the number is used to
+make?"* A stage sum traced faithfully to its artifact passes a provenance audit and still cannot
+carry a contract verdict. Any future audit row asserting a **threshold has been met** must name the
+construct, not just the artifact.
 | 25 | 1,100 / 420 / 680 / 151 sources | ch03 §3.1.1, ch05 | yes, corpus-facts block | measured from `data/isafetybench/` | **PASS** |
 
 **UPDATE 2026-10-02, after the fix.** All sixteen sheet-coverage failures are closed: rows 1–19

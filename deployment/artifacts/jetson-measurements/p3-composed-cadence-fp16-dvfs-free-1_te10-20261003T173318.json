@@ -1,0 +1,140 @@
+{
+  "git_commit": "6319b21-dirty",
+  "timestamp": "2026-10-03T17:33:21.038578",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 115200,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 115200,
+        "cur_khz": 115200,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 306000000,
+        "cur_hz": 306000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": false,
+      "gpu": false,
+      "any": false
+    },
+    "load_average": [
+      0.16064453125,
+      0.9638671875,
+      1.541015625
+    ],
+    "competing_processes": [],
+    "quiet": true
+  },
+  "mode": "fp16",
+  "cadence_contract_decisions_per_sec": 3.0,
+  "configs": [
+    {
+      "n_streams": 1,
+      "target_fps": 1000.0,
+      "max_frames": 480,
+      "imgsz": 800,
+      "crop_px": 224,
+      "t_window": 16,
+      "n_max": 8,
+      "conf": 0.25,
+      "app_buckets": [
+        1,
+        2,
+        4,
+        8
+      ],
+      "token_input": "tokens",
+      "mask_input": "mask",
+      "detector_stage": "p3-detector",
+      "head_stage": "p3-relation-head-bin-e3",
+      "elapsed_sec": 40.948,
+      "aggregate_fps": 11.72,
+      "read_fps": 11.72,
+      "drop_rate": 0.0,
+      "worst_stream_decisions_per_sec": 1.441,
+      "meets_cadence_all_streams": false,
+      "streams": [
+        {
+          "id": 0,
+          "source": "1_te10.mp4",
+          "view": "3",
+          "has_zones": true,
+          "frames": 480,
+          "processed": 480,
+          "dropped": 0,
+          "n_decisions": 59,
+          "decisions_per_sec": 1.441,
+          "frame_latency_ms": {
+            "p50": 48.33,
+            "p95": 57.72,
+            "p99": 59.01
+          },
+          "head_latency_ms": {
+            "p50": 1.0,
+            "p95": 1.07,
+            "p99": 1.11
+          }
+        }
+      ]
+    }
+  ],
+  "device_state_after": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 115200,
+        "cur_khz": 1036800,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 115200,
+        "cur_khz": 115200,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 306000000,
+        "cur_hz": 306000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": false,
+      "gpu": false,
+      "any": false
+    },
+    "load_average": [
+      1.3447265625,
+      1.18408203125,
+      1.58935546875
+    ],
+    "competing_processes": [],
+    "quiet": true
+  },
+  "clock_state_stable": true
+}

@@ -1,0 +1,61 @@
+{
+  "back_to_back": {
+    "p50": 25.944,
+    "p95": 37.085,
+    "p99": 43.331,
+    "n": 60
+  },
+  "idle_210ms": {
+    "p50": 55.832,
+    "p95": 66.888,
+    "p99": 66.922,
+    "n": 60
+  },
+  "idle_over_back_to_back": 2.152,
+  "idle_gap_ms": 210.0,
+  "in_loop_tower_p50_ms": 58.63,
+  "is_device_number": true,
+  "git_commit": "9c1e219",
+  "timestamp": "2026-10-01T23:42:42.052876",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 729600,
+        "cur_khz": 1113600,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 729600,
+        "cur_khz": 729600,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 306000000,
+        "cur_hz": 714000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": false,
+      "gpu": false,
+      "any": false
+    },
+    "load_average": [
+      0.14404296875,
+      0.3017578125,
+      0.49560546875
+    ],
+    "competing_processes": [],
+    "quiet": true
+  }
+}

@@ -1,0 +1,143 @@
+TRẠNG THÁI BIÊN SOẠN LUẬN VĂN TIẾNG VIỆT
+Cập nhật: 03/10/2026 (lần trước: 20/09/2026)
+Quyết định ràng buộc: toàn bộ báo cáo bằng tiếng Việt, văn phong báo cáo nghiên cứu khoa học
+(tác giả chốt 20/09/2026). Chương mới soạn TRỰC TIẾP bằng tiếng Việt, không viết tiếng Anh rồi dịch.
+Định dạng: .txt, tác giả tự đưa vào mẫu của trường.
+
+Quy ước số trong toàn bộ bản tiếng Việt: dấu chấm thập phân, dấu phẩy hàng nghìn
+(giữ đúng quy ước đã dùng trong bao-cao-tien-do-2026-09-17.txt).
+
+MỐC THỜI GIAN: bảo vệ GIỮA THÁNG 10/2026. ĐÓNG BĂNG SỐ 05/10/2026. ĐÓNG GÓI 10/10/2026.
+Sau 05/10 không thêm số đo mới vào báo cáo; chỉ sửa câu chữ.
+
+======================================================================
+BẢNG TIẾN ĐỘ
+======================================================================
+
+  Chương                                   | Nguồn          | Trạng thái      | Ước lượng còn
+  -----------------------------------------+----------------+-----------------+---------------
+  Tóm tắt (abstract)                       | dịch+viết lại  | chưa bắt đầu    | 2h
+  Ch1. Mở đầu                              | dịch ch01      | chưa bắt đầu    | 4h
+  Ch2. Tổng quan                           | dịch ch02      | chưa bắt đầu    | 4h
+  Ch3. Phương pháp                         | dịch ch03      | chưa bắt đầu    | 4h
+  Ch4. Lạm phát giao thức đánh giá         | SOẠN MỚI       | BẢN THẢO XONG   | 2h hoàn thiện
+  Ch5. iSafetyBench: G10, G11, ablation    | SOẠN MỚI       | chưa bắt đầu    | 6h
+  Ch6. Triển khai biên P1 + chi phí P3     | SOẠN MỚI       | THÂN CHƯA XONG  | 2h
+  Ch7. Phân tích thất bại (viết lại ch07)  | VIẾT LẠI       | chưa bắt đầu    | 5h
+  Ch8. Kết luận                            | dịch ch06      | chưa bắt đầu    | 3h
+  Phụ lục: bảng log, cấu hình fold         | tổng hợp       | chưa bắt đầu    | 2h
+
+  Tổng ước lượng còn lại: ~34h viết + ~3h demo. PHIÊN JETSON ĐÃ XONG (0h còn lại):
+  thiết bị đã trả về trạng thái nền đã lưu, không còn phép đo nào cần chạy trên board.
+
+  TỆP ĐÃ CÓ BẢN THẢO:
+    - Ch4: chuong-04-lam-phat-giao-thuc-va-danh-gia-cheo-camera.txt (331 dòng)
+    - Ch6: chuong-06-trien-khai-bien-va-chi-phi-quyet-dinh.txt (1,152 dòng)
+
+  Ch6 còn thiếu đúng một việc: THÂN chương chưa cập nhật theo nhịp B1 sau khi sửa tiền xử lý
+  (khối cảnh báo thứ nhất trong tệp đã nêu con số, thân chương thì chưa). Các PHÁN QUYẾT HỢP
+  ĐỒNG của P3 thì ĐÃ cập nhật xong (mục 6.2.2, 6.4 + 6.4b, 6.5.2, 6.5.3, 6.5.5, 6.7.3, 6.9, 6.10).
+
+  HAI TỆP Ch6 — chỉ một tệp được nộp:
+    - chuong-06-trien-khai-bien-va-chi-phi-quyet-dinh.txt .............. BẢN NỘP (DVFS)
+    - chuong-06-...-ghim-xung-nhip.txt ....... CHỈ LƯU HỒ SƠ, KHÔNG NỘP, thân KHÔNG cập nhật
+  Không trộn hai tệp. Không nộp tệp ghim xung nhịp.
+
+======================================================================
+GHI CHÚ RÀNG BUỘC KHI VIẾT (đọc trước mỗi phiên)
+======================================================================
+
+1. CHƯA CHI TEST TOUCH NÀO (0/2). Hai con số val_macro 89.15% (E3) và 90.92% (E0) là
+   CHỈ SỐ CHỌN MÔ HÌNH LÚC HUẤN LUYỆN, KHÔNG phải độ chính xác trên tập kiểm thử.
+   Tuyệt đối không viết chúng như kết quả accuracy. T1 phải đăng ký trước và có tác giả duyệt.
+   Dùng data/test để ĐO THỜI GIAN thì KHÔNG tiêu một touch.
+
+2. G11 THẤT BẠI và phải được báo cáo TRƯỚC, rồi mới tới E0. Thứ tự ngược lại là gian lận học thuật.
+   E3 giữ nguyên là encoder headline (D3); E0 không được đôn lên.
+
+3. Mọi phát biểu về bất biến kiến trúc (R47) phải giới hạn phạm vi vào Unsafe-Net. Trên
+   iSafetyBench tính bất biến đã BỊ BÁC BỎ (E0 − E3 = +5.1 pp, p = 7.7e-06).
+
+4. Mọi phát biểu LCO nói theo FOLD, không nói theo VIEW (đồng thuận chỉ 81.7%).
+
+5. Nhóm bối cảnh Unsafe-Net là proxy KMeans(8), KHÔNG phải siêu dữ liệu camera đã kiểm chứng.
+   Phải viết "nhóm bối cảnh", không viết "camera", khi nói về Unsafe-Net.
+
+6. Con số "95.7% mAP" đã bị rút lại — không được phục hồi ở bất kỳ chương nào.
+
+7. Ch6 phải công bố rõ: chương độ chính xác dùng P3, HỆ THỐNG ĐƯỢC TRIỂN KHAI là P1 (D2).
+   Hai pipeline khác nhau, không được trộn số. Ch6 có cả số P1 (hệ triển khai) và số P3
+   (đường cong chi phí) — mỗi bảng phải ghi rõ bảng đó thuộc pipeline nào.
+
+8. multi-stream-results.json tự ghi chú là "hand-patched" — chưa xác minh có phải số đo thật.
+   Không trích như số đo thô cho tới khi làm rõ. Bảng 5.4 (bản tiếng Anh) đang dựa trên tệp này.
+
+9. KẾT LUẬN HEADLINE LÀ LẠM PHÁT GIAO THỨC (D1), KHÔNG phải một con số accuracy. Làn headline
+   về nhịp quyết định là R48/B1 (CLIP ViT-B/32 đóng băng + đầu B1 thời gian). Không mở đầu
+   luận văn bằng một con số độ chính xác.
+
+======================================================================
+RÀNG BUỘC MỚI 03/10/2026 — CÁCH TRÍCH SỐ NHỊP QUYẾT ĐỊNH
+======================================================================
+
+Hai phát biểu ĐÃ BỊ RÚT LẠI và KHÔNG được xuất hiện ở bất kỳ chương nào:
+  (a) "P3 ĐẠT hợp đồng 3.0 qđ/giây" — sai.
+  (b) "P3 TRƯỢT hợp đồng ở CẢ HAI điều kiện xung nhịp" — cũng sai. Phát biểu này của chính
+      tôi ở buổi sáng 03/10 đã bị phép đo cùng ngày bác bỏ: ở nhánh GHIM NHỊP, P3 ĐẠT trên
+      2 trong 3 đoạn video.
+
+10. KẾT LUẬN ĐÚNG HIỆN NAY: nhịp của P3 phụ thuộc TRẠNG THÁI XUNG NHỊP *VÀ* phụ thuộc CHÍNH
+    ĐOẠN VIDEO. Ghim nhịp: 3.479 / 3.965 ĐẠT, 2.493 TRƯỢT (trung vị 3.479). DVFS: 1.141 /
+    1.441 / 1.511 — TRƯỢT cả 3, trung vị 1.441, tức THIẾU 2.08 LẦN. Hai nhánh RỜI NHAU:
+    max(DVFS) = 1.511 < min(ghim) = 2.493.
+
+11. KHÔNG BAO GIỜ trích TỔNG GIAI ĐOẠN (stage sum) làm phán quyết hợp đồng. Tổng giai đoạn
+    sai theo CẢ HAI CHIỀU, dấu của sai số đổi theo trạng thái xung nhịp:
+      - ghim nhịp: tổng giai đoạn CAO HƠN THỰC 7.98% (bỏ sót bù trừ gần hết phần tính trùng)
+      - DVFS:      tổng giai đoạn THẤP HƠN THỰC 39.3% (phần bỏ sót áp đảo)
+    Vì vậy nó KHÔNG phải chặn trên, cũng KHÔNG phải chặn dưới. Không có hệ số hiệu chỉnh nào
+    cứu được nó. Chỉ trích các tệp `p3-composed-cadence-fp16-*.json` cho mọi phán quyết nhịp.
+
+12. BA QUY TẮC ĐỌC tệp đo nhịp (vi phạm là báo cáo sai):
+    (1) `--fps F` là BỘ ĐỊNH NHỊP CỘNG THÊM, KHÔNG phải một hạn kỳ — đây là MỘT LỖI THẬT
+        (stream-pipeline-utils.py:84 ngủ `period` SAU phần việc, nên nhịp = 1/(1/F + work) < F).
+        Các dòng `--fps 24` KHÔNG phải phán quyết hợp đồng. Phán quyết nằm ở các lần chạy
+        tự do (`--fps 1000`, N=1).
+    (2) `drop_rate = 0` KHÔNG phải bằng chứng chạy thời gian thực khi N <= 2 — bộ đọc nằm
+        cùng vòng lặp sự kiện với bộ tiêu thụ nên hai bên đi lockstep. Trích `read_fps` so
+        với `target_fps`, TUYỆT ĐỐI KHÔNG trích `drop_rate`.
+    (3) `clock_state_stable` CHỈ nghĩa là CHẾ ĐỘ ghim và mức tranh chấp không đổi, KHÔNG
+        nghĩa là tần số giữ nguyên. Trường này đọc `true` cho mọi lần chạy DVFS trong khi
+        `policy0 cur_khz` nhảy 1,574,400 -> 192,000 NGAY TRONG một lần chạy. Mã khớp với
+        docstring của nó; CÁI BẪY LÀ TÊN TRƯỜNG.
+
+13. DVFS KHÔNG PHẢI MỘT ĐIỀU KIỆN ĐO LẶP LẠI ĐƯỢC trên thiết bị này. 11 lần chạy qua hai ngày:
+    ghim nhịp 309.08–311.78 ms (phân tán 0.49%), DVFS 365.88–440.01 ms (20.3%), hai tập KHÔNG
+    giao nhau. Giả thuyết do nhiệt đã BỊ BÁC BỎ (trung vị có cổng nhiệt 421.52 so với không
+    cổng 422.82, lệch 0.31%); nguyên nhân là bộ điều tốc tự dốc tần số trong lúc chạy.
+    Khi trích con số phân tán 2.42% phải ghi rõ "trong cùng một phiên" — nó KHÔNG đo được
+    tính lặp lại của DVFS.
+
+14. CƠ CHẾ (đã ghi máy, không phải suy đoán): dưới `schedutil`, `policy4` (lõi 4-5) nằm ở
+    115,200 kHz — mức SÀN — trong MỌI mẫu DVFS, trước và sau mọi lần chạy. Vòng lặp tổ hợp
+    bị chặn ở CPU khâu tiền xử lý — đúng phần việc mà tổng giai đoạn bỏ sót (18.89 ms/khung
+    khi ghim nhịp, 62.91 ms/khung khi DVFS).
+
+15. CẤM trích các dòng điều khiển KHÔNG-GIẢI-MÃ (`decisions_per_sec_p50` = 3.68/3.66/3.66).
+    Toàn bộ bảng số dùng điều kiện CÓ GIẢI MÃ. Chỉ trích
+    `ms_per_decision_p50_with_stream_decode` / `decisions_per_sec_p50_with_stream_decode`.
+
+======================================================================
+CÂU HỎI CHƯA GIẢI QUYẾT
+======================================================================
+
+1. Khâu lắp ghép token 74 chiều trên thiết bị có khớp SỐ HỌC với pipeline lúc huấn luyện hay
+   không — chưa kiểm chứng. Huấn luyện lấy 16 khung RẢI ĐỀU trên cả clip; triển khai trượt
+   cửa sổ 16 khung LIÊN TIẾP. Vì khe hở này, các tệp đo nhịp KHÔNG báo cáo độ chính xác.
+2. Chưa có phép đo SOAK cho quyết định tổ hợp (cả hai lần soak chỉ nạp giai đoạn bộ phát hiện).
+3. Chưa có phân vị (p95/p99) cho nhịp tổ hợp — chỉ có trung vị. Không được viết p95 tổ hợp.
+4. Tệp đo nhịp thiếu `seed`, `data_root`, và kích thước từng đoạn video (hoãn sửa: thay đổi
+   mã đo quá sát mốc đóng băng 05/10).
+5. Bảng 4.5: nguồn gốc con số độ tin cậy chưa truy được hết. Bảng 4.1–4.4 chưa có tệp log
+   tương ứng. Hình 4.1 còn 5 trong 6 ô chưa commit.
+6. Video demo dự phòng (mục 11) CHƯA TỒN TẠI.

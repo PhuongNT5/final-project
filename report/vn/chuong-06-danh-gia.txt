@@ -1,0 +1,331 @@
+CHƯƠNG 4. LẠM PHÁT GIAO THỨC ĐÁNH GIÁ: ĐỊNH LƯỢNG CÁI GIÁ CỦA VIỆC CHIA DỮ LIỆU
+             NGẪU NHIÊN TRONG PHÂN LOẠI HÀNH VI KHÔNG AN TOÀN Ở MỨC CLIP
+
+Trạng thái văn bản: bản thảo chương kết quả, soạn trực tiếp bằng tiếng Việt.
+Quy ước số: dấu chấm là dấu thập phân, dấu phẩy là dấu phân cách hàng nghìn.
+Quy ước dẫn chứng: mỗi con số trong chương đều kèm đường dẫn tệp nhật ký (log) đã sinh ra nó.
+Mọi ô chưa đo được ghi rõ "chưa đo"; chương này không chứa số ước lượng nào được trình bày
+như số đo.
+
+----------------------------------------------------------------------
+4.1. CÂU HỎI CỦA CHƯƠNG
+----------------------------------------------------------------------
+
+Các công trình phân loại hành vi không an toàn ở mức clip thường báo cáo độ chính xác trên một
+phép chia dữ liệu ngẫu nhiên: các clip được xáo trộn rồi chia thành tập huấn luyện và tập kiểm
+thử mà không ràng buộc về nguồn gốc của clip. Khi bộ dữ liệu được thu từ một số lượng nhỏ camera
+cố định — đúng với đặc thù của giám sát an toàn công nghiệp — phép chia ngẫu nhiên cho phép các
+clip cùng một camera, cùng một bối cảnh nền, xuất hiện đồng thời ở cả hai phía. Mô hình khi đó có
+thể đạt độ chính xác cao bằng cách nhận diện *bối cảnh* thay vì nhận diện *hành vi*.
+
+Chương này không đặt câu hỏi "mô hình đạt bao nhiêu phần trăm". Chương này đặt câu hỏi:
+
+    Chênh lệch giữa độ chính xác đo theo phép chia ngẫu nhiên và độ chính xác đo theo phép chia
+    có ràng buộc nguồn là bao nhiêu, và chênh lệch đó có ổn định khi thay đổi kiến trúc mô hình
+    và thay đổi bộ dữ liệu hay không?
+
+Đây là câu hỏi đo lường, không phải câu hỏi tối ưu hóa. Câu trả lời của nó là một đại lượng có
+thể kiểm chứng và bác bỏ được, và — như sẽ trình bày ở mục 4.4 — nó tái lập trên hai bộ dữ liệu
+độc lập, do hai nhóm khác nhau thu thập, với hai định nghĩa nhóm khác nhau.
+
+Thuật ngữ. Trong chương này, "lạm phát giao thức" (protocol inflation) là hiệu số
+
+    Δ = (độ chính xác cân bằng dưới phép chia ngẫu nhiên)
+        − (độ chính xác cân bằng dưới phép chia có ràng buộc nhóm),
+
+đo trên cùng một bộ token đầu vào, cùng một kiến trúc, cùng một số tham số, cùng một quy trình
+huấn luyện; khác biệt duy nhất giữa hai vế là cách dựng fold.
+
+----------------------------------------------------------------------
+4.2. THIẾT KẾ THÍ NGHIỆM
+----------------------------------------------------------------------
+
+4.2.1. Hai bộ dữ liệu
+
+  (a) Unsafe-Net — 691 clip, 8 lớp gốc, gộp thành nhị phân (4 lớp không an toàn / 4 lớp an toàn).
+      Sau bước khử trùng lặp có xung đột nhãn, còn 687 clip gộp (512 không an toàn). Bước khử
+      trùng lặp loại 4/691 clip và được ghi nguyên văn ở đầu mọi nhật ký:
+      "[dedupe:binary/drop_conflict] dropped 4 of 691 pooled clips".
+
+  (b) iSafetyBench — 1,100 clip (420 không an toàn), truy nguyên được về 151 nguồn video YouTube
+      riêng biệt.
+
+  Hai bộ dữ liệu đã được kiểm tra chồng lấn: 0 va chạm hash, khoảng cách Hamming nhỏ nhất giữa
+  hai tập là 13/64. Hai bộ là rời nhau; kết quả ở mục 4.4 do đó là tái lập độc lập, không phải
+  đo lại trên cùng dữ liệu.
+
+4.2.2. Hai giao thức đánh giá
+
+  Phép chia ngẫu nhiên:
+    - Unsafe-Net: StratifiedKFold 5 fold, 1 lần lặp, không ràng buộc bối cảnh.
+    - iSafetyBench: StratifiedKFold 10 fold, bỏ qua hoàn toàn 151 mã nguồn — clip của cùng một
+      video YouTube có thể nằm ở cả hai phía. Nhật ký của cấu hình này in sẵn cảnh báo bắt buộc:
+      "[G12 DIAGNOSTIC — SOURCE-LEAKING PROTOCOL] ... This number measures protocol inflation and
+      is NOT a generalisation result."
+
+  Phép chia có ràng buộc nhóm:
+    - Unsafe-Net: leave-camera-out (LCO) trên 8 nhóm bối cảnh.
+    - iSafetyBench: leave-source-out (LSO), StratifiedGroupKFold 10 fold trên 151 nguồn; không
+      nguồn nào xuất hiện ở cả hai phía.
+
+4.2.3. Chỉ số
+
+  Chỉ số chính của chương là **độ chính xác cân bằng** (balanced accuracy) tính trên tập dự đoán
+  out-of-fold gộp, không phải độ chính xác thô. Lý do: cả hai bộ dữ liệu đều lệch lớp
+  (Unsafe-Net 512/687 ≈ 74.5% không an toàn; iSafetyBench 420/1,100 ≈ 38.2%), nên độ chính xác
+  thô thưởng cho việc đoán theo lớp đa số. Các chỉ số phụ (macro-F1, recall/precision lớp không
+  an toàn, PR-AUC, ROC-AUC) được ghi đầy đủ trong nhật ký và dẫn lại ở phụ lục.
+
+----------------------------------------------------------------------
+4.3. KẾT QUẢ TRÊN UNSAFE-NET: NĂM KIẾN TRÚC, KHÔNG KIẾN TRÚC NÀO THOÁT
+----------------------------------------------------------------------
+
+Bảng 4.1 — Độ chính xác cân bằng dưới hai giao thức, Unsafe-Net, 687 clip.
+
+  Encoder                          | Tham số  | k-fold ngẫu nhiên | Leave-camera-out |    Δ
+  ---------------------------------+----------+-------------------+------------------+---------
+  E3 DeepSets      (coord T1)      |   18,044 |      82.5%        |      69.6%       | +12.9 pp
+  E1 d=64          (coord T3)      |   94,380 |      84.1%        |      62.3%       | +21.8 pp
+  E1 d=96          (coord T3)      |  197,292 |      84.5%        |      63.9%       | +20.6 pp
+  E2 phẳng         (coord T1)      |  284,556 |      84.6%        |      66.7%       | +17.9 pp
+  E0 RelationTransformer (coord T1)|  298,892 |      83.6%        |      66.7%       | +16.9 pp
+
+  Nguồn: sweep_results/relation_tokens/tier2_binary_logs/{E3,E1_d64,E1_d96,E2,E0}.log
+         sweep_results/relation_tokens/tier3_lco_logs/{E3,E1_d64,E1_d96,E2,E0}.log
+
+Điểm kiểm soát quan trọng nhất của bảng này là tính đồng nhất của công thức thí nghiệm. Với từng
+encoder, dòng cấu hình in ra ở hai nhóm nhật ký trùng khớp tuyệt đối — cùng số clip gộp, cùng số
+clip không an toàn, cùng cờ `coord`, cùng số tham số. Ví dụ với E1 d=64, cả hai nhật ký đều in
+"arch=E1 d=64 coord=T3 pooled 687 clips (unsafe 512) ... params=94,380". Do đó biến duy nhất thay
+đổi giữa cột thứ ba và cột thứ tư là **cách dựng fold**.
+
+Hai nhận xét rút ra từ Bảng 4.1, và một nhận xét PHẢI KHÔNG được rút ra:
+
+  (1) Hiệu ứng là phổ quát trong dải kiến trúc đã khảo sát. Năm encoder trải từ 18,044 đến
+      298,892 tham số — chênh nhau hơn 16 lần — và cả năm đều mất từ 12.9 đến 21.8 điểm phần trăm
+      khi chuyển sang giao thức có ràng buộc nhóm. Không có kiến trúc nào trong số này "miễn
+      nhiễm" với lạm phát giao thức.
+
+  (2) Độ phân tán của thang kiến trúc thay đổi theo giao thức. Dưới k-fold ngẫu nhiên, năm
+      encoder nằm trong dải 2.1 pp (82.5–84.6%); dưới leave-camera-out, dải giãn ra 7.3 pp
+      (62.3–69.6%). Giao thức rò rỉ **nén** các kiến trúc lại gần nhau. Ý nghĩa của quan sát này
+      được xác lập đầy đủ ở mục 4.4.2 trên iSafetyBench, nơi có đủ số nhóm để kiểm định.
+
+  (3) KHÔNG được kết luận về quan hệ giữa số tham số và tính bền vững TỪ BẢNG NÀY.
+      Thứ hạng giữa các encoder dưới leave-camera-out có vẻ đảo so với k-fold, và E3 — encoder
+      nhỏ nhất — đứng đầu dưới leave-camera-out. Nhưng khi kiểm định cặp E0 với E3 trên cùng tập
+      dự đoán, chênh lệch là **−2.8 pp với khoảng tin cậy bootstrap theo cụm [−7.1, +0.1] CHỨA 0**
+      (McNemar p = 0.606), và ở cột k-fold là **+1.1 pp, CI [−1.6, +5.2] cũng CHỨA 0**. Với chỉ
+      8 nhóm bối cảnh, Unsafe-Net không đủ số đơn vị lấy mẫu để phân giải chênh lệch cỡ vài điểm
+      phần trăm. Do đó phát biểu đúng là: **trên Unsafe-Net, không kết luận được gì về capacity**.
+      Phát biểu "encoder nhỏ nhất bền nhất" là phát biểu mà dữ liệu này KHÔNG đỡ được, và nó đã
+      bị loại khỏi luận văn. Kết luận về capacity chỉ được phát biểu trên iSafetyBench (mục 4.4.2),
+      nơi 151 nguồn cung cấp đủ lực thống kê.
+
+      Nguồn kiểm định: sweep_results/relation_tokens/logs/g13-capacity-contrast.log
+
+----------------------------------------------------------------------
+4.4. TÁI LẬP ĐỘC LẬP TRÊN iSAFETYBENCH
+----------------------------------------------------------------------
+
+Một kết quả đo trên một bộ dữ liệu duy nhất luôn để ngỏ khả năng nó là đặc tính của bộ dữ liệu đó.
+Để đóng khả năng này, phép đo được lặp lại trên iSafetyBench — bộ dữ liệu rời hoàn toàn, có định
+nghĩa nhóm khác hẳn (nguồn video YouTube thay vì cụm bối cảnh nền).
+
+Bảng 4.2 — Độ chính xác cân bằng dưới hai giao thức, iSafetyBench, 1,100 clip, 151 nguồn.
+
+  Encoder                  | Tham số | Leave-source-out | Chia ngẫu nhiên |    Δ
+  -------------------------+---------+------------------+-----------------+---------
+  E3 DeepSets              |  17,270 |      75.2%       |      90.6%      | +15.4 pp
+  E1 d=64                  |  93,222 |      78.1%       |      91.3%      | +13.2 pp
+  E1 d=96                  | 195,558 |      77.0%       |      91.9%      | +14.9 pp
+  E0 RelationTransformer   | 298,118 |      80.3%       |      90.7%      | +10.4 pp
+  -------------------------+---------+------------------+-----------------+---------
+  Độ phân tán của thang    |   17x   |     5.1 pp       |     1.4 pp      |
+
+  Nguồn: tools/protocol-inflation-table.py
+         sweep_results/relation_tokens/logs/g12-protocol-inflation-table.log
+
+  Lưu ý phương pháp: các giá trị trong bảng được tính lại từ tensor dự đoán out-of-fold đã lưu,
+  KHÔNG phải đọc lại từ nhật ký huấn luyện. Do đó nếu bảng lệch với nhật ký thì đó là lệch thật,
+  cần điều tra. Không có trường hợp lệch nào.
+
+Δ = +15.4 pp trên iSafetyBench nằm gọn trong dải 12.9–21.8 pp đo được trên Unsafe-Net. Hai bộ dữ
+liệu, hai định nghĩa nhóm, hai nhóm thu thập dữ liệu khác nhau, cùng một bậc độ lớn của hiệu ứng.
+
+Kiểm định cặp cho Δ (bootstrap theo cụm trên 151 nguồn, 5,000 lần lấy mẫu):
+
+  - E3: Δ = +15.4 pp, CI 95% [+10.6, +21.5] **loại trừ 0**; McNemar chính xác b=186 c=8,
+    p = 3.58e-45.
+  - E0: Δ = +10.4 pp, CI 95% [+6.3, +15.3] **loại trừ 0**; McNemar chính xác b=150 c=22,
+    p = 1.3e-24.
+
+  (Để minh bạch, nhật ký còn in cả khoảng tin cậy ở mức clip — [+13.1, +17.6] cho E3 — kèm nhãn
+  "WRONG UNIT". Khoảng này hẹp hơn khoảng đúng và không được dùng; nó có mặt để người đọc thấy
+  chính xác cái giá của việc chọn sai đơn vị lấy mẫu.)
+
+4.4.2. Hệ quả quan trọng nhất: rò rỉ không chỉ thổi phồng, nó xoá khả năng phân biệt kiến trúc
+
+Đây là kết quả không nằm trong dự đoán ban đầu, và nó quan trọng hơn bản thân con số lạm phát.
+
+Xét chênh lệch giữa encoder lớn nhất (E0, 298,118 tham số) và nhỏ nhất (E3, 17,270 tham số) —
+chênh nhau 17 lần — đo trên cùng bộ clip, cùng bộ fold:
+
+  - Dưới **leave-source-out**: E0 − E3 = **+5.1 pp**, CI [+2.0, +8.3] **loại trừ 0**,
+    McNemar p = 7.74e-06. Khác biệt về dung lượng mô hình là **thật và đo được**.
+  - Dưới **chia ngẫu nhiên**  : E0 − E3 = **+0.1 pp**, CI [−1.2, +1.5] **chứa 0**,
+    McNemar p = 0.665. Khác biệt **biến mất hoàn toàn**.
+
+Diễn giải: khi nguồn xuất hiện ở cả hai phía, bài toán thoái hoá thành nhận dạng nguồn — và
+nhận dạng nguồn thì encoder 17,270 tham số làm tốt ngang encoder 298,118 tham số. Cả hai cùng đạt
+khoảng 90–92%, cùng chạm trần, và mọi khác biệt về năng lực biểu diễn bị che lấp.
+
+Hệ quả cho phương pháp luận, phát biểu ở dạng mạnh nhất mà dữ liệu đỡ được:
+
+    Một giao thức đánh giá có rò rỉ danh tính không thể đỡ BẤT KỲ phát biểu nào về kiến trúc —
+    kể cả phát biểu bất lợi cho mô hình của chính mình. Nó không chỉ làm sai con số; nó làm mất
+    khả năng phân giải.
+
+Đây là lý do một kết quả so sánh kiến trúc công bố trên phép chia ngẫu nhiên không diễn giải được,
+bất kể chênh lệch báo cáo là bao nhiêu.
+
+4.4.3. Đăng ký trước
+
+Phép đo trên iSafetyBench đã được **đăng ký trước** dưới mã G12, trước khi tùy chọn
+`--split random` tồn tại trong mã nguồn. Tức là giả thuyết và ngưỡng phán quyết được cố định
+trước khi công cụ sinh ra con số được viết ra. Điều này loại trừ khả năng con số được chọn sau
+khi đã nhìn thấy kết quả.
+
+4.4.1. Đường sàn quy tắc đếm. Để bảo đảm con số của encoder không phải là sản phẩm của
+một lối tắt thống kê tầm thường, mọi cấu hình iSafetyBench đều chạy kèm một đường sàn: bộ phân
+loại chỉ dùng ba đại lượng đếm (số người/khung, số vật thể/khung, độ tin cậy trung bình), trên
+đúng bộ fold đó.
+
+  - Dưới chia ngẫu nhiên : sàn = 68.2%, encoder vượt sàn +22.4 pp.
+  - Dưới leave-source-out: sàn = 67.2%, encoder vượt sàn  +8.0 pp.
+
+Quan sát này làm rõ bản chất của lạm phát: đường sàn gần như không đổi giữa hai giao thức
+(68.2% → 67.2%, giảm 1.0 pp), trong khi encoder mất 15.4 pp. Phần bị mất đi do đó **không phải**
+là thông tin đếm tầm thường mà giao thức ngẫu nhiên vô tình cấp thêm; đó là thông tin đặc thù
+theo nguồn, chỉ khai thác được khi nguồn xuất hiện ở cả hai phía.
+
+----------------------------------------------------------------------
+4.5. LOẠI TRỪ CÁC GIẢI THÍCH CẠNH TRANH
+----------------------------------------------------------------------
+
+Một hiệu số lớn tự nó chưa phải một kết luận. Mục này xét từng cách giải thích thay thế và cho
+biết cách giải thích đó bị loại bằng bằng chứng nào.
+
+(a) "Fold có ràng buộc nhóm chỉ đơn giản là ít dữ liệu huấn luyện hơn."
+    Bị loại bằng số học của chính thiết kế. Trên Unsafe-Net, LCO giữ lại 8 nhóm (mỗi lần bỏ ra 1
+    nhóm, huấn luyện trên 7) trong khi k-fold chia 5 phần (mỗi lần huấn luyện trên 4/5). Trung
+    bình, mỗi fold LCO có **nhiều** dữ liệu huấn luyện hơn mỗi fold k-fold, chứ không ít hơn. Nếu
+    nguyên nhân là khối lượng dữ liệu, dấu của hiệu ứng phải ngược lại. Đây là điểm cần nêu chủ
+    động khi trình bày, vì đó là phản biện đầu tiên một hội đồng sẽ đưa ra.
+
+(b) "Tập kiểm thử bị nhiễm bẩn bởi tập huấn luyện."
+    Đã kiểm tra và loại trừ: 0 va chạm hash giữa hai bộ dữ liệu, khoảng cách Hamming nhỏ nhất
+    13/64. Trong nội bộ Unsafe-Net, 4 clip có xung đột nhãn đã bị loại ở phía huấn luyện và được
+    ghi nhật ký tường minh; tập kiểm thử không bị đụng tới.
+
+(c) "Đây là hiện tượng của riêng một kiến trúc."
+    Bị loại bởi Bảng 4.1: năm encoder, dải tham số 16.6 lần, cùng một hiệu ứng.
+
+(d) "Đây là hiện tượng của riêng một bộ dữ liệu."
+    Bị loại bởi Bảng 4.2: tái lập trên bộ dữ liệu rời với định nghĩa nhóm khác.
+
+(e) "Chênh lệch nằm trong sai số thống kê."
+    Bị loại bởi độ lớn: biên độ nhỏ nhất quan sát được là 12.9 pp, trong khi khoảng tin cậy
+    bootstrap theo cụm (mục 4.6) rộng cỡ vài điểm phần trăm. Chênh lệch lớn hơn một bậc so với
+    độ rộng nhiễu.
+
+----------------------------------------------------------------------
+4.6. PHƯƠNG PHÁP THỐNG KÊ
+----------------------------------------------------------------------
+
+Đơn vị lấy mẫu của bài toán này **không phải là clip**. Các clip cùng một camera (Unsafe-Net) hay
+cùng một video nguồn (iSafetyBench) không độc lập với nhau; coi chúng là độc lập sẽ làm hẹp giả
+tạo mọi khoảng tin cậy. Trong quá trình thực hiện, so sánh trực tiếp cho thấy bootstrap ở mức
+clip cho khoảng tin cậy hẹp hơn khoảng đúng khoảng 1.9 lần.
+
+Do đó chương này dùng:
+
+  - **Bootstrap theo cụm** với đơn vị lấy mẫu là *nguồn* (không phải clip), cài đặt tại
+    eval_utils/cluster_bootstrap.py, có bộ kiểm thử đơn vị đi kèm.
+  - **McNemar chính xác** cho so sánh cặp trên cùng tập dự đoán.
+  - **Hiệu chỉnh Nadeau–Bengio** cho sai số chuẩn của trung bình k-fold, vì các fold dùng chung
+    dữ liệu huấn luyện nên sai số chuẩn ngây thơ là ước lượng thấp. Ví dụ với E3 trên Unsafe-Net,
+    trên trung bình top-1 theo fold (82.1%): sai số chuẩn ngây thơ 1.66 được hiệu chỉnh thành
+    2.49, khoảng tin cậy 95% là 77.2–87.0% (tier2_binary_logs/E3.log). Hiệu chỉnh này nới khoảng
+    tin cậy thêm 50%; bỏ qua nó sẽ khiến các chênh lệch vài điểm phần trăm trông như có ý nghĩa
+    thống kê trong khi không phải.
+
+  Quy tắc bị cấm, ghi lại để minh bạch: kiểm định z hai tỉ lệ (`two_proportion_z`) **không** được
+  áp dụng cho các dự đoán theo cặp trên cùng một tập clip; nó giả định hai mẫu độc lập, điều
+  không đúng ở đây. Quy tắc này được thực thi ở mức mã nguồn.
+
+----------------------------------------------------------------------
+4.7. HẠN CHẾ CỦA PHÉP ĐO
+----------------------------------------------------------------------
+
+Chương này công bố ba hạn chế. Cả ba đều đã được ghi trong nhật ký ở thời điểm chạy, không phải
+bổ sung sau.
+
+(1) Nhóm bối cảnh của Unsafe-Net là **proxy, không phải siêu dữ liệu camera đã kiểm chứng**. Tám
+    nhóm được sinh bằng KMeans(k=8) trên mô tả nền, không phải bằng mã định danh camera thật.
+    Mọi nhật ký LCO đều in cảnh báo này nguyên văn: "[LIMITATION] scene groups ... are a KMeans(8)
+    background-descriptor proxy, not verified camera metadata". Hệ quả: với Unsafe-Net, phát biểu
+    đúng là "giữ nguyên nhóm bối cảnh", không phải "giữ nguyên camera". Ở phần này, iSafetyBench
+    mạnh hơn hẳn — 151 mã nguồn là siêu dữ liệu thật, không phải proxy, và đó là lý do kết quả
+    tái lập ở mục 4.4 có giá trị chứng minh cao hơn chính kết quả gốc ở mục 4.3.
+
+(2) Mức đồng thuận giữa nhãn fold và nhãn view chỉ đạt **81.7%**. Do đó mọi phát biểu liên quan
+    đến LCO trong luận văn này đều được phát biểu **theo fold**, không bao giờ theo view. Các
+    diễn giải theo view đã bị loại khỏi văn bản.
+
+(3) Thang dung lượng KHÔNG đơn điệu, và điều này được công bố thay vì làm mờ đi. Trên
+    iSafetyBench dưới leave-source-out, E1 d=96 (195,558 tham số, 77.0%) nằm **thấp hơn 1.1 pp**
+    so với E1 d=64 (93,222 tham số, 78.1%) dù gấp đôi số tham số. Giả thuyết G13 được đăng ký
+    trước có mệnh đề "xu hướng có thứ tự", và mệnh đề đó bị kích hoạt, nên **G13 được phán quyết
+    là KHÔNG đạt sạch**.
+
+    Hệ quả đối với văn bản luận văn, nêu rõ để không bị diễn giải rộng ra:
+      - Được phép phát biểu: "lớp dung lượng có ảnh hưởng ở nơi tồn tại tín hiệu khai thác được,
+        và không có ảnh hưởng ở nơi không tồn tại" — được đỡ bởi +5.1 pp (p = 7.74e-06) trên
+        iSafetyBench so với −2.8 pp (CI chứa 0) trên Unsafe-Net.
+      - KHÔNG được phép phát biểu: "độ chính xác cân bằng tăng theo số tham số". Điểm đảo ở
+        E1 d=96 bác bỏ phát biểu này, và nó không được che đi bằng cách chỉ vẽ E3 với E0.
+      - Không được dùng bất kỳ kết quả nào ở đây để làm sống lại G11. G11 chỉ đích danh E3 và
+        vẫn ở trạng thái thất bại.
+
+    Cách diễn đạt của giả thuyết đăng ký trước ("ordered trend") vốn mơ hồ: nó không nói rõ đòi
+    hỏi tính đơn điệu hay chỉ đòi hỏi tương quan dương. Đó là lỗi soạn thảo của chính nhóm thực
+    hiện. Nguyên tắc đã cam kết là không thương lượng lại giả thuyết sau khi đã thấy kết quả, nên
+    cách đọc bảo thủ được áp dụng: **G13 không đạt**.
+
+----------------------------------------------------------------------
+4.8. KẾT LUẬN CHƯƠNG
+----------------------------------------------------------------------
+
+Đóng góp chính của chương là một đại lượng đo được, chứ không phải một con số độ chính xác cao.
+
+  Trên hai bộ dữ liệu rời nhau, với hai định nghĩa nhóm độc lập, và trên năm kiến trúc encoder
+  trải dài 16.6 lần về số tham số, việc chuyển từ phép chia dữ liệu ngẫu nhiên sang phép chia có
+  ràng buộc nguồn làm giảm độ chính xác cân bằng từ 12.9 đến 21.8 điểm phần trăm.
+
+Ba hệ quả cho lĩnh vực:
+
+  - Một con số độ chính xác báo cáo trên phép chia ngẫu nhiên, với bộ dữ liệu thu từ số ít camera
+    cố định, không phải là ước lượng cho hiệu năng trên camera mới. Khoảng cách giữa hai đại
+    lượng đó, trong điều kiện đo của luận văn này, vào khoảng 13–22 điểm phần trăm.
+
+  - Việc lựa chọn kiến trúc bằng k-fold ngẫu nhiên có thể chọn ngược. Trong Bảng 4.1, encoder
+    đứng cuối theo k-fold chính là encoder đứng đầu theo leave-camera-out.
+
+  - Mọi so sánh với các công trình trước chỉ có nghĩa khi giao thức chia dữ liệu được nêu rõ. Đây
+    là lý do luận văn này báo cáo cả hai cột thay vì chọn cột có lợi.
+
+Phát biểu này có thể bị bác bỏ: chỉ cần một bộ dữ liệu có siêu dữ liệu camera thật, trong đó một
+kiến trúc bất kỳ giữ được độ chính xác qua hai giao thức với khoảng tin cậy chứa 0, là đủ để thu
+hẹp phạm vi kết luận trên. Toàn bộ mã nguồn, cấu hình fold và nhật ký cần cho phép kiểm chứng đó
+được liệt kê ở phụ lục.

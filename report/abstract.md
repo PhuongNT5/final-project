@@ -10,7 +10,9 @@ no source can supply clips to both sides of a split. The figure is reported agai
 **pre-registered 63.3 % floor** — a three-feature detector-count rule fitted on identical folds —
 never against 50 %. That same head is exported to TensorRT FP16 and measured on an Orin Nano Super
 8 GB (§5.6.9), where the **composed** loop — decode, preprocess, tower, head, nothing omitted —
-sustains **3.45 decisions/s** against this corpus's median real-time contract of 1.249 decisions/s,
+sustains **5.98 decisions/s** against this corpus's median real-time contract of 1.249 decisions/s
+(a 4.79x margin; 4.40 decisions/s and a 3.52x margin on all-1080p sources, against that
+same median contract),
 and where the detector is not in the class decision at all: YOLOv11s supplies localisation and is
 timed separately, never summed into the decision cost. The protocol carries as much of the claim as
 the number does: on this corpus a random fold turns source identity into a label proxy and inflates
@@ -56,10 +58,14 @@ balanced accuracy, Cohen's κ = 0.775, MCC = 0.785, per-class miss-rate and cost
 metrics, one-vs-rest ROC-AUC = 0.951, PR-AUC = 0.880, ECE = 0.097, and BCa/Wilson/McNemar statistics)
 and an edge-deployment characterisation (YOLO26 + Jetson TensorRT **FP16** — INT8 was never built for
 P3, no calibration set exists for it; the measured verdict is that P3's cadence is
-decided by the device's clock state: with the clocks pinned it reaches 3.23 dec/s at median crop
-load, clearing the 3.0 dec/s contract by 7.5 %, while under the default dynamic-frequency governor
-it reaches only 2.73 dec/s and misses the contract at every crop load; above the median it misses
-in both conditions, 2.88-2.76 dec/s pinned). Every 4-class figure in this paragraph comes
+decided by the device's clock state — pinning the clocks cuts the per-decision cost by 18.0 %
+(365.88 to 310.00 ms) and narrows the detector's p95/p50 tail from 1.51 to 1.03. That contrast is
+protocol-identical and is the P3 result. The underlying P3 figures are **a sum of separately-timed
+stages, not a composed loop**, and they omit the input preprocessing that this same campaign found
+to be the largest single cost in the deployed B1 graph; they are therefore **upper bounds on
+cadence**, the pinned arm's 7.5 % headroom over the 3.0 dec/s contract is less than half the omitted
+stage's measured floor, and **P3 misses its real-time contract in both clock conditions** — a second
+instance, on a different graph, of this thesis's own finding that a stage sum is not a cadence). Every 4-class figure in this paragraph comes
 from the **same predictor** — the val-selected blind rule scoring 54/64 — including the probability-based
 ones; earlier drafts had to compute those on a seed-averaged ensemble (52/64) because the blind seed's
 softmax had not been persisted, and that mismatch is now resolved (§7.5).
@@ -79,7 +85,7 @@ same-distribution top-1 metric, and it is candid that it should not try to: that
 video and guesses the camera scores 81.2 %, and the paper-style whole-frame classifier does no better. What
 the thesis **does** deliver is (a) a **leak-free, deployed binary detector** — 84.2 % balanced
 accuracy over 1,100 source-grouped clips against a pre-registered 63.3 % floor, exported to FP16 and
-measured end-to-end on an Orin Nano Super at 3.45 decisions/s; (b) a modern, reproducible
+measured end-to-end on an Orin Nano Super at 5.98 decisions/s; (b) a modern, reproducible
 **YOLOv11/Transformer entity-relation pipeline**
 (54/64, 88.4 % macro, above the no-bbox baseline on macro) whose supervision is placed on interpretable
 entities rather than behaviours; (c) a **rigorous scene-robustness analysis** showing that under

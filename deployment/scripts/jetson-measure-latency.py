@@ -130,18 +130,38 @@ def _timed(fn, warmup, runs):
 
 
 def run_decision_latency(engine_dir, mode, warmup, runs, dry_run, head_stage=None,
-                         clips_dir=None, n_clips=20):
-    """Per-DECISION latency on the real composition, not a sum of one pass per stage.
+                         clips_dir=None, n_clips=20, detector_stage='p3-detector'):
+    """STAGE SUM at per-decision multiplicity. NOT a cadence -- read this before quoting it.
 
-    benchmark-p3-onnx.py defines a P3 decision as: T frames of detection + postprocess
-    (confidence-select + Shapely zone geometry) + crop extraction + the clip's whole crop set
-    through appearance in ONE batched pass + one head pass. `end_to_end_naive_sum_ms_p50` from
-    run_latency() counts a SINGLE detector pass and a SINGLE batch-1 appearance pass, so its
-    `throughput_decisions_per_sec_naive` overstates the decision rate by more than an order of
-    magnitude and must never be reported as one.
+    What it fixes: `end_to_end_naive_sum_ms_p50` from run_latency() counts a SINGLE detector pass
+    and a SINGLE batch-1 appearance pass. This function uses the right MULTIPLICITIES and batch
+    shapes instead (T frames of detection, postprocess over T frames, the clip's whole crop set
+    through appearance in ONE batched pass, one head pass), matching benchmark-p3-onnx.py's
+    definition of a decision and its crop-count percentiles, so the two are directly comparable.
 
-    Same formula and the same crop-count percentiles as the Mac ONNX baseline, so the two are
-    directly comparable. The cadence contract is 24 fps at EMIT_EVERY=8 = 3.0 decisions/s.
+    What it does NOT do -- and what an earlier version of this docstring wrongly implied by
+    calling it "the real composition": it does not compose. Every term comes from _timed(), i.e.
+    that stage ALONE, back-to-back, warmed, on synthetic fixed tensors. Six costs are therefore
+    absent, three of them entire stages:
+      1. detector input preprocessing (T frames -> IMGSZ^2 resize + normalise + HWC->CHW + batch)
+         -- the single largest cost in the B1 graph when it was finally measured there;
+      2. appearance input preprocessing (extract_crops returns uint8 HWC; the engine is fed a
+         synthetic float NCHW batch, and the conversion between them is never timed);
+      3. the 74-d relation-token assembly (the head is fed _fixed_inputs too);
+      4. loop overhead -- ring buffer, cap.read() outside any timed span;
+      5. contention -- each stage is timed with the others idle, on a shared memory bus;
+      6. composed percentiles -- sum(p50) != p50(sum), and no composed p95/p99 exists here.
+    Every one of them can only ADD latency, so `decisions_per_sec_p50` is an UPPER BOUND on
+    cadence and `meets_3_per_sec_cadence` must not be read as a contract verdict. Use this
+    function for protocol-identical A/B contrasts (e.g. pinned vs default clocks, where both arms
+    omit the same stages); for an absolute cadence use a composed harness that measures the
+    interval between consecutive decisions over real video, as
+    benchmark-r48-composed-cadence.py does for B1.
+
+    Adjudicated 2026-10-03:
+      plans/2026-09-19-thesis-recovery-architecture/reports/
+        finding-2026-10-03-p3-decision-latency-is-a-stage-sum.md
+    The cadence contract is 24 fps at EMIT_EVERY=8 = 3.0 decisions/s.
     """
     stages = discover_engines(engine_dir)
     B = _bench_utils()
@@ -151,6 +171,7 @@ def run_decision_latency(engine_dir, mode, warmup, runs, dry_run, head_stage=Non
     result = {'mode': mode, 'engine_dir': engine_dir, 'warmup': warmup, 'runs': runs,
               'frames_per_decision': DECISION_T_FRAMES, 'imgsz': DECISION_IMGSZ,
               'crop_size': DECISION_CROP, 'head_stage': head_stage,
+              'detector_stage': detector_stage,
               'crop_scenarios': crop_scenarios, 'stages_found': sorted(stages),
               'stages_included': ['detector', 'postprocess(select+geometry)',
                                   'crop_extract(cv2)', 'appearance(batched)', 'head'],
@@ -162,14 +183,24 @@ def run_decision_latency(engine_dir, mode, warmup, runs, dry_run, head_stage=Non
         result['skipped_reason'] = ('dry-run: tensorrt/pycuda not available on this machine'
                                     if dry_run else f'tensorrt/pycuda import failed: {cuda}')
         return result
-    missing = [k for k in ('p3-detector', 'p3-appearance') if mode not in stages.get(k, {})]
+    missing = [k for k in (detector_stage, 'p3-appearance') if mode not in stages.get(k, {})]
     if missing or head_stage is None:
         result['skipped_reason'] = f'missing {mode} engine(s): {missing or ["<head>"]}'
         return result
 
-    det = TRU.TRTRunner(trt, cuda, stages['p3-detector'][mode])
+    det = TRU.TRTRunner(trt, cuda, stages[detector_stage][mode])
     head = TRU.TRTRunner(trt, cuda, stages[head_stage][mode])
     det_in, head_in = _fixed_inputs(det), _fixed_inputs(head)
+    # Report the size the detector engine ACTUALLY runs at. The input resolution is baked into
+    # the engine at build time and _fixed_inputs() already feeds it from that shape, so the
+    # DECISION_IMGSZ constant above is only a declared default: left unchecked it silently
+    # mislabels a run against a differently-sized engine (e.g. the 640 px cadence arm).
+    det_hw = [tuple(int(d) for d in e['shape'])[-2:] for e in det.inputs.values()
+              if len(e['shape']) == 4]
+    if det_hw:
+        h, w = det_hw[0]
+        result['imgsz'] = h if h == w else [h, w]
+        result['imgsz_source'] = 'detector engine input shape'
     result['detector_ms_per_frame'] = _timed(lambda: det.run(**det_in), warmup, runs)
 
     zones = next(iter(B.BRT.load_zones().values()), None)

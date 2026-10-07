@@ -1,0 +1,210 @@
+{
+  "mode": "fp16",
+  "engine_dir": "deployment/export/jetson-p3",
+  "warmup": 10,
+  "runs": 100,
+  "frames_per_decision": 16,
+  "imgsz": 800,
+  "crop_size": 224,
+  "head_stage": "p3-relation-head",
+  "crop_scenarios": {
+    "p50": 54,
+    "p95": 106,
+    "p99": 119,
+    "cap": 128,
+    "n_clips": 516,
+    "source": "measured"
+  },
+  "stages_found": [
+    "p3-appearance",
+    "p3-detector",
+    "p3-relation-head",
+    "p3-relation-head-bin-e3"
+  ],
+  "stages_included": [
+    "detector",
+    "postprocess(select+geometry)",
+    "crop_extract(cv2)",
+    "appearance(batched)",
+    "head"
+  ],
+  "formula": "T_FRAMES*detector_p50 + postprocess_p50 + crop_extract_p50 + appearance_p50 + head_p50",
+  "baseline_ref": "deployment/artifacts/benchmarks-p3-onnx-cpu.json",
+  "detector_ms_per_frame": {
+    "p50": 11.75,
+    "p95": 12.022,
+    "p99": 12.063,
+    "n": 100
+  },
+  "postprocess_ms_per_decision": {
+    "p50": 47.342,
+    "p95": 47.606,
+    "p99": 47.725,
+    "n": 100
+  },
+  "head_ms_per_decision": {
+    "p50": 0.286,
+    "p95": 0.3,
+    "p99": 0.31,
+    "n": 100
+  },
+  "decode": {
+    "source": {
+      "clips_dir": "data/test",
+      "clips_available": 125,
+      "clips_timed": 20,
+      "emit_every": 8,
+      "t_frames": 16,
+      "caveat": "file decode, not live sensor capture; not cache-warmed"
+    },
+    "seek_sampled_t_frames": {
+      "p50": 5541.653,
+      "p95": 8047.405,
+      "p99": 8107.644,
+      "n": 20,
+      "what": "16 frames reached by CAP_PROP_POS_FRAMES; OFFLINE extraction cost, NOT part of the deployment cadence"
+    },
+    "stream_frames_per_decision": {
+      "p50": 37.595,
+      "p95": 52.677,
+      "p99": 57.364,
+      "n": 20,
+      "what": "8 consecutive frames, no seek; the per-decision decode increment a live pipeline actually pays"
+    },
+    "stream_ms_per_frame": {
+      "p50": 4.699,
+      "p95": 6.585,
+      "p99": 7.17,
+      "n": 20
+    }
+  },
+  "by_scenario": {
+    "p50": {
+      "n_crops": 54,
+      "crop_extract_ms": {
+        "p50": 18.019,
+        "p95": 18.081,
+        "p99": 18.185,
+        "n": 100
+      },
+      "appearance_ms": {
+        "p50": 19.353,
+        "p95": 19.399,
+        "p99": 19.455,
+        "n": 100
+      },
+      "ms_per_decision_p50": 273.0,
+      "decisions_per_sec_p50": 3.66,
+      "meets_3_per_sec_cadence": true,
+      "ms_per_decision_p50_with_stream_decode": 310.6,
+      "decisions_per_sec_p50_with_stream_decode": 3.22,
+      "meets_3_per_sec_cadence_with_stream_decode": true
+    },
+    "p95": {
+      "n_crops": 106,
+      "crop_extract_ms": {
+        "p50": 37.394,
+        "p95": 37.507,
+        "p99": 37.713,
+        "n": 100
+      },
+      "appearance_ms": {
+        "p50": 36.912,
+        "p95": 37.64,
+        "p99": 38.006,
+        "n": 100
+      },
+      "ms_per_decision_p50": 309.93,
+      "decisions_per_sec_p50": 3.23,
+      "meets_3_per_sec_cadence": true,
+      "ms_per_decision_p50_with_stream_decode": 347.52,
+      "decisions_per_sec_p50_with_stream_decode": 2.88,
+      "meets_3_per_sec_cadence_with_stream_decode": false
+    },
+    "p99": {
+      "n_crops": 119,
+      "crop_extract_ms": {
+        "p50": 42.189,
+        "p95": 42.259,
+        "p99": 42.372,
+        "n": 100
+      },
+      "appearance_ms": {
+        "p50": 41.28,
+        "p95": 41.497,
+        "p99": 41.616,
+        "n": 100
+      },
+      "ms_per_decision_p50": 319.1,
+      "decisions_per_sec_p50": 3.13,
+      "meets_3_per_sec_cadence": true,
+      "ms_per_decision_p50_with_stream_decode": 356.7,
+      "decisions_per_sec_p50_with_stream_decode": 2.8,
+      "meets_3_per_sec_cadence_with_stream_decode": false
+    },
+    "cap": {
+      "n_crops": 128,
+      "crop_extract_ms": {
+        "p50": 45.467,
+        "p95": 45.604,
+        "p99": 45.668,
+        "n": 100
+      },
+      "appearance_ms": {
+        "p50": 44.302,
+        "p95": 44.968,
+        "p99": 45.761,
+        "n": 100
+      },
+      "ms_per_decision_p50": 325.4,
+      "decisions_per_sec_p50": 3.07,
+      "meets_3_per_sec_cadence": true,
+      "ms_per_decision_p50_with_stream_decode": 363.0,
+      "decisions_per_sec_p50_with_stream_decode": 2.75,
+      "meets_3_per_sec_cadence_with_stream_decode": false
+    }
+  },
+  "git_commit": "6319b21-dirty",
+  "timestamp": "2026-10-03T17:10:00.072928",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 1728000,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 1728000,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 1020000000,
+        "cur_hz": 1020000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": true,
+      "gpu": true,
+      "any": true
+    },
+    "load_average": [
+      4.70751953125,
+      2.7958984375,
+      1.77880859375
+    ],
+    "competing_processes": [],
+    "quiet": true
+  }
+}

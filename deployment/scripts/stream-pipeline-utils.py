@@ -16,6 +16,7 @@ Jetson alike.
 """
 import asyncio
 import collections
+import os
 from typing import Callable, Dict, List
 
 import cv2
@@ -25,15 +26,40 @@ QUEUE_MAX = 4
 T_WINDOW = 32
 EMIT_EVERY = 8
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+ART_DIR = os.path.join(os.path.dirname(os.path.dirname(_HERE)), 'deployment', 'artifacts')
+
+
+def _sibling(mod_name, fname):
+    """Lazy: only the artifact helpers below need these, and nothing else here should pay for
+    subprocess-capable imports just to decode frames."""
+    from importlib.util import module_from_spec, spec_from_file_location
+    spec = spec_from_file_location(mod_name, os.path.join(_HERE, fname))
+    mod = module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def _measure_utils():
+    return _sibling('jetson_measure_utils', 'jetson-measure-utils.py')
+
+
+def _clock_utils():
+    return _sibling('jetson_clock_state_utils', 'jetson-clock-state-utils.py')
+
 
 class StreamState:
-    def __init__(self, sid: int):
+    def __init__(self, sid: int, t_window: int = T_WINDOW):
+        """t_window: sliding-window length. P1 aggregates T=32 backbone feature maps; the P3
+        decision path keeps T=16 per-frame detection results, so the window is a parameter
+        rather than the module constant it used to be."""
         self.sid = sid
-        self.buf = collections.deque(maxlen=T_WINDOW)
+        self.buf = collections.deque(maxlen=t_window)
         self.frame_count = 0     # every frame read (incl. dropped)
         self.processed = 0       # frames that actually reached backbone inference
         self.dropped = 0
         self.head_latencies: List[float] = []
+        self.frame_latencies: List[float] = []   # whole per-frame pipeline, not just the head
         self.predictions: List[int] = []
 
 
@@ -86,6 +112,45 @@ def percentiles(xs) -> Dict[str, float]:
     return {"p50": round(float(np.percentile(a, 50)), 2),
             "p95": round(float(np.percentile(a, 95)), 2),
             "p99": round(float(np.percentile(a, 99)), 2)}
+
+
+def open_sweep_artifact(name, payload, out=None) -> tuple:
+    """(payload, path) for a concurrency sweep, provenance attached before the first config runs.
+
+    A sweep writes several numbers from one device state, so the state is captured here and again
+    by close_sweep_artifact() — a point-in-time check cannot see a clock pin that lands mid-sweep,
+    which is how the 2026-10-01 artifacts were contaminated. Unlabelled latency is what withdrew
+    the 09-29 device set; neither streaming harness may write a number without this.
+    """
+    from datetime import datetime
+    U = _measure_utils()
+    stamp = datetime.now()
+    payload = {'git_commit': U.git_commit(), 'timestamp': stamp.isoformat(),
+               'device_state': U.device_state(False), **payload}
+    _clock_utils().warn_if_unreliable(payload['device_state'])
+    path = out or os.path.join(ART_DIR, f'{name}-{stamp.strftime("%Y%m%dT%H%M%S")}.json')
+    return payload, path
+
+
+def close_sweep_artifact(payload) -> bool:
+    """Re-read the device state and record whether it held. Returns False if the clock pin or the
+    contention changed, in which case the configs are not comparable with each other."""
+    after = _measure_utils().device_state(False)
+    before = payload.get('device_state', {})
+    stable = (before.get('clocks_pinned') == after.get('clocks_pinned')
+              and before.get('quiet') == after.get('quiet'))
+    payload['device_state_after'] = after
+    payload['clock_state_stable'] = stable
+    return stable
+
+
+def flush_json(path, payload):
+    """Write after every config, not once at the end: a sweep that aborts on its last N must not
+    throw away the earlier ones — device time is the scarce resource."""
+    import json
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(payload, f, indent=2, default=str)
 
 
 def aggregate_fps(states: Dict[int, StreamState], elapsed: float) -> Dict:
