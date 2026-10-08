@@ -23,6 +23,12 @@ sweep_results/**/*.json
 !sweep_results/ablations/decorrelation.json
 !sweep_results/ablations/inference_ablation.json
 !sweep_results/ablations/bootstrap.json
+
+# Per-clip out-of-fold predictions: EVERY headline statistic in Chapter 6 and Chapter 7 is
+# computed from these (clustered bootstrap, exact McNemar, the G19 placebo seeds). Without them
+# in the repository a reader cannot verify a single adjudicated number, so they are kept despite
+# the blanket rule above. ~7.4 MB over 50 files.
+!sweep_results/**/*_oof.json
 !sweep_results/ablations/calibration_holdout.json
 !sweep_results/ablations/retrain.json
 deployment/*.pt
@@ -76,8 +82,22 @@ annotation_guide/**/*.png
 # CVAT export temp extraction
 annotation_guide/annotated/_extracted/
 
-# Phase 02 detector training outputs
-sweep_results/entity_detector/
+# Phase 02 detector training outputs. Entry-form (not `sweep_results/entity_detector/`) so the
+# negations below take effect: the 19-38 MB checkpoints and the PNG curve plots stay ignored, but
+# the four text artifacts the thesis cites by name are kept. Chapter 4 (4.5.5, note under Table
+# 4.1) and Chapter 7 (7.7.1(a)) both rest on them: train_run.log carries the ultralytics banner
+# that adjudicates the host CPU label (`MPS (Apple M3)`) AND the mAP@50 = 0 validation rows that
+# show the MPS/AdamW run collapsed, args.yaml records that run's `device: mps`, and
+# stage1_frozen/results.csv is the 3-epoch / 0.462 mAP record. Without them a reader cannot check
+# either disclosure. ~3.0 MB total.
+sweep_results/entity_detector/*
+!sweep_results/entity_detector/train_run.log
+!sweep_results/entity_detector/quick_check.log
+!sweep_results/entity_detector/reval-*.log
+!sweep_results/entity_detector/stage1_frozen/
+sweep_results/entity_detector/stage1_frozen/*
+!sweep_results/entity_detector/stage1_frozen/results.csv
+!sweep_results/entity_detector/stage1_frozen/args.yaml
 
 # Colab dataset package (large, regenerate via zip of dataset/)
 unsafe-net-detector-dataset.zip
