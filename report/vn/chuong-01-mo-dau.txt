@@ -1,0 +1,396 @@
+======================================================================
+CHƯƠNG 1. MỞ ĐẦU
+======================================================================
+
+Trạng thái văn bản: bản thảo chương mở đầu, soạn trực tiếp bằng tiếng Việt.
+Quy ước số: dấu chấm là dấu thập phân, dấu phẩy là dấu phân cách hàng nghìn.
+Quy ước dẫn chứng: mọi con số nêu trong chương này đều được dẫn lại đầy đủ, kèm tệp nhật ký sinh
+ra nó, ở chương tương ứng và ở Phụ lục A. Chương mở đầu nêu kết quả ở dạng tóm lược; nó không là
+nguồn trích dẫn cho bất kỳ con số nào.
+
+----------------------------------------------------------------------
+1.1. BỐI CẢNH VÀ ĐỘNG LỰC
+----------------------------------------------------------------------
+
+Nhà máy là môi trường có nguy hiểm thường trực. Người lao động dùng chung mặt sàn với xe nâng đang
+di chuyển, với máy đang quay, với tủ điện có thể bị mở nắp và với các ô làm việc của robot bị giới
+hạn ra vào. Hình thức giám sát truyền thống — camera quan sát do người trực theo dõi — về bản chất
+là **phản ứng sau sự việc**: nó lưu lại hình ảnh để xem lại, nhưng không can thiệp được trước khi
+tai nạn xảy ra. Va chạm giữa người và xe nâng ở điểm mù, việc đi vào ô robot khi chưa được phép,
+và các vi phạm quy định bảo hộ vẫn tiếp tục gây thương tích và tổn thất sản xuất ngay tại những
+khu vực đã được camera phủ kín.
+
+Học sâu mở ra khả năng chuyển giám sát thụ động thành giám sát an toàn **chủ động**: một hệ thống
+nhận ra hành vi không an toàn ngay khi hành vi đang diễn ra và phát cảnh báo cho người vận hành
+trong thời gian hữu ích. Hai họ mô hình chi phối hiện trạng. Họ **YOLO** [1, 3, 6] cho phép phát
+hiện đối tượng ở thời gian thực trên phần cứng phổ thông. Các kiến trúc dựa trên
+**Transformer** [43, 13, 14, 15] mô hình hoá được ngữ cảnh thời gian và các cảnh đông đúc đặc thù
+của mặt sàn nhà máy, nhưng tốn kém về tính toán.
+
+Không họ nào một mình thoả đồng thời ba yêu cầu: (a) nhận thức theo khung ở thời gian thực,
+(b) suy luận thời gian trên cửa sổ hành vi dài vài giây, và (c) chạy ngay trên thiết bị, không gửi
+dữ liệu lên máy chủ. Suy luận trên máy chủ đưa thêm độ trễ đường truyền, chi phí băng thông và rủi
+ro về dữ liệu — cả ba đều khó chấp nhận trong triển khai công nghiệp, nơi một cảnh báo chậm nửa
+giây có thể là khoảng cách giữa phòng ngừa và thương tích. Luận văn này vì vậy nghiên cứu một kiến
+trúc **lai YOLO–Transformer**, ghép thông lượng của một bộ mã hoá không gian kiểu YOLO với năng
+lực suy luận thời gian của một bộ mã hoá chuỗi kiểu Transformer, tối ưu cho triển khai biên trên
+phần cứng phổ thông.
+
+Đó là động lực kỹ thuật, và nó là động lực đã được ghi trong đề cương đã duyệt. Trong quá trình
+thực hiện, một động lực thứ hai xuất hiện và cuối cùng trở thành đóng góp chính của luận văn. Động
+lực thứ hai không thuộc về kiến trúc mà thuộc về **cách đo**: trên lớp bài toán này, một phần đáng
+kể độ chính xác được báo cáo trong tài liệu không đến từ mô hình mà đến từ cách chia dữ liệu.
+Vấn đề đó được trình bày ở mục 1.3, và được nêu là đóng góp thứ nhất ở mục 1.5.
+
+----------------------------------------------------------------------
+1.2. PHÁT BIỂU VẤN ĐỀ
+----------------------------------------------------------------------
+
+1.2.1. Đầu vào, đầu ra và hợp đồng nhịp
+
+**Đầu vào.** Một luồng video liên tục từ camera giám sát nhà máy. Luận văn không giả định một tần
+số khung cố định: kho dữ liệu tiêu đề có trung vị **29.97** khung/giây, trung bình **34.25**, và
+p95 bằng đúng giá trị lớn nhất **60.0** khung/giây (Chương 5, mục 5.4.4).
+
+**Đầu ra.** Với mỗi cửa sổ trượt 48 khung, bước 24 khung, hệ thống phát một quyết định ở mức cửa
+sổ. Trong cửa sổ, hàm lấy mẫu chọn T = 16 khung cách đều — đúng quy tắc lấy mẫu mà phần đánh giá
+dùng, nên nhịp và độ chính xác nói về cùng một đối tượng.
+
+**Hợp đồng thời gian thực.** Bước cửa sổ, không phải tần số khung, quy định yêu cầu thời gian
+thực. Một nguồn ở *f* khung/giây và bước phát *s* khung buộc hệ thống phát *f*/*s* quyết định mỗi
+giây mới theo kịp luồng. Với *s* = 24, phân bố tần số khung của kho dẫn tới ba mức hợp đồng —
+**1.249** quyết định/giây ở trung vị kho, **1.427** ở trung bình kho và **2.500** ở p95 kho — và
+luận văn phán quyết theo cả ba mức, không theo một mức duy nhất. Quy tắc này phải nói ngay từ đầu
+vì hai làn đo của luận văn có bước phát khác nhau (24 và 8 khung), nên hai làn có hai hợp đồng
+khác nhau và **ngưỡng của làn này không bao giờ được áp cho làn kia** (Phụ lục A, mục A.7).
+
+**Ràng buộc định vị.** Hệ thống phải trả lời được *ở đâu*, không chỉ *có hay không*. Vì vậy một bộ
+phát hiện đối tượng luôn hiện diện trong đồ thị tính toán, nhưng độ trễ định vị được **đo riêng**
+và không bao giờ bị cộng vào quyết định phân lớp.
+
+1.2.2. Hai kho dữ liệu, hai bài toán và hai định nghĩa nhóm
+
+Luận văn đánh giá trên hai kho dữ liệu rời nhau, do hai nhóm khác nhau thu thập:
+
+  - **Unsafe-Net** [17] — 691 clip, 1920×1080, 24 khung/giây, thu trong 39 ngày tại **một** nhà
+    máy, mỗi clip một nhãn trong 8 lớp (4 an toàn / 4 không an toàn). Sau bước khử trùng lặp có
+    xung đột nhãn còn **687** clip gộp, trong đó 512 không an toàn. Giấy phép CC BY 4.0. Vì kho
+    không công bố mã định danh camera, đơn vị nhóm dùng trong luận văn là **nhóm bối cảnh** sinh
+    bằng KMeans(k = 8) trên mô tả nền tĩnh. Đây là một **proxy**, và mọi phát biểu trên kho này
+    đều viết "nhóm bối cảnh", không viết "camera".
+
+  - **iSafetyBench** [26] — 1,100 clip, truy nguyên được về **151** nguồn video riêng biệt, trong
+    đó 420 clip nguy hiểm (38.2%). Giấy phép CC BY-NC-SA 4.0. Bài toán gốc của kho là đa nhãn từ
+    vựng mở trên 165 hạng mục; luận văn quy nó về **nhị phân** (nguy hiểm / bình thường), nên mọi
+    con số trên kho này **không so sánh được với bài báo gốc** và luận văn không đặt bảng so sánh
+    nào với bài báo gốc.
+
+Hai kho đã được kiểm tra chồng lấn bằng hash tri giác: **0** va chạm chính xác, khoảng cách Hamming
+nhỏ nhất giữa hai tập là 13/64 (Phụ lục A, mục A.9). Hai kho là rời nhau, nên việc lặp lại cùng một
+phép đo trên cả hai là **tái lập độc lập** chứ không phải đo lại trên cùng dữ liệu.
+
+Phân loại bốn lớp trên tập con không an toàn của Unsafe-Net — bài toán mà đề cương đặt ra — vẫn
+được giữ trong luận văn như một làn lịch sử, với bốn lớp:
+
+  Mã lớp | Tên lớp                      | Mô tả
+  -------+------------------------------+---------------------------------------------------
+    0    | Vi phạm lối đi an toàn       | Người đi ra ngoài phần lối đi đã kẻ vạch
+    1    | Can thiệp không được phép    | Người vào vùng máy bị giới hạn ra vào
+    2    | Nắp tủ điện bị mở            | Tủ điện để hở
+    3    | Xe nâng chở quá tải          | Xe nâng chở tải không an toàn
+
+1.2.3. Trần chất lượng nhãn
+
+Hai người gán nhãn độc lập trên 100 clip cho κ = **0.65** (đồng thuận thô 0.72), dưới mức
+κ > 0.8 mà quy trình gán nhãn đặt ra. Hệ quả phải nêu ngay ở chương mở đầu: **một chênh lệch nhỏ
+hơn mức nhiễu nhãn này không thể được giải thích bằng mô hình.** Đây là lý do luận văn không lấy
+bất kỳ biên cỡ vài điểm phần trăm nào làm kết quả tiêu đề.
+
+----------------------------------------------------------------------
+1.3. VẤN ĐỀ PHƯƠNG PHÁP LUẬN LÀM ĐỘNG LỰC CHO LUẬN VĂN
+----------------------------------------------------------------------
+
+Các công trình phân loại hành vi không an toàn ở mức clip thường báo cáo độ chính xác trên một
+phép chia dữ liệu **ngẫu nhiên**: các clip được xáo trộn rồi chia thành tập huấn luyện và tập kiểm
+thử mà không ràng buộc về nguồn gốc của clip. Bài báo của chính kho Unsafe-Net [17] báo cáo một
+phép chia 566 clip huấn luyện / 125 clip kiểm thử và **không nêu ràng buộc nào theo camera hay
+theo phiên thu**.
+
+Khi dữ liệu được thu từ một số lượng nhỏ camera cố định — đúng đặc thù của giám sát an toàn công
+nghiệp — phép chia ngẫu nhiên cho phép các clip cùng một camera, cùng một bối cảnh nền, xuất hiện
+đồng thời ở cả hai phía. Mô hình khi đó đạt được độ chính xác cao bằng cách nhận diện **bối cảnh**
+thay vì nhận diện **hành vi**. Con số thu được vẫn đúng với tư cách một con số; nó chỉ không ước
+lượng cho đại lượng mà người đọc tưởng rằng nó ước lượng.
+
+Luận văn gọi hiệu số sau là **lạm phát giao thức** (protocol inflation):
+
+    Δ = (độ chính xác cân bằng dưới phép chia ngẫu nhiên)
+        − (độ chính xác cân bằng dưới phép chia có ràng buộc nhóm),
+
+đo trên cùng một bộ token đầu vào, cùng một kiến trúc, cùng một số tham số và cùng một quy trình
+huấn luyện; khác biệt duy nhất giữa hai vế là **cách dựng fold**.
+
+Câu hỏi nghiên cứu trung tâm của luận văn do đó không phải "mô hình đạt bao nhiêu phần trăm", mà:
+
+    Δ lớn bao nhiêu, và Δ có ổn định khi thay đổi kiến trúc mô hình và thay đổi kho dữ liệu
+    hay không?
+
+Đây là một câu hỏi **đo lường**, không phải câu hỏi tối ưu hoá. Câu trả lời của nó là một đại lượng
+kiểm chứng và bác bỏ được. Việc chọn câu hỏi này làm trục của luận văn là một quyết định có chủ ý,
+được ghi lại cùng ngày tháng, và hệ quả của nó là: **luận văn không mở đầu bằng một con số độ chính
+xác, và không đặt mục tiêu vượt một con số độ chính xác đã công bố.** Lý do nêu ở mục 1.4.2.
+
+----------------------------------------------------------------------
+1.4. MỤC TIÊU NGHIÊN CỨU
+----------------------------------------------------------------------
+
+1.4.1. Ba mục tiêu của đề cương đã duyệt
+
+  **Mục tiêu 1 — Kiến trúc.** Ghép tốc độ của phát hiện đối tượng dựa trên mạng tích chập (họ
+  YOLO) với năng lực suy luận thời gian của bộ mã hoá chuỗi dựa trên Transformer, thành một
+  pipeline YOLO–Transformer thống nhất cho phân loại hành vi trên video.
+
+  **Mục tiêu 2 — Huấn luyện và đánh giá.** Huấn luyện, tinh chỉnh và đánh giá mô hình trên kho
+  Unsafe-Net [17], đồng thời đối chiếu với đường cơ sở đã công bố của kho (YOLO v4 + ConvLSTM).
+
+  **Mục tiêu 3 — Triển khai biên.** Áp dụng các kỹ thuật tối ưu mô hình (xuất ONNX, lượng tử hoá,
+  biên dịch TensorRT) để pipeline đạt ràng buộc thời gian thực đa luồng trên phần cứng biên, đo
+  **trên chính thiết bị**, không suy ra từ hệ số thông lượng công bố.
+
+1.4.2. Thay đổi phạm vi so với đề cương
+
+Ba cam kết trong đề cương đã thay đổi trong quá trình thực hiện. Chúng được nêu ngay ở đây, trước
+mọi kết quả, để các chương sau được đọc như những kết luận khoa học có chủ ý chứ không như những
+khoảng trống mà người đọc tự phát hiện.
+
+  Cam kết trong đề cương | Điều đã thực hiện | Vì sao thay đổi
+  -----------------------+-------------------+----------------------------------------------------
+  YOLO (không gian) →    | **Đạt về bản      | RT-DETR là một **bộ phát hiện** đầu-cuối, không
+  tầng suy luận thời     | chất.** Tầng      | phải một bộ mã hoá chuỗi thời gian; đề cương đã
+  gian **Transformer**   | Transformer thời  | đồng nhất "Transformer" với "RT-DETR". Một bộ mã
+  → MLP, với bộ mã hoá   | gian **đã** được  | hoá Transformer trên chuỗi khung hiện thực hoá
+  được nêu tên là        | xây; chỉ bộ mã    | trực tiếp ý định suy luận thời gian. RT-DETR cũng
+  **RT-DETR**            | hoá RT-DETR cụ    | tiền huấn luyện trên COCO nên sẽ gặp đúng trần do
+                         | thể là bị bỏ.     | dữ liệu quy định (Chương 6, mục 6.11).
+  -----------------------+-------------------+----------------------------------------------------
+  Độ chính xác kiểm thử  | **Không theo đuổi | Chính luận văn chứng minh rằng con số 95.81% được
+  **> 95.8%**            | nữa.** Kết luận   | đo dưới một giao thức không ràng buộc nguồn, và
+                         | tiêu đề được      | rằng một giao thức như vậy làm phồng độ chính xác
+                         | chuyển thành **đại| **13.0 đến 21.8 điểm phần trăm** trên chính kho
+                         | lượng lạm phát    | Unsafe-Net (Chương 6, mục 6.6). Đặt mục tiêu vượt
+                         | giao thức**.      | một con số đã bị chứng minh là bị phồng thì không
+                         |                   | còn là một mục tiêu khoa học có nghĩa.
+  -----------------------+-------------------+----------------------------------------------------
+  Phân loại **8 lớp**    | **Nhị phân        | Bài toán nhị phân là bài toán mà cả hai kho cùng
+  (4 an toàn + 4 không   | nguy hiểm/bình    | định nghĩa được, nên nó là bài toán duy nhất cho
+  an toàn)               | thường** làm bài  | phép **tái lập độc lập** phép đo lạm phát trên hai
+                         | toán tiêu đề; làn | kho rời nhau. Không có kết quả 8 lớp nào được nêu:
+                         | bốn lớp giữ lại   | **trên đĩa không tồn tại lần chạy 8 lớp nào.** Một
+                         | như làn lịch sử.  | bản thảo trước từng nêu "khoảng 78%"; con số đó
+                         |                   | không có lần chạy nào phía sau và **đã bị rút**.
+
+Hệ quả cho **định vị** của luận văn là tường minh, và nó là xương sống của toàn bộ văn bản. Đóng
+góp của luận văn **không** phải một cơ chế kiến trúc mới, và **không** phải một con số độ chính xác
+cạnh tranh. Đóng góp là: **(i) một phép đo phương pháp luận** — lượng hoá phần độ chính xác do giao
+thức đánh giá tạo ra, tái lập trên hai kho độc lập; và **(ii) một hệ thống triển khai biên đã được
+đo trên chính thiết bị**, với nhịp quyết định, năng lượng và bộ nhớ đo thực. Độ chính xác được
+trình bày trung thực như **bằng chứng cho phép đo**, không như một tuyên bố cạnh tranh.
+
+----------------------------------------------------------------------
+1.5. ĐÓNG GÓP
+----------------------------------------------------------------------
+
+Các đóng góp được trình bày theo thứ tự tầm quan trọng mà mục 1.4.2 đã khai báo. Con số dẫn ở đây
+là dạng tóm lược; nguồn đầy đủ nằm ở chương tương ứng và ở Phụ lục A.
+
+**(1) Lượng hoá lạm phát giao thức, và tái lập nó trên hai kho dữ liệu độc lập.** Đây là đóng góp
+chính. Trên iSafetyBench, bốn bộ mã hoá quan hệ cho cùng một hướng và cùng một bậc độ lớn: bộ mã
+hoá nhỏ nhất đi từ **75.2%** độ chính xác cân bằng dưới leave-source-out lên **90.6%** dưới fold
+ngẫu nhiên, tức **+15.4 điểm phần trăm**, với khoảng tin cậy bootstrap theo cụm trên 151 nguồn là
+**[+10.6, +21.5]** — loại trừ 0 — và McNemar chính xác p = 3.58e-45. Ba bộ còn lại cho +10.4,
++13.2 và +14.9 điểm phần trăm. Trên Unsafe-Net, năm bộ mã hoá cho **+13.0 đến +21.8** điểm phần
+trăm dưới cùng phép so sánh. Hai hệ quả mạnh hơn bản thân độ lớn:
+
+  (a) **Giao thức rò rỉ nén khả năng phân biệt kiến trúc.** Khoảng cách giữa bộ mã hoá tốt nhất và
+      kém nhất co từ **5.1** xuống **1.4** điểm phần trăm trên iSafetyBench, và từ **7.3** xuống
+      **2.1** điểm phần trăm trên Unsafe-Net. Dưới giao thức rò rỉ, các kiến trúc trông gần như
+      giống nhau.
+  (b) **Thứ tự xếp hạng bị đảo.** Trên Unsafe-Net, bộ mã hoá 18,044 tham số xếp **thứ nhất** dưới
+      leave-context-out và **cuối cùng** dưới k-fold ngẫu nhiên. Nghĩa là giao thức rò rỉ không chỉ
+      làm mọi con số cao hơn, nó còn có thể chọn sai mô hình.
+
+(Chương 6, mục 6.6 và 6.10; nhật ký ở Phụ lục A, mục A.3 và A.6.)
+
+**(2) Một hệ thống quyết định an toàn chạy trên thiết bị biên, đo đầy đủ trên chính thiết bị.**
+Đường quyết định được triển khai — tháp thị giác CLIP ViT-B/32 **đóng băng** áp trên toàn khung,
+phía trên là đầu Transformer thời gian B1 (201,090 tham số × 3 seed) — chạy end-to-end trên NVIDIA
+Jetson Orin Nano Super (giá 249–499 USD, JetPack 6.2 + TensorRT 10.3) với **167.291 ms** mỗi quyết
+định ở trung vị, tức **5.978** quyết định/giây, và **198.224 ms** ở p95, tức **5.045** quyết
+định/giây. So với ba mức hợp đồng ở mục 1.2.1, biên là **2.39 đến 4.79 lần** ở trung vị và **2.02
+đến 4.04 lần** ở p95. Kèm theo là: tương đương FP16 được kiểm tra trước mọi con số độ trễ, một
+phép so sánh A/B có tham số khớp cho thấy việc khắc phục một khiếm khuyết tiền xử lý cải thiện
+nhịp **1.732 lần**, bảng ngân sách chi phí theo giai đoạn, phép đo năng lượng và bộ nhớ, một lần
+soak 36.2 phút, và một kiến trúc trong đó dữ liệu ra khỏi biên chỉ là **siêu dữ liệu** — khung
+hình không bao giờ rời thiết bị. Không một đường cơ sở đã công bố nào trên bài toán này báo cáo
+nhịp quyết định trên thiết bị, bảng ngân sách giai đoạn, hay năng lượng mỗi quyết định. (Chương
+5.)
+
+**(3) Bằng chứng rằng đầu phân loại không phải chỗ để tối ưu, kèm phán quyết của tám cổng tiền
+đăng ký.** Đầu Transformer — phần mà luận văn này thực sự thiết kế — chiếm **0.3% đến 1.7%** độ
+trễ của một quyết định; toàn bộ phần còn lại thuộc về các thành phần mà luận văn không thiết kế.
+Trên trục độ chính xác, kết luận tương ứng cũng là một kết luận phủ định: tám cổng được viết ra —
+gồm giả thuyết, mô hình được nêu tên và biên tối thiểu — **trước** khi con số tồn tại; kết quả là
+**hai cổng đạt và sáu cổng trượt**. Trong đó, cổng trung tâm của toàn bộ hướng nghiên cứu ban đầu
+— G14, giả thuyết rằng biểu diễn phân rã theo thực thể vượt một đường cơ sở toàn khung khớp dung
+lượng trên cùng tập clip và cùng công thức huấn luyện — đã **trượt** ở cả hai tiêu chí phán quyết:
+biên mang dấu âm (−0.5 điểm phần trăm) và khoảng tin cậy bootstrap theo cụm [−5.5, +5.0] chứa 0,
+với McNemar chính xác p = 0.683. Đúng câu hỏi đó, hỏi lại ở làn trước với một xương sống ngoại
+hình khác, cũng trượt (G11: +1.1 điểm phần trăm, khoảng tin cậy [−4.8, +6.9], p = 0.625). Sáu phán
+quyết trượt được công bố với biên và khoảng tin cậy ở đúng mức chi tiết như hai phán quyết đạt.
+(Chương 6, mục 6.2, 6.11 và 6.13; Chương 7, mục 7.2.)
+
+**(4) Phân tích thất bại có quy nguyên nhân, và một sổ đăng ký các phát biểu đã bị rút.** Luận văn
+dành một chương cho những gì đã sai. Bốn hạng mục chính: (a) một phép **cộng các giai đoạn đo rời
+rạc** đã từng được trình bày như một nhịp hệ thống — sai số của nó đổi dấu theo trạng thái xung
+nhịp (+7.98% khi ghim nhịp, −39.3% khi để bộ điều tốc tự do), nên nó không phải chặn trên cũng
+không phải chặn dưới, và không hệ số hiệu chỉnh nào cứu được nó; (b) ba khiếm khuyết của harness đo
+cùng ba quy tắc đọc thay thế, trong đó có một lỗi thật ở bộ định nhịp và hai tên trường gây nhầm;
+(c) một thất bại tập trung theo fold — dải cân bằng theo fold rộng **29.7 điểm phần trăm** — và
+việc nó **di chuyển** sang nguồn khác thay vì biến mất khi đổi biểu diễn; (d) một **sổ đăng ký 11
+dòng** các con số đã bị rút khỏi luận văn, mỗi dòng ghi giá trị cũ, lý do rút và giá trị thay thế
+nếu có. (Chương 7; Phụ lục A, mục A.10.)
+
+**(5) Tạo tác tái lập được, và một đường truy xuất xuất xứ cho từng con số.** Mọi trọng số đã huấn
+luyện, bản xuất ONNX, engine TensorRT, báo cáo tương đương, nhật ký ablation và nhật ký đo trên
+thiết bị đều nằm trong kho mã. Phụ lục A lập **bảng truy xuất xuất xứ**: với mỗi con số được công
+bố trong luận văn, nó chỉ ra tệp đã sinh ra con số đó, cùng ba quy tắc đọc khi nhật ký và tạo tác
+lệch nhau. Phụ lục B công bố **cấu hình fold** đầy đủ, kèm chứng minh bằng số rằng không nguồn nào
+xuất hiện ở cả hai phía của bất kỳ fold nào. Giao thức chạm tập kiểm thử được đăng ký trước với
+đúng **hai** lần chạm, và vào ngày đóng băng số liệu **chưa lần nào được chi**.
+
+----------------------------------------------------------------------
+1.6. PHẠM VI VÀ GIỚI HẠN
+----------------------------------------------------------------------
+
+**Trong phạm vi.** Phân loại nhị phân nguy hiểm/bình thường trên iSafetyBench dưới giao thức
+leave-source-out 151 nguồn; phân loại nhị phân và bốn lớp trên Unsafe-Net dưới leave-context-out 8
+nhóm bối cảnh cùng k-fold đối chứng; các phương án xương sống đóng băng cộng đầu được huấn luyện;
+xuất ONNX và lượng tử hoá trên CPU Apple M3; triển khai TensorRT FP16/INT8 với số đo tương đương,
+đa luồng và soak trên NVIDIA Jetson Orin Nano Super.
+
+**Ngoài phạm vi.** Tinh chỉnh ở **quy mô của bài báo gốc** trên chú giải hộp theo từng khung của
+Unsafe-Net: các chú giải này không được công bố tại thời điểm thực hiện luận văn. Một thí nghiệm
+thử ở quy mô 400 khung đã được thực hiện và được báo cáo như một **kết quả phủ định**. Phân loại
+8 lớp khớp. Đo trên nhiều dòng thiết bị biên khác (AGX Orin, Orin NX). Thu hình trực tiếp từ
+camera USB trong bảng điều khiển.
+
+**Bốn giới hạn phải nêu trước khi đọc bất kỳ kết quả nào.**
+
+  (1) **Nhiễu lẫn nguồn-nhãn bị pha loãng, không bị loại bỏ.** Trên iSafetyBench, **0 trong 151
+      nguồn** mang cả hai nhãn. Nhãn và danh tính nguồn do đó bị trộn ở mức cấu trúc, và bootstrap
+      theo cụm trên một kho như vậy cho khoảng rất rộng: **mọi khoảng tin cậy theo cụm trong làn
+      tiêu đề đều chứa 0**. Hệ quả là luận văn **không chứng nhận được** bất kỳ biên cỡ 3–4 điểm
+      phần trăm nào ở độ phân giải cụm, và **không** lấy biên nào trong số đó làm kết quả tiêu đề.
+      Đây là giới hạn của kho dữ liệu, không phải của phương pháp.
+
+  (2) **Nhóm bối cảnh của Unsafe-Net là một proxy**, sinh bằng KMeans(k = 8), không phải mã định
+      danh camera đã kiểm chứng. Tám đơn vị lấy mẫu là quá ít để phân giải chênh lệch cỡ vài điểm
+      phần trăm, và ba trong tám nhóm chỉ mang một lớp. Vì vậy leave-context-out được phát biểu
+      **theo fold**, không theo view, ở mọi chỗ trong luận văn.
+
+  (3) **Trần chất lượng nhãn** κ = 0.65 (mục 1.2.3).
+
+  (4) **Giá trị trung bình không dự báo được một hiện trường mới.** Dải cân bằng theo fold của mô
+      hình được triển khai rộng **29.7 điểm phần trăm**, và bản thân **chế độ lỗi** cũng thay đổi
+      theo hiện trường: một fold thất bại vì báo động sai, một fold khác thất bại vì bỏ sót. Thêm
+      vào đó, ECE (15 bin) của làn bốn lớp là **0.097**, nên trước khi có hiệu chuẩn lại tại hiện
+      trường, ngưỡng phải đặt theo **thứ hạng** chứ không theo giá trị xác suất tuyệt đối. Hệ quả
+      là một thủ tục triển khai, nêu ở Chương 8 như hạng mục phát triển thứ nhất.
+
+**Định vị cuối cùng.** Luận văn không đạt con số 95.81% của bài báo gốc trên Unsafe-Net và **không
+tuyên bố đạt**. Giá trị được giao của luận văn là: phép đo lạm phát giao thức đã tái lập trên hai
+kho độc lập, hệ thống biên đã đo trên chính thiết bị, và phần phân tích thất bại có quy nguyên
+nhân — không phải một con số top-1 cạnh tranh.
+
+----------------------------------------------------------------------
+1.7. CẤU TRÚC LUẬN VĂN
+----------------------------------------------------------------------
+
+  - **Chương 2 — Tổng quan.** Khảo sát họ phát hiện YOLO, các kiến trúc Transformer cho video, các
+    kho dữ liệu và hệ thống giám sát an toàn công nghiệp, mảng công trình về đánh giá có ràng buộc
+    nhóm và rò rỉ dữ liệu, cùng mảng triển khai biên. Mục 2.6 nêu định vị của luận văn.
+
+  - **Chương 3 — Phương pháp.** Trình bày ba pipeline không trộn số được, kiến trúc các đầu phân
+    loại, biểu diễn đầu vào, và **giao thức đánh giá tiền đăng ký** cùng tám cổng G10–G18.
+
+  - **Chương 4 — Chi tiết thực nghiệm.** Ba kho dữ liệu, quá trình trích xuất đặc trưng, cấu hình
+    fold kèm chứng minh bằng số, cấu hình huấn luyện và sơ đồ seed, phần cứng và môi trường,
+    harness đo biên, quy ước trình bày số, và giao thức chạm tập kiểm thử. Chương này không nêu
+    kết quả; chức năng của nó là làm mọi con số ở Chương 5–7 tái lập được.
+
+  - **Chương 5 — Triển khai biên.** Điều kiện để một con số độ trễ được trích dẫn; tương đương
+    FP16; đường quyết định đã triển khai trên thiết bị, kèm phép so sánh A/B trước-sau khi sửa
+    tiền xử lý; đường cong chi phí của pipeline quan hệ dưới hai điều kiện xung nhịp; phạm vi của
+    số đo giai đoạn trước; năng lượng, bộ nhớ và độ bền nhiệt; quyền riêng tư được bảo đảm bằng
+    kiến trúc; và **những gì chưa được đo**.
+
+  - **Chương 6 — Đánh giá.** Năm quy ước đọc số; phép đo lạm phát giao thức trên hai kho; loại trừ
+    các giải thích cạnh tranh; làn tiêu đề; làn token quan hệ thực thể; làn Unsafe-Net bốn lớp cùng
+    giới hạn của nó; và tổng hợp phán quyết tám cổng.
+
+  - **Chương 7 — Phân tích thất bại.** Vì sao phân rã thực thể không thắng; một thất bại tập trung
+    theo fold và việc nó di chuyển; vụ tổng-theo-giai-đoạn; ba khiếm khuyết của harness; sổ đăng ký
+    các phát biểu đã rút; các khuyết điểm xuất xứ; nguyên nhân hệ thống của hiện tượng trùng số; và
+    các giới hạn còn mở.
+
+  - **Chương 8 — Kết luận.** Tổng hợp các kết luận có bằng chứng, các kết luận phủ định, đóng góp
+    đã giao so với đã rút, và hướng phát triển theo thứ tự ưu tiên.
+
+  - **Phụ lục A — Bảng truy xuất xuất xứ nhật ký.** Với mỗi con số được công bố, tệp đã sinh ra nó.
+
+  - **Phụ lục B — Cấu hình fold.** Toàn bộ cấu hình fold của hai kho, kèm chứng minh bằng số rằng
+    phép chia theo nhóm là chính xác.
+
+----------------------------------------------------------------------
+TÀI LIỆU THAM KHẢO
+----------------------------------------------------------------------
+
+Số thứ tự theo chương; sẽ gộp thành một thư mục tham khảo thống nhất khi biên soạn bản cuối.
+
+[1]  J. Redmon, S. Divvala, R. Girshick, A. Farhadi, "You Only Look Once: Unified, Real-Time
+     Object Detection," Proc. IEEE Conf. Computer Vision and Pattern Recognition (CVPR), 2016,
+     tr. 779–788. arXiv:1506.02640. DOI: 10.1109/CVPR.2016.91.
+
+[3]  A. Bochkovskiy, C.-Y. Wang, H.-Y. M. Liao, "YOLOv4: Optimal Speed and Accuracy of Object
+     Detection," arXiv:2004.10934, 2020.
+
+[6]  Ultralytics, "YOLO11 — Documentation," 2024. [Trực tuyến]. Có tại:
+     https://docs.ultralytics.com/models/yolo11/ (truy cập 04/2026).
+
+[13] G. Bertasius, H. Wang, L. Torresani, "Is Space-Time Attention All You Need for Video
+     Understanding?," Proc. 38th Int. Conf. Machine Learning (ICML), 2021, tr. 813–824.
+     arXiv:2102.05095.
+
+[14] A. Arnab, M. Dehghani, G. Heigold, C. Sun, M. Lučić, C. Schmid, "ViViT: A Video Vision
+     Transformer," Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV), 2021, tr. 6816–6826.
+     arXiv:2103.15691. DOI: 10.1109/ICCV48922.2021.00676.
+
+[15] Z. Tong, Y. Song, J. Wang, L. Wang, "VideoMAE: Masked Autoencoders are Data-Efficient
+     Learners for Self-Supervised Video Pre-Training," Advances in Neural Information Processing
+     Systems (NeurIPS), tập 35, 2022, tr. 10078–10093. arXiv:2203.12602.
+
+[17] O. Önal, E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based computer vision system for
+     real-time detection of unsafe behaviours in workplace," Multimedia Tools and Applications,
+     tập 84, số 29, tr. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8. Bộ dữ liệu: Mendeley
+     Data, 2024, CC BY 4.0. DOI: 10.17632/xjmtb22pff.1.
+
+[26] M. Abdullah, Y. S. Rawat, S. Vyas, "iSafetyBench: A video-language benchmark for safety in
+     industrial environment," VISION'25 Workshop @ ICCV 2025. arXiv:2508.00399. Giấy phép
+     CC BY-NC-SA 4.0. Trang dự án: https://isafetybench.github.io/
+
+[43] A. Vaswani và cộng sự, "Attention Is All You Need," Advances in Neural Information Processing
+     Systems (NeurIPS), tập 30, 2017. arXiv:1706.03762.
+
+Ghi chú về cách đánh số: luận văn dùng **một** hệ số tham khảo thống nhất cho mọi chương; danh mục
+đầy đủ nằm ở cuối Chương 2. Chương này chỉ liệt kê các mục mà chính nó dẫn, nên số thứ tự ở đây
+không liên tục — đó là chủ ý, không phải lỗi đánh số.

@@ -1,0 +1,435 @@
+======================================================================
+PHỤ LỤC B. CẤU HÌNH FOLD ĐẦY ĐỦ
+======================================================================
+
+Phụ lục này in thành phần từng nguồn của từng fold trong giao thức leave-source-out của kho
+iSafetyBench. Nó là bằng chứng cho Bảng 4.4 và cho các phát biểu ở mục 4.4.3, mục 4.4.4 và mục 7.3.
+
+Cách dựng. Toàn bộ nội dung phụ lục được sinh lại từ chính bộ nạp dữ liệu và bộ chia, không lấy từ
+nhật ký huấn luyện:
+
+  Bộ chia   `StratifiedGroupKFold(n_splits = 10, shuffle theo seed = 0)`
+  Nhóm      định danh nguồn video
+  Phân tầng nhãn nhị phân nguy hiểm/bình thường
+  Hàm       `ISB.folds(y, groups, n_splits = 10, seed = 0)`
+
+Cách đọc. Mỗi khối là một fold test. Dòng tiêu đề cho số clip, số clip nguy hiểm, số clip bình
+thường và số nguồn của fold. Các dòng tiếp theo liệt kê từng nguồn trong fold, **xếp giảm dần theo
+số clip**, với ba cột: định danh nguồn, số clip mà nguồn đó đóng góp, và nhãn của nguồn
+(`H` = nguy hiểm, `N` = bình thường).
+
+Vì **0 trong 151 nguồn mang cả hai nhãn** (mục 4.2.1), mỗi nguồn chỉ có một nhãn duy nhất, nên cột
+thứ ba là một thuộc tính của nguồn chứ không phải của từng clip.
+
+----------------------------------------------------------------------
+B.1. THÀNH PHẦN MƯỜI FOLD
+----------------------------------------------------------------------
+
+FOLD 1 — test 144 clip: 42 nguy hiểm, 102 bình thường
+         11 nguồn (10 nhãn H, 1 nhãn N)  |  huấn luyện 956 clip
+  ----------------------------------------------------
+  1tuWxs8fUOk       102 clip   N
+  2uuwpx1ykPQ         9 clip   H
+  9XXineiOxSo         8 clip   H
+  R4pN50yYI5k         7 clip   H
+  nP0dUSw2OeI         5 clip   H
+  17XDkmsBbLg         4 clip   H
+  _a46_s5WViY         3 clip   H
+  8t1ci0ezwP8         2 clip   H
+  8vXGXTSf5ak         2 clip   H
+  6iUd46DAP9w         1 clip   H
+  wqyNqyYszk0         1 clip   H
+
+FOLD 2 — test 107 clip: 42 nguy hiểm, 65 bình thường
+         16 nguồn (9 nhãn H, 7 nhãn N)  |  huấn luyện 993 clip
+  ----------------------------------------------------
+  0kog0iuGxOc        49 clip   N
+  1gx7OURLLBs         9 clip   H
+  91OaD3ixCyA         9 clip   H
+  ZNOHrOs9VMA         6 clip   H
+  zd-Wt1nndig         6 clip   H
+  Z2YK2X8x7fo         5 clip   N
+  BSsxW1D063k         4 clip   N
+  VAL3rSbPzXs         4 clip   H
+  B2MDTsYuyt0         3 clip   H
+  YW5XdwOgcnU         3 clip   N
+  0E-P6HrYYQI         2 clip   N
+  YVHcrItJwXA         2 clip   H
+  iFbIfo_vBfA         2 clip   H
+  DVt5B8_trim         1 clip   N
+  Hl4Lnl4erek         1 clip   N
+  zbhAHjl_iOM         1 clip   H
+
+FOLD 3 — test 107 clip: 42 nguy hiểm, 65 bình thường
+         16 nguồn (8 nhãn H, 8 nhãn N)  |  huấn luyện 993 clip
+  ----------------------------------------------------
+  62_bh4b5puY        44 clip   N
+  H4sC0QCkG7I        17 clip   H
+  2JYfsZA8GV0         7 clip   H
+  0QHQ2nmdE78         6 clip   H
+  _g7R05NOikU         6 clip   N
+  o8B3cm42mnI         5 clip   N
+  -0zRCAh9_N4         4 clip   H
+  _pb0jbweL3w         3 clip   N
+  mB1nOTOb6dU         3 clip   N
+  uOAJL-g4Y_w         3 clip   H
+  1SR4reJQnCM         2 clip   N
+  2Z2PVoOIPHU         2 clip   H
+  FIViayQg5iA         2 clip   H
+  XwlyOcZ09Uw         1 clip   N
+  YzLYJ9YqSaE         1 clip   H
+  zMt5qF1mMiU         1 clip   N
+
+FOLD 4 — test 106 clip: 42 nguy hiểm, 64 bình thường
+         16 nguồn (8 nhãn H, 8 nhãn N)  |  huấn luyện 994 clip
+  ----------------------------------------------------
+  37aSzbWBuxk        39 clip   N
+  1b1NOLpwCz8        17 clip   H
+  ZKn7Ja4ojbY         7 clip   N
+  Zag5F6FXlj0         7 clip   H
+  Z8qKH1k8Wck         6 clip   N
+  zaV3OjWE834         6 clip   H
+  ZrnWnmhGpQY         5 clip   N
+  uqpP8Zcn02s         4 clip   H
+  4BFbmfMUZ3E         3 clip   H
+  tb17mf0Njbs         3 clip   N
+  2Y6MBNQaFQA         2 clip   H
+  VTc91caMAR8         2 clip   H
+  ZQVQZdOgDlQ         2 clip   N
+  0pdzT7YVVAo         1 clip   N
+  3xr0dRq2QfM         1 clip   N
+  fgm48K5v6EU         1 clip   H
+
+FOLD 5 — test 106 clip: 42 nguy hiểm, 64 bình thường
+         15 nguồn (6 nhãn H, 9 nhãn N)  |  huấn luyện 994 clip
+  ----------------------------------------------------
+  aTW27C3AG-o        32 clip   H
+  0XutYYk-0Uc        19 clip   N
+  _n8cIxEpups        15 clip   N
+  2qlxTjo_FjE         8 clip   N
+  FE5FkEsn5as         6 clip   N
+  0piTQw83NBE         5 clip   N
+  1b7bsLu74Wk         4 clip   N
+  3UVQRVJy9g0         3 clip   N
+  BWZSWUVBOuw         3 clip   H
+  yyFJnKMK2LI         3 clip   N
+  0W6vtPakFt8         2 clip   H
+  Ru2okot9dww         2 clip   H
+  Ytan3MRulVg         2 clip   H
+  3hOGpHBJ0e4         1 clip   N
+  qpAT8pt58VI         1 clip   H
+
+FOLD 6 — test 106 clip: 42 nguy hiểm, 64 bình thường
+         15 nguồn (7 nhãn H, 8 nhãn N)  |  huấn luyện 994 clip
+  ----------------------------------------------------
+  0zQ9fI30v1E        31 clip   N
+  zJqzjDX-XFU        24 clip   H
+  0a-WuC1Xdl4         9 clip   N
+  zzefjysopTs         7 clip   N
+  fs0TzsV5NgU         6 clip   H
+  un9ettmXIzU         6 clip   N
+  4zjuYM_NGEY         4 clip   H
+  vOySf5EIjRA         4 clip   N
+  0JyepVxTNTg         3 clip   N
+  2HrxaCu8fFY         3 clip   H
+  b0DEnbTOUvg         3 clip   N
+  -NF8DZCdcUQ         2 clip   H
+  JNH-RPABpdA         2 clip   H
+  U5lAqk0_5bE         1 clip   H
+  oKDlfJKZfBc         1 clip   N
+
+FOLD 7 — test 106 clip: 42 nguy hiểm, 64 bình thường
+         17 nguồn (9 nhãn H, 8 nhãn N)  |  huấn luyện 994 clip
+  ----------------------------------------------------
+  oeHrto1r-S4        31 clip   N
+  _2tSBxyAwLs        18 clip   H
+  G8z74loJO7U         9 clip   N
+  0jbAwaxJlCU         7 clip   N
+  0qSrnbfVI4I         6 clip   N
+  6AISVvob4C0         6 clip   H
+  J9WlxhcRAPo         6 clip   H
+  YE7VTtHbtQA         5 clip   N
+  ELLtmRhxG0Q         3 clip   H
+  YQWegt3HWIM         3 clip   H
+  _nm1Yb8sxxY         3 clip   N
+  1dr3eJH813o         2 clip   H
+  NWbw7-phE24         2 clip   H
+  o-KUZ-FNPDM         2 clip   N
+  RWkLiBXSJIk         1 clip   H
+  _XXq1kmmBYY         1 clip   H
+  pvS5gJmA1Fc         1 clip   N
+
+FOLD 8 — test 106 clip: 42 nguy hiểm, 64 bình thường
+         15 nguồn (6 nhãn H, 9 nhãn N)  |  huấn luyện 994 clip
+  ----------------------------------------------------
+  oyRnP9p0KIs        30 clip   N
+  87O1pBSGtR0        27 clip   H
+  FY2qGPLaK9E        10 clip   N
+  FF5a2dL6Sb0         7 clip   N
+  ioHiV5hHXCQ         6 clip   N
+  0RcFgtZFhgg         5 clip   H
+  sFw-O7lha4I         4 clip   N
+  1wnZH_8coRo         3 clip   N
+  6ZrAeC5mZ5w         3 clip   H
+  7QFdUqCdML8         3 clip   H
+  3Dn2annu7U4         2 clip   H
+  4nQuQnaZjy8         2 clip   H
+  YyacR3Zd_jY         2 clip   N
+  EVrHAHIvpZ8         1 clip   N
+  UtvCEMvWtVk         1 clip   N
+
+FOLD 9 — test 106 clip: 42 nguy hiểm, 64 bình thường
+         15 nguồn (6 nhãn H, 9 nhãn N)  |  huấn luyện 994 clip
+  ----------------------------------------------------
+  1s2Tcqr3Rgg        29 clip   H
+  MEEGwePfDgM        20 clip   N
+  bxENbC-SPCw        14 clip   N
+  _Juow4q7js0         8 clip   N
+  X9F1GALAAcE         6 clip   N
+  3AFgNQQMRzw         5 clip   H
+  iKJpKjnqWnw         5 clip   N
+  ZN5J4GYVAcc         4 clip   N
+  LY2-Rma6D8Y         3 clip   H
+  Wdy23-dg7LE         3 clip   N
+  2QhPWUck0cI         2 clip   H
+  K4Z5Fh_narA         2 clip   N
+  UCn0LBrLJKk         2 clip   H
+  e87QDLBVjGQ         2 clip   N
+  ZrUcYQFFE9A         1 clip   H
+
+FOLD 10 — test 106 clip: 42 nguy hiểm, 64 bình thường
+         15 nguồn (7 nhãn H, 8 nhãn N)  |  huấn luyện 994 clip
+  ----------------------------------------------------
+  _4GgKoR0OOw        28 clip   H
+  o9FuFIY-OKA        24 clip   N
+  C3mB000mXUU        13 clip   N
+  3iwe_dM0pc0         8 clip   N
+  8DiEG0vot_w         6 clip   N
+  -BzGMvclD88         5 clip   H
+  zijZ9paskPM         5 clip   N
+  34J4R6i-wuk         3 clip   N
+  4FXBhMHqW3s         3 clip   N
+  6fhnKhZQE4o         3 clip   H
+  ZWYH_lCpl8w         2 clip   H
+  Ze9cIOgB1Sw         2 clip   N
+  qJLf_5RJFG8         2 clip   H
+  3-zGsp26zgw         1 clip   H
+  gLyAp3F9PLE         1 clip   H
+----------------------------------------------------------------------
+B.2. KIỂM TRA TÍNH ĐÚNG CỦA PHÉP CHIA THEO NGUỒN
+----------------------------------------------------------------------
+
+Ba phép kiểm dưới đây được chạy trên chính danh sách in ở mục B.1. Chúng là bằng chứng cho phát
+biểu ở mục 4.4.3 rằng cấu hình fold là một phép leave-source-out đầy đủ và chính xác.
+
+  Phép kiểm 1 — giao nhau giữa các fold
+  -------------------------------------
+  Số cặp fold được kiểm                          45  (tức C(10,2))
+  Số nguồn chung, lớn nhất trên tất cả các cặp   **0**
+  Kết luận: không một nguồn nào xuất hiện ở hai fold test khác nhau.
+
+  Phép kiểm 2 — hợp của các fold test
+  -----------------------------------
+  Tổng số lần một nguồn xuất hiện                151
+  Số nguồn phân biệt                             **151**
+  Số lần trùng lặp                               **0**
+  Kết luận: mỗi nguồn trong 151 nguồn được giữ ra làm test **đúng một lần**; mười fold test hợp
+  thành một phân hoạch của tập nguồn.
+
+  Phép kiểm 3 — bảo toàn clip
+  ---------------------------
+  Tổng clip test của mười fold                   **1100**
+  Tổng clip nguy hiểm                            **420**
+  Tổng clip bình thường                          **680**
+  Số clip nguy hiểm của MỖI fold                 **[42]**
+  Kết luận: không clip nào bị mất hoặc bị tính hai lần, và phân tầng giữ đúng 42 clip nguy hiểm
+  trong mọi fold.
+
+Hệ quả của ba phép kiểm: các dự đoán ngoài-fold (out-of-fold) **gộp lại được** — mỗi clip có đúng
+một dự đoán, sinh ra tại lần chạy mà nguồn của clip đó nằm ngoài tập huấn luyện. Đây là điều kiện
+để bảng điểm gộp ở Chương 6 có nghĩa.
+
+Bằng chứng độc lập trong tạo tác dự đoán: mỗi dòng của tệp JSON ngoài-fold mang khoá `fold_id`, và
+**giá trị của `fold_id` là định danh nguồn**, không phải chỉ số fold 0-9. Tạo tác tự ghi lại việc
+đơn vị giữ ra là nguồn.
+
+----------------------------------------------------------------------
+B.3. PHÂN PHỐI QUY MÔ NGUỒN
+----------------------------------------------------------------------
+
+Mục này định lượng độ lệch quy mô nguồn được phân tích ở mục 4.4.4.
+
+  Toàn kho (151 nguồn, 1,100 clip)
+  --------------------------------
+  Nguồn lớn nhất                     102 clip
+  Năm nguồn lớn nhất                 102, 49, 44, 39, 32
+  Trung vị                           3 clip
+  Nguồn nhỏ nhất                     1 clip
+  Số nguồn chỉ có 1 clip             23
+  Số nguồn có <= 3 clip              77 trên 151  (51.0%)
+
+  Theo lớp
+  --------
+  Nguồn nhãn nguy hiểm   76 nguồn / 420 clip | lớn nhất 32 | trung vị 3
+  Nguồn nhãn bình thường 75 nguồn / 680 clip | lớn nhất 102 | trung vị 5
+
+  Mức tập trung của lớp bình thường
+  ---------------------------------
+  Năm nguồn bình thường lớn nhất     102, 49, 44, 39, 31
+  Tổng                               265 clip
+  Tỉ lệ trong lớp bình thường         **39.0%**  (265 trên 680)
+
+Hai điều đọc được từ phân phối này.
+
+  (1) **Hơn một nửa số nguồn đóng góp không quá ba clip**, trong khi năm nguồn bình thường lớn nhất
+      giữ gần bốn phần mười cả lớp bình thường. Một bộ chia tôn trọng tính nguyên khối của nhóm
+      không có cách nào làm cho mười fold đều nhau khi dữ liệu có hình dạng này.
+
+  (2) **Fold 1 chứa duy nhất một nguồn nhãn bình thường** (`1tuWxs8fUOk`, 102 trong 144 clip của
+      fold), bên cạnh mười nguồn nhãn nguy hiểm. Vì vậy độ chính xác cân bằng cao nhất bảng ở fold
+      1 **không** được đọc là "fold dễ" mà là **một ước lượng lấy mẫu dưới mức**: biến động giữa
+      các nguồn bình thường — thành phần biến động lớn nhất ở các fold khác — hoàn toàn không xuất
+      hiện ở fold 1. Lập luận đầy đủ ở mục 4.4.4 và mục 7.3.
+
+----------------------------------------------------------------------
+B.4. CẤU HÌNH NHÓM CỦA KHO UNSAFE-NET
+----------------------------------------------------------------------
+
+Kho Unsafe-Net không có định danh nguồn kiểu video YouTube. Đơn vị giữ ra ở kho này là **nhóm bối
+cảnh**, sinh ra bằng KMeans với k = 8 trên mô tả nền khung ảnh. Mục 4.2.2 đã nêu giới hạn của phép
+thay thế này; nhật ký của chính các lần chạy cũng in ra giới hạn đó:
+
+  [LIMITATION] scene groups from sweep_results/zone_prior/clip_scene_map_691.json are a
+  KMeans(8) background-descriptor proxy, not verified camera metadata
+
+Vì vậy toàn bộ luận văn viết "nhóm bối cảnh", không viết "camera". Hai làn của kho này dùng **hai
+bản đồ nhóm khác nhau** và do đó có hai bảng thành phần khác nhau; chúng được in tách biệt dưới
+đây và không được trộn.
+
+B.4.1. Làn bốn lớp — 516 clip, 8 nhóm
+-------------------------------------
+
+Bản đồ nhóm: `sweep_results/zone_prior/clip_scene_map.json` (ánh xạ 516/516 clip).
+
+  Nhóm | n clip | các lớp có mặt | Transformer | Nền-ngoại hình
+  -----|--------|----------------|-------------|---------------
+    0  |   48   | 0, 1, 2        |    60.4%    |     58.3%
+    1  |  139   | 0, 1           |    80.6%    |     10.1%
+    2  |   39   | **3**          |   100.0%    |    100.0%
+    3  |   11   | 0, 1           |    54.5%    |     54.5%
+    4  |   90   | 0, 1           |    73.3%    |     60.0%
+    5  |   17   | **3**          |   100.0%    |    100.0%
+    6  |  154   | 0, 1, 2        |    80.5%    |     75.3%
+    7  |   18   | **1**          |    44.4%    |      0.0%
+  -----|--------|----------------|-------------|---------------
+  Tổng |  516   |                |             |
+
+Hai cột độ chính xác là top-1 trên nhóm giữ ra, lấy từ nhật ký `lco_seeds5_yolo26L1_CANONICAL.log`.
+Cột "Nền-ngoại hình" là bộ phân lớp hồi quy logistic trên đặc trưng MobileNetV3 toàn khung — một
+bộ phân lớp **không nhìn thấy hành vi**, chỉ nhìn thấy bối cảnh.
+
+Ba điều cần đọc từ bảng này.
+
+  (a) **Ba trong tám nhóm chỉ chứa duy nhất một lớp**: nhóm 2 và nhóm 5 chỉ chứa lớp 3, nhóm 7 chỉ
+      chứa lớp 1. Khi một nhóm như vậy được giữ ra, bài toán trên nhóm đó **suy biến**: mọi clip
+      trong nhóm có cùng một nhãn, nên một mô hình dự đoán một hằng số cho cả nhóm đạt 100%. Con
+      số độ chính xác của fold đó không mang thông tin về khả năng phân biệt, vì trong fold không
+      có gì để phân biệt.
+
+  (b) Suy biến ấy **không phải một suy luận của luận văn, nó được chính tạo tác chứng minh**: ở
+      nhóm 2 và nhóm 5, bộ phân lớp nền-ngoại hình cũng đạt **đúng 100.0%**. Một bộ phân lớp không
+      có khả năng đọc hành vi đạt điểm tuyệt đối trên hai nhóm này. Hai nhóm đó cộng lại là 56
+      trong 516 clip (10.9%).
+
+  (c) Lớp 3 (CarryOverload) **chỉ tồn tại trong nhóm 2 và nhóm 5**: 39 + 17 = 56 clip, đúng bằng
+      tổng hàng thứ tư của ma trận nhầm lẫn `[0, 0, 0, 56]`. Ma trận nhầm lẫn của Transformer và
+      của bộ nền-ngoại hình **trùng nhau hoàn toàn ở hàng này**. Do đó phát biểu "độ hồi tưởng lớp
+      CarryOverload bằng 100%" là **một tính chất của cách phân nhóm, không phải một kết quả nhận
+      dạng hành vi**, và luận văn không được dùng nó làm bằng chứng cho năng lực của bộ mã hoá.
+
+Điểm (c) tác động lên biên công bố, và tác động theo chiều **bất lợi cho luận văn chứ không có
+lợi**. Biên trung thực +16.9 pp [KTC 95% +12.5, +21.2] là hiệu của hai giá trị macro-recall lấy
+trung bình trên bốn lớp, trong đó lớp 3 đóng góp 100.0% cho **cả hai** phía. Nếu loại lớp suy biến
+và tính trên ba lớp còn lại, biên là +22.5 pp (75.0% so với 52.5%). Nghĩa là nhóm suy biến **làm
+loãng** biên chứ không làm phồng nó. Giá trị +22.5 pp này là **số học của luận văn tính từ bốn giá
+trị độ hồi tưởng in trong nhật ký, không phải một giá trị đo kèm khoảng tin cậy**; biên được công
+bố vẫn là +16.9 pp vì đó là giá trị có khoảng tin cậy bootstrap sinh ra cùng nó.
+
+B.4.2. Làn hai lớp — 687 clip, 8 nhóm
+-------------------------------------
+
+Bản đồ nhóm: `sweep_results/zone_prior/clip_scene_map_691.json`. Gộp 691 clip, lọc trùng chỉ trên
+phần huấn luyện (`dedupe=headline-drop_conflict`) bỏ 4 clip, còn **687 clip (512 nguy hiểm)**.
+
+  Nhóm | n clip | nguy hiểm | an toàn | %nguy hiểm
+  -----|--------|-----------|---------|-----------
+    0  |   22   |    18     |    4    |   81.8
+    1  |  187   |   152     |   35    |   81.3
+    2  |   58   |    36     |   22    |   62.1
+    3  |  170   |   139     |   31    |   81.8
+    4  |  121   |    46     |   75    |   38.0
+    5  |  101   |   101     | **0**   |  100.0
+    6  |   14   |    12     |    2    |   85.7
+    7  |   14   |     8     |    6    |   57.1
+  -----|--------|-----------|---------|-----------
+  Tổng |  687   |   512     |  175    |   74.5
+
+Ba điều cần đọc.
+
+  (a) **Nhóm 5 chỉ chứa một lớp** (101 trên 101 clip là nguy hiểm), nên fold giữ ra nhóm 5 suy
+      biến theo đúng nghĩa đã nêu ở mục B.4.1(a). Bảy nhóm còn lại chứa cả hai lớp.
+
+  (b) **Quy mô nhóm lệch hơn mười ba lần**: từ 14 clip (nhóm 6 và 7) đến 187 clip (nhóm 1). Hai
+      nhóm nhỏ nhất, mỗi nhóm 14 clip, đều được ghi độ chính xác 100.0% trong nhật ký. Ở cỡ mẫu 14,
+      một giá trị 100% không phân biệt được với may mắn, nên các con số này không được trích dẫn
+      riêng lẻ.
+
+  (c) **Tỉ lệ lớp lệch rất mạnh giữa các nhóm**: từ 38.0% nguy hiểm ở nhóm 4 đến 100% ở nhóm 5.
+      Vì vậy ở làn này độ chính xác cân bằng là chỉ số duy nhất đọc được, và độ chính xác top-1
+      trên từng nhóm **không** được so sánh giữa các nhóm.
+
+Hệ quả chung của mục B.4: ở kho Unsafe-Net, phép leave-group-out được thực hiện đúng về mặt kỹ
+thuật nhưng **đơn vị giữ ra là một proxy và ba trong tám nhóm suy biến**. Đây là lý do luận văn
+chọn kho iSafetyBench — nơi đơn vị giữ ra là định danh nguồn thật và cả 151 nguồn đều được giữ ra
+đúng một lần — làm làn công bố chính, và chỉ dùng kho Unsafe-Net cho các kết luận được phát biểu
+giới hạn trong phạm vi chính nó (mục 7.6, nhóm A).
+
+----------------------------------------------------------------------
+B.5. KÍCH THƯỚC FOLD LÀ DẤU VẾT NHẬN DẠNG GIAO THỨC
+----------------------------------------------------------------------
+
+Mục này ghi một quan sát có giá trị kiểm tra: **chỉ cần nhìn kích thước các fold là biết bảng số
+được sinh ra dưới giao thức nào**, không cần đọc mã nguồn hay tiêu đề nhật ký.
+
+  Giao thức rò rỉ nguồn (`StratifiedKFold`, bỏ qua 151 định danh nguồn)
+    kích thước mười fold test: 110, 110, 110, 110, 110, 110, 110, 110, 110, 110
+    đều nhau tuyệt đối, mỗi fold đúng 42 clip nguy hiểm
+
+  Giao thức leave-source-out (`StratifiedGroupKFold`, tôn trọng 151 định danh nguồn)
+    kích thước mười fold test: 144, 107, 107, 106, 106, 106, 106, 106, 106, 106
+    không đều, mỗi fold vẫn đúng 42 clip nguy hiểm
+
+Nguyên nhân: 1,100 chia 10 bằng 110 đúng, nên một bộ chia được phép cắt qua ranh giới nguồn luôn
+tạo ra mười fold bằng nhau. Một bộ chia buộc phải giữ nguyên khối từng nguồn **không thể** làm như
+vậy khi nguồn lớn nhất có 102 clip và trung vị là 3 clip. Độ không đều của bảng ở mục B.1 chính là
+dấu vết của ràng buộc nhóm.
+
+Hệ quả kiểm tra: **một bảng kết quả trên kho iSafetyBench ghi mười fold đều 110 clip là một bảng
+thuộc giao thức rò rỉ nguồn**, bất kể bảng ấy được đặt tên là gì. Đây là một phép kiểm độc lập với
+nhãn, dùng được cho cả người phản biện.
+
+Cặp số liệu dưới đây là cùng một kiến trúc E3, cùng một tập đặc trưng, cùng một bộ siêu tham số,
+chỉ khác bộ chia:
+
+  Giao thức          | BA     | macro-F1 | hồi tưởng | chính xác | PR-AUC | ROC-AUC
+  -------------------|--------|----------|-----------|-----------|--------|--------
+  Rò rỉ nguồn        | 90.6%  |  90.2%   |   90.2%   |   85.9%   | 0.922  | 0.953
+  Leave-source-out   | 75.2%  |  73.9%   |   78.3%   |   63.4%   | 0.692  | 0.815
+  -------------------|--------|----------|-----------|-----------|--------|--------
+  Lạm phát giao thức | **+15.4 pp** (KTC 95% bootstrap cụm [+10.6, +21.5], loại trừ 0)
+
+Đây là con số trung tâm của luận văn, được bàn ở mục 6.5 và là phán quyết của cổng G12. Sàn quy tắc
+đếm (R42) cũng dịch theo giao thức: 68.2% dưới giao thức rò rỉ so với 67.2% dưới leave-source-out,
+khiến biên "bộ mã hoá trừ đường tắt" rơi từ +22.4 pp xuống **+8.0 pp** — tức là gần hai phần ba
+biên ấy, dưới giao thức rò rỉ, là đường tắt theo nguồn chứ không phải năng lực của bộ mã hoá. Biên
++8.0 pp dưới leave-source-out là phán quyết của cổng G10.

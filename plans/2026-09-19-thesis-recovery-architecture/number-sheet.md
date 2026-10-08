@@ -120,6 +120,26 @@ otherwise.
 is certifiable on iSafetyBench at cluster resolution. Quoting a clip-level CI as the headline is
 forbidden — it is the same protocol inflation Block 1 already documents against this project.
 
+### Block 1d — protocol controls (added 2026-10-08; NEITHER is a generalisation result)
+
+Two controls that exist only to attack the inflation measurement from the outside. Both are
+**diagnostics**. Neither value may be quoted as a capability claim anywhere.
+
+| control | what it does | value | statistics | script | log_path | date | touch | status |
+|---|---|---|---|---|---|---|---|---|
+| **G19 placebo grouping** (lane B, E3) | 151 fake sources matched to the real ones on group count, per-class group-size multiset and class purity (all single-class, R41) but carrying no provenance; same `StratifiedGroupKFold`, same held-out sizes `[144,107,107,106x7]`, same 42 unsafe/fold | **89.0% BA** mean over 20 seeds, sd 0.47, range 87.7-89.7 | permutation p = (0+1)/(20+1) = **0.0476**; no placebo seed reaches the real LSO 75.2% (nearest is 12.5 pp above) | `isafetybench_dataset.placebo_groups` via `run_kfold_relation.py --permute_sources N` | `sweep_results/relation_tokens/logs/g19-placebo-E3-seed{1..20}.log` | 2026-10-08 | 0 | **control, NOT pre-registered** |
+| G19 decomposition of the +15.4 pp lane-B inflation | geometry = RAND 90.6 - placebo 89.0; provenance = placebo 89.0 - real LSO 75.2 | **fold geometry +1.6 pp (10.2%)**, **source provenance +13.8 pp (89.8%)** | same 20 seeds | derived | same | 2026-10-08 | 0 | control |
+| G19 shortcut-floor check | count-rule floor under all three conditions, identical folds | LSO 67.2% -> placebo 68.0% -> RAND 68.2% (span **1.0 pp**) while the encoder moves 15.4 pp | encoder-minus-floor: +8.0 / +21.0 / +22.4 pp | same | same | 2026-10-08 | 0 | control |
+| **Lane-A random split** (B1, the DEPLOYED config) | `StratifiedKFold` ignoring source identity instead of `StratifiedGroupKFold`; model, clips, folds, seeds, epochs all unchanged. ~57 of 151 sources straddle each boundary | **97.7% BA** (macro-F1 97.6, PR-AUC 0.993, ROC-AUC 0.996) vs **84.2%** under LSO = **+13.5 pp** | cluster CI over 151 sources **[+8.0, +20.0]** excludes 0; exact McNemar **p = 1.39e-41**, b=153 c=3, 156 discordant | `run-esta-lso.py --model B1 --split random --folds 10 --seeds 3 --epochs 60` | `sweep_results/relation_tokens/logs/g12-rand-B1.log` | 2026-10-08 | 0 | **diagnostic, NOT pre-registered** |
+
+**Why 97.7% must never be quoted as a result:** it is the number this project would have published
+had it used the literature's split. It is cited in Chapter 6 section 6.2.7 for exactly one purpose
+— to show that the 84.2% headline is a protocol choice, not a capability ceiling. Also: the lane-A
++13.5 pp and the lane-B +15.4 pp are **independent measurements of the same phenomenon on two
+representations**, never two readings of one quantity. Do not average them, do not let one
+corroborate the other numerically, and never put 97.7% in a sentence with the source paper's
+95.81% (that figure is Unsafe-Net, lane C).
+
 ### Block 1c — R48 edge cost (host CPU, **NOT Jetson** — must never be quoted as a device number)
 
 Measured 2026-09-29 by `deployment/scripts/benchmark-r48-clip-pipeline.py`, onnxruntime
@@ -152,9 +172,22 @@ Detector-generation control: the whole-frame arm of `feats_isbclip26_all.pt` (YO
 touches it. So B1/B1w carry over unchanged and only ESTA is re-run for G17. Detections:
 YOLOv11s 52,997 (90.2% of frames non-empty) vs YOLO26s 45,512 (87.9%).
 
-Per-fold balanced accuracy (the log prints per-fold **top-1**, not BA — do not quote the log's
-per-fold numbers as balanced accuracy): 91.2 / 73.0 / 72.5 / 66.6 / 63.0 / **57.3** / 81.9 / 87.0 /
-84.7 / 71.7, via `tools/analyse-isb-fold-failures.py`.
+Per-fold balanced accuracy, all via `tools/analyse-isb-fold-failures.py` (the training logs print
+per-fold **top-1**, not BA — do not quote the logs' per-fold numbers as balanced accuracy).
+**Corrected 2026-10-03:** the row below was previously filed under Block 1b, but the sequence
+91.2 / … / 71.7 is **E3's** (Block 1), not any CLIP-lane model's. Re-derived per model:
+
+| model | block | per-fold BA (folds 1–10) | worst fold |
+|---|---|---|---|
+| **E3** | 1 | 91.2 / 73.0 / 72.5 / 66.6 / 63.0 / **57.3** / 81.9 / 87.0 / 84.7 / 71.7 | f6 **57.3** |
+| **E0** | 1 | 93.9 / 82.5 / 76.9 / 76.8 / 67.0 / **64.4** / 81.1 / 87.8 / 85.8 / 83.1 | f6 **64.4** |
+| **B1** (deployed) | 1b | 85.8 / 88.4 / **74.7** / 79.1 / 83.6 / 67.5 / 97.2 / 96.9 / 81.0 / 86.2 | f6 **67.5** |
+| **B1w** | 1b | 84.6 / 82.2 / **74.7** / 78.3 / 83.6 / 78.5 / 95.3 / 95.7 / 81.0 / 88.6 | f3 **74.7** |
+| **ESTA** | 1b | 84.8 / 81.0 / 78.6 / 82.2 / 80.0 / 84.7 / 83.4 / 96.4 / 95.3 / **75.9** | f10 **75.9** |
+
+Fold 6 is the common worst case of the entity lane (E3 57.3, E0 64.4) and the CLIP lane repairs it
+(B1 67.5, B1w 78.5, ESTA 84.7) — a **+21.2 pp** worst-fold difference between E3 and B1w. This is
+descriptive: per-fold BA has no CI attached and must not be quoted as a certified margin.
 
 Corpus facts (not metrics, but cited in prose and therefore traceable here): 1,100 clips, 420 hazard
 / 680 normal, 151 distinct sources, **0/151 sources carry both classes (R41)**, 52,997 detections,

@@ -1,5 +1,5 @@
 TRẠNG THÁI BIÊN SOẠN LUẬN VĂN TIẾNG VIỆT
-Cập nhật: 03/10/2026 (lần trước: 20/09/2026)
+Cập nhật: 04/10/2026 (lần trước: 03/10/2026)
 Quyết định ràng buộc: toàn bộ báo cáo bằng tiếng Việt, văn phong báo cáo nghiên cứu khoa học
 (tác giả chốt 20/09/2026). Chương mới soạn TRỰC TIẾP bằng tiếng Việt, không viết tiếng Anh rồi dịch.
 Định dạng: .txt, tác giả tự đưa vào mẫu của trường.
@@ -14,34 +14,88 @@ Sau 05/10 không thêm số đo mới vào báo cáo; chỉ sửa câu chữ.
 BẢNG TIẾN ĐỘ
 ======================================================================
 
-  Chương                                   | Nguồn          | Trạng thái      | Ước lượng còn
-  -----------------------------------------+----------------+-----------------+---------------
-  Tóm tắt (abstract)                       | dịch+viết lại  | chưa bắt đầu    | 2h
-  Ch1. Mở đầu                              | dịch ch01      | chưa bắt đầu    | 4h
-  Ch2. Tổng quan                           | dịch ch02      | chưa bắt đầu    | 4h
-  Ch3. Phương pháp                         | dịch ch03      | chưa bắt đầu    | 4h
-  Ch4. Lạm phát giao thức đánh giá         | SOẠN MỚI       | BẢN THẢO XONG   | 2h hoàn thiện
-  Ch5. iSafetyBench: G10, G11, ablation    | SOẠN MỚI       | chưa bắt đầu    | 6h
-  Ch6. Triển khai biên P1 + chi phí P3     | SOẠN MỚI       | THÂN CHƯA XONG  | 2h
-  Ch7. Phân tích thất bại (viết lại ch07)  | VIẾT LẠI       | chưa bắt đầu    | 5h
-  Ch8. Kết luận                            | dịch ch06      | chưa bắt đầu    | 3h
-  Phụ lục: bảng log, cấu hình fold         | tổng hợp       | chưa bắt đầu    | 2h
+  TOÀN BỘ 11 TỆP NỘP ĐÃ VIẾT XONG (04/10/2026). Khung 8 chương theo yêu cầu của tác giả.
 
-  Tổng ước lượng còn lại: ~34h viết + ~3h demo. PHIÊN JETSON ĐÃ XONG (0h còn lại):
-  thiết bị đã trả về trạng thái nền đã lưu, không còn phép đo nào cần chạy trên board.
+  Chương                            | Tệp                                 | Dòng |   Từ  | T.thái
+  ----------------------------------+-------------------------------------+------+-------+-------
+  Tóm tắt (abstract)                | 00-tom-tat.txt                      |  147 | 2,388 | XONG
+  Ch1. Mở đầu                       | chuong-01-mo-dau.txt                |  397 | 5,014 | XONG
+  Ch2. Tổng quan                    | chuong-02-tong-quan.txt             |  504 | 5,779 | XONG
+  Ch3. Phương pháp                  | chuong-03-phuong-phap.txt           |  947 |11,408 | XONG
+  Ch4. Chi tiết thực nghiệm         | chuong-04-chi-tiet-thuc-nghiem.txt  |  841 | 9,130 | XONG
+  Ch5. Triển khai biên              | chuong-05-trien-khai-bien.txt       | 1255 |16,522 | XONG
+  Ch6. Đánh giá                     | chuong-06-danh-gia.txt              | 1310 |15,362 | XONG
+  Ch7. Phân tích thất bại           | chuong-07-phan-tich-that-bai.txt    |  940 |11,429 | XONG
+  Ch8. Kết luận                     | chuong-08-ket-luan.txt              |  412 | 5,487 | XONG
+  Phụ lục A. Bảng nhật ký           | phu-luc-a-bang-nhat-ky.txt          |  506 | 4,931 | XONG
+  Phụ lục B. Cấu hình fold          | phu-luc-b-cau-hinh-fold.txt         |  436 | 3,182 | XONG
+  ----------------------------------+-------------------------------------+------+-------+-------
+  Tổng                              | 11 tệp                              | 7695 |90,632 |
 
-  TỆP ĐÃ CÓ BẢN THẢO:
-    - Ch4: chuong-04-lam-phat-giao-thuc-va-danh-gia-cheo-camera.txt (331 dòng)
-    - Ch6: chuong-06-trien-khai-bien-va-chi-phi-quyet-dinh.txt (1,152 dòng)
+  Tóm tắt gồm hai phần trong cùng một tệp: TÓM TẮT (620 từ, một trang, dùng cho phần đầu luận
+  văn) và TÓM TẮT MỞ RỘNG (1,590 từ, dùng cho bản tóm tắt luận văn nộp riêng). Cả hai mở đầu
+  bằng phát hiện về GIAO THỨC, không mở đầu bằng một con số độ chính xác (ràng buộc 9).
 
-  Ch6 còn thiếu đúng một việc: THÂN chương chưa cập nhật theo nhịp B1 sau khi sửa tiền xử lý
-  (khối cảnh báo thứ nhất trong tệp đã nêu con số, thân chương thì chưa). Các PHÁN QUYẾT HỢP
-  ĐỒNG của P3 thì ĐÃ cập nhật xong (mục 6.2.2, 6.4 + 6.4b, 6.5.2, 6.5.3, 6.5.5, 6.7.3, 6.9, 6.10).
+  PHIÊN JETSON ĐÃ XONG: thiết bị đã trả về trạng thái nền đã lưu, không còn phép đo nào cần
+  chạy trên board. Việc còn lại là việc đóng gói, không phải việc đo (xem khối cuối tệp này).
 
-  HAI TỆP Ch6 — chỉ một tệp được nộp:
-    - chuong-06-trien-khai-bien-va-chi-phi-quyet-dinh.txt .............. BẢN NỘP (DVFS)
-    - chuong-06-...-ghim-xung-nhip.txt ....... CHỈ LƯU HỒ SƠ, KHÔNG NỘP, thân KHÔNG cập nhật
-  Không trộn hai tệp. Không nộp tệp ghim xung nhịp.
+  HAI TỆP Ch5 — chỉ một tệp được nộp:
+    - chuong-05-trien-khai-bien.txt ................... BẢN NỘP (điều kiện DVFS, headline)
+    - chuong-05-trien-khai-bien-ghim-xung-nhip.txt .... CHỈ LƯU HỒ SƠ, KHÔNG NỘP
+  Không trộn hai tệp. Không nộp tệp ghim xung nhịp. Tệp ghim xung nhịp CỐ Ý không được rà lại
+  theo quy ước trình bày bên dưới (nó còn 6 dòng bắt đầu bằng token dạng số); nó là hồ sơ.
+
+======================================================================
+QUY ƯỚC TRÌNH BÀY (đã kiểm lần cuối 04/10/2026)
+======================================================================
+
+  Hai quy ước, áp dụng cho 11 tệp nộp:
+  (1) Dòng không quá 100 ký tự. MIỄN TRỪ: đường dẫn/tên trường không thể ngắt, và các hàng
+      bảng dữ liệu rộng.
+  (2) KHÔNG dòng nào được bắt đầu bằng một token có DẠNG SỐ MỤC, tức khớp `^[0-9]\.[0-9]`
+      (một chữ số, dấu chấm, một chữ số) mà không phải là một dòng tiêu đề mục. Dạng này là
+      dạng duy nhất bị cấm, vì nó là dạng người đọc có thể nhầm thành số mục của luận văn
+      (các mục chạy từ 1.1 đến 8.x). Các dòng mở đầu bằng "365.88 ms" hay "1,536 chiều"
+      KHÔNG thuộc dạng bị cấm và được giữ nguyên.
+
+  Trạng thái sau lần kiểm cuối: 0 dòng vi phạm (2) trên cả 11 tệp nộp. Về (1):
+    - Ch6 còn 49 hàng bảng ASCII rộng 101–125 ký tự (Bảng 6.2, 6.4, 6.5 và bảng phán quyết
+      cổng ở mục 6.13). Thuộc miễn trừ; để tác giả dàn lại theo mẫu của trường.
+    - Ch4 còn 2 dòng 101 và 110 ký tự: một đường dẫn tệp đo và một cặp tên trường JSON.
+      Thuộc miễn trừ, không ngắt được.
+    - 9 tệp còn lại: 0 dòng quá 100 ký tự.
+
+======================================================================
+SỬA CHÉO CHƯƠNG — PHIÊN 03–04/10/2026
+======================================================================
+
+  Bốn việc sửa chạy xuyên nhiều chương, ghi lại để đối chiếu khi dàn trang:
+
+  1. SỐ TRÍCH DẪN [43]. Ch1 và Ch2 cùng dùng [27] cho hai tài liệu khác nhau. Đã giải quyết
+     theo hướng giữ nguyên [1]–[42]: Vaswani và cộng sự (2017) thành [43] trong thư mục hợp
+     nhất ở Ch2; [27] chỉ còn là MonitorVLM; dẫn trong văn ở Ch1 đổi thành [43, 13, 14, 15].
+     Đã rà lại: không gian trích dẫn liền mạch [1]–[43].
+
+  2. TÊN GỌI LCO. Mã nguồn và nhật ký khai triển `lco` thành "leave-camera-out"; kho
+     Unsafe-Net KHÔNG có siêu dữ liệu camera (ràng buộc 5). Văn bản luận văn khai triển thành
+     "leave-context-out" ở mọi chỗ (17 chỗ, qua Ch1, Ch3, Ch5, Ch6, Ch8 và tóm tắt), GIỮ
+     nguyên từ viết tắt LCO để còn trùng tên tệp và tên cờ trong mã, kèm ĐÚNG MỘT lời công bố
+     ở mục 3.7.1 giải thích vì sao tạo tác đánh vần khác.
+
+  3. QUY TẮC ĐỌC CỘT Δ (Bảng 6.3). Nhật ký `g12-protocol-inflation-table.log` tính Δ trên giá
+     trị CHƯA làm tròn, nên lấy hiệu của hai cột in một chữ số thập phân có thể lệch 0.1 pp
+     (E3: 82.5 − 69.6 = 12.9 so với +13.0 trong nhật ký). Luận văn dẫn con số của NHẬT KÝ:
+     dải Unsafe-Net là **+13.0 đến +21.8 pp** ở Ch1, Ch6, Ch8, Phụ lục A và tóm tắt. Một khối
+     quy tắc đọc đã được thêm ngay dưới Bảng 6.3 để chênh lệch này không bị đọc thành lỗi.
+
+  4. HAI LỖI GÁN SAI ĐÃ SỬA TẠI NGUỒN:
+     (a) Ch2 mục 2.2.3 từng gán hiệu số đã kiểm định +2.9 pp (khoảng tin cậy [−1.8, +7.0],
+         p = 0.0178) cho cấu hình B1. Bảng 6.2 cho thấy hàng đó là **B1w − B2**, và KHÔNG CÓ
+         cặp B1 − B2 nào được đo. Đoạn đã viết lại quanh B1w (84.4%, 333,570 tham số) và nêu
+         B1 riêng kèm câu nói rõ hiệu số của riêng B1 không phải một hiệu số đã kiểm định.
+     (b) Ch1 mục 1.5(3) từng gọi cổng trung tâm bằng số của G11 (+1.1 pp, p = 0.625). Cổng
+         trung tâm là **G14** (−0.5 pp, [−5.5, +5.0], p = 0.683 — Ch6 mục 6.2.2). Đã sửa:
+         G14 nêu bằng số của chính nó, G11 đứng cạnh bằng số của chính nó.
 
 ======================================================================
 GHI CHÚ RÀNG BUỘC KHI VIẾT (đọc trước mỗi phiên)
@@ -65,9 +119,13 @@ GHI CHÚ RÀNG BUỘC KHI VIẾT (đọc trước mỗi phiên)
 
 6. Con số "95.7% mAP" đã bị rút lại — không được phục hồi ở bất kỳ chương nào.
 
-7. Ch6 phải công bố rõ: chương độ chính xác dùng P3, HỆ THỐNG ĐƯỢC TRIỂN KHAI là P1 (D2).
-   Hai pipeline khác nhau, không được trộn số. Ch6 có cả số P1 (hệ triển khai) và số P3
-   (đường cong chi phí) — mỗi bảng phải ghi rõ bảng đó thuộc pipeline nào.
+7. CẬP NHẬT 04/10/2026 — PHIÊN BẢN CŨ CỦA RÀNG BUỘC NÀY ĐÃ BỊ VƯỢT. Bản cũ viết "HỆ THỐNG
+   ĐƯỢC TRIỂN KHAI là P1 (D2)". Ch5 mục 5.1 cho thấy đồ thị THỰC SỰ được triển khai trên
+   thiết bị là **B1** (tháp CLIP ViT-B/32 đóng băng + đầu thời gian 201,090 tham số); P1 là
+   PHA TRƯỚC và mọi hàng số của nó phải ghi rõ phạm vi (Ch5 mục 5.6); P3 được đo trên thiết bị
+   CHỈ cho câu hỏi chi phí. Phần còn lại của ràng buộc giữ nguyên: ba pipeline KHÔNG được trộn
+   số, đơn vị KHÔNG đổi lẫn nhau được (116 fps của P1 và 3 quyết định/giây của P3 cùng tồn tại
+   được), và MỖI bảng phải ghi rõ bảng đó thuộc pipeline nào.
 
 8. multi-stream-results.json tự ghi chú là "hand-patched" — chưa xác minh có phải số đo thật.
    Không trích như số đo thô cho tới khi làm rõ. Bảng 5.4 (bản tiếng Anh) đang dựa trên tệp này.
@@ -75,6 +133,7 @@ GHI CHÚ RÀNG BUỘC KHI VIẾT (đọc trước mỗi phiên)
 9. KẾT LUẬN HEADLINE LÀ LẠM PHÁT GIAO THỨC (D1), KHÔNG phải một con số accuracy. Làn headline
    về nhịp quyết định là R48/B1 (CLIP ViT-B/32 đóng băng + đầu B1 thời gian). Không mở đầu
    luận văn bằng một con số độ chính xác.
+
 
 ======================================================================
 RÀNG BUỘC MỚI 03/10/2026 — CÁCH TRÍCH SỐ NHỊP QUYẾT ĐỊNH
@@ -127,6 +186,7 @@ Hai phát biểu ĐÃ BỊ RÚT LẠI và KHÔNG được xuất hiện ở bấ
     Toàn bộ bảng số dùng điều kiện CÓ GIẢI MÃ. Chỉ trích
     `ms_per_decision_p50_with_stream_decode` / `decisions_per_sec_p50_with_stream_decode`.
 
+
 ======================================================================
 CÂU HỎI CHƯA GIẢI QUYẾT
 ======================================================================
@@ -141,3 +201,25 @@ CÂU HỎI CHƯA GIẢI QUYẾT
 5. Bảng 4.5: nguồn gốc con số độ tin cậy chưa truy được hết. Bảng 4.1–4.4 chưa có tệp log
    tương ứng. Hình 4.1 còn 5 trong 6 ô chưa commit.
 6. Video demo dự phòng (mục 11) CHƯA TỒN TẠI.
+
+  GHI CHÚ TIẾN TRIỂN (04/10/2026) — sáu câu hỏi trên giữ nguyên nguyên văn, đây là phần đã
+  nhích được:
+    - Câu 5, phần Bảng 4.5: đã có trọng tài là `deployment/artifacts/per-clip-logits-test64.csv`
+      (commit 6319b21) và Ch4 đã dẫn tệp đó. Phần CHƯA giải quyết: Bảng 4.1–4.4 vẫn là bảng
+      lịch sử không có tệp log tương ứng, và Hình 4.1 vẫn còn 5 trong 6 ô chưa commit.
+    - Câu 1, 2, 3: không đổi. Cả ba đều là việc ĐO, và mốc 05/10 đã đóng băng số, nên cả ba
+      được công bố dưới dạng GIỚI HẠN trong Ch5 và Ch7 chứ không được bù bằng suy đoán.
+
+======================================================================
+VIỆC CÒN LẠI TRƯỚC ĐÓNG BĂNG 05/10 (việc đóng gói, không phải việc đo)
+======================================================================
+
+  1. Buộc thêm 2.7 MB tạo tác văn bản trong `deployment/artifacts/` vào git: `git add -f`,
+     vì `.gitignore:49` đang loại chúng. Không có bước này thì các con số của Ch5 mất đường
+     truy xuất xuất xứ.
+  2. Khiếm khuyết nhãn phần cứng M3/M4 ở 24 chỗ: để tác giả quyết, chưa sửa.
+  3. Bảng 5.4 vẫn dựa trên `multi-stream-results.json` tự ghi là "hand-patched" (ràng buộc 8).
+  4. Video demo dự phòng chưa tồn tại (câu hỏi 6).
+  5. Quyết định về `cache_r2/frames/` (2.8 GB, đã gitignore, sinh lại được) và các đồ thị ONNX
+     của P3 (42 MB, chưa theo dõi): giữ ngoài git hay đưa vào, tác giả quyết.
+  6. KHÔNG tệp nào trong 11 tệp nộp cần thêm số đo. Chỉ còn dàn trang theo mẫu của trường.

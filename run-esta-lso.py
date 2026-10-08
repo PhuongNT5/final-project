@@ -15,7 +15,7 @@ import json
 
 import numpy as np
 import torch
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold, train_test_split
 
 import esta_training as T
 import isafetybench_dataset as ISB
@@ -48,22 +48,23 @@ def load_aligned(path):
 
 
 def finalise(model, tag_suffix, yn, y, pred, soft, clip_ids, groups, seeds, n_groups,
-             note=''):
+             note='', proto='lso-1100'):
     """Score the completed OOF vector and write the two artifacts downstream tools read.
 
     Shared by the single-process path and tools/merge-esta-shards.py so a sharded run and an
     unsharded one cannot produce differently-shaped artifacts."""
-    print(f"\n=== LSO-1100 ({model}, {int((pred != -1).sum())}/{len(yn)} clips scored, "
-          f"{n_groups} held-out groups{note}) ===")
+    print(f"\n=== {proto.upper()} ({model}, {int((pred != -1).sum())}/{len(yn)} clips scored, "
+          f"{n_groups} held-out folds{note}) ===")
     report_binary(yn, y, pred, soft, model, seeds,
-                  protocol_tag=f'binary-lso-1100-{model}', sub_names=None)
+                  protocol_tag=f'binary-{proto}-{model}', sub_names=None)
 
     rows = [{'clip_id': str(clip_ids[i]), 'y_true': int(yn[i]), 'prob_unsafe': float(soft[i, 1]),
              'y_pred': int(pred[i]), 'fold_id': str(groups[i])} for i in range(len(yn))]
-    jp = f'{TOK}/enc_isbclip_{model}{tag_suffix}_lso-1100_headline-none_oof.json'
-    json.dump({'model': f'clip_{model}', 'protocol': 'lso-1100', 'dedupe_policy': 'none',
+    jp = f'{TOK}/enc_isbclip_{model}{tag_suffix}_{proto}_headline-none_oof.json'
+    json.dump({'model': f'clip_{model}', 'protocol': proto, 'dedupe_policy': 'none',
                'tag': 'isbclip_', 'n': len(rows), 'rows': rows}, open(jp, 'w'))
-    pt = f'{TOK}/lco_oof_softmax_isbclip_binary_{model}{tag_suffix}_none.pt'
+    pt = (f'{TOK}/lco_oof_softmax_isbclip_binary_{model}{tag_suffix}_none.pt' if proto == 'lso-1100'
+          else f'{TOK}/oof_softmax_isbclip_binary_{model}{tag_suffix}_{proto}.pt')
     torch.save({'ens_softmax': torch.from_numpy(soft), 'labels': y, 'clip_ids': clip_ids,
                 'groups': groups, 'tag': 'isbclip_', 'arch': model, 'oof_pred': pred}, pt)
     print(f"  [saved per-clip OOF] {jp}\n  [saved OOF tensor] {pt}")
@@ -72,6 +73,12 @@ def finalise(model, tag_suffix, yn, y, pred, soft, clip_ids, groups, seeds, n_gr
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--model', default='ESTA', choices=['ESTA', 'B1', 'B1w', 'B2', 'TSF', 'B1xl'])
+    ap.add_argument('--split', default='group', choices=['group', 'random'],
+                    help="'group' = leave-source-out, the only protocol a headline number may come "
+                         "from. 'random' = StratifiedKFold ignoring source identity: the G12 "
+                         "diagnostic, for measuring how much the protocol inflates the number. A "
+                         "random-split run is NEVER a generalisation result and its artifacts are "
+                         "written under a rand-1100 name so they cannot be mistaken for one.")
     ap.add_argument('--seeds', type=int, default=3)
     ap.add_argument('--epochs', type=int, default=T.EPOCHS)
     ap.add_argument('--folds', type=int, default=10)
@@ -89,14 +96,28 @@ def main():
     feats, y, groups, clip_ids = load_aligned(args.feats)
     in_dim = feats['wholeframe'].shape[-1]
     yn = y.numpy()
-    splits = ISB.folds(y, groups, n_splits=args.folds, seed=0)
+    if args.split == 'random':
+        proto = f'rand-{len(yn)}'
+        splits = list(StratifiedKFold(n_splits=args.folds, shuffle=True,
+                                      random_state=0).split(np.zeros(len(yn)), yn))
+    else:
+        proto = 'lso-1100'
+        splits = ISB.folds(y, groups, n_splits=args.folds, seed=0)
     folds = [(f'f{i+1}', te) for i, (_, te) in enumerate(splits)]
     if args.nshards > 1:
         folds = folds[args.shard::args.nshards]
         print(f"[shard {args.shard}/{args.nshards}] folds: {', '.join(g for g, _ in folds)}")
-    print(f"[grouping] source YouTube video id: {len(set(groups))} sources, 0 carry both classes "
-          f"(R41) -> {args.folds} StratifiedGroupKFold folds; no source spans the boundary.")
-    print(f"[lso-1100] model={args.model} backbone=CLIP ViT-B/32 pooled {len(yn)} clips "
+    if args.split == 'random':
+        print(f"[G12 DIAGNOSTIC -- SOURCE-IGNORING SPLIT] {args.folds} StratifiedKFold folds over "
+              f"{len(yn)} clips. Clips of the same source video sit on BOTH sides of every "
+              f"boundary, and 0 of {len(set(groups))} sources carry both classes (R41), so source "
+              f"identity is a perfect label proxy here. This number measures PROTOCOL INFLATION "
+              f"and is NOT a generalisation result; it must never be reported as one.")
+    else:
+        print(f"[grouping] source YouTube video id: {len(set(groups))} sources, 0 carry both "
+              f"classes (R41) -> {args.folds} StratifiedGroupKFold folds; no source spans the "
+              f"boundary.")
+    print(f"[{proto}] model={args.model} backbone=CLIP ViT-B/32 pooled {len(yn)} clips "
           f"(unsafe {int(yn.sum())}) | folds={len(folds)} | seeds={args.seeds} "
           f"| params={count_params(T.build(args.model, in_dim)):,}", flush=True)
 
@@ -125,7 +146,7 @@ def main():
         return
 
     finalise(args.model, args.tag_suffix, yn, y, pred, soft, clip_ids, groups,
-             args.seeds, len(folds))
+             args.seeds, len(folds), proto=proto)
 
 
 if __name__ == '__main__':

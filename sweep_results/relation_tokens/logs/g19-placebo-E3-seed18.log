@@ -1,0 +1,18 @@
+[G19 CONTROL — PLACEBO GROUPING, seed=18] 151 fake sources matched to the 151 real ones on count, per-class size multiset and class purity, but carrying no provenance. Fold geometry is held constant; only source identity is destroyed. This number is a CONTROL for the inflation measurement and is NOT a generalisation result.
+[plc18-1100] arch=E3 d=- coord=T1 pooled 1100 clips (unsafe 420) | folds=10 | params=17,270
+  held-out group f1: n=144 unsafe=42 acc= 88.2%
+  held-out group f2: n=107 unsafe=42 acc= 87.9%
+  held-out group f3: n=107 unsafe=42 acc= 87.9%
+  held-out group f4: n=106 unsafe=42 acc= 86.8%
+  held-out group f5: n=106 unsafe=42 acc= 90.6%
+  held-out group f6: n=106 unsafe=42 acc= 86.8%
+  held-out group f7: n=106 unsafe=42 acc= 90.6%
+  held-out group f8: n=106 unsafe=42 acc= 89.6%
+  held-out group f9: n=106 unsafe=42 acc= 88.7%
+  held-out group f10: n=106 unsafe=42 acc= 93.4%
+
+=== PLC18-1100 (E3, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=89.0% macro_f1=88.5% unsafe_recall=89.0% unsafe_precision=83.3% PR-AUC=0.909 ROC-AUC=0.948
+  [R42 floor, identical folds] count-rule (persons/frame, objects/frame, mean conf) balanced_acc=67.9%  |  encoder-minus-shortcut = +21.1 pp
+  [saved LCO per-clip OOF] sweep_results/relation_tokens/enc_isb_E3_plc18-1100_headline-none_oof.json
+  [saved LCO OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isb_binary_E3_plc18-1100_none.pt

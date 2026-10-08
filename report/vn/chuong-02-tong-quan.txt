@@ -1,0 +1,503 @@
+======================================================================
+CHƯƠNG 2. TỔNG QUAN
+======================================================================
+
+Trạng thái văn bản: bản thảo chương tổng quan, soạn trực tiếp bằng tiếng Việt.
+Quy ước số: dấu chấm là dấu thập phân, dấu phẩy là dấu phân cách hàng nghìn.
+Danh mục tham khảo thống nhất của toàn luận văn nằm ở cuối chương này; các chương khác chỉ liệt kê
+lại những mục mà chính chúng dẫn, dùng đúng số thứ tự của danh mục này.
+
+Chương này khảo sát năm mảng công trình làm nền cho luận văn: mục 2.1 họ phát hiện đối tượng thời
+gian thực; mục 2.2 các kiến trúc mô hình hoá thời gian cho video; mục 2.3 các kho dữ liệu và hệ
+thống giám sát an toàn công nghiệp; mục 2.4 **đánh giá có ràng buộc nhóm, rò rỉ dữ liệu và thiên
+lệch bối cảnh** — mảng gần nhất với đóng góp chính của luận văn; mục 2.5 triển khai biên cho mô
+hình video học sâu. Mục 2.6 nêu định vị của luận văn so với cả năm mảng.
+
+Một lưu ý về cách đọc chương này. Thứ tự năm mục **không** phản ánh thứ tự tầm quan trọng đối với
+luận văn. Mục 2.4 là mục gần nhất với đóng góp chính, nhưng nó được đặt sau ba mục kỹ thuật vì nó
+chỉ đọc được đầy đủ sau khi người đọc đã biết các kho dữ liệu được thu như thế nào.
+
+----------------------------------------------------------------------
+2.1. PHÁT HIỆN ĐỐI TƯỢNG THỜI GIAN THỰC: HỌ YOLO
+----------------------------------------------------------------------
+
+Phát hiện đối tượng ở thời gian thực bắt đầu từ công trình **YOLO** của Redmon và cộng sự [1], đặt
+bài toán phát hiện thành một phép hồi quy một giai đoạn trên một lưới không gian dày đặc, nhờ đó
+nhanh hơn dòng Fast R-CNN một bậc độ lớn mà vẫn giữ mAP cạnh tranh. Các phiên bản sau lần lượt
+tích hợp các ý tưởng của tài liệu phát hiện đối tượng rộng hơn:
+
+  - **YOLOv3** [2] đưa vào các đầu dự đoán đa tỉ lệ kiểu FPN và xương sống Darknet-53, nâng độ
+    nhạy với vật thể nhỏ.
+  - **YOLOv4** [3] — bộ phát hiện mà bài báo Unsafe-Net [17] sử dụng — thêm CSPDarknet, hàm kích
+    hoạt Mish, tăng cường Mosaic và hàm mất CIoU.
+  - **YOLOv5–v8** [4, 5] hợp nhất kiến trúc quanh PyTorch với các đầu không neo và công thức huấn
+    luyện được cải thiện.
+  - **YOLOv11** [6] — xương sống mà luận văn này dùng cho nhánh định vị — đưa vào khối C3k2, phép
+    gộp không gian SPPF và một phần cổ được tinh giản, giảm số tham số đồng thời tăng thông lượng
+    trên CPU.
+  - **YOLO-World** [7] mở rộng YOLOv8 bằng gợi ý văn bản từ vựng mở thông qua phép khớp tương phản
+    kiểu CLIP, cho phép phát hiện các hạng mục mới mà không huấn luyện lại.
+
+Một tuyến phát hiện thời gian thực khác là **RT-DETR** [8], một bộ phát hiện dựa trên Transformer
+loại bỏ bước NMS và sánh được tốc độ YOLO trên GPU T4. Đề cương của luận văn ban đầu dự kiến dùng
+RT-DETR làm **bộ mã hoá thời gian**; phương pháp cuối cùng (Chương 3) không dùng nó. Lý do đã nêu
+ở mục 1.4.2 và nhắc lại ở đây để đầy đủ: RT-DETR là một bộ phát hiện, không phải một bộ mã hoá
+chuỗi; chuỗi thời gian mà luận văn phải mã hoá đã là một lưới token hạng thấp, nên một bộ giải mã
+chú ý chéo kiểu DETR là không cần thiết.
+
+Trong luận văn này, bộ phát hiện giữ **một** vai trò: định vị. Hệ thống phải trả lời được *ở đâu*,
+không chỉ *có hay không*. Vai trò phân lớp thuộc về đầu thời gian, và độ trễ của hai vai trò được
+đo riêng (Chương 5, mục 5.1.1). Một hệ quả thực nghiệm đáng ghi nhận, trình bày ở mục 6.2.4 của
+Chương 6: thay bộ phát hiện YOLOv11s bằng thế hệ mới hơn YOLO26s làm độ chính xác của nhánh thực
+thể **giảm** 2.2 điểm phần trăm, vì bộ phát hiện mới bảo thủ hơn và sinh ít phát hiện hơn (45,512
+so với 52,997 trên cùng 1,100 clip). "Mới hơn" không đồng nghĩa với "tốt hơn cho tác vụ hạ nguồn".
+
+----------------------------------------------------------------------
+2.2. MÔ HÌNH HOÁ THỜI GIAN CHO PHÂN LOẠI VIDEO
+----------------------------------------------------------------------
+
+Phân loại hành vi trên video thêm một trục thời gian mà các bộ phát hiện tĩnh không mô hình hoá
+được. Bốn họ mô hình liên quan.
+
+2.2.1. Hai luồng và kết hợp hồi quy
+
+Các công trình sớm ghép đặc trưng ngoại hình từ mạng tích chập với đặc trưng chuyển động từ luồng
+quang học [9]; các công trình sau thay luồng quang học bằng một cơ chế kết hợp hồi quy.
+**ConvLSTM** [10] — biến thể tích chập của LSTM, giữ được cấu trúc không gian trong trạng thái ẩn —
+là xương sống thời gian của bài báo Unsafe-Net [17] và do đó là đường cơ sở trực tiếp của luận văn.
+Trên tập con bốn lớp không an toàn của Unsafe-Net, ConvLSTM đơn lẻ đạt **85.78% macro / 89.06%
+top-1 (57/64)**, và khi ghép với phát hiện YOLO v4 thì hệ thống hợp nhất đạt **95.81% macro /
+96.88% top-1 (62/64)**.
+
+Một chi tiết về cách đọc bảng của bài báo gốc phải nêu ở đây vì luận văn giữ nguyên phân biệt này
+ở mọi chỗ: cột "Overall (%)" trong bài báo [17] là **trung bình macro của các độ nhạy theo lớp**,
+**không** phải top-1. Hai đại lượng này khác nhau trên một kho lệch lớp, và việc trộn chúng là một
+trong các lỗi mà luận văn đã phải sửa trong các bản thảo của chính mình (Chương 7, mục 7.8).
+
+2.2.2. Tích chập ba chiều
+
+I3D [11] và SlowFast [12] mở rộng tích chập hai chiều theo trục thời gian và dùng các nhánh có
+tần số lấy mẫu khác nhau. Các mô hình này chính xác trên các kho cỡ Kinetics nhưng có số phép tính
+trên mỗi clip cao, và chưa từng được chuẩn hoá đo trên Unsafe-Net.
+
+2.2.3. Transformer cho video
+
+Kiến trúc Transformer [43] thay hồi quy bằng chú ý tự thân, nên chi phí không tăng theo độ dài
+chuỗi một cách tuần tự; ba công trình sau chuyển cơ chế đó sang video theo ba cách phân rã khác
+nhau. **TimeSformer** [13] tách chú ý không gian khỏi chú ý thời gian; **ViViT** [14] liệt kê
+các biến thể chú ý phân rã; **VideoMAE** [15] áp dụng tiền huấn luyện tự giám sát kiểu bộ tự mã
+hoá có che trên Kinetics và Something-Something [36], rồi chuyển giao tốt sang các kho nhỏ hạ
+nguồn.
+
+Luận văn đánh giá một xương sống **VideoMAE-base đã tiền huấn luyện trên Kinetics-400** và giữ
+**đóng băng** như một đối chứng về năng lực biểu diễn. Kết quả, công bố ở Chương 6 mục 6.2.3: dưới
+cùng giao thức leave-source-out trên 1,100 clip, xương sống video đó đạt **81.5%** độ chính xác cân
+bằng, so với **84.4%** của tháp hình ảnh–văn bản CLIP ViT-B/32 [28] đóng băng cộng một đầu thời
+gian 333,570 tham số — cấu hình B1w. Cặp được kiểm định là đúng cặp vừa nêu: hiệu số **+2.9 điểm
+phần trăm**, khoảng tin cậy theo cụm **[−1.8, +7.0] chứa 0**, McNemar p = 0.0178 (Bảng 6.2). Cấu
+hình được triển khai trên thiết bị — cùng tháp CLIP đóng băng, đầu thời gian nhỏ hơn với 201,090
+tham số — đạt **84.2%**, nhưng hiệu số của riêng cặp đó so với xương sống video không nằm trong
+Bảng 6.2, nên không được dẫn như một hiệu số đã kiểm định.
+
+Cách đọc đúng phải thận trọng theo cả hai chiều. Vì khoảng tin cậy chứa 0, luận văn **không** phát
+biểu rằng tháp CLIP thắng xương sống video. Phát biểu được chứng minh là phát biểu yếu hơn và đáng
+chú ý hơn: **một xương sống video đã tiền huấn luyện ở quy mô lớn không bỏ xa một tháp hình ảnh
+đóng băng cộng một đầu thời gian nhỏ hơn chính tháp đó hơn 260 lần** (87,849,216 so với 333,570
+tham số). Đó là bằng chứng rằng trần kết quả trên lớp bài toán này do tín hiệu huấn luyện quy định,
+không do năng lực biểu diễn.
+
+2.2.4. Lai YOLO + Transformer
+
+Các công trình ghép đặc trưng của bộ phát hiện với bộ mã hoá thời gian kiểu Transformer còn thưa
+thớt và thường gắn chặt với một tác vụ cụ thể (phát hiện sự cố giao thông, phân đoạn hành động).
+Theo khảo sát của luận văn, chưa có công trình nào áp dụng tổ hợp này cho phân loại hành vi không
+an toàn trong công nghiệp.
+
+2.2.5. Giám sát yếu: một tuyến mà luận văn không đi
+
+Một mảng song song — **phát hiện bất thường video có giám sát yếu** (WS-VAD) — huấn luyện bộ phân
+loại ở mức video chỉ bằng nhãn mức clip, tức đúng chế độ giám sát của luận văn. Đường cơ sở kinh
+điển là Sultani và cộng sự [22] trên UCF-Crime, đặt bài toán định vị bất thường thành bài toán xếp
+hạng học đa thể hiện trên 32 đoạn mỗi video, đạt 75.4% AUC. Các công trình sau thu hẹp khoảng cách
+với giám sát đầy đủ: **RTFM** [23] đạt 84.30% AUC trên UCF-Crime; **MSL** [24] thêm một Transformer
+tự huấn luyện trên đầu vào đa chuỗi và nâng lên 85.62%; **VadCLIP** [25] điều chỉnh đặc trưng thị
+giác CLIP và một bộ mã hoá văn bản đóng băng cho WS-VAD mà không huấn luyện lại — một đường cơ sở
+không-mẫu đáng chú ý với thiết kế xương sống đóng băng của luận văn.
+
+Các phương pháp này **không** được dùng làm phương pháp chính, vì ba lý do: (a) chúng được đặt dưới
+dạng phân loại nhị phân bình thường/bất thường, không phải bài toán bốn lớp phân hạng của
+Unsafe-Net; (b) công thức học đa thể hiện cần nhiều nhãn dương ở mức video cho mỗi lớp, trong khi
+Unsafe-Net gán đúng một nhãn cho mỗi clip; (c) giao thức đánh giá của WS-VAD là AUC trên điểm bất
+thường theo từng khung, không phải top-1 hay macro trên nhãn clip.
+
+Tuy vậy, đây là họ gần nhất với chế độ đặc trưng đóng băng của luận văn, và đáng ghi nhận rằng khi
+luận văn quy bài toán iSafetyBench về nhị phân thì nó tiến gần tới chế độ của WS-VAD hơn là chế độ
+của bài báo gốc. Vì vậy một hướng phát triển nêu ở Chương 8 là đánh giá trực tiếp các đường cơ sở
+WS-VAD dưới đúng giao thức leave-source-out mà luận văn dùng.
+
+----------------------------------------------------------------------
+2.3. KHO DỮ LIỆU VÀ HỆ THỐNG GIÁM SÁT AN TOÀN CÔNG NGHIỆP
+----------------------------------------------------------------------
+
+Giám sát an toàn dựa trên thị giác máy tính từ lâu bị hạn chế bởi việc thiếu các kho video công
+khai. Các nguồn hiện có:
+
+  - **CHOKE-D** [16] — phát hiện trang bị bảo hộ cá nhân, ảnh đơn khung, có nhãn hộp. Không phải
+    kho hành vi trên video.
+  - **MVTec AD / ShanghaiTech Campus** — các kho phát hiện bất thường; không giám sát và không khớp
+    với bài toán phân loại hành vi nhiều lớp.
+  - **Unsafe-Net** [17] — 691 clip, 1920×1080, 24 khung/giây, thu trong 39 ngày tại **một** nhà
+    máy, lọc từ 4,000 giờ hình thô. Mỗi clip một nhãn trong 8 lớp (4 an toàn / 4 không an toàn).
+    Phép chia công bố: 566 clip huấn luyện / 125 clip kiểm thử. Tập con bốn lớp không an toàn dùng
+    cho đánh giá tiêu đề của bài báo có 64 clip kiểm thử. Giấy phép CC BY 4.0.
+  - **iSafetyBench** [26] — 1,100 clip, truy nguyên được về 151 nguồn video riêng biệt. Bài toán
+    gốc là đa nhãn từ vựng mở trên 165 hạng mục (98 thường quy + 67 nguy hiểm), đánh giá bằng cách
+    đặt câu hỏi nhiều lựa chọn cho các mô hình thị giác–ngôn ngữ. Giấy phép CC BY-NC-SA 4.0.
+  - **MonitorVLM** [27] — một hệ thống thị giác–ngôn ngữ cho phát hiện vi phạm an toàn trong công
+    nghiệp, cùng mảng ứng dụng và cùng giai đoạn với iSafetyBench.
+
+Hai nhận xét về bài báo Unsafe-Net [17] quyết định phương pháp của luận văn.
+
+**Thứ nhất, bộ phát hiện YOLO v4 trong [17] được huấn luyện với chú giải hộp theo từng khung**, và
+các hộp đó mã hoá lớp hành vi như hạng mục đối tượng. Các chú giải này không được công bố. Vì vậy
+luận văn bị giới hạn vào chế độ **xương sống đóng băng** (trọng số COCO, YOLO-World hoặc CLIP) cộng
+một đầu được huấn luyện. Đây là một ràng buộc về dữ liệu, không phải một chọn lựa thiết kế.
+
+**Thứ hai — và đây là nhận xét sinh ra đóng góp chính của luận văn — phép chia 566/125 không nêu
+bất kỳ ràng buộc nào theo camera hay theo phiên thu.** Kho được thu tại một nhà máy duy nhất trong
+39 ngày, nên các clip rất có thể dùng chung bối cảnh nền; khi đó một phép chia ngẫu nhiên cho phép
+cùng một bối cảnh xuất hiện ở hai phía. Mục 2.4 trình bày mảng công trình đã nhận diện và đặt tên
+cho lớp vấn đề này, còn Chương 6 mục 6.6 đo nó trên chính kho Unsafe-Net.
+
+Về iSafetyBench, một ràng buộc về cách so sánh phải nêu ngay: luận văn quy bài toán đa nhãn 165
+hạng mục về nhị phân nguy hiểm/bình thường để có một bài toán mà **cả hai** kho cùng định nghĩa
+được. Hệ quả là mọi con số của luận văn trên kho này **không so sánh được** với bài báo gốc, và
+luận văn không đặt bảng so sánh nào với bài báo gốc trên kho này. Ngoài ra kho không có hộp chân
+lý, nên không một giá trị mAP nào được nêu trên nó, kể cả khi bộ phát hiện chạy trên nó.
+
+----------------------------------------------------------------------
+2.4. ĐÁNH GIÁ CÓ RÀNG BUỘC NHÓM, RÒ RỈ DỮ LIỆU VÀ THIÊN LỆCH BỐI CẢNH
+----------------------------------------------------------------------
+
+Đây là mảng gần nhất với đóng góp chính của luận văn. Nó cũng là mảng mà tài liệu về giám sát an
+toàn công nghiệp hầu như không dẫn, và khoảng trống đó là lý do mục 2.4 tồn tại.
+
+2.4.1. Rò rỉ dữ liệu như một lớp lỗi đã được đặt tên
+
+Kaufman và cộng sự [29] đặt công thức cho **rò rỉ** (leakage) trong khai phá dữ liệu: việc đưa vào
+quá trình học một thông tin về biến mục tiêu mà đáng lẽ không được phép có ở thời điểm dự đoán. Các
+tác giả phân loại các dạng rò rỉ, trong đó dạng liên quan trực tiếp tới luận văn là rò rỉ do **đơn
+vị quan sát bị chọn sai**: khi các dòng dữ liệu không độc lập mà thuộc về các cụm, việc chia dữ
+liệu theo dòng thay vì theo cụm đưa thông tin của cụm sang cả hai phía.
+
+Kapoor và Narayanan [30] khảo sát mảng "khoa học dựa trên học máy" và ghi nhận rò rỉ như một nguyên
+nhân hệ thống — không phải một lỗi cá biệt — của việc kết quả không tái lập được, trên nhiều lĩnh
+vực khác nhau. Điểm quan trọng với luận văn là một kết luận về **hướng** của sai số: rò rỉ hầu như
+luôn làm kết quả *tốt hơn*, nên nó không bị phát hiện bởi các quy trình soát xét chỉ chú ý tới kết
+quả tệ bất thường.
+
+2.4.2. Chia dữ liệu theo nhóm trong các ngành khác
+
+Các ngành làm việc với dữ liệu có cấu trúc cụm đã chuẩn hoá việc chia theo nhóm từ lâu:
+
+  - **Sinh thái học và địa lý.** Roberts và cộng sự [31] so sánh các chiến lược kiểm định chéo cho
+    dữ liệu có cấu trúc thời gian, không gian, thứ bậc hoặc phả hệ, và chỉ ra rằng kiểm định chéo
+    ngẫu nhiên trên dữ liệu như vậy ước lượng **sai lệch theo hướng lạc quan** cho năng lực tổng
+    quát hoá ra ngoài khối dữ liệu đã có.
+  - **Ảnh thần kinh.** Varoquaux [32] cho thấy trên cỡ mẫu nhỏ, sai số chuẩn của ước lượng kiểm
+    định chéo lớn hơn nhiều so với mức thường được báo cáo, nên các chênh lệch cỡ vài điểm phần
+    trăm giữa các phương pháp thường không phân giải được.
+  - **Công cụ.** Thư viện scikit-learn [37] cung cấp sẵn `GroupKFold` và `StratifiedGroupKFold` —
+    đúng cơ chế mà luận văn dùng — nên rào cản kỹ thuật của việc chia theo nhóm là bằng không. Đây
+    là một điểm phải nói rõ: khoảng trống không phải khoảng trống công cụ.
+
+2.4.3. Thiên lệch bối cảnh trong nhận dạng hành động
+
+Mảng thị giác máy tính có một dòng công trình song song, nói về cùng hiện tượng dưới tên khác.
+
+Torralba và Efros [33] cho thấy các kho dữ liệu thị giác mang **dấu vết nhận dạng được** của chính
+kho: một bộ phân loại có thể đoán được một ảnh thuộc kho nào với độ chính xác cao, nghĩa là mỗi kho
+có một thiên lệch riêng mà mô hình có thể học thay cho tác vụ. Recht và cộng sự [42] đo hệ quả của
+điều đó bằng cách dựng một tập kiểm thử mới theo đúng quy trình gốc và ghi nhận độ chính xác sụt
+đáng kể trên mọi mô hình được thử.
+
+Trong nhận dạng hành động, hiện tượng này mang tên **thiên lệch bối cảnh**. Li và cộng sự [35] đề
+xuất RESOUND, một quy trình dựng kho nhằm giảm thiên lệch biểu diễn. Choi và cộng sự [34] chỉ ra
+rằng các mô hình nhận dạng hành động học bối cảnh nền thay vì học hành động, và đề xuất cơ chế giảm
+thiểu. Kho Something-Something [36] được thiết kế ngay từ đầu để loại bỏ manh mối bối cảnh, bằng
+cách đặt các lớp hành động mà bối cảnh không dự báo được.
+
+Khoảng cách giữa dòng công trình này và luận văn là khoảng cách về **đối tượng của phép đo**. Các
+công trình trên giảm thiên lệch bằng cách sửa kho dữ liệu hoặc sửa mô hình. Luận văn không sửa kho
+và không sửa mô hình; nó **đo cái giá của giao thức** trên một kho cho trước, bằng cách chạy cùng
+một mô hình dưới hai cách dựng fold và lấy hiệu số.
+
+2.4.4. Khoảng trống mà luận văn lấp
+
+Tổng hợp bốn mục trên: lớp vấn đề đã được đặt tên [29, 30], hệ quả của nó đã được định lượng trong
+các ngành khác [31, 32], công cụ để tránh nó đã có sẵn [37], và hiện tượng tương ứng trong thị giác
+máy tính đã được mô tả [33, 34, 35, 36, 42]. Thế nhưng trong mảng **giám sát an toàn công nghiệp
+dựa trên video**, theo khảo sát của luận văn, chưa có công trình nào:
+
+  (a) báo cáo độ chính xác dưới **cả hai** giao thức trên cùng một kho, cùng một mô hình và cùng
+      một quy trình huấn luyện, để hiệu số giữa hai vế là một đại lượng có nghĩa;
+  (b) **tái lập** hiệu số đó trên hai kho độc lập với hai định nghĩa nhóm khác nhau;
+  (c) kiểm tra xem giao thức rò rỉ có làm **thay đổi thứ hạng** giữa các kiến trúc hay không — tức
+      có làm người đọc chọn sai mô hình hay không.
+
+Ba việc đó là nội dung của Chương 6 mục 6.6 và mục 6.10. Đóng góp của luận văn ở mảng này không phải
+phát hiện ra hiện tượng; hiện tượng đã được biết. Đóng góp là **đo nó, trên lớp bài toán này, bằng
+một thiết kế đối chứng có tham số khớp, và tái lập phép đo trên một kho thứ hai**.
+
+Hai công cụ thống kê mà luận văn dùng cũng thuộc mảng này và được nêu ở đây để Chương 6 không phải
+giải thích lại: **bootstrap theo cụm** [39], trong đó đơn vị lấy mẫu lại là nhóm chứ không phải
+clip, vì clip cùng một nguồn không độc lập; và **kiểm định McNemar** [40] cho các dự đoán theo cặp.
+Khi hai công cụ cho kết luận trái nhau, luận văn lấy kết luận của bootstrap theo cụm, vì McNemar bỏ
+qua cấu trúc cụm nên nó là kiểm định quá dễ dãi trong bối cảnh này (Chương 6, mục 6.1.5).
+
+Về **tiền đăng ký**: luận văn viết ra tám cổng — gồm giả thuyết, mô hình được nêu tên, biên tối
+thiểu và tiêu chí khoảng tin cậy — trước khi con số tương ứng tồn tại. Thực hành này được các báo
+cáo về khả năng tái lập trong học máy [41] khuyến nghị; đóng góp của luận văn không phải bản thân
+thực hành đó mà là việc **công bố đầy đủ sáu phán quyết trượt** ở đúng mức chi tiết như hai phán
+quyết đạt.
+
+Cuối cùng, về **hiệu chuẩn**: Guo và cộng sự [38] cho thấy các mạng sâu hiện đại thường quá tự tin
+và đề xuất đo bằng sai số hiệu chuẩn kỳ vọng (ECE). Luận văn báo cáo ECE (15 bin) bằng **0.097**
+cho làn bốn lớp và dùng chính giá trị đó làm căn cứ cho một khuyến nghị triển khai: trước khi hiệu
+chuẩn lại tại hiện trường, ngưỡng cảnh báo phải đặt theo **thứ hạng**, không theo giá trị xác suất
+tuyệt đối (Chương 7, mục 7.9.1).
+
+----------------------------------------------------------------------
+2.5. TRIỂN KHAI BIÊN CHO MÔ HÌNH VIDEO HỌC SÂU
+----------------------------------------------------------------------
+
+Triển khai biên kết hợp biên dịch theo phần cứng với nén mô hình:
+
+  - **ONNX Runtime** [18] cung cấp một môi trường suy luận không phụ thuộc ngôn ngữ, với các bộ
+    thực thi cắm thêm được (CPU, CUDA, CoreML, TensorRT).
+  - **TensorRT** [19] biên dịch đồ thị ONNX thành các nhân được tối ưu cho NVIDIA, với hợp nhất đồ
+    thị, lượng tử hoá FP16/INT8 và gộp lô động, nhắm vào Jetson và GPU trung tâm dữ liệu.
+  - **Lượng tử hoá động** (`quantize_dynamic` của ONNX Runtime) lượng tử hoá INT8 chỉ trên trọng
+    số, không cần tập hiệu chuẩn.
+  - **Bộ thực thi CoreML** [20] cho phép ONNX Runtime đẩy các đồ thị con được hỗ trợ sang Apple
+    Neural Engine. Trong các phép đo của luận văn, đường CoreML **chậm hơn** đường CPU thuần, vì
+    các đầu Transformer rơi về CPU và phát sinh chi phí chuyển dữ liệu giữa hai thiết bị — một cái
+    bẫy đã được ghi trong tài liệu phát hành của bộ thực thi này.
+
+Các công trình trước về triển khai YOLO trên Jetson (Nano / Xavier / Orin) báo cáo thông lượng một
+luồng trong khoảng 25–60 khung/giây cho YOLOv5s–YOLOv8n ở 640×640 [21].
+
+Hai khoảng trống trong mảng này quyết định cách Chương 5 được viết.
+
+**Khoảng trống thứ nhất: đơn vị đo.** Gần như toàn bộ tài liệu triển khai biên báo cáo **khung/giây
+của xương sống**. Nhưng một hệ thống cảnh báo an toàn không phát cảnh báo theo khung; nó phát theo
+**quyết định**, và mỗi quyết định tiêu thụ nhiều khung trên một cửa sổ. Hai đơn vị không quy đổi
+được cho nhau: một hệ đạt 116 khung/giây có thể chỉ phát 3 quyết định/giây, và hai con số đó không
+mâu thuẫn. Chương 5 vì vậy báo cáo **nhịp quyết định** làm đơn vị chính, và phát biểu hợp đồng thời
+gian thực theo bước cửa sổ chứ không theo tần số khung.
+
+**Khoảng trống thứ hai: phép cộng thay cho phép đo.** Cách phổ biến để ước lượng chi phí một
+pipeline nhiều giai đoạn là đo từng giai đoạn riêng rồi cộng lại. Chương 7 mục 7.4 chứng minh bằng
+số rằng phép cộng đó **sai theo cả hai chiều** trên chính thiết bị này, và dấu của sai số đổi theo
+trạng thái xung nhịp: tổng giai đoạn cao hơn thực 7.98% khi xung nhịp được ghim, và thấp hơn thực
+39.3% khi để bộ điều tốc tự do. Vì vậy nó không phải chặn trên, cũng không phải chặn dưới, và không
+hệ số hiệu chỉnh nào cứu được nó. Hệ quả phương pháp luận: mọi phán quyết nhịp trong luận văn được
+lấy từ **vòng lặp tổ hợp đo thực**, không từ tổng các giai đoạn.
+
+----------------------------------------------------------------------
+2.6. ĐỊNH VỊ CỦA LUẬN VĂN
+----------------------------------------------------------------------
+
+So với năm mảng trên:
+
+**(1) So với họ YOLO.** Luận văn không đề xuất bộ phát hiện mới; nó dùng YOLOv11s / YOLO-World /
+YOLO26s như các bộ mã hoá không gian **đóng băng** cho nhánh định vị, và thay đầu phân lớp theo
+khung bằng một bộ phân loại ở mức cửa sổ. Một đối chứng thế hệ bộ phát hiện được chạy và cho kết
+quả phủ định (mục 2.1).
+
+**(2) So với các Transformer cho video.** Khác VideoMAE hay TimeSformer vốn làm việc trên token
+mảng ảnh thô, luận văn làm việc trên hai dạng biểu diễn đã đóng băng: token quan hệ giữa các thực
+thể do bộ phát hiện sinh ra, và vector toàn khung của tháp CLIP. Đầu thời gian đi kèm có 201,090
+tham số, tức nhỏ hơn một xương sống VideoMAE-base khoảng 400 lần, và đạt độ chính xác không bị
+xương sống đó bỏ xa (mục 2.2.3).
+
+**(3) So với bài báo Unsafe-Net.** Bài báo [17] huấn luyện một bộ phát hiện có nhận biết hành vi
+bằng chú giải hộp theo từng khung; luận văn làm việc dưới ràng buộc các chú giải đó không được công
+bố. Nhưng điểm định vị chính **không** phải khoảng cách độ chính xác giữa hai bên. Điểm định vị
+chính là: luận văn đo xem **bao nhiêu phần** của một con số như 95.81% là do giao thức đánh giá
+sinh ra, và trả lời bằng một đại lượng đo được trên chính kho đó (Chương 6, mục 6.6). Luận văn
+không đạt 95.81% và không tuyên bố đạt.
+
+**(4) So với mảng đánh giá có ràng buộc nhóm.** Luận văn không phát hiện ra hiện tượng rò rỉ do
+nhóm; hiện tượng đã được đặt tên và định lượng trong các ngành khác. Luận văn đóng góp **phép đo
+trên lớp bài toán này**, với ba tính chất mà mục 2.4.4 nêu: đối chứng tham số khớp, tái lập trên
+kho thứ hai, và kiểm tra tác động lên thứ hạng kiến trúc.
+
+**(5) So với mảng triển khai biên.** Luận văn báo cáo **nhịp quyết định** thay cho khung/giây của
+xương sống, lấy mọi phán quyết nhịp từ vòng lặp tổ hợp đo thực thay cho tổng các giai đoạn, và nêu
+tường minh **những gì chưa được đo** (Chương 5, mục 5.9). Hệ thống chạy end-to-end trên một thiết
+bị 249–499 USD, với dữ liệu ra khỏi biên chỉ là siêu dữ liệu.
+
+Một điều luận văn **không** đóng góp, nói rõ để tránh người đọc tự suy ra: luận văn không đưa ra
+một cơ chế kiến trúc mới. Các khối xây dựng đều có sẵn. Giá trị nằm ở phép đo và ở tính truy xuất
+được của từng con số, không ở tính mới của kiến trúc.
+
+----------------------------------------------------------------------
+TÀI LIỆU THAM KHẢO
+----------------------------------------------------------------------
+
+Đây là danh mục tham khảo **thống nhất** của toàn luận văn. Các chương khác dẫn theo đúng số thứ tự
+ở đây và chỉ liệt kê lại những mục mà chính chúng dẫn.
+
+[1]  J. Redmon, S. Divvala, R. Girshick, A. Farhadi, "You Only Look Once: Unified, Real-Time
+     Object Detection," Proc. IEEE Conf. Computer Vision and Pattern Recognition (CVPR), 2016,
+     tr. 779–788. arXiv:1506.02640. DOI: 10.1109/CVPR.2016.91.
+
+[2]  J. Redmon, A. Farhadi, "YOLOv3: An Incremental Improvement," arXiv:1804.02767, 2018.
+
+[3]  A. Bochkovskiy, C.-Y. Wang, H.-Y. M. Liao, "YOLOv4: Optimal Speed and Accuracy of Object
+     Detection," arXiv:2004.10934, 2020.
+
+[4]  G. Jocher và cộng sự, "YOLOv5 by Ultralytics," 2020. [Trực tuyến]. Có tại:
+     https://github.com/ultralytics/yolov5. DOI: 10.5281/zenodo.3908559.
+
+[5]  G. Jocher, A. Chaurasia, J. Qiu, "Ultralytics YOLOv8," 2023. [Trực tuyến]. Có tại:
+     https://github.com/ultralytics/ultralytics
+
+[6]  Ultralytics, "YOLO11 — Documentation," 2024. [Trực tuyến]. Có tại:
+     https://docs.ultralytics.com/models/yolo11/ (truy cập 04/2026).
+
+[7]  T. Cheng, L. Song, Y. Ge, W. Liu, X. Wang, Y. Shan, "YOLO-World: Real-Time Open-Vocabulary
+     Object Detection," Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR),
+     2024, tr. 16901–16911. arXiv:2401.17270.
+
+[8]  Y. Zhao, W. Lv, S. Xu, J. Wei, G. Wang, Q. Dang, Y. Liu, J. Chen, "DETRs Beat YOLOs on
+     Real-time Object Detection," Proc. IEEE/CVF Conf. Computer Vision and Pattern Recognition
+     (CVPR), 2024, tr. 16965–16974. arXiv:2304.08069.
+
+[9]  K. Simonyan, A. Zisserman, "Two-Stream Convolutional Networks for Action Recognition in
+     Videos," Advances in Neural Information Processing Systems (NeurIPS), tập 27, 2014.
+     arXiv:1406.2199.
+
+[10] X. Shi, Z. Chen, H. Wang, D.-Y. Yeung, W.-K. Wong, W.-c. Woo, "Convolutional LSTM Network:
+     A Machine Learning Approach for Precipitation Nowcasting," Advances in Neural Information
+     Processing Systems (NeurIPS), tập 28, 2015. arXiv:1506.04214.
+
+[11] J. Carreira, A. Zisserman, "Quo Vadis, Action Recognition? A New Model and the Kinetics
+     Dataset," Proc. IEEE Conf. Computer Vision and Pattern Recognition (CVPR), 2017,
+     tr. 4724–4733. arXiv:1705.07750. DOI: 10.1109/CVPR.2017.502.
+
+[12] C. Feichtenhofer, H. Fan, J. Malik, K. He, "SlowFast Networks for Video Recognition," Proc.
+     IEEE/CVF Int. Conf. Computer Vision (ICCV), 2019, tr. 6202–6211. arXiv:1812.03982.
+     DOI: 10.1109/ICCV.2019.00630.
+
+[13] G. Bertasius, H. Wang, L. Torresani, "Is Space-Time Attention All You Need for Video
+     Understanding?," Proc. 38th Int. Conf. Machine Learning (ICML), 2021, tr. 813–824.
+     arXiv:2102.05095.
+
+[14] A. Arnab, M. Dehghani, G. Heigold, C. Sun, M. Lučić, C. Schmid, "ViViT: A Video Vision
+     Transformer," Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV), 2021, tr. 6816–6826.
+     arXiv:2103.15691. DOI: 10.1109/ICCV48922.2021.00676.
+
+[15] Z. Tong, Y. Song, J. Wang, L. Wang, "VideoMAE: Masked Autoencoders are Data-Efficient
+     Learners for Self-Supervised Video Pre-Training," Advances in Neural Information Processing
+     Systems (NeurIPS), tập 35, 2022, tr. 10078–10093. arXiv:2203.12602.
+
+[16] N. D. Nath, A. H. Behzadan, S. G. Paal, "Deep learning for site safety: Real-time detection
+     of personal protective equipment," Automation in Construction, tập 112, 103085, 2020.
+     DOI: 10.1016/j.autcon.2020.103085.
+
+[17] O. Önal, E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based computer vision system for
+     real-time detection of unsafe behaviours in workplace," Multimedia Tools and Applications,
+     tập 84, số 29, tr. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8. Bộ dữ liệu:
+     O. Önal, E. Dandıl, "Video Dataset for Safe and Unsafe Behaviours," Mendeley Data, 2024,
+     CC BY 4.0. DOI: 10.17632/xjmtb22pff.1
+
+[18] Microsoft, "ONNX Runtime," 2024. [Trực tuyến]. Có tại: https://onnxruntime.ai/docs/
+     (truy cập 04/2026).
+
+[19] NVIDIA, "TensorRT Developer Guide," phiên bản 10.x, 2024. [Trực tuyến]. Có tại:
+     https://docs.nvidia.com/deeplearning/tensorrt/ (truy cập 04/2026).
+
+[20] Microsoft, "CoreML Execution Provider," tài liệu ONNX Runtime, 2024. [Trực tuyến]. Có tại:
+     https://onnxruntime.ai/docs/execution-providers/CoreML-ExecutionProvider.html
+     (truy cập 04/2026).
+
+[21] Ultralytics, "NVIDIA Jetson — YOLO Deployment Guide," 2024. [Trực tuyến]. Có tại:
+     https://docs.ultralytics.com/guides/nvidia-jetson/ (truy cập 04/2026).
+
+[22] W. Sultani, C. Chen, M. Shah, "Real-World Anomaly Detection in Surveillance Videos," Proc.
+     IEEE/CVF Conf. Computer Vision and Pattern Recognition (CVPR), 2018, tr. 6479–6488.
+     arXiv:1801.04264. DOI: 10.1109/CVPR.2018.00678.
+
+[23] Y. Tian, G. Pang, Y. Chen, R. Singh, J. W. Verjans, G. Carneiro, "Weakly-supervised Video
+     Anomaly Detection with Robust Temporal Feature Magnitude Learning," Proc. IEEE/CVF Int.
+     Conf. Computer Vision (ICCV), 2021, tr. 4955–4966. arXiv:2101.10030.
+
+[24] S. Li, F. Liu, L. Jiao, "Self-Training Multi-Sequence Learning with Transformer for Weakly
+     Supervised Video Anomaly Detection," Proc. AAAI Conf. on Artificial Intelligence, tập 36,
+     số 2, tr. 1395–1403, 2022. arXiv:2104.04527.
+
+[25] P. Wu, X. Zhou, G. Pang, Y. Sun, J. Liu, P. Wang, Y. Zhang, "VadCLIP: Adapting
+     Vision-Language Models for Weakly Supervised Video Anomaly Detection," Proc. AAAI Conf. on
+     Artificial Intelligence, tập 38, số 6, tr. 6074–6082, 2024. arXiv:2308.11681.
+
+[26] M. Abdullah, Y. S. Rawat, S. Vyas, "iSafetyBench: A video-language benchmark for safety in
+     industrial environment," VISION'25 Workshop @ ICCV 2025. arXiv:2508.00399. Giấy phép
+     CC BY-NC-SA 4.0. Trang dự án: https://isafetybench.github.io/
+
+[27] "MonitorVLM: a vision-language framework for safety violation detection in industrial
+     environments," arXiv:2510.03666.
+
+[28] A. Radford và cộng sự, "Learning Transferable Visual Models From Natural Language
+     Supervision," Proc. 38th Int. Conf. Machine Learning (ICML), 2021. arXiv:2103.00020.
+
+[29] S. Kaufman, S. Rosset, C. Perlich, O. Stitelman, "Leakage in Data Mining: Formulation,
+     Detection, and Avoidance," ACM Transactions on Knowledge Discovery from Data (TKDD),
+     tập 6, số 4, 2012. DOI: 10.1145/2382577.2382579.
+
+[30] S. Kapoor, A. Narayanan, "Leakage and the reproducibility crisis in machine-learning-based
+     science," Patterns, tập 4, số 9, 2023. DOI: 10.1016/j.patter.2023.100804.
+
+[31] D. R. Roberts và cộng sự, "Cross-validation strategies for data with temporal, spatial,
+     hierarchical, or phylogenetic structure," Ecography, tập 40, số 8, 2017.
+     DOI: 10.1111/ecog.02881.
+
+[32] G. Varoquaux, "Cross-validation failure: Small sample sizes lead to large error bars,"
+     NeuroImage, tập 180, 2018. DOI: 10.1016/j.neuroimage.2017.06.061.
+
+[33] A. Torralba, A. A. Efros, "Unbiased Look at Dataset Bias," Proc. IEEE Conf. Computer Vision
+     and Pattern Recognition (CVPR), 2011, tr. 1521–1528. DOI: 10.1109/CVPR.2011.5995347.
+
+[34] J. Choi, C. Gao, J. C. E. Messou, J.-B. Huang, "Why Can't I Dance in the Mall? Learning to
+     Mitigate Scene Bias in Action Recognition," Advances in Neural Information Processing
+     Systems (NeurIPS), tập 32, 2019. arXiv:1912.05534.
+
+[35] Y. Li, Y. Li, N. Vasconcelos, "RESOUND: Towards Action Recognition without Representation
+     Bias," Proc. European Conf. Computer Vision (ECCV), 2018. arXiv:1807.08362.
+
+[36] R. Goyal và cộng sự, "The 'something something' video database for learning and evaluating
+     visual common sense," Proc. IEEE/CVF Int. Conf. Computer Vision (ICCV), 2017.
+     arXiv:1706.04261.
+
+[37] F. Pedregosa và cộng sự, "Scikit-learn: Machine Learning in Python," Journal of Machine
+     Learning Research, tập 12, tr. 2825–2830, 2011.
+
+[38] C. Guo, G. Pleiss, Y. Sun, K. Q. Weinberger, "On Calibration of Modern Neural Networks,"
+     Proc. 34th Int. Conf. Machine Learning (ICML), 2017. arXiv:1706.04599.
+
+[39] B. Efron, R. J. Tibshirani, "An Introduction to the Bootstrap," Chapman & Hall, 1993.
+
+[40] Q. McNemar, "Note on the sampling error of the difference between correlated proportions or
+     percentages," Psychometrika, tập 12, số 2, tr. 153–157, 1947. DOI: 10.1007/BF02295996.
+
+[41] J. Pineau và cộng sự, "Improving Reproducibility in Machine Learning Research (A Report from
+     the NeurIPS 2019 Reproducibility Program)," Journal of Machine Learning Research, tập 22,
+     2021. arXiv:2003.12206.
+
+[42] B. Recht, R. Roelofs, L. Schmidt, V. Shankar, "Do ImageNet Classifiers Generalize to
+     ImageNet?," Proc. 36th Int. Conf. Machine Learning (ICML), 2019. arXiv:1902.10811.
+
+[43] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser,
+     I. Polosukhin, "Attention Is All You Need," Advances in Neural Information Processing
+     Systems (NeurIPS), tập 30, 2017. arXiv:1706.03762.

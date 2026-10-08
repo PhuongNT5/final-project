@@ -1,0 +1,411 @@
+======================================================================
+CHƯƠNG 8. KẾT LUẬN
+======================================================================
+
+Trạng thái văn bản: bản thảo chương kết luận, soạn trực tiếp bằng tiếng Việt.
+Quy ước số: dấu chấm là dấu thập phân, dấu phẩy là dấu phân cách hàng nghìn.
+Dẫn tài liệu theo danh mục thống nhất ở cuối Chương 2.
+
+Chương này **không** giới thiệu một con số mới nào. Mọi giá trị xuất hiện ở đây đã được trình bày
+kèm xuất xứ ở Chương 5, 6 hoặc 7, và được nhắc lại kèm số mục để kiểm tra được. Chương gồm bốn
+phần: các kết luận có bằng chứng (mục 8.1), các kết luận phủ định cùng bảng đối chiếu đóng góp đã
+giao so với đã rút (mục 8.2), hướng phát triển theo thứ tự ưu tiên (mục 8.3), và phát biểu kết luận
+(mục 8.4).
+
+----------------------------------------------------------------------
+8.1. NHỮNG KẾT LUẬN CÓ BẰNG CHỨNG
+----------------------------------------------------------------------
+
+Bốn kết luận dưới đây được xếp theo **độ chắc của bằng chứng**, không theo mức độ gây ấn tượng.
+
+8.1.1. Lạm phát giao thức là kết quả chắc chắn nhất, và nó tái lập trên hai kho rời nhau
+
+Khi đổi **đúng một** yếu tố của quy trình đánh giá — cách dựng fold — và giữ nguyên token, encoder,
+số fold, số epoch và công thức huấn luyện, độ chính xác cân bằng của cùng một mô hình thay đổi một
+lượng lớn và theo một chiều nhất quán.
+
+  - Trên **Unsafe-Net** (687 clip, 8 nhóm bối cảnh), chênh lệch giữa k-fold rò rỉ và
+    leave-context-out nằm trong dải **+13.0 đến +21.8 pp** qua **năm** kiến trúc (mục 6.5).
+  - Trên **iSafetyBench** (1,100 clip, 151 nguồn), cùng phép đo cho **+15.4 pp** với khoảng tin cậy
+    bootstrap theo cụm **[+10.6, +21.5] loại trừ 0**, McNemar chính xác **b = 186, c = 8,
+    p = 3.58e-45** (mục 6.6, cổng **G12 ĐẠT**).
+
+Hai kho khác nhau về tỉ lệ lớp, về định nghĩa nhóm, về số nhóm và về bản chất nhãn. Số liệu của
+chúng **không được trộn**, và chúng không cần trộn: mỗi kho cho cùng dấu và cùng bậc độ lớn một
+cách độc lập. Đây là tính chất làm cho kết luận này mạnh hơn một con số đơn lẻ trên một kho.
+
+Phép đo này đứng được vì ba lựa chọn bất lợi đã được cố định trước khi có số liệu (mục 3.7): đường
+sàn là **quy tắc đếm 63.3%** chứ không phải 50%; đơn vị bootstrap là **nhóm** chứ không phải clip;
+và khi khoảng tin cậy theo cụm trái với McNemar thì lấy kết luận của khoảng tin cậy. Ba lựa chọn
+đều làm biên của luận văn hẹp lại, và đó là lý do chúng được chọn.
+
+8.1.2. Hệ quả quan trọng hơn: lạm phát xoá khả năng phân biệt kiến trúc
+
+Về mặt phương pháp, đây là kết luận có giá trị cao nhất của luận văn, cao hơn bản thân độ lớn của Δ.
+
+Dưới **leave-source-out**, thang bốn encoder trải **17 lần** số tham số (17,270 đến 298,118) cho
+một dải kết quả **5.1 pp**. Dưới **chia ngẫu nhiên rò rỉ nguồn**, cùng thang ấy cho dải **1.4 pp**,
+và **không một cặp nào** trên thang ngẫu nhiên đạt ý nghĩa thống kê (mục 6.11.4). Cùng hiện tượng
+xuất hiện ở dạng mạnh hơn trên Unsafe-Net: dưới leave-context-out thang trải **7.3 pp**, dưới
+k-fold còn **2.1 pp**, và **thứ tự của thang đảo ngược** — encoder nhỏ nhất (18,044 tham số) đứng
+**đầu** dưới giao thức có ràng buộc nhóm và đứng **cuối** dưới k-fold (mục 6.5).
+
+Một thận trọng phải đi kèm quan sát đảo thứ tự, và nó được nêu ngay ở đây vì đọc sai nó là đọc sai
+toàn bộ kết luận: với **tám** nhóm bối cảnh, các chênh lệch **theo cặp** trên Unsafe-Net **không
+phân giải được** — cặp E0 với E3 cho −2.8 pp với khoảng tin cậy **[−7.1, +0.1] chứa 0** dưới
+leave-context-out và +1.1 pp với **[−1.6, +5.2] cũng chứa 0** dưới k-fold (mục 6.5(3)). Vì vậy quan
+sát này là một phát biểu về **giao thức** — rằng thứ hạng không bền qua hai cách dựng fold — chứ
+**không** phải một phát biểu rằng encoder nhỏ hơn bền hơn. Phát biểu sau đã bị loại khỏi luận văn.
+
+Hệ quả trực tiếp, và nó là một hệ quả về **cách đọc tài liệu** chứ không chỉ về luận văn này: một
+bảng xếp hạng kiến trúc tính dưới giao thức rò rỉ nguồn **không đo kiến trúc**. Mọi so sánh kiến
+trúc không tuyên bố đơn vị nhóm của nó là không kiểm chứng được, và luận văn không so sánh với các
+con số như vậy (mục 2.3, mục 6.12.5).
+
+8.1.3. Cấu hình được triển khai, và con số đi kèm nó
+
+Đường **B1** — tháp **CLIP ViT-B/32 đóng băng** trên **toàn khung**, 87,849,216 tham số không cập
+nhật, cộng một đầu Transformer thời gian **201,090 tham số** — đạt **84.2%** độ chính xác cân bằng
+dưới leave-source-out trên 1,100 clip và 151 nguồn, tức **+20.9 pp** trên đường sàn quy tắc đếm đã
+đăng ký trước (mục 6.2.1). Đây là đồ thị được triển khai trên Jetson Orin Nano Super ở Chương 5,
+và nó được chọn **trước** khi bảng kết quả hoàn chỉnh, theo tiêu chí chi phí biên nhỏ nhất.
+
+Phần bất lợi đi liền với con số này và không được tách khỏi nó: **lợi ích là một khoản mua xương
+sống, không phải một thiết kế đầu phân loại.** Đầu của B1 (201,090 tham số) **nhỏ hơn** đầu E0
+(298,118) mà nó vượt; thứ thay đổi là tháp thị giác đóng băng ở phía dưới (mục 6.2.6). Và biên của
+B1 so với encoder thực thể tốt nhất có khoảng tin cậy theo cụm **chứa 0**. Luận văn vì vậy phát
+biểu 84.2% như một **phép đo**, và **không** phát biểu "biểu diễn toàn khung tốt hơn biểu diễn thực
+thể" như một kết luận được chứng nhận.
+
+8.1.4. Hệ thống biên đã được đo trên chính thiết bị, bằng đơn vị đúng
+
+Luận văn đo nhịp theo **quyết định/giây** chứ theo khung/giây, và mọi phán quyết nhịp đến từ **vòng
+lặp tổ hợp** chứ từ tổng các giai đoạn đo rời (mục 3.9, mục 5.2). Bốn kết luận đo được:
+
+  (1) **Đường quyết định B1 chạy trên thiết bị** với độ trễ quyết định trung vị **167.291 ms**
+      (5.978 quyết định/giây) sau khi sửa tiền xử lý, so với **289.672 ms** trước khi sửa — hệ số
+      **1.7315**, trong đó phần giảm đến từ một hạng mục duy nhất: tiền xử lý **−68.4%** (mục
+      5.4.4). Giá trị trung vị này **không** thuộc về một độ phân giải đơn lẻ: cụm đo gồm 24 clip
+      trải **tám** độ phân giải khác nhau.
+  (2) **Nút cổ chai đã dịch chuyển, và đó là kết quả quan trọng hơn con số.** Trước khi sửa, hạng
+      mục chi phối là tiền xử lý (73.4% phần tính toán) — một khiếm khuyết kỹ thuật sửa được. Sau
+      khi sửa, hạng mục chi phối là **chính tháp CLIP** (52.6%), và đầu phân loại chỉ chiếm
+      **0.3–1.7%** độ trễ quyết định. Mọi cải thiện nhịp tiếp theo vì vậy phải đến từ **bộ mã
+      hoá**, không đến từ mã xung quanh nó (mục 5.4.4, ghi chú 2) — đây là cơ sở định lượng cho
+      hạng mục phát triển ở mục 8.3.2.
+  (3) **Hợp đồng nhịp được suy ra từ ngữ liệu, không do tác giả chọn.** Phân bố tần số khung của
+      1,100 clip (trung vị **29.97**, trung bình 34.25, p95 = cực đại 60.0) sinh ba mức hợp đồng
+      **1.249 / 1.427 / 2.500** quyết định/giây; biên an toàn sau khi sửa là **4.79 / 4.19 / 2.39
+      lần** (mục 5.4.4). Hai làn có hai hợp đồng khác nhau vì hai bước nhảy khác nhau, và số của
+      chúng không so sánh được với nhau.
+  (4) **Quyền riêng tư được bảo đảm bằng kiến trúc, không bằng chính sách.** Ranh giới dữ liệu
+      trùng với ranh giới thành phần: suy luận chạy tại biên và chỉ **siêu dữ liệu** rời thiết bị
+      (mục 5.8). Không khung hình nào của phần dữ liệu nhà máy rời thiết bị hay vào kho mã trong
+      suốt quá trình thực hiện luận văn.
+
+8.1.5. Phần phân tích thất bại có quy nguyên nhân
+
+Luận văn không chỉ báo cáo rằng một số phán quyết trượt; nó quy nguyên nhân cho từng phán quyết và
+công bố ở mức chi tiết ngang các kết quả dương (Chương 7). Ba ví dụ có giá trị độc lập với kết quả
+chính:
+
+  - **Cơ chế của việc phân rã thực thể không thắng.** Ablation bảy điều kiện cho thấy toàn bộ khả
+    năng phân biệt nằm ở vector ngoại hình: bỏ cả mười cột đặc trưng hình học/định danh làm thay
+    đổi **0.4 pp** với khoảng tin cậy chứa 0, còn chỉ dùng hình học hộp mất **11.0 pp** (mục
+    6.11.5). Và trên kho tiêu đề, kênh hình học theo vùng **bằng 0 đồng nhất** về mặt cấu tạo —
+    giới hạn R45, nêu từ mục 3.4.1 chứ không nêu muộn ở phần thảo luận.
+  - **Một thất bại tập trung theo fold không biến mất mà di chuyển.** Fold tệ nhất của làn quan hệ
+    thất bại vì **dương tính giả** ở mức nguồn; khi đổi sang tháp toàn khung, fold đó được sửa một
+    phần nhưng một fold khác thất bại vì **bỏ sót** (mục 7.3). Dải cân bằng theo fold của mô hình
+    được triển khai là **29.7 pp**. Hai dữ kiện này cùng nói rằng một con số tổng hợp mô tả kho dữ
+    liệu, không mô tả một hiện trường mới.
+  - **Vụ tổng-theo-giai-đoạn.** Sai số của phép cộng chi phí giai đoạn **đổi dấu theo trạng thái
+    xung nhịp** (**+7.98%** khi ghim, **−39.3%** khi bộ điều tốc tự do), nên nó không phải chặn
+    trên, cũng không phải chặn dưới, và **không hệ số hiệu chỉnh nào cứu được nó** (mục 7.4). Kết
+    luận không phải "sửa công thức" mà là bỏ vai trò dự báo nhịp của nó.
+
+----------------------------------------------------------------------
+8.2. NHỮNG KẾT LUẬN PHỦ ĐỊNH, VÀ ĐÓNG GÓP ĐÃ GIAO SO VỚI ĐÃ RÚT
+----------------------------------------------------------------------
+
+8.2.1. Giả thuyết trung tâm của đề cương không được số liệu ủng hộ
+
+Đề cương được phê duyệt đặt **phân rã cảnh thành thực thể và quan hệ giữa các thực thể** làm đóng
+góp chính. Ba cổng độc lập hỏi đúng câu hỏi đó, ở ba cấu hình khác nhau:
+
+  - **G11** — encoder quan hệ E3 so với đường sàn toàn khung tốt nhất trong ba đầu dò, xương sống
+    MobileNetV3, biểu diễn 64 chiều: biên **+1.1 pp**, khoảng tin cậy theo cụm **[−4.8, +6.9] chứa
+    0**, McNemar **p = 0.625** ⇒ **TRƯỢT ở cả hai tiêu chí** (mục 6.11.1).
+  - **G14** — ESTA so với đường cơ sở toàn khung tốt nhất, **cùng** xương sống CLIP, **cùng** danh
+    sách khung được bảo đảm ở mức mã nguồn, cùng khối Transformer thời gian: biên **−0.5 pp**,
+    khoảng tin cậy **[−5.5, +5.0] chứa 0**, **p = 0.683** ⇒ **TRƯỢT** (mục 6.2.2).
+  - **G18** — mô hình hợp nhất hai luồng so với luồng đơn tốt nhất: biên **−0.3 pp**, khoảng tin
+    cậy **[−3.7, +2.5] chứa 0**, **p = 0.401** ⇒ **TRƯỢT ở cả hai bậc** (mục 6.2.5).
+
+Ba cổng này dùng **hai** xương sống, **ba** kiến trúc đầu và **một** cơ chế hợp nhất học được. Việc
+cả ba trượt là lý do kết luận phủ định không quy được về một lựa chọn cài đặt đơn lẻ.
+
+Phán quyết đầy đủ của tám cổng cùng hai đối chứng nằm ở mục 6.13: **hai đạt** (G10, G12), **sáu
+trượt** (G11, G13, G14, G15, G16, G18), **hai đối chứng không phán quyết** (G17 về thế hệ bộ phát
+hiện; G19 về hình học fold, không đăng ký trước — mục 6.6.3). Hai điều phải nói thẳng về bảng đó:
+
+  (a) **Cả hai phán quyết đạt đều là phán quyết phương pháp, không phải phán quyết kiến trúc.**
+      G10 xác nhận kho dữ liệu không giải được bằng một quy tắc đếm; G12 là phép đo lạm phát giao
+      thức. Không cổng nào xác nhận một cơ chế kiến trúc.
+  (b) **Năm trong sáu phán quyết trượt là trượt vì độ phân giải nhóm, không vì biên bằng 0.** Nếu
+      khoảng tin cậy được tính ở mức clip, bảng sẽ thành "bốn đạt, bốn trượt". Luận văn **không**
+      đổi đơn vị lấy mẫu để đạt kết quả đó, và nêu rõ điều này vì nó cho người đọc biết chính xác
+      cái giá của quy ước thống kê đã chọn (mục 3.7.4).
+
+Một hệ quả ràng buộc về phạm vi, có hiệu lực toàn luận văn: giả thuyết **R47 (bất biến theo kiến
+trúc)** bị **phản chứng trên iSafetyBench** — E0 vượt E3 **+5.1 pp**, khoảng tin cậy **[+2.0, +8.3]
+loại trừ 0**, **p = 7.74e-06** (mục 6.11.3) — nên mọi phát biểu bất biến theo kiến trúc chỉ được
+nêu **trong phạm vi Unsafe-Net**, nơi tám nhóm không đủ lực phân giải vấn đề. Và quy ước 3.8.1(3)
+giữ **E3 là encoder tiêu đề** bất kể việc E0 cho kết quả cao hơn: đổi mô hình được nêu tên sau khi
+thấy bảng kết quả là chọn lọc trên dữ liệu đánh giá.
+
+8.2.2. Đóng góp đã giao so với đã rút
+
+Bảng 8.1 là bản đối chiếu giữa những gì đề cương hứa và những gì được giao. Nó được đặt ở chương
+kết luận thay vì ở phần phụ lục vì nó là một phần của kết quả.
+
+  --------------------------------------------------------------------------------------------
+  ĐÃ GIAO
+  --------------------------------------------------------------------------------------------
+  (1) Phép đo lạm phát giao thức, **tái lập độc lập trên hai kho** với hai định nghĩa nhóm khác
+      nhau, kèm chứng minh rằng lạm phát **xoá khả năng phân biệt kiến trúc** (mục 6.5, 6.6,
+      6.11.4). Kèm kiểm tra nhiễm chéo giữa hai kho bằng băm tri giác: **0 trùng khớp**.
+  (2) Một hệ thống quyết định **chạy trên thiết bị biên 249–499 USD**, đo bằng quyết định/giây,
+      dưới **hai** điều kiện xung nhịp, với **bốn điều kiện trích dẫn** áp dụng hồi tố cho mọi
+      tạo tác và một **danh sách những gì chưa được đo** (mục 5.2, 5.9).
+  (3) **Giao thức đánh giá tiền đăng ký** gồm tám cổng và một đối chứng, kèm **hệ quả đã nhận
+      trước** cho từng phán quyết trượt, và **sáu phán quyết trượt được công bố ở mức chi tiết
+      ngang hai phán quyết đạt** (mục 3.8, 6.13).
+  (4) **Phân tích thất bại có quy nguyên nhân**, gồm cơ chế của việc phân rã thực thể không thắng,
+      một thất bại tập trung theo fold và việc nó di chuyển, và một phép cộng từng được trình bày
+      như một phép đo (Chương 7).
+  (5) **Hạ tầng truy xuất xuất xứ**: mỗi con số được công bố có một dòng chỉ tới tệp đã sinh ra
+      nó, kèm trạng thái đã đối chiếu hay chưa (Phụ lục A); cấu hình fold đầy đủ kèm chứng minh
+      bằng số và **dấu vết nhận dạng giao thức** (Phụ lục B).
+  (6) **Sổ đăng ký các phát biểu đã rút** — một danh mục công khai những con số từng được trình
+      bày và đã bị rút lại, kèm lý do rút (mục 7.6).
+
+  --------------------------------------------------------------------------------------------
+  ĐÃ RÚT, HOẶC KHÔNG ĐƯỢC GIAO
+  --------------------------------------------------------------------------------------------
+  (7) **Đóng góp kiến trúc theo hướng phân rã thực thể**: không được giao. Ba cổng cùng trượt
+      (mục 8.2.1). Đây là phần lớn nhất của đề cương không được số liệu ủng hộ.
+  (8) **RT-DETR làm bộ mã hoá thời gian**: không dùng, và lý do là lý do kỹ thuật được nêu ở mục
+      3.1.3 cùng kết quả phủ định của thí nghiệm sơ bộ, không phải lý do tiện lợi.
+  (9) **Tinh chỉnh ở quy mô bài báo gốc trên chú giải hộp theo từng khung**: không thực hiện được
+      vì các chú giải không được công bố. Thí nghiệm thử ở quy mô 400 khung được báo cáo như một
+      **kết quả phủ định** (mục 1.6).
+  (10) **Các phát biểu đã rút lại**, mỗi phát biểu kèm lý do: một tập hợp chọn theo tập kiểm thử
+      và một phép hiệu chuẩn dò trên chính tập kiểm thử của giai đoạn P1; hai biên **+60.3** và
+      **+58.7 pp** so với một bộ phân loại hằng số; một hằng số đường cơ sở sai trong mã khiến
+      **55/64** bị dùng thay cho **57/64**; một tổng giai đoạn **144.9 ms** từng được trình bày
+      như độ trễ quyết định; và các phát biểu kiểu "còn dư bao nhiêu watt" vì mẫu số không xác
+      định (mục 7.6).
+  (11) **Con số 95.81% của bài báo gốc trên Unsafe-Net**: luận văn **không đạt và không tuyên bố
+      đạt**. Định vị của luận văn so với công trình đó không phải khoảng cách độ chính xác mà là
+      phép đo **bao nhiêu phần của một con số như vậy do giao thức sinh ra** (mục 2.6, 6.12.5).
+
+Hai phát biểu về bảng này. Thứ nhất, **cột thứ hai không phải một lời xin lỗi mà là một phần kết
+quả**: nếu một đề cương nêu một giả thuyết và số liệu phản chứng nó, thì việc công bố phản chứng ở
+mức chi tiết đầy đủ là đóng góp, không phải thất bại — và đó chính là lý do mục 3.8 tồn tại dưới
+dạng đã đăng ký. Thứ hai, **quyết định triển khai đi theo bằng chứng chứ không theo đề cương**: lý
+do Chương 5 triển khai một tháp toàn khung mà không triển khai đường thực thể nằm ở hàng (7) của
+bảng này.
+
+----------------------------------------------------------------------
+8.3. HƯỚNG PHÁT TRIỂN THEO THỨ TỰ ƯU TIÊN
+----------------------------------------------------------------------
+
+Thứ tự dưới đây là thứ tự theo **hệ quả đối với việc triển khai và đối với giá trị khoa học**,
+không theo mức độ dễ thực hiện. Mỗi hạng mục nêu rõ nó là một **thủ tục**, một **phép đo còn thiếu**
+hay một **câu hỏi khoa học**, vì ba loại này cần ba mức công sức khác nhau.
+
+8.3.1. Hiệu chuẩn và đặt ngưỡng theo hiện trường — hạng mục thứ nhất
+
+Đây là hạng mục đứng đầu vì **ba** kết quả độc lập của luận văn cùng chỉ về nó (mục 7.9.1): dải cân
+bằng theo fold **29.7 pp** nên giá trị trung bình không dự báo được một hiện trường mới; **chế độ
+lỗi** cũng thay đổi theo hiện trường, nên một ngưỡng duy nhất không thể tối ưu cho cả dương tính
+giả lẫn bỏ sót; và **ECE (15 bin) = 0.097** nên xác suất thô của mô hình chưa dùng được trực tiếp
+để đặt ngưỡng (mục 6.12.4).
+
+Hạng mục này là một **thủ tục triển khai**, không phải một thay đổi kiến trúc: tại mỗi hiện trường,
+gán nhãn một tập nhỏ, hiệu chuẩn lại bằng scaling theo nhiệt độ hoặc hồi quy đẳng hướng [38], rồi
+chọn ngưỡng theo chi phí vận hành của hai chế độ lỗi tại hiện trường đó. Trước khi hoàn tất thủ tục
+này, ngưỡng phải đặt theo **thứ hạng** chứ không theo giá trị xác suất tuyệt đối.
+
+Câu hỏi còn mở kèm theo, và nó là câu hỏi quyết định tính khả thi: **cần bao nhiêu clip có nhãn tại
+mỗi hiện trường để ngưỡng ổn định?** Chưa xác định. Với κ = 0.65 ở mức chú giải, chi phí gán nhãn
+tại hiện trường không nhỏ, nên con số này là con số phải đo trước khi hứa một quy trình triển khai.
+
+8.3.2. Hướng cải thiện nhịp phải nhắm vào bộ mã hoá
+
+Đây là hạng mục mà mục 5.4.4 ghi chú (2) chỉ tới. Sau bản sửa tiền xử lý, **cấu trúc chi phí đã
+thay đổi về bản chất**: hạng mục chi phối không còn là một khiếm khuyết kỹ thuật sửa được trong mã
+xung quanh mô hình, mà là **chính tháp CLIP** (52.6% phần tính toán), trong khi đầu phân loại chiếm
+**0.3–1.7%** độ trễ quyết định. Hệ quả: tối ưu hoá đầu phân loại **không còn giá trị thực tế**, và
+mọi cải thiện nhịp tiếp theo phải đến từ tháp.
+
+Ba hướng cụ thể, xếp theo mức rủi ro đối với độ chính xác:
+
+  (a) **Giải mã bằng phần cứng.** `cv2` trên thiết bị báo `GStreamer: NO`, nên **toàn bộ** giải mã
+      hiện chạy trên CPU, và NVDEC **chưa được đo**. Giải mã chiếm **31.3%** phần tính toán sau khi
+      sửa, nên đây là hạng mục có lợi ích lớn nhất **mà không chạm vào mô hình** — tức không rủi ro
+      cho độ chính xác.
+  (b) **Thay tháp bằng một tháp nhỏ hơn hoặc chưng cất tri thức từ nó.** Có rủi ro cho độ chính
+      xác, nên bất kỳ thay đổi nào ở đây phải được đánh giá lại dưới **đúng** giao thức
+      leave-source-out và bộ fold của luận văn, không dưới một phép chia tiện lợi.
+  (c) **Ghim xung nhịp.** Trần lợi ích của làn B1 tính được bằng số học là **+12.5%** (257.5 ms =
+      3.88 quyết định/giây). Giá trị này là **số học, không phải phép đo**, và nó thấp vì hạng mục
+      chi phối của làn B1 là tiền xử lý trên CPU, mà các giai đoạn CPU gần như bất biến với xung
+      nhịp khi đo riêng (mục 7.4.4). Hạng mục này vì vậy đứng cuối trong ba.
+
+8.3.3. Các phép đo biên còn thiếu
+
+Đây là danh sách **chưa đo**, không phải danh sách đã đo rồi bỏ; mỗi dòng thực hiện được trên thiết
+bị hiện có, và mỗi dòng là một phát biểu mà luận văn **hiện không** được phép nêu (mục 5.9, 7.9.4):
+
+  (a) **Soak nhiệt ở mức quyết định tổ hợp.** Soak đã có là soak ở mức giai đoạn
+      (36.2 phút, 2 luồng, 0 khung bị bỏ, **7,033.761 mW** VDD_IN). Vì vòng lặp tổ hợp có hệ số
+      hoạt động và hành vi bộ điều tần khác giai đoạn đơn lẻ, **không** suy được kết quả soak tổ
+      hợp từ soak giai đoạn.
+  (b) **Phân phối p95 của độ trễ mỗi quyết định trong vòng lặp tổ hợp của làn quan hệ.** Luận văn
+      chỉ nêu trung vị. Với một hệ cảnh báo, **đuôi phân phối quan trọng hơn trung vị**, nên đây
+      là thiếu sót thực chất. Câu hỏi kèm theo: hợp đồng có bị vi phạm ở p95 trong khi đạt ở trung
+      vị không?
+  (c) **Công suất trung bình của vòng lặp tổ hợp.** Chưa đo, nên không phát biểu nào về ngân sách
+      năng lượng được nêu.
+  (d) **Tương đương FP16/FP32 của bộ phát hiện.** Các giá trị tương đương đã công bố thuộc bộ mã
+      hoá ngoại hình và đầu phân loại, không thuộc bộ phát hiện.
+  (e) **Nhịp của làn B1 dưới xung nhịp ghim có chứng thực sysfs.** Hiện chỉ có trần số học ở mục
+      8.3.2(c).
+  (f) **Tính trùng khớp số học giữa khối lắp vector quan hệ 74 chiều trên thiết bị và pipeline lúc
+      huấn luyện.** Hai bên dùng cùng công thức nhưng khác đường dẫn mã. Đây là một **điều kiện
+      tiên quyết**, không phải một hạng mục tuỳ chọn: cho đến khi có phép kiểm chứng này, các con
+      số nhịp của làn quan hệ là **số đo thời gian** và không được dùng để suy ra độ chính xác khi
+      triển khai.
+  (g) **Đo trên camera trực tiếp thay vì trên tệp.** Mọi số đo hiện tại đọc từ tệp. Một camera
+      thật thêm các yếu tố mà tệp không có: nhịp đến không đều, mất gói, và áp lực bộ đệm.
+
+8.3.4. Công việc trên harness đo
+
+Kết luận của mục 7.5.4 là cân bằng và nó quy định phạm vi: harness **không cần viết lại**.
+
+  - **Sửa một dòng**: chuyển bộ điều nhịp cộng thêm thành một hàm nghỉ theo thời hạn (nghỉ phần
+    còn lại của chu kỳ, không nghỉ thêm trọn chu kỳ). Trước khi sửa, mọi phán quyết hợp đồng phải
+    lấy từ các lần chạy tự do.
+  - **Đổi tên hai trường**: trường đếm khung bị bỏ ở hàng đợi, và trường trạng thái xung nhịp nên
+    mang tên nói rõ rằng nó chỉ theo dõi **chế độ** chứ không theo dõi tần số. Mã hiện tại **đúng
+    như tài liệu của nó**; chỉ tên trường là nguồn gây nhầm.
+  - **Không sửa công thức tổng giai đoạn — bỏ vai trò dự báo nhịp của nó.** Mục 7.4.3 chứng minh
+    rằng sửa riêng bước nhảy làm **cả hai nhánh xấu đi**, vì khuyết điểm bước nhảy đang bù trừ một
+    phần cho các hạng mục bị bỏ sót.
+
+8.3.5. Phân rã thực thể có chú giải vùng — câu hỏi khoa học quan trọng nhất còn mở
+
+Kết luận phủ định ở mục 8.2.1 có một **phạm vi** phải được tôn trọng khi đọc nó: nó được rút ra ở
+điều kiện mà kênh hình học theo vùng **bằng 0 đồng nhất** trên kho tiêu đề, vì iSafetyBench không
+kèm đa giác vùng (giới hạn R45, mục 3.4.1 và 6.11.6). Nói cách khác, luận văn đã kiểm chứng quan hệ
+**thực thể–thực thể**, và chưa kiểm chứng quan hệ **thực thể–vùng** ở một kho đủ lớn với đủ số nhóm.
+
+Phép kiểm chứng đúng cho câu hỏi này cần một kho có **đồng thời** ba tính chất: đa giác vùng theo
+từng góc nhìn, đủ số nhóm độc lập để một khoảng tin cậy theo cụm có nghĩa, và nhãn ở mức clip. Kho
+hiện có nào cũng thiếu ít nhất một tính chất: Unsafe-Net có vùng nhưng chỉ **tám** nhóm proxy,
+iSafetyBench có 151 nhóm nhưng **không** có vùng. Đây là lý do câu hỏi này còn mở, và nó là câu hỏi
+mở quan trọng nhất của luận văn về mặt khoa học (mục 7.9.3, 7.9.7(1)).
+
+Kèm theo là một câu hỏi nhỏ hơn nhưng kiểm tra được ngay: **vì sao bộ phát hiện thế hệ mới lại kém
+hơn cho nhánh thực thể?** Luận văn chỉ ra cơ chế — bộ phát hiện mới bảo thủ hơn, 45,512 so với
+52,997 phát hiện, 87.9% so với 90.2% khung không rỗng (mục 7.2.2) — nhưng **chưa** kiểm tra giả
+thuyết rằng hạ ngưỡng tin cậy của bộ phát hiện mới sẽ khôi phục được chênh lệch.
+
+8.3.6. Các đường cơ sở WS-VAD dưới giao thức leave-source-out
+
+Họ phát hiện bất thường video có giám sát yếu [22]–[25] là họ **gần nhất** với chế độ đặc trưng
+đóng băng của luận văn, và khi luận văn quy bài toán iSafetyBench về nhị phân thì nó tiến gần tới
+chế độ của WS-VAD hơn là chế độ của bài báo gốc (mục 2.2.5). Nhưng các con số đã công bố của họ này
+— 75.4% AUC [22], 84.30% [23], 85.62% [24] — được đo theo **AUC trên điểm bất thường từng khung**
+dưới các phép chia của riêng từng công trình, nên chúng **không so sánh được** với bất kỳ con số
+nào trong luận văn.
+
+Hướng phát triển vì vậy là một **phép đo mới, không phải một bảng so sánh**: đánh giá các đường cơ
+sở WS-VAD dưới **đúng** giao thức leave-source-out và **đúng** bộ fold mà luận văn công bố ở Phụ
+lục B, với chỉ số ở mức clip. Hai lợi ích: nó cho một đường cơ sở có nghĩa cho bài toán nhị phân
+trên kho này; và nó kiểm chứng xem **lạm phát giao thức** đo được ở mục 8.1.1 có xuất hiện ở một họ
+phương pháp hoàn toàn khác hay không — tức mở rộng kết quả chính của luận văn ra ngoài họ kiến trúc
+mà nó đã dùng.
+
+8.3.7. Các hạng mục xuất xứ còn mở
+
+Bảy hạng mục ở mục 7.7.2 — bảng số đa luồng của giai đoạn trước dựa trên một tạo tác **sửa tay**,
+bốn bảng thực nghiệm lịch sử chưa hậu kiểm, năm khung hình minh hoạ chưa đưa vào kho, một video
+minh hoạ dự phòng **không tồn tại**, nhãn phần cứng máy chủ sai ở **24** vị trí, phép khớp hàng của
+tensor k-fold, và một biểu ngữ xương sống sai trong một nhật ký — **vẫn còn mở** vào ngày đóng băng
+số liệu. Chúng được nhắc lại ở chương kết luận để khẳng định rằng chúng **không** được coi là đã
+đóng, và để người đọc biết chính xác phần nào của bộ chứng cứ còn chưa hoàn tất.
+
+----------------------------------------------------------------------
+8.4. PHÁT BIỂU KẾT LUẬN
+----------------------------------------------------------------------
+
+Luận văn đặt ra ba câu hỏi và trả lời được cả ba, trong đó câu trả lời cho câu hỏi thứ ba là một
+câu trả lời phủ định.
+
+**Câu hỏi thứ nhất — bao nhiêu phần của một con số độ chính xác trong lĩnh vực này do giao thức
+đánh giá sinh ra?** Trả lời: trên hai kho độc lập với hai định nghĩa nhóm khác nhau, việc đổi
+**đúng một** yếu tố — cách dựng fold — thay đổi độ chính xác cân bằng của cùng một mô hình một
+lượng từ **+13.0 đến +21.8 pp** trên Unsafe-Net và **+15.4 pp** trên iSafetyBench
+(p = 3.58e-45). Quan trọng hơn độ lớn: dưới giao thức rò rỉ nguồn, thang kiến trúc trải 17 lần
+tham số **mất khả năng phân biệt**, từ 5.1 pp xuống 1.4 pp với không một cặp nào có ý nghĩa thống
+kê — và trên kho thứ hai, thứ tự của thang **đảo ngược**. Một bảng xếp hạng kiến trúc tính dưới
+giao thức rò rỉ nguồn do đó không đo kiến trúc.
+
+**Câu hỏi thứ hai — một hệ quyết định an toàn có chạy được trên thiết bị biên giá vài trăm đô-la,
+và chi phí thật của nó là bao nhiêu?** Trả lời: có. Đường quyết định được triển khai phát ở trung
+vị **167.291 ms** mỗi quyết định trên Jetson Orin Nano Super, tức **4.79 lần** biên an toàn so với
+hợp đồng của clip trung vị trong ngữ liệu, với **toàn bộ** hình ảnh được xử lý tại biên và chỉ siêu
+dữ liệu rời thiết bị. Phần trung thực của câu trả lời là phần nói những gì **chưa** đo: p95 của
+vòng lặp tổ hợp, soak ở mức quyết định, công suất của vòng lặp tổ hợp, và camera trực tiếp.
+
+**Câu hỏi thứ ba — phân rã cảnh thành thực thể và quan hệ giữa chúng có cải thiện độ chính xác so
+với một biểu diễn toàn khung ở cùng xương sống?** Trả lời: **không, ở các điều kiện đã kiểm chứng
+được.** Ba cổng tiền đăng ký ở ba cấu hình, với hai xương sống và một cơ chế hợp nhất học được,
+đều trượt; ablation chỉ ra cơ chế là toàn bộ khả năng phân biệt nằm ở vector ngoại hình. Phạm vi
+của câu trả lời này được nêu rõ chứ không bị che: nó đúng cho quan hệ **thực thể–thực thể**, trên
+một kho **không có đa giác vùng**, với đường cơ sở toàn khung ở **cùng** xương sống. Quan hệ
+**thực thể–vùng** ở một kho đủ nhóm vẫn là câu hỏi mở (mục 8.3.5).
+
+Giá trị được giao của luận văn vì vậy không phải một con số top-1 cạnh tranh, và không phải một cơ
+chế kiến trúc mới — các khối xây dựng đều có sẵn. Giá trị nằm ở ba thứ: **một phép đo** về cái giá
+của giao thức đánh giá, đã tái lập độc lập; **một hệ thống đã đo trên chính thiết bị**, bằng đơn vị
+đúng và kèm danh sách những gì chưa đo; và **một bộ chứng cứ truy xuất được**, trong đó mỗi con số
+chỉ về tệp đã sinh ra nó, sáu phán quyết trượt được công bố ngang hai phán quyết đạt, và những con
+số đã rút được ghi lại kèm lý do rút thay vì bị xoá đi.
+
+----------------------------------------------------------------------
+TÀI LIỆU THAM KHẢO
+----------------------------------------------------------------------
+
+Chương này dẫn các mục dưới đây của danh mục thống nhất ở cuối Chương 2. Khoảng trống trong dãy số
+là có chủ ý.
+
+[22] W. Sultani, C. Chen, M. Shah, "Real-world Anomaly Detection in Surveillance Videos," CVPR
+     2018. arXiv:1801.04264.
+
+[23] Y. Tian, G. Pang, Y. Chen, R. Singh, J. W. Verjans, G. Carneiro, "Weakly-supervised Video
+     Anomaly Detection with Robust Temporal Feature Magnitude Learning," ICCV 2021.
+     arXiv:2101.10030.
+
+[24] S. Li, F. Liu, L. Jiao, "Self-Training Multi-Sequence Learning with Transformer for Weakly
+     Supervised Video Anomaly Detection," AAAI 2022.
+
+[25] P. Wu, X. Zhou, G. Pang, L. Zhou, Q. Yan, P. Wang, Y. Zhang, "VadCLIP: Adapting
+     Vision-Language Models for Weakly Supervised Video Anomaly Detection," AAAI 2024.
+     arXiv:2308.11681.
+
+[38] C. Guo, G. Pleiss, Y. Sun, K. Q. Weinberger, "On Calibration of Modern Neural Networks,"
+     ICML 2017. arXiv:1706.04599.

@@ -1,0 +1,946 @@
+======================================================================
+CHƯƠNG 3. PHƯƠNG PHÁP
+======================================================================
+
+Trạng thái văn bản: bản thảo chương phương pháp, soạn trực tiếp bằng tiếng Việt.
+Quy ước số: dấu chấm là dấu thập phân, dấu phẩy là dấu phân cách hàng nghìn.
+Dẫn tài liệu theo danh mục thống nhất ở cuối Chương 2.
+
+Phạm vi và điều chương này KHÔNG chứa. Chương 3 đặc tả **thiết kế**: các đồ thị tính toán, các
+kiến trúc đầu phân loại, biểu diễn đầu vào, quy trình huấn luyện dùng chung, và — phần quan trọng
+nhất của chương — **giao thức đánh giá tiền đăng ký** cùng tập cổng G10–G18. Mọi con số xuất hiện
+trong chương là **giá trị cấu hình** (số tham số, chiều, siêu tham số, ngưỡng đã đăng ký), không
+phải kết quả. Chương này **không** báo cáo một con số độ chính xác nào, và nó **không** là nguồn
+trích dẫn cho một kết quả nào; kết quả nằm ở Chương 6, số đo trên thiết bị nằm ở Chương 5, và chi
+tiết thực nghiệm đủ để tái lập nằm ở Chương 4.
+
+Lý do tách như vậy: giao thức đánh giá của luận văn được viết ra **trước** khi các con số tương
+ứng tồn tại, và một chương phương pháp lẫn kết quả sẽ không cho người đọc kiểm tra được điều đó.
+Mục 3.8 vì thế trình bày tám cổng ở đúng dạng chúng đã được đăng ký — giả thuyết, mô hình được nêu
+tên, biên tối thiểu, tiêu chí khoảng tin cậy và điều kiện phản chứng — mà **không** nêu phán quyết.
+
+----------------------------------------------------------------------
+3.1. NGUYÊN TẮC THIẾT KẾ VÀ CÁC RÀNG BUỘC SINH RA CHÚNG
+----------------------------------------------------------------------
+
+3.1.1. Bốn nguyên tắc
+
+Toàn bộ thiết kế trong chương tuân theo bốn nguyên tắc, nêu trước vì chúng giải thích phần lớn các
+lựa chọn mà nếu không có chúng sẽ trông tuỳ ý.
+
+**Nguyên tắc 1 — xương sống đóng băng.** Không một xương sống nào trong luận văn được tinh chỉnh.
+Mọi mô hình là một **đầu nhỏ** huấn luyện trên đặc trưng đã trích sẵn và lưu ra tensor. Nguyên tắc
+này là một ràng buộc của dữ liệu trước khi là một lựa chọn (mục 3.1.2), nhưng nó có hai lợi ích
+phương pháp mà luận văn khai thác triệt để: (a) một lần trích đặc trưng tốn hàng chục phút, sau đó
+mười fold nhân ba hạt giống cho chín kiến trúc chỉ tốn vài phút mỗi lần huấn luyện, nên khảo sát
+đầy đủ trở nên khả thi trên phần cứng không chuyên; (b) khi xương sống đóng băng, hai nhánh có thể
+được **chứng minh ở mức mã nguồn** là đọc đúng cùng những khung ảnh, nên các phép đối chứng trình
+bày ở mục 3.4.2 là đối chứng chính xác, không phải gần đúng.
+
+**Nguyên tắc 2 — một công thức huấn luyện cho mọi kiến trúc.** Chín kiến trúc dùng chung một bộ
+siêu tham số, không tinh chỉnh riêng (mục 3.6). Giá phải trả là không kiến trúc nào đạt hiệu năng
+tối đa của nó; đổi lại, chênh lệch đo được giữa hai kiến trúc quy được cho kiến trúc, chứ không
+lẫn với "bên nào được tinh chỉnh nhiều hơn".
+
+**Nguyên tắc 3 — đối chứng theo cấu trúc, không theo quy ước.** Mỗi so sánh then chốt được thiết
+kế sao cho **đúng một** yếu tố thay đổi, và tính chất đó được bảo đảm bằng cách hai nhánh dùng
+chung mã nguồn: đường toàn khung là đường thực thể **đã xoá trục thực thể**, dùng chung đúng khối
+Transformer thời gian, cùng chiều, cùng độ sâu, cùng điều chuẩn (mục 3.3.2). Vì vậy một kết quả
+thuận lợi cho nhánh này không thể giải thích bằng xương sống, dung lượng hay ngân sách huấn luyện.
+
+**Nguyên tắc 4 — đăng ký trước, và công bố phán quyết trượt ở mức chi tiết ngang phán quyết đạt.**
+Mục 3.8 là hiện thực của nguyên tắc này.
+
+3.1.2. Ràng buộc dữ liệu quyết định kiến trúc
+
+Hai ràng buộc, cả hai đã nêu ở Chương 2 mục 2.3, định hình phương pháp.
+
+Thứ nhất, **chú giải hộp theo từng khung của bài báo gốc không được công bố** [17]. Bộ phát hiện
+trong công trình đó được huấn luyện để phát hiện *hành vi* như hạng mục đối tượng; không có chú
+giải ấy thì không thể tái lập giai đoạn một của họ. Luận văn vì vậy làm việc với các bộ phát hiện
+**tiền huấn luyện trên COCO** và huấn luyện một bộ phát hiện thực thể riêng trên phần dữ liệu có
+chú giải tự làm (Chương 4, mục 4.2.3). Đây là lý do nguyên tắc 1 là ràng buộc trước khi là lựa
+chọn.
+
+Thứ hai, **kích thước dữ liệu**. Bài toán nhị phân trên iSafetyBench có 1,100 clip và 151 nguồn;
+làn Unsafe-Net bốn lớp có 516 clip và 8 nhóm bối cảnh. Ở cỡ này, một mô hình vài triệu tham số
+huấn luyện từ đầu sẽ chỉ đo được phương sai. Thiết kế vì vậy giữ phần học được ở quy mô **một đến
+bảy trăm nghìn tham số**, và dùng thang dung lượng như một đại lượng được khảo sát chứ không như
+một tham số để tối đa hoá (các cổng G13 và G18 ở mục 3.8).
+
+3.1.3. Thay đổi so với đề cương, nêu ở đúng chỗ phương pháp
+
+Đề cương được phê duyệt nêu tên **RT-DETR** [8] làm bộ mã hoá thời gian. Phương pháp trong chương
+này **không dùng RT-DETR**, và lý do là lý do kỹ thuật đã nêu ở mục 1.4.2: RT-DETR là một bộ phát
+hiện đầu-cuối, không phải một bộ mã hoá chuỗi thời gian. Chuỗi mà luận văn phải mã hoá là một dãy
+mười sáu trạng thái khung (hoặc một lưới mười sáu nhân tám token thực thể), tức một chuỗi hạng
+thấp; một bộ mã hoá Transformer một đến hai lớp trên chuỗi đó hiện thực hoá trực tiếp ý định "suy
+luận thời gian" của đề cương, trong khi một bộ giải mã chú ý chéo kiểu DETR thêm cơ chế không dùng
+được vào đúng chỗ dữ liệu ít nhất. Các thử nghiệm sơ bộ với một bộ giải mã kiểu RT-DETR trên token
+của xương sống phát hiện **không** cải thiện kết quả so với một bộ mã hoá Transformer thường trên
+cùng đặc trưng, đồng thời tăng đáng kể thời gian huấn luyện và số tham số; RT-DETR do đó bị loại
+trước các khảo sát kiến trúc.
+
+Định vị trung thực của đóng góp kiến trúc, phát biểu một lần ở đây và không phát biểu lại: luận
+văn **tổ hợp các khối xây dựng có sẵn** (bộ phát hiện đóng băng, tháp CLIP đóng băng, bộ mã hoá
+Transformer tiêu chuẩn, DeepSets, chú ý phân rã), không đề xuất một cơ chế kiến trúc mới. Giá trị
+nằm ở giao thức đánh giá (mục 3.7, 3.8) và ở phép đo trên thiết bị (mục 3.9).
+
+----------------------------------------------------------------------
+3.2. BA ĐỒ THỊ TÍNH TOÁN, BA ĐƠN VỊ ĐO, BA TẬP ĐÁNH GIÁ
+----------------------------------------------------------------------
+
+Dự án đi qua ba đồ thị tính toán không thay thế được cho nhau. Bảng 3.1 là bảng định nghĩa; nó
+được nêu ngay đầu chương vì **việc trộn số giữa ba đồ thị là sai sót nội bộ thường gặp nhất của
+chính dự án này**, và vì mọi mục sau đều dẫn về đúng một trong ba cột.
+
+Bảng 3.1 — Ba đồ thị tính toán. Trùng với Bảng 5.1 của Chương 5; được nhắc lại ở đây vì nó là định
+            nghĩa phương pháp, không phải một kết quả đo.
+
+  Ký hiệu | Đồ thị                                       | Đơn vị đo       | Tập đánh giá
+  --------+----------------------------------------------+-----------------+----------------------
+   B1     | 16 khung lấy mẫu → tháp CLIP ViT-B/32 đóng    | quyết định/giây | iSafetyBench,
+          | băng (87,849,216 tham số, 512 chiều) → đầu   |                 | 1,100 clip,
+          | Transformer thời gian B1 (603,270 tham số    |                 | leave-source-out,
+          | = 3 × 201,090 cho tập ba hạt giống)          |                 | 151 nguồn
+  --------+----------------------------------------------+-----------------+----------------------
+   P3     | YOLO26 @ 800 px → chọn thực thể bằng hình     | quyết định/giây | Unsafe-Net,
+          | học vùng (Shapely) → crop 224² → bộ mã hoá   |                 | 687 clip gộp,
+          | ngoại hình → đầu quan hệ E3 nhị phân         |                 | leave-context-out,
+          | (18,044 tham số)                             |                 | 8 nhóm bối cảnh
+  --------+----------------------------------------------+-----------------+----------------------
+   P1     | xương sống → cửa sổ trượt T = 32 → direct4   | khung/giây      | 64 clip, 4 lớp
+          | + scenario + 4 đầu cặp → hợp nhất xác suất   |                 |
+
+Ba điều bắt buộc về cách đọc bảng này.
+
+  (1) **B1 là đồ thị được triển khai**, và là đồ thị sinh ra kết quả độ chính xác tiêu đề. Đặc tả
+      ở mục 3.3.
+
+  (2) **P3 là đồ thị của làn quan hệ thực thể trên Unsafe-Net.** Nó được đo trên thiết bị để trả
+      lời câu hỏi **chi phí**, không để tuyên bố thời gian thực. Đặc tả ở mục 3.4.
+
+  (3) **P1 là đồ thị của giai đoạn trước**, giữ lại vì nó là bằng chứng duy nhất hiện có cho hai
+      tính chất đo được (bão hoà đa luồng và độ bền 36 phút). Mọi hàng P1 đều được dán nhãn phạm
+      vi, và không hàng nào được phát biểu lại cho B1 hay P3. Đặc tả ở mục 3.5.
+
+**Ba đơn vị đo không quy đổi được cho nhau.** "Khung/giây" đếm số khung mà xương sống xử lý;
+"quyết định/giây" đếm số phán quyết ở mức cửa sổ, mỗi phán quyết tiêu thụ mười sáu khung đã lấy mẫu
+trên một cửa sổ rộng hơn. Một hệ đạt 116 khung/giây có thể chỉ phát 3 quyết định/giây, và hai con
+số đó không mâu thuẫn. Quy tắc trình bày tương ứng, có hiệu lực toàn luận văn: **không bao giờ lấy
+trung bình, so sánh hay đặt trong cùng một câu hai con số thuộc hai đơn vị khác nhau.**
+
+----------------------------------------------------------------------
+3.3. ĐƯỜNG B1 — THÁP CLIP TOÀN KHUNG VÀ ĐẦU TRANSFORMER THỜI GIAN
+----------------------------------------------------------------------
+
+3.3.1. Bộ mã hoá không gian đóng băng
+
+Biểu diễn không gian của đường B1 là tháp thị giác của **CLIP ViT-B/32** [28]
+(`openai/clip-vit-base-patch32`), **đóng băng hoàn toàn**: 87,849,216 tham số, không cập nhật
+gradient, đầu ra 512 chiều cho mỗi khung. Mười sáu khung được lấy **cách đều** trên mỗi clip
+(T = 16); mỗi khung đi qua tháp một lần và sinh một vector 512 chiều. Toàn bộ clip do đó được tóm
+lại thành một tensor (16, 512) trước khi phần học được nhìn thấy nó.
+
+Lý do chọn một tháp hình ảnh–văn bản thay vì một xương sống video: tháp CLIP cho một biểu diễn ngữ
+nghĩa mạnh ở mức khung mà không cần dữ liệu video gán nhãn để tinh chỉnh, tức đúng chế độ mà
+nguyên tắc 1 áp đặt. Lựa chọn này **được kiểm chứng chứ không được giả định**: cổng G16 (mục 3.8)
+đặt một xương sống video đã tiền huấn luyện trên tác vụ hành động có nhãn làm đối thủ, và công bố
+kết quả theo cả hai chiều.
+
+3.3.2. Khối Transformer thời gian dùng chung — điểm then chốt của mọi đối chứng trong chương
+
+Khối thời gian là một bộ mã hoá Transformer trên dãy trạng thái khung, với cấu hình:
+
+  Chiều mô hình d       128
+  Số đầu chú ý          4
+  Chiều FFN             256
+  Số lớp                1   (B1 và ESTA)  /  2  (B1w)
+  Dropout               0.1
+  Chuẩn hoá             `norm_first = True`, kích hoạt GELU, LayerNorm trên đầu ra [CLS]
+  Vị trí                bảng vị trí thời gian **học được**, 16 khe
+  Gộp                   một token **[CLS]** học được, chú ý trên 16 trạng thái khung
+
+Khối này có một chi tiết cần nêu vì nó quyết định hành vi ở biên: mặt nạ hợp lệ `valid` đánh dấu
+các khung mang thông tin, và **một clip mà mọi khung đều không hợp lệ sẽ quay về chú ý trên toàn bộ
+các khung** thay vì phát ra NaN. Một hàng softmax bị che hoàn toàn là không xác định; cách xử lý
+này đổi một giá trị không xác định thành một giá trị xác định và bảo thủ.
+
+Tính chất quan trọng nhất của khối: **cả nhánh toàn khung và nhánh thực thể đều dùng đúng khối
+này, cùng một lớp mã nguồn, không phải hai bản cài đặt song song.** Vì vậy nhánh toàn khung **không
+phải** một bản tái hiện yếu hơn của đường cơ sở — nó là nhánh thực thể **đã xoá trục thực thể và
+không thay đổi gì khác**: cùng xương sống, cùng những khung ảnh, cùng khối thời gian, cùng chiều,
+cùng độ sâu, cùng điều chuẩn. Đây là điều kiện làm cho cổng G14 (mục 3.8) tách được **riêng** tác
+động của phép phân rã theo thực thể.
+
+3.3.3. Bốn biến thể toàn khung, và lý do tồn tại của từng biến thể
+
+Mỗi biến thể tồn tại để trả lời một câu hỏi phản biện cụ thể, và từng biến thể được cố định **bằng
+một quy tắc** trước khi được huấn luyện, không được chọn theo điểm số.
+
+Bảng 3.2 — Họ mô hình toàn khung. Số tham số là số tham số **huấn luyện được** của đầu, đọc từ
+            dòng banner nhật ký huấn luyện tương ứng (Chương 4, mục 4.5.4).
+
+  Mô hình | Cấu hình                                  | Tham số | Tồn tại để trả lời
+  --------+-------------------------------------------+---------+--------------------------------
+   B1     | `Linear(512→128)` + LayerNorm + Dropout   | 201,090 | Cấu hình **được triển khai**.
+          | → khối thời gian 1 lớp → `Linear(128→2)`  |         | Chọn theo tiêu chí biên nhỏ
+          |                                           |         | nhất, không theo độ chính xác.
+  --------+-------------------------------------------+---------+--------------------------------
+   B1w    | như B1, khối thời gian **2 lớp**          | 333,570 | Đối chứng **khớp dung lượng**
+          |                                           |         | với ESTA (352,258), để một
+          |                                           |         | thắng lợi của nhánh thực thể
+          |                                           |         | không đọc được là "mô hình
+          |                                           |         | thực thể đơn giản là lớn hơn".
+  --------+-------------------------------------------+---------+--------------------------------
+   B1xl   | d = 192, FFN = 384, khối thời gian 2 lớp  | 696,962 | Đối chứng dung lượng của G18.
+          |                                           |         | Chọn bằng quy tắc "cấu hình
+          |                                           |         | toàn khung có số tham số gần
+          |                                           |         | TSF nhất", ra kết quả **lớn
+          |                                           |         | hơn TSF 1.5%**.
+  --------+-------------------------------------------+---------+--------------------------------
+   B2     | xương sống **VideoMAE-base** đã tinh chỉnh | 233,858 | Đối thủ mạnh và trung thực của
+          | trên Kinetics, 8 trạng thái tubelet 768    |         | G16: cùng đầu, xương sống
+          | chiều → **cùng khối thời gian** của B1     |         | video đã tiền huấn luyện trên
+          |                                           |         | tác vụ hành động **có nhãn**.
+          |                                           |         | Khác B1 **chỉ** ở xương sống.
+
+Ba ghi chú bắt buộc về bảng này.
+
+**Ghi chú 1 — B1w là đối chứng được đăng ký trước, không phải một biến thể tìm thấy sau.** Quy tắc
+"khớp dung lượng với ESTA bằng cách thêm một lớp thời gian" được ghi ngày 29/09/2026, trước khi bất
+kỳ mô hình nào trong họ này được huấn luyện.
+
+**Ghi chú 2 — B1xl được chọn bằng số tham số, không bằng điểm.** Quy tắc chọn chỉ dùng số tham số
+và cho ra một mô hình **lớn hơn** mô hình nó đối chứng; nếu mô hình hợp nhất thắng B1xl thì "mô
+hình hai luồng đơn giản là có nhiều tham số hơn" không còn là một giải thích khả dụng.
+
+**Ghi chú 3 — xương sống của B2 được cố định trước khi có kết quả, và nó được chọn theo hướng bất
+lợi cho luận văn.** Bản `MCG-NJU/videomae-base-finetuned-kinetics` được chọn thay cho bản tự giám
+sát `MCG-NJU/videomae-base` vốn đã có trong bộ đệm cục bộ, với lý do ghi trước: một bộ mã hoá MAE
+chưa bao giờ được huấn luyện trên tác vụ hành động có nhãn là một **đối thủ yếu**, và thắng một đối
+thủ yếu thì không chứng minh được gì. B2 nhìn **đúng mười sáu khung của đúng những clip đó** (dùng
+chung `frame_sampling.decode`) và đi vào **đúng khối thời gian mà B1 dùng**.
+
+Một cái bẫy trích dẫn phải nêu ở đây vì nó thuộc về phương pháp: dòng banner của công cụ ghi nhật
+ký in cứng chuỗi `backbone=CLIP ViT-B/32` cho **mọi** mô hình, kể cả B2. Xương sống thực tế của B2
+là `MCG-NJU/videomae-base-finetuned-kinetics`. Đây là lỗi nhãn của công cụ ghi nhật ký, không phải
+lỗi của phép đo, và nó được nêu vì luận văn trích dẫn chính nhật ký đó (Chương 6, mục 6.2).
+
+3.3.4. Hợp đồng nhịp: cửa sổ, bước nhảy và điều biến bước nhảy thành hợp đồng
+
+Ở chế độ triển khai, đầu vào không phải một clip đã cắt sẵn mà một luồng liên tục. Hệ thống do đó
+được đặc tả bằng ba tham số:
+
+  Cửa sổ quyết định     48 khung
+  Bước nhảy             24 khung
+  Lấy mẫu trong cửa sổ  T = 16 khung **cách đều** trên cửa sổ
+
+Tham số thứ ba là một ràng buộc thiết kế, không phải một lựa chọn cài đặt: **bộ lấy mẫu khi triển
+khai phải trùng với bộ lấy mẫu khi đánh giá.** Nếu khác, con số độ chính xác đo ở Chương 6 không
+còn mô tả hệ thống chạy trên thiết bị.
+
+Bước nhảy biến tần số khung của nguồn thành một **hợp đồng** mà hệ phải đáp ứng. Với nguồn *f*
+khung/giây và bước nhảy *s* khung, hệ phải phát **f / s** quyết định mỗi giây để không tụt lại.
+Hai hệ quả phương pháp:
+
+  (a) **Hợp đồng là một thuộc tính của ngữ liệu, không phải một con số do tác giả chọn.** Chương 4
+      mục 4.7.4 đo phân bố tần số khung trên toàn bộ 1,100 clip và lấy ba điểm của phân bố đó làm
+      ba mức hợp đồng. Việc chọn một tần số tiện lợi rồi gọi nó là hợp đồng đã từng xảy ra trong
+      các bản thảo trước và đã bị rút lại.
+
+  (b) **Hai làn có hai hợp đồng khác nhau vì chúng có hai bước nhảy khác nhau.** Đường B1 phát ở
+      bước 24; đường P3 phát ở bước 8. Cùng công thức *f*/*s*, hai giá trị *s*, hai hợp đồng. Vì
+      vậy **không bao giờ** được so sánh con số nhịp của hai làn, và **không bao giờ** được áp
+      ngưỡng của làn này cho làn kia (Phụ lục A, mục A.7).
+
+----------------------------------------------------------------------
+3.4. ĐƯỜNG THỰC THỂ — PHÂN RÃ CẢNH THÀNH TOKEN QUAN HỆ
+----------------------------------------------------------------------
+
+Đường thực thể hiện thực hoá giả thuyết trung tâm của hướng nghiên cứu ban đầu: rằng một quyết
+định an toàn phụ thuộc vào **quan hệ giữa các thực thể** (người ở đâu so với vùng cấm, người nào
+đang can thiệp vào thiết bị nào), nên một biểu diễn phân rã cảnh thành thực thể sẽ hơn một vector
+toàn khung. Mục này đặc tả biểu diễn và các kiến trúc; cổng G11, G14 và G18 ở mục 3.8 là các phép
+kiểm chứng giả thuyết đó.
+
+3.4.1. Chọn thực thể và hai dạng token
+
+Bước chung của mọi biến thể: một bộ phát hiện đóng băng chạy trên **đúng danh sách khung** mà
+nhánh toàn khung dùng, trả về các hộp; tối đa **N_MAX = 8** thực thể có độ tin cậy cao nhất được
+giữ lại mỗi khung (`argsort(-conf)[:8]`), với ngưỡng tin cậy **0.25**. Luận văn dùng hai dạng
+token, mỗi dạng cho một làn.
+
+**Dạng A — token quan hệ 74 chiều** (làn P3 và làn Unsafe-Net). Mỗi thực thể sinh một token gồm
+**10 chiều hình học/định danh** nối với **64 chiều ngoại hình**:
+
+  FEAT = 10   `[class_id, xc, yc, w, h, conf, iou_walkway, iou_restricted, foot_in_walkway,
+               norm_dist]`
+  APP  = 64   đặc trưng **MobileNetV3-small** (ImageNet) của vùng cắt, đưa qua một **phép chiếu
+               ngẫu nhiên cố định 576 → 64**
+
+Bốn chiều cuối của phần FEAT là **hình học theo vùng**: giao trên hợp của hộp với đa giác lối đi và
+với đa giác vùng hạn chế, cờ "bàn chân nằm trong lối đi", và khoảng cách chuẩn hoá tới vùng. Các
+chiều này chỉ xác định ở nơi có đa giác vùng theo từng góc nhìn.
+
+**Phép chiếu ngẫu nhiên cố định là một cổ chai, và nó phải được nêu ở mục phương pháp, không nêu
+muộn ở mục thảo luận.** Phần ngoại hình của dạng token này không phải một biểu diễn ngữ nghĩa mạnh:
+nó là một vector 576 chiều bị nén xuống 64 chiều bằng một ma trận ngẫu nhiên **không học được**.
+Hai hệ quả, cả hai thuộc về cách đọc kết quả của Chương 6:
+
+  (a) **Cổng G11 so sánh hai nhánh đều bị cổ chai như nhau.** Đường sàn toàn khung của G11 dùng
+      **đúng** phép chiếu ấy, nên cổng này là một so sánh công bằng — nhưng là so sánh giữa hai
+      nhánh cùng bị làm yếu, không phải giữa hai nhánh ở năng lực tốt nhất của chúng. Do đó một
+      phán quyết trượt của G11 **không** chứng minh rằng phân rã theo thực thể vô dụng ở biểu diễn
+      mạnh hơn; nó chỉ chứng minh điều đó **ở biểu diễn 64 chiều này**.
+
+  (b) **Chính giới hạn (a) là lý do làn tiêu đề tồn tại.** Giả thuyết đối ứng — rằng trần độ chính
+      xác nằm ở *biểu diễn ngoại hình* chứ ở *đầu quan hệ* — được ghi lại dưới mã R48 và được
+      kiểm chứng bằng một thí nghiệm **mới** trên dạng token B dưới đây, chứ **không** bằng cách
+      phán quyết lại G11. Cổng G15 là phép kiểm chứng R48; quy ước 3.8.1(3) giữ G11 ở nguyên phán
+      quyết của nó bất kể R48 ra kết quả gì.
+
+**Giới hạn R45, nêu ở đây vì nó là giới hạn của thiết kế chứ không của kết quả:** kho iSafetyBench
+**không** kèm đa giác vùng, nên trên kho đó kênh hình học theo vùng **bằng 0 đồng nhất**. Quan hệ
+trên kho tiêu đề do đó là quan hệ **thực thể–thực thể**, và toàn bộ cách đóng khung "hình học theo
+vùng" chỉ áp dụng cho làn Unsafe-Net. Điều này được nhắc lại ở mọi nơi kết quả liên quan xuất hiện
+(Chương 6, mục 6.11.6; Chương 7, mục 7.2.3).
+
+**Dạng B — token thực thể trên tháp CLIP** (làn tiêu đề). Mỗi trong tám thực thể sinh một
+embedding CLIP **512 chiều** của vùng cắt, kèm **GEOM = 6** chiều `[class, xc, yc, w, h, conf]`.
+Vùng cắt được lấy với **đệm ngữ cảnh 30%** quanh hộp, để một hộp bó sát không xoá mất ngữ cảnh mà
+quyết định an toàn phụ thuộc vào. Lớp thực thể được **nhúng** (8 nhóm COCO thô) và hình học được
+chiếu qua một MLP hai lớp; ba thành phần — ngoại hình, nhúng lớp, hình học — được **cộng** rồi
+LayerNorm, nên hình học **giữ nguyên cạnh** embedding thay vì bị chiếu mất.
+
+Một điểm về tính đúng của phép đối chứng, và nó được bảo đảm **ở mức mã nguồn**: trong
+`build-isafetybench-clip-features.py`, hàm `process_clip` giải mã mỗi clip **đúng một lần**, lọc ra
+danh sách khung hợp lệ `valid`, rồi đưa **cùng danh sách đó** cho cả hai nhánh — nhánh toàn khung
+nhúng chính những khung ấy bằng chính tháp CLIP ấy, nhánh thực thể chạy bộ phát hiện trên chính
+những khung ấy. Vì hai nhánh dùng chung một biến, **không thể có trường hợp một nhánh thấy nhiều
+khung hơn nhánh kia**. Đây là điều kiện làm cổng G14 trở thành một đối chứng theo cấu trúc chương
+trình (Chương 4, mục 4.3.2).
+
+3.4.2. ESTA — chú ý không gian–thời gian phân rã
+
+ESTA (*Entity SpatioTemporal Attention*, 352,258 tham số) là kiến trúc mà cổng G14 kiểm chứng. Nó
+gồm hai giai đoạn:
+
+  Giai đoạn 1 (không gian)  token hoá tám thực thể của một khung; thêm một token `frame_cls` học
+                            được; một lớp bộ mã hoá Transformer chú ý **trong phạm vi một khung**;
+                            LayerNorm trên `frame_cls` → một **trạng thái khung** d = 128 chiều.
+  Giai đoạn 2 (thời gian)   **đúng khối Transformer thời gian của mục 3.3.2**, chú ý trên 16 trạng
+                            thái khung → một **trạng thái clip** → `Linear(128→2)`.
+
+Hai chi tiết xử lý biên, cả hai là quyết định thiết kế có chủ ý:
+
+  - Một khung **không có thực thể nào** sẽ che toàn bộ các khe thực thể. Cài đặt giữ cho token
+    `frame_cls` của khung đó **còn sống** và để giai đoạn thời gian loại khung đó qua mặt nạ
+    `valid`. Lý do ghi trong mã: "một khung rỗng là một **sự thật** về clip, không phải một lỗi".
+  - Dung lượng của ESTA được giữ **gần số tham số của E0** (298,118) một cách có chủ ý, để giải
+    thích "mô hình mới đơn giản là lớn hơn" không khả dụng.
+
+3.4.3. Thang encoder quan hệ E0–E3
+
+Trên dạng token 74 chiều, luận văn khảo sát **một thang dung lượng trải 17 lần**, gồm bốn kiến
+trúc có chung hợp đồng đầu vào/đầu ra và chung toàn bộ cấu hình đầu phân loại cùng hàm mất mát —
+nên chênh lệch giữa chúng là chênh lệch **cơ chế**, không phải chênh lệch công thức huấn luyện.
+
+Bảng 3.3 — Thang encoder quan hệ. Số tham số của làn iSafetyBench / làn Unsafe-Net nhị phân
+            (hai giá trị khác nhau vì độ rộng đầu vào khác nhau, Chương 4 mục 4.5.4).
+
+  Mã | Tên và cơ chế                                            | Tham số (ISB / UN)
+  ---+----------------------------------------------------------+---------------------
+  E0 | **RelationTransformer** — nhúng lớp 32 chiều nối với      | 298,118 / 298,892
+     | chiếu các đặc trưng số; một token [CLS]; **bảng vị trí   |
+     | học được 129 khe** (chỉ số khung × hạng tin cậy, đan      |
+     | xen); hai lớp bộ mã hoá Transformer, 4 đầu, FFN 256,      |
+     | dropout 0.3, chú ý **phẳng trên toàn bộ 16 × 8 token**    |
+  ---+----------------------------------------------------------+---------------------
+  E1 | **Bộ mã hoá phân rã tập-rồi-thời-gian** (FSTE) — giai     | d = 64: 93,222 / 94,380
+     | đoạn trong khung **bất biến theo phép hoán vị** (không   | d = 96: 195,558 / 197,292
+     | vị trí: tám khe hộp là một **tập**, không phải một        |
+     | chuỗi), gộp mean‖max có mặt nạ → một embedding khung;     |
+     | giai đoạn thời gian [CLS] + 16 khung + **bảng vị trí      |
+     | duy nhất 17 khe**; gộp CLS‖mean‖max                       |
+  ---+----------------------------------------------------------+---------------------
+  E2 | **Đối chứng ngoại khoa** — giống E0 ở *mọi* điểm trừ      | — / 284,556
+     | bảng vị trí: 129 khe được thay bằng **17 khe theo khung** |
+     | phát tán cho tám khe của mỗi khung. Cô lập đúng một câu   |
+     | hỏi: "khiếm khuyết có nằm ở tiên nghiệm vị trí không?"    |
+  ---+----------------------------------------------------------+---------------------
+  E3 | **DeepSets** — **không chú ý ở bất kỳ đâu**. Gộp trung    | 17,270 / 18,044
+     | bình có mặt nạ trên các hộp của một khung, một MLP theo   |
+     | khung, gộp mean‖max trên các khung. Là **đường sàn chống  |
+     | quá khớp** của thang, và là encoder **tiêu đề** của làn.  |
+
+Hai quyết định phải nêu rõ.
+
+**Quyết định thứ nhất: bảng vị trí 129 khe của E0 là một tiên nghiệm sai, và luận văn đo nó chứ
+không chỉ phát biểu.** Trong E0, chỉ số vị trí đan xen chỉ số khung với **hạng theo độ tin cậy**
+của hộp trong khung — tức mô hình được cấp một tiên nghiệm rằng "thực thể tin cậy thứ hai của
+khung t" là một vị trí có ý nghĩa cố định. Nó không có ý nghĩa như vậy: thứ tự theo độ tin cậy
+không ổn định giữa các khung. E1 bỏ hẳn tiên nghiệm đó bằng tính bất biến hoán vị; E2 **chỉ** đổi
+bảng vị trí và giữ nguyên mọi thứ khác, nên nó cô lập đúng tác động của tiên nghiệm. Đây là ví dụ
+của nguyên tắc 3.
+
+**Quyết định thứ hai: E3 là encoder tiêu đề của làn quan hệ, và lựa chọn này bị đóng băng
+(quyết định D3).** E3 được cố định làm encoder tiêu đề **trước** khi bảng kết quả của thang tồn
+tại, theo tiêu chí triển khai: mô hình nhỏ nhất của thang. Nếu một encoder khác trong thang về sau
+cho độ chính xác cao hơn, điều đó **không** làm nó thành encoder tiêu đề; đổi encoder tiêu đề sau
+khi đã thấy bảng kết quả chính là hành vi mà toàn bộ giao thức ở mục 3.7 và 3.8 được viết ra để
+chống lại. Hệ quả cụ thể, ghi lại ở đây để Chương 6 không phải biện luận: **E0 không được đề bạt
+làm encoder tiêu đề trong bất kỳ hoàn cảnh nào.**
+
+3.4.4. TSF — hợp nhất hai luồng
+
+Cổng G14 hỏi liệu phép phân rã theo thực thể có **thay thế** được một biểu diễn toàn khung. Một
+câu hỏi khác còn mở sau đó là liệu nó có **bổ sung** cho biểu diễn toàn khung. TSF
+(*Two-Stream Fusion*, 686,726 tham số) là kiến trúc được đăng ký trước để kiểm chứng câu hỏi thứ
+hai, và cổng G18 là phép phán quyết.
+
+Thiết kế, cố định trước khi mô hình tồn tại trong mã:
+
+  - **Hai nhánh được giữ nguyên vẹn** — `EntitySpatioTemporal` và `WholeFrameTemporal` **đúng như
+    cổng G14 đã đánh giá chúng**, không phải một bản sao có thể trôi khỏi chúng.
+  - Hai trạng thái clip trở thành một **chuỗi hai token**; một **embedding luồng** học được cho
+    khối hợp nhất biết token nào thuộc luồng nào; một token [CLS] chú ý trên hai token đó qua một
+    lớp bộ mã hoá; LayerNorm; `Linear(128→2)`.
+  - **Phép hợp nhất được học bên trong mô hình, huấn luyện đồng thời với cả hai nhánh** — không
+    phải phép lấy trung bình xác suất hậu kỳ của hai mô hình đã đóng băng. Phân biệt này quan
+    trọng vì một khảo sát tính bổ sung hậu kỳ **đã bị cấm trích dẫn** trong luận văn: các con số
+    của nó là thống kê chọn lọc, không phải phép đo.
+  - **Đầu phụ trên mỗi nhánh**, mỗi đầu mang hệ số λ = 0.3 của hàm mất mát — đúng hệ số mà các đầu
+    quan hệ nhị phân trong dự án đã dùng, nên nó là quy ước kế thừa chứ không phải một núm điều
+    chỉnh. Không có các đầu phụ này, khối hợp nhất có thể bỏ đói một nhánh và mô hình **âm thầm
+    suy biến về một luồng**, khi đó một phán quyết đạt sẽ không đọc được.
+
+----------------------------------------------------------------------
+3.5. ĐƯỜNG P1 — GIAI ĐOẠN TRƯỚC, VÀ PHẠM VI CỦA NÓ
+----------------------------------------------------------------------
+
+Đường P1 là đồ thị của giai đoạn đầu dự án. Nó được đặc tả ở đây vì Chương 5 còn trích dẫn hai số
+đo của nó, và một người đọc không thể đánh giá phạm vi của các số đo ấy nếu không biết đồ thị.
+
+Cấu trúc: xương sống **YOLOv11s đóng băng** (trọng số COCO), lấy đầu ra **lớp 22** (khối C3k2) và
+gộp trung bình thích nghi xuống lưới không gian 4 × 4 → 16 token 512 chiều cho mỗi khung; mười sáu
+token được tóm bằng cách nối **ba thống kê** (mean, std, max) theo trục không gian → một vector
+1,536 chiều cho mỗi khung; cửa sổ trượt **T = 32** khung; bốn luồng thời gian (ngoại hình thô, đạo
+hàm bậc một, đạo hàm bậc hai, thống kê theo cửa sổ 4 khung) được chiếu vào không gian d = 256 và
+hợp nhất bằng một **MLP cổng** sinh trọng số theo từng bước thời gian và từng luồng; một bộ mã hoá
+Transformer 4 lớp, 4 đầu, d = 256, FFN 1,024, dropout 0.3, vị trí học được dài 32; token [CLS] →
+MLP hai lớp → logits 4 lớp. Ở mức hệ thống, P1 huấn luyện **năm đầu** (direct4, scenario và bốn đầu
+cặp) rồi hợp nhất bằng xác suất có cổng theo scenario.
+
+Phạm vi của đường P1 trong luận văn này, phát biểu dứt khoát:
+
+  (1) P1 **không** là đồ thị được triển khai, và **không** sinh ra kết quả độ chính xác tiêu đề.
+  (2) Mọi số đo P1 trong Chương 5 đều **được dán nhãn phạm vi** ở mục 5.6, và **không** số đo nào
+      trong đó được phát biểu lại cho B1 hay P3.
+  (3) Hai kết quả lịch sử của P1 từng được trình bày như kết quả của hệ thống — một tập hợp chọn
+      theo tập kiểm thử, và một phép hiệu chuẩn dò trên chính tập kiểm thử — **đều đã bị rút lại**
+      và được ghi trong sổ đăng ký các phát biểu đã rút (Chương 7, mục 7.6; Phụ lục A, mục A.10).
+
+Việc giữ lại đặc tả của một đồ thị đã bị thay thế là có chủ ý: nó là bản ghi về cách thiết kế đã
+được đi tới, và nó làm cho phạm vi của hai số đo còn được trích dẫn trở nên kiểm tra được.
+
+----------------------------------------------------------------------
+3.6. QUY TRÌNH HUẤN LUYỆN DÙNG CHUNG
+----------------------------------------------------------------------
+
+3.6.1. Một công thức cho mọi kiến trúc
+
+Mọi đầu trong luận văn — họ toàn khung, ESTA, TSF và thang encoder quan hệ — dùng **cùng một**
+công thức huấn luyện. Điều này được bảo đảm bằng cách họ ESTA gọi lại chính công thức của các đầu
+quan hệ, chứ không bằng việc hai tệp mã tình cờ ghi cùng các con số.
+
+  Bộ tối ưu          `AdamW(lr = 1e-3, weight_decay = 0.01)`
+  Lịch học           cosine annealing trên toàn bộ số epoch, bước mỗi epoch
+  Hàm mất mát chính  `CrossEntropyLoss(weight = w, label_smoothing = 0.05)`
+  Trọng số lớp       `w` tỉ lệ nghịch tần suất, tính từ **phần huấn luyện của fold**
+  Chặn gradient      chuẩn tối đa 5.0
+  Kích thước lô      32
+  Số epoch           60
+  Chọn điểm dừng     điểm kiểm tra tại epoch có `val_macro` cao nhất
+  Thiết bị           **CPU**
+
+Hàm mất mát của làn nhị phân có **ba số hạng**, không phải một:
+
+  L = CE(logits, y)                     nhãn chính, có trọng số lớp
+    + 0.3 × CE(sub_logits, y_sub)       đầu phụ dự đoán lớp con
+    + 0.5 × CE(frame_logits[valid], y)  đầu phụ ở mức khung, chỉ trên các khung hợp lệ
+
+Cả ba số hạng dùng `label_smoothing = 0.05`. Hai hệ số 0.3 và 0.5 là giá trị mặc định của vòng
+huấn luyện và **không được dò tìm**. Số hạng thứ ba chỉ tính trên các khung có mặt nạ hợp lệ, nên
+các khung mà bộ phát hiện không trả về thực thể nào không đóng góp vào mất mát.
+
+Một khác biệt giữa hai làn phải công bố vì nó khiến **vai trò** của số hạng thứ hai khác nhau: kho
+iSafetyBench không có taxonomy lớp con, nên ở làn đó đầu phụ lớp con được cho hai lớp và nhận chính
+nhãn nhị phân. Khi đó số hạng thứ hai trở thành **một phép đánh trọng số nhẹ lên mục tiêu chính**,
+chứ không phải một đầu dự đoán các lớp chưa bao giờ xuất hiện. Một người đọc so sánh hai làn cần
+biết điều này.
+
+Việc huấn luyện chạy trên CPU **không** phải một hạn chế tài nguyên mà là một quyết định về tính
+đúng của số liệu: trên macOS 14, backend MPS có lỗi ở phép `addcmul_` — đúng phép toán mà bước cập
+nhật của Adam/AdamW dùng. Huấn luyện trên MPS vẫn chạy và vẫn in ra mất mát giảm, nhưng các cập
+nhật **bị hỏng âm thầm**. Vì nguyên tắc 1 đã đóng băng xương sống, các đầu còn lại đủ nhỏ để huấn
+luyện trên CPU trong thời gian chấp nhận được, nên cái giá của quyết định này thấp. Cần phân biệt:
+**bước trích đặc trưng vẫn dùng MPS** — suy luận tiến trên một xương sống đóng băng không chịu ảnh
+hưởng của lỗi ở bước cập nhật.
+
+3.6.2. Chọn mô hình không chạm fold giữ ra
+
+Đây là điểm dễ sai nhất trong một quy trình k-fold, nên cách làm được nêu tường minh để phản biện
+kiểm tra được. Mô hình **không** lấy ở epoch cuối; nó lấy ở epoch có `val_macro` cao nhất. Câu hỏi
+quyết định do đó là tập validation ấy lấy từ đâu.
+
+Câu trả lời, giống nhau cho cả hai giao thức: tập validation **15%** được cắt ra **từ bên trong
+phần huấn luyện của fold**, phân tầng theo nhãn, hạt giống cố định. Fold giữ ra **không bao giờ**
+tham gia vào việc chọn epoch.
+
+Một tính chất của phép cắt này phải công bố vì nó sinh ra một lệnh cấm trích dẫn: phép cắt
+fit/val **phân tầng theo nhãn nhưng KHÔNG nhóm theo nguồn**, nên clip của cùng một nguồn có thể nằm
+hai bên. Hệ quả chính xác:
+
+  - `val_macro` là một ước lượng **lạc quan**, vì nó chịu đúng loại rò rỉ nguồn–nhãn mà phép chia
+    ngoài đã loại bỏ;
+  - nhưng nó **không** làm sai lệch các con số công bố, vì nó chỉ dùng để chọn epoch, còn mọi con
+    số công bố đều đo trên fold giữ ra.
+
+Quy tắc đang có hiệu lực: **các giá trị `val_macro` là giá trị đúng, nhưng không bao giờ được trình
+bày như độ chính xác trên tập kiểm thử.** Chúng là tiêu chí chọn mô hình, không phải kết quả.
+
+3.6.3. Hạt giống và tổ hợp hạt giống
+
+Mỗi cấu hình được huấn luyện với **ba hạt giống** (0, 1, 2) trên **mỗi** fold. Con số công bố của
+một cấu hình là **tập hợp trung bình softmax của ba hạt giống**, không phải hạt giống tốt nhất.
+Phân biệt này quan trọng: lấy hạt giống tốt nhất trên fold giữ ra là một hình thức chọn lọc trên
+dữ liệu đánh giá, và nó bị cấm ở mọi nơi trong luận văn.
+
+----------------------------------------------------------------------
+3.7. GIAO THỨC ĐÁNH GIÁ
+----------------------------------------------------------------------
+
+Mục này là đóng góp phương pháp chính của luận văn ở dạng đặc tả. Mục 2.4 đã nêu khoảng trống;
+mục này nêu cách lấp.
+
+3.7.1. Hai cách dựng fold, và định nghĩa lạm phát giao thức
+
+Luận văn đánh giá **cùng một mô hình, cùng một đặc trưng, cùng một công thức huấn luyện, cùng số
+fold và cùng số epoch** dưới **hai** cách dựng fold khác nhau. Đúng một yếu tố thay đổi:
+
+  **Giao thức có ràng buộc nhóm.** `StratifiedGroupKFold` trên khoá nhóm, nên **không một nhóm nào
+  bị chia sang hai phía** của bất kỳ fold nào. Trên iSafetyBench, khoá nhóm là định danh video
+  nguồn, và giao thức được gọi là **leave-source-out** (LSO). Trên Unsafe-Net, khoá nhóm là nhóm
+  bối cảnh, và giao thức được gọi là **leave-context-out** (LCO).
+
+  Một lưu ý về tên gọi, để người đọc đối chiếu được với tạo tác: mã nguồn và nhật ký viết tắt giao
+  thức này là `lco` và khai triển nó thành "leave-context-out", theo giả định ban đầu rằng kho có
+  siêu dữ liệu camera. Giả định đó sai (mục 3.7.2), nên văn bản luận văn khai triển cùng một từ
+  viết tắt thành **leave-context-out**. Từ viết tắt LCO giữ nguyên để trùng với tên tệp và tên cờ
+  trong mã.
+
+  **Giao thức rò rỉ nguồn.** `StratifiedKFold` **bỏ qua** khoá nhóm, tức đúng giao thức mà tài liệu
+  đường cơ sở dùng. Clip của cùng một nguồn có thể nằm hai phía.
+
+Đại lượng được báo cáo là hiệu số:
+
+      Δ_lạm_phát  =  BA(giao thức rò rỉ nguồn)  −  BA(giao thức có ràng buộc nhóm)
+
+Luận văn gọi Δ là **lạm phát giao thức**. Bốn tính chất của định nghĩa này quyết định giá trị của
+nó như một phép đo:
+
+  (1) **Δ là một đại lượng ghép đôi.** Hai vế đo cùng những clip bằng cùng mô hình; Δ do đó không
+      lẫn với phương sai giữa hai lần chạy trên hai tập khác nhau.
+  (2) **Δ không phụ thuộc vào việc mô hình nào tốt hơn.** Nó đo cái giá của **giao thức**, nên nó
+      có nghĩa ngay cả khi mọi kiến trúc trong bảng đều tầm thường.
+  (3) **Vế rò rỉ nguồn là một tạo tác chẩn đoán, không phải một kết quả.** Nó **không bao giờ**
+      được báo cáo như độ chính xác của luận văn, trong bất kỳ bảng, tóm tắt hay trang trình bày
+      nào; mọi lần nó xuất hiện đều kèm nhãn "giao thức rò rỉ nguồn, nêu để so sánh".
+  (4) **Kích thước fold là một dấu vết nhận dạng giao thức.** Với 1,100 clip và mười fold, giao
+      thức rò rỉ nguồn cho mười fold **đúng 110 clip**, còn giao thức có ràng buộc nhóm cho các
+      fold **không đều nhau** vì các nguồn có quy mô khác nhau. Một người đọc do đó **kiểm tra
+      được từ chính nhật ký** mỗi lần chạy thuộc giao thức nào, mà không cần tin lời tác giả. Phụ
+      lục B mục B.5 trình bày dấu vết này bằng số.
+
+3.7.2. Định nghĩa nhóm ở mỗi kho, và một thận trọng về từ ngữ
+
+**iSafetyBench.** Khoá nhóm là **mười một ký tự đầu của tên tệp**, tức định danh video YouTube,
+trích bằng `SRC_RE = r'([A-Za-z0-9_-]{11})_'`. Khoá này cho **151 nhóm**. Hai tính chất của khoá
+được ghi lại để chính xác: một tên tệp mang định danh mười ký tự, không khớp mẫu, quay về dùng
+chính tên cơ sở của nó và tạo một nhóm đơn lẻ; và khoá này **thô hơn** một phép phân tích tên tệp
+ở mức clip, vì nó gộp hai đoạn cắt của cùng một video mà phép phân tích theo `_trim_` sẽ tách
+(cho 152 nhóm). Chiều ngược lại đã được kiểm tra và **không bao giờ xảy ra** — không nguồn nào ở
+mức tên tệp bị chia sang hai nhóm khoá — nên phép nhóm chỉ có thể **chặt hơn** mức cần thiết, không
+bao giờ lỏng hơn.
+
+**Unsafe-Net.** Kho không công bố định danh camera hay định danh phiên thu. Nhóm được dựng bằng
+**KMeans(8)** trên đặc trưng bối cảnh, tức một **proxy** cho camera, không phải camera. Hệ quả về
+từ ngữ, tuân thủ ở mọi chương: luận văn viết **"nhóm bối cảnh"**, không viết "camera"; và nói
+leave-context-out **theo fold**, không nói theo góc nhìn. Tám nhóm cũng là một giới hạn thống kê
+được nêu trước: tám nhóm không đủ lực để phân giải các chênh lệch cỡ vài điểm phần trăm, và luận
+văn không phát biểu chênh lệch nào ở độ phân giải đó trên kho này.
+
+3.7.3. Chỉ số và đường sàn tiền đăng ký
+
+**Chỉ số chính là độ chính xác cân bằng** (balanced accuracy, BA), tức trung bình độ nhạy theo
+từng lớp. Lý do: cả hai kho đều lệch lớp, nên độ chính xác top-1 thuần có thể đạt 61.8% trên
+iSafetyBench chỉ bằng cách luôn trả lời "bình thường". Các chỉ số phụ được báo cáo cùng BA ở mọi
+bảng: macro-F1, độ nhạy và precision của lớp dương, PR-AUC và ROC-AUC.
+
+**Đường sàn được đăng ký trước, và nó không phải 50%.** Trước khi encoder nào được huấn luyện trên
+iSafetyBench, một **quy tắc đếm ba đặc trưng** (số người mỗi khung, số vật thể mỗi khung, và tỉ số
+giữa hai lượng đó) được khớp dưới **đúng** bộ fold có ràng buộc nhóm, như một cổng chống lối tắt
+đếm: *một kho mà một quy tắc đếm giải được thì không đáng dùng một bộ mã hoá thời gian*. Trên một
+mẫu thăm dò 300 clip cân bằng, quy tắc này đạt **63.3%** BA dưới leave-source-out (**67.0%** dưới
+fold ngẫu nhiên; **50.0%** nếu luôn trả lời lớp đa số). Cổng đã đi qua — trên mức ngẫu nhiên, xa
+mức bão hoà — và **63.3% trở thành đường sàn tiền đăng ký**: mọi phát biểu BA trên kho này được
+báo cáo so với 63.3%, tính lại trên cùng bộ fold, **không** so với 50%.
+
+Việc so với 63.3% làm **mọi biên của luận văn hẹp lại**, và đó chính là lý do nó được chọn.
+
+Trên làn Unsafe-Net bốn lớp, đường sàn tương ứng là **bộ phân loại hằng số**. Mọi biên từng được
+phát biểu so với đường sàn này trong các bản thảo trước đã **bị rút lại**: so với một bộ phân loại
+hằng số thì một biên lớn là tất yếu và không mang thông tin.
+
+3.7.4. Suy luận thống kê: đơn vị lấy mẫu, và một hệ quả bất lợi nêu trước
+
+**Mọi khoảng tin cậy trong luận văn là bootstrap theo cụm [39], trong đó đơn vị lấy mẫu lại là
+nhóm, không phải clip** (151 nguồn trên iSafetyBench; 8 nhóm bối cảnh trên Unsafe-Net). Lý do: các
+clip cùng một nguồn không độc lập, nên coi chúng là độc lập làm hẹp khoảng tin cậy một cách giả
+tạo. Các nhật ký đồng thời in cả khoảng ở mức clip kèm nhãn `WRONG UNIT`; những khoảng đó **không
+được dùng** ở bất kỳ phát biểu nào, và được giữ lại để người đọc thấy chính xác cái giá của việc
+chọn sai đơn vị lấy mẫu.
+
+**Kiểm định ghép đôi là McNemar chính xác** [40] trên các dự đoán theo từng clip của hai mô hình
+được so.
+
+**Thứ tự ưu tiên khi hai công cụ trái nhau, cố định trước:** lấy kết luận của **khoảng tin cậy
+theo cụm**. McNemar bỏ qua cấu trúc cụm, nên trong bối cảnh này nó là kiểm định quá dễ dãi.
+
+**Một hệ quả bất lợi, phát biểu trước khi có bất kỳ bảng kết quả nào.** Trên iSafetyBench, **0
+trong 151 nguồn mang cả hai nhãn** (76 nguồn chỉ có clip nguy hiểm, 75 nguồn chỉ có clip bình
+thường). Nhãn và danh tính nguồn do đó bị trộn lẫn **ở mức cấu trúc dữ liệu**, và bootstrap theo
+cụm trên một cấu trúc như vậy cho khoảng rất rộng. Luận văn chấp nhận hệ quả này và không đổi đơn
+vị lấy mẫu để thu hẹp khoảng: đổi sang mức clip sẽ biến một số phán quyết trượt thành phán quyết
+đạt, và đó là lý do nó không được làm.
+
+----------------------------------------------------------------------
+3.8. TÁM CỔNG TIỀN ĐĂNG KÝ VÀ MỘT ĐỐI CHỨNG
+----------------------------------------------------------------------
+
+3.8.1. Quy ước phán quyết
+
+Mỗi cổng được viết ra — giả thuyết, mô hình được nêu tên, biên tối thiểu, tiêu chí khoảng tin cậy
+và điều kiện phản chứng — **trước** khi con số tương ứng tồn tại. Bốn quy ước phán quyết, cố định
+cùng lúc với các cổng:
+
+  (1) Một cổng chỉ **ĐẠT** khi thoả **cả hai** điều kiện: biên quan sát được ≥ biên tiền đăng ký,
+      **và** khoảng tin cậy theo cụm loại trừ 0. Nếu biên thoả mà khoảng tin cậy chứa 0 thì cổng
+      **TRƯỢT**; cách đọc bảo thủ luôn được áp dụng.
+
+  (2) Khi McNemar và khoảng tin cậy theo cụm cho kết luận trái nhau, lấy kết luận của **khoảng tin
+      cậy theo cụm** (mục 3.7.4).
+
+  (3) **Một cổng nêu tên một mô hình cụ thể thì chỉ mô hình đó phán quyết được cổng ấy.** Thay một
+      mô hình khác vào để lấy một biên lớn hơn **không** biến một cổng trượt thành cổng đạt.
+
+  (4) **Phán quyết trượt được công bố đầy đủ**, kèm biên và khoảng tin cậy, ở mức chi tiết **ngang**
+      phán quyết đạt.
+
+Quy ước (3) đáng được giải thích thêm, vì nó là quy ước tốn kém nhất. Nếu một cổng nêu tên mô hình
+X và X trượt, thì việc tìm thấy một mô hình Y trong cùng họ vượt được ngưỡng **không** cứu được
+cổng — vì ngưỡng ấy được đặt cho X, và việc chọn Y sau khi thấy kết quả là chọn lọc trên dữ liệu
+đánh giá. Luận văn công bố con số của Y như một phép đo thật (che nó đi sẽ là báo cáo chọn lọc),
+nhưng **không** trình bày nó như một cổng đạt.
+
+3.8.2. Bảng đăng ký
+
+Bảng 3.4 là tập cổng ở đúng dạng đã được đăng ký. Mỗi khối gồm hai mục: giả thuyết kèm mô hình
+được nêu tên và tiêu chí, rồi **hệ quả đã nhận trước** nếu cổng trượt — chính mục thứ hai làm cho
+tập cổng là một thiết kế phản chứng chứ không phải một danh sách mong đợi. Phán quyết **không** nằm
+trong chương này; Chương 6 mục 6.13 tổng hợp cả tám.
+
+Bảng 3.4 — Tập cổng tiền đăng ký. Mọi cổng dùng giao thức có ràng buộc nhóm, bootstrap theo cụm và
+            McNemar chính xác; mọi cổng tiêu 0 lần chạm tập kiểm thử.
+
+  --------------------------------------------------------------------------------------------
+  G10 — đăng ký 20/09/2026, trước lần chạy encoder đầu tiên trên iSafetyBench
+  --------------------------------------------------------------------------------------------
+  Giả thuyết   **E3** dưới leave-source-out phải vượt đường sàn quy tắc đếm, tính lại trên
+               **cùng** 1,100 clip và **cùng** bộ fold, với khoảng tin cậy ghép đôi loại trừ 0.
+               Một biên dưới ~3 pp **không** được coi là kết quả, bất kể dấu.
+  Nếu trượt    Viết lên như một kết quả **phủ định**. Không thêm kho thứ ba, và **không** thử
+               lại với một encoder khác.
+
+  --------------------------------------------------------------------------------------------
+  G11 — đăng ký 20/09/2026, trước khi đặc trưng toàn khung sinh ra con số nào
+  --------------------------------------------------------------------------------------------
+  Giả thuyết   **E3** phải vượt **đường sàn toàn khung tốt nhất trong ba đầu dò**
+               (MobileNetV3-small ImageNet, chiếu 64 chiều cố định; **cùng** phép lấy mẫu 16
+               khung, **cùng** clip, **cùng** fold), với khoảng tin cậy theo cụm trên 151
+               nguồn loại trừ 0 và ngưỡng tầm thường ~3 pp. Lấy **tốt nhất trong ba**, không
+               lấy đầu dò có lợi cho luận văn.
+  Nếu trượt    Luận văn **không được** phát biểu rằng bộ phát hiện cộng đầu quan hệ thêm độ
+               chính xác trên kho này. Trụ độ chính xác trở thành một **hạn chế được nêu**, và
+               trụ hiệu quả biên gánh phần đóng góp.
+
+  --------------------------------------------------------------------------------------------
+  G12 — đăng ký 20/09/2026, trước khi tuỳ chọn chia ngẫu nhiên tồn tại trong mã
+  --------------------------------------------------------------------------------------------
+  Giả thuyết   **Phép đo lạm phát giao thức.** Cùng token, cùng encoder (**E3** và **E0**),
+               cùng 10 fold, cùng số epoch; thay đổi duy nhất là fold được dựng bằng
+               `StratifiedKFold` bỏ qua định danh nguồn. Dự đoán: Δ > 0 và **lớn về lượng
+               (≥ 5 pp)** cho ít nhất một encoder.
+  Nếu trượt    Nếu Δ < 3 pp cho **cả** E3 và E0 với khoảng tin cậy chứa 0 thì đóng góp phê phán
+               giao thức **không được** phát biểu từ thí nghiệm này.
+
+  --------------------------------------------------------------------------------------------
+  G13 — đăng ký 20/09/2026, trước khi E1 và E2 chạy trên kho
+  --------------------------------------------------------------------------------------------
+  Giả thuyết   **Thang dung lượng** E3 → E1 d64 → E1 d96 → E0 dưới leave-source-out, cùng bộ
+               fold. Dự đoán: BA **tăng theo dung lượng** trên iSafetyBench, trong khi thang
+               tương ứng trên Unsafe-Net phẳng. Phát biểu là **sự tương phản giữa hai kho**,
+               không phải một trong hai đường.
+  Nếu trượt    R47 (bất biến theo kiến trúc) bị **rút**, và lợi thế của E0 được báo cáo như một
+               hiệu ứng **chưa giải thích được**, không như bằng chứng về tính học được.
+
+  --------------------------------------------------------------------------------------------
+  G14 — đăng ký 29/09/2026, trước khi đặc trưng CLIP được trích và trước khi kiến trúc tồn tại
+  --------------------------------------------------------------------------------------------
+  Giả thuyết   **CỔNG TRUNG TÂM.** **ESTA** trừ đường cơ sở toàn khung tốt nhất, tức
+               max(B1, B1w), phải ≥ **+3 pp**, với khoảng tin cậy theo cụm loại trừ 0 và
+               McNemar p < 0.05. Đối chứng là đối chứng **cùng xương sống** (mục 3.3.2).
+  Nếu trượt    Phép phân rã theo thực thể **không thêm gì** so với biểu diễn toàn khung ở cùng
+               xương sống; bộ phát hiện không được biện minh bằng độ chính xác trên kho này.
+               Và **điều đó là dứt điểm**: không kiến trúc thứ ba, không đường cơ sở thứ tư,
+               không đổi encoder.
+
+  --------------------------------------------------------------------------------------------
+  G15 — đăng ký 29/09/2026
+  --------------------------------------------------------------------------------------------
+  Giả thuyết   **ESTA** trừ **E0 @ 64 chiều** ≥ +3 pp với khoảng tin cậy loại trừ 0. Đây là một
+               **phép cắt bỏ thành phần**, **không** phải một đóng góp.
+  Nếu trượt    Giả thuyết "cổ chai biểu diễn" (R48) bị **phản chứng**: lợi ích đến từ **đầu
+               phân loại**, không từ đặc trưng.
+
+  --------------------------------------------------------------------------------------------
+  G16 — đăng ký 29/09/2026, trước khi B2 được huấn luyện
+  --------------------------------------------------------------------------------------------
+  Giả thuyết   **Đối thủ mạnh và trung thực.** Nếu **B2** (VideoMAE-base đã tinh chỉnh trên
+               Kinetics) ≥ **ESTA** với khoảng tin cậy loại trừ 0 thì đường thực thể không được
+               biện minh. **B2 được báo cáo bất kể nó cho kết quả gì.**
+  Nếu trượt    Đường thực thể **không được biện minh** kể cả khi G14 đạt, và luận văn phải
+               **nói thẳng** điều đó thay vì bỏ đường cơ sở ra khỏi bảng.
+
+  --------------------------------------------------------------------------------------------
+  G17 — đăng ký 29/09/2026, trước khi đặc trưng YOLO26 được trích
+  --------------------------------------------------------------------------------------------
+  Giả thuyết   **ĐỐI CHỨNG ĐƯỢC BÁO CÁO, KHÔNG PHẢI MỘT PHÉP CHỌN.** Nhánh thực thể được trích
+               lại với `yolo26s.pt` (không cần NMS) thay cho `yolo11s.pt`, **mọi thứ khác giữ
+               nguyên**. Cổng này mua một phát biểu về **độ nhạy cảm theo thế hệ bộ phát hiện**,
+               không mua một lựa chọn.
+  Dù kết quả   **Bộ phát hiện tiêu đề vẫn là YOLOv11s bất kể kết quả.** Lấy bộ phát hiện nào
+  thế nào      cho điểm cao hơn sẽ là chọn lọc trên kiểm định chéo.
+
+  --------------------------------------------------------------------------------------------
+  G18 — đăng ký 29/09/2026, trước khi mô hình hoặc bất kỳ phép hợp nhất nào được huấn luyện
+  --------------------------------------------------------------------------------------------
+  Giả thuyết   **TSF** so với **B1w** (luồng đơn tốt nhất tại thời điểm đăng ký), **hai bậc**:
+               G18a (mạnh) cần ≥ +3.0 pp **và** khoảng tin cậy loại trừ 0 **và** p < 0.05;
+               G18b (yếu) cần ≥ +2.0 pp **và** p < 0.05, khoảng tin cậy có thể chứa 0 — và khi
+               đó **chỉ** cho phép phát biểu "hai luồng bổ sung cho nhau", kèm cảnh báo rằng ở
+               151 nguồn với 0 nguồn mang cả hai lớp, một biên cỡ này **không chứng nhận được**
+               phép hợp nhất. Kèm **đối chứng dung lượng B1xl** (mục 3.3.3).
+  Nếu trượt    Luồng thực thể **không thêm gì kể cả như một góc nhìn bổ sung**; luận văn lấy
+               B1/B1w làm tiêu đề, và vai trò của YOLO là **định vị** cộng với chương triển
+               khai biên. **Không bậc thứ ba được phát minh về sau.**
+       |              | Kèm **đối chứng dung lượng B1xl** (mục 3.3.3).    | phát minh về sau.**
+
+Hai tính chất của bảng này đáng được nêu thành lời.
+
+**Tính chất thứ nhất: các hệ quả đã nhận trước là các hệ quả thật, không phải lời hứa hình thức.**
+Mục "nếu trượt" của G11 và G14 nhượng bộ chính trụ cột mà đề cương dựa trên; mục tương ứng của G17
+ràng tay tác giả vào một bộ phát hiện **trước khi** biết bộ nào cho điểm cao hơn. Một tập cổng mà
+mọi hệ quả trượt đều vô hại thì không phải một thiết kế phản chứng.
+
+**Tính chất thứ hai: ba cổng hỏi cùng một câu hỏi ở ba chỗ khác nhau.** G11 (xương sống
+MobileNetV3, đầu DeepSets), G14 (xương sống CLIP, chú ý phân rã) và G18 (xương sống CLIP, có thêm
+cơ chế hợp nhất) đều hỏi: **token theo thực thể có hơn một biểu diễn toàn khung hay không.** Việc
+hỏi ba lần với hai xương sống, ba kiến trúc đầu và một cơ chế hợp nhất là có chủ ý: nó làm cho một
+kết luận chung — dù theo chiều nào — không quy được về một lựa chọn cài đặt đơn lẻ.
+
+3.8.3. Giao thức chạm tập kiểm thử
+
+Luận văn đăng ký trước **hai** lần chạm tập kiểm thử của đề tài cho toàn bộ quá trình. Mỗi lần
+chạm phải được **đăng ký trước** trong sổ `reports/test-touch-log.md`, gồm mô hình, cấu hình, chỉ
+số và lý do, và chỉ được thực hiện sau khi có xác nhận tường minh.
+
+Trạng thái tại thời điểm viết: **0 trong 2 lần chạm đã tiêu.** Mọi con số trong Chương 6 là con số
+**out-of-fold** dưới kiểm định chéo, không phải con số trên một tập kiểm thử giữ riêng. Hai phân
+biệt bắt buộc: các phép **kiểm thử đơn vị của phần mềm** không thuộc giao thức này; và việc dùng
+dữ liệu của `data/test` **chỉ để đo thời gian** cũng không tiêu một lần chạm, vì không nhãn nào
+được đọc và không lựa chọn mô hình nào được thực hiện (Chương 4, mục 4.9).
+
+----------------------------------------------------------------------
+3.9. PHƯƠNG PHÁP ĐO TRÊN THIẾT BỊ BIÊN
+----------------------------------------------------------------------
+
+Mục này đặc tả **cách đo**, không nêu số đo. Số đo ở Chương 5; harness và môi trường ở Chương 4
+mục 4.7.
+
+3.9.1. Đơn vị: quyết định/giây thay cho khung/giây
+
+Như mục 2.5 đã nêu, tài liệu triển khai biên gần như luôn báo cáo khung/giây của xương sống. Luận
+văn báo cáo **nhịp quyết định** làm đơn vị chính, vì một hệ cảnh báo an toàn phát cảnh báo theo
+quyết định, không theo khung. Hệ quả đặc tả: một con số nhịp chỉ có nghĩa khi kèm **bước nhảy** đã
+sinh ra nó (mục 3.3.4), và hợp đồng thời gian thực được phát biểu theo bước cửa sổ chứ không theo
+tần số khung.
+
+3.9.2. Bốn điều kiện để một con số độ trễ được trích dẫn
+
+Một con số độ trễ hoặc nhịp chỉ được trích dẫn trong luận văn khi thoả **cả bốn** điều kiện sau.
+Chúng được đặt ra sau khi một số phát biểu trong các bản thảo trước phải rút lại, và chúng áp dụng
+hồi tố cho mọi tạo tác đã có:
+
+  (1) **Phải đi kèm giải mã luồng.** Một con số đo trên tensor đã nằm sẵn trong bộ nhớ không mô tả
+      một hệ thống nhận video; với họ tạo tác đo độ trễ quyết định, chỉ các trường
+      `*_with_stream_decode` được trích dẫn, còn đối chứng không giải mã **bị cấm trích dẫn**.
+  (2) **Phải là một phán quyết từ lần chạy tự do.** Cờ giới hạn tần số của harness là một **bộ
+      điều nhịp cộng thêm**: nó ngủ **sau** khi làm việc, nên nhịp đạt được bằng 1/(1/F + công
+      việc) < F. Do đó các hàng có giới hạn tần số **không đọc được như phán quyết hợp đồng**, chỉ
+      đọc được như một trần đa luồng.
+  (3) **Phải nêu trạng thái xung nhịp.** Hai điều kiện xung nhịp cho hai phân phối rời nhau trên
+      thiết bị này (mục 3.9.4), nên một con số không nêu điều kiện là một con số không xác định.
+  (4) **Phải đến từ vòng lặp tổ hợp**, không từ tổng các giai đoạn đo rời (mục 3.9.3).
+
+Ba cái bẫy đọc tạo tác, nêu ở đây vì chúng là đặc tả phương pháp chứ không phải một phát hiện:
+
+  - **`drop_rate = 0` không phải bằng chứng thời gian thực khi số luồng nhỏ**, vì bộ đọc dùng
+    chung vòng lặp sự kiện với bộ xử lý. Phát biểu đúng dựa trên `read_fps` so với `target_fps`,
+    **không** dựa trên `drop_rate`.
+  - **`clock_state_stable = true` chỉ có nghĩa là *chế độ* ghim xung nhịp không đổi trong lần
+    chạy**, không có nghĩa là tần số ổn định. Trường này đọc `true` cho mọi lần chạy để bộ điều tốc
+    tự do, kể cả khi tần số của một miền nhảy hơn tám lần giữa lần chạy. Mã khớp với tài liệu của
+    chính nó; cái bẫy nằm ở **tên trường**.
+  - **Tổng các giai đoạn và tổng trong vòng lặp là hai đại lượng khác nhau**, và chỉ đại lượng thứ
+    hai khớp với nhịp đo được.
+
+3.9.3. Vì sao phán quyết lấy từ vòng lặp tổ hợp
+
+Cách phổ biến để ước lượng chi phí một pipeline nhiều giai đoạn là đo từng giai đoạn rồi cộng lại.
+Luận văn **cấm** dùng phép cộng đó làm phán quyết, và lý do là một phép đo, không phải một thận
+trọng: trên chính thiết bị này, sai số của tổng giai đoạn **đổi dấu theo trạng thái xung nhịp** —
+nó cao hơn thực khi xung nhịp được ghim và thấp hơn thực khi bộ điều tốc tự do (Chương 7, mục 7.4).
+Vì vậy nó không phải chặn trên, cũng không phải chặn dưới, và **không hệ số hiệu chỉnh nào cứu được
+nó**.
+
+Đặc tả tương ứng: mọi phán quyết nhịp trong luận văn lấy từ **một vòng lặp tổ hợp đo thực**, trong
+đó mọi giai đoạn chạy trong cùng một tiến trình, cùng một trạng thái bộ nhớ đệm và cùng một trạng
+thái bộ điều tốc như khi triển khai. Tổng giai đoạn vẫn được báo cáo, nhưng **chỉ** như một phân
+tích ngân sách để biết hạng mục nào tốn kém, không bao giờ như một con số nhịp.
+
+3.9.4. Hai điều kiện xung nhịp, và vì sao cả hai được báo cáo
+
+Mọi phép đo được thực hiện dưới hai điều kiện:
+
+  **Ghim xung nhịp.** Bộ điều tốc bị khoá ở tần số cao nhất. Điều kiện này **lặp lại được** và nó
+  trả lời câu hỏi "hệ có thể nhanh đến đâu trên phần cứng này".
+
+  **Bộ điều tốc tự do (DVFS).** Cấu hình mặc định của thiết bị khi xuất xưởng. Điều kiện này trả
+  lời câu hỏi "hệ chạy nhanh bao nhiêu trên một thiết bị mà người triển khai **không** can thiệp
+  vào quản lý nguồn".
+
+Luận văn lấy **DVFS làm điều kiện tiêu đề**, vì đó là điều kiện mà một hệ triển khai thực tế gặp.
+Điều kiện ghim xung nhịp được báo cáo bên cạnh, như một trần trên phần cứng.
+
+Một tính chất của thiết bị phải nêu ở mục phương pháp vì nó giới hạn mọi phát biểu về độ lặp lại:
+**DVFS không phải một điều kiện lặp lại được trên thiết bị này.** Qua nhiều lần chạy, các giá trị
+dưới điều kiện ghim xung nhịp nằm trong một dải rất hẹp, còn các giá trị dưới DVFS trải rộng gấp
+nhiều chục lần, và hai tập giá trị **rời nhau**. Giả thuyết nhiệt đã được kiểm tra và **bị loại
+bỏ**. Hệ quả đặc tả: mọi con số về độ phân tán dưới DVFS phải được dán nhãn **"trong một phiên
+đo"**, và không con số DVFS nào được trình bày như một đặc trưng ổn định của thiết bị.
+
+----------------------------------------------------------------------
+3.10. TÁI LẬP
+----------------------------------------------------------------------
+
+Thiết kế tái lập của luận văn dựa trên một phân biệt: **con số được công bố** phải truy được về
+**tệp đã sinh ra nó**, còn **trọng số và bộ đệm đặc trưng** thì không phân phối được vì kích thước
+và vì ràng buộc đồng thuận trên dữ liệu gốc.
+
+  - **Mọi con số công bố đều có một dòng trong Phụ lục A**, chỉ tới tệp nhật ký hoặc tệp JSON đã
+    sinh ra nó, kèm trạng thái: đã đối chiếu với tạo tác, hay chưa.
+  - **Dự đoán out-of-fold được lưu** cho mỗi mô hình của làn tiêu đề (mỗi tệp 1,100 dòng gồm định
+    danh clip, nhãn thật, xác suất và nhãn dự đoán). Với các mô hình chạy theo phân đoạn, nhật ký
+    từng phân đoạn **không** in bộ chỉ số gộp, nên **việc tính lại từ các tệp này là nguồn trích
+    dẫn chính** và tệp OOF là chứng cứ. Điều này được ghi ở Phụ lục A thay vì được ngầm hiểu.
+  - **Các phép ghép được kiểm tra bằng chương trình, không bằng quy ước.** Hàm nạp dữ liệu của làn
+    tiêu đề **dừng chương trình** thay vì tính điểm nếu bộ clip của hai lần chạy không trùng khớp.
+    Vì vậy mọi cặp so sánh trong Chương 6 là so sánh **theo cặp trên cùng một tập clip, cùng một
+    bộ fold**, không phải so sánh giữa hai lần chạy trên hai tập khác nhau.
+  - **Cấu hình fold được công bố đầy đủ** ở Phụ lục B, kèm chứng minh bằng số rằng phép chia theo
+    nhóm là chính xác (không nhóm nào xuất hiện ở hai fold) và kèm dấu vết nhận dạng giao thức ở
+    mục B.5.
+  - **Kiểm tra nhiễm chéo giữa hai kho** được thực hiện bằng băm tri giác trước khi hai kho được
+    dùng trong cùng một luận văn, để phát biểu "tái lập độc lập" ở mục 3.7 có cơ sở (Chương 4, mục
+    4.2; Phụ lục A, mục A.9).
+
+Những gì **không** phân phối, nêu rõ để người đọc không mất thời gian tìm: trọng số đã huấn luyện,
+các bộ đệm đặc trưng, và toàn bộ hình ảnh gốc của phần dữ liệu nhà máy — phần sau nằm dưới các biểu
+mẫu đồng thuận cho người xuất hiện trong hình, nên nó **không** được đưa vào kho mã dù giấy phép
+của kho dữ liệu công khai cho phép dùng trong nghiên cứu.
+
+----------------------------------------------------------------------
+3.11. KẾT LUẬN CHƯƠNG
+----------------------------------------------------------------------
+
+Năm điểm cần mang sang các chương sau.
+
+  (1) **Ba đồ thị tính toán, ba đơn vị đo, ba tập đánh giá** (Bảng 3.1). Không con số nào được
+      chuyển giữa chúng. B1 là đồ thị được triển khai; P3 được đo trên thiết bị để trả lời câu hỏi
+      chi phí; P1 là giai đoạn trước và mọi hàng của nó đều được dán nhãn phạm vi.
+
+  (2) **Mọi đối chứng then chốt là đối chứng theo cấu trúc chương trình.** Nhánh toàn khung là
+      nhánh thực thể đã xoá trục thực thể, dùng chung đúng khối Transformer thời gian; hai nhánh
+      CLIP đọc đúng cùng danh sách khung vì chúng dùng chung một biến. Vì vậy một kết luận về phép
+      phân rã theo thực thể không quy được về xương sống, dung lượng hay ngân sách huấn luyện.
+
+  (3) **Lạm phát giao thức là một đại lượng ghép đôi có định nghĩa chính xác**, Δ = BA(giao thức rò
+      rỉ nguồn) − BA(giao thức có ràng buộc nhóm), trong đó đúng một yếu tố thay đổi; và kích thước
+      fold là một **dấu vết nhận dạng** cho phép người đọc tự kiểm tra mỗi lần chạy thuộc giao thức
+      nào.
+
+  (4) **Giao thức thống kê được chọn theo hướng bất lợi cho luận văn** ở ba chỗ: đường sàn 63.3%
+      thay vì 50%; bootstrap theo cụm thay vì theo clip, biết trước rằng 0 trong 151 nguồn mang cả
+      hai nhãn làm khoảng tin cậy rất rộng; và ưu tiên khoảng tin cậy theo cụm khi nó trái với
+      McNemar.
+
+  (5) **Tám cổng cùng một đối chứng được đăng ký trước, kèm hệ quả đã nhận trước cho từng phán
+      quyết trượt** (Bảng 3.4), trong đó ba cổng hỏi cùng một câu hỏi ở ba cấu hình khác nhau.
+      Chương 6 mục 6.13 tổng hợp phán quyết; chương này cố ý không nêu phán quyết nào.
+
+----------------------------------------------------------------------
+TÀI LIỆU THAM KHẢO
+----------------------------------------------------------------------
+
+Chương này dẫn các mục dưới đây của danh mục thống nhất ở cuối Chương 2. Khoảng trống trong dãy số
+là có chủ ý.
+
+[8]  Y. Zhao, W. Lv, S. Xu, J. Wei, G. Wang, Q. Dang, Y. Liu, J. Chen, "DETRs Beat YOLOs on
+     Real-time Object Detection," CVPR 2024. arXiv:2304.08069.
+
+[17] O. Önal, E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based computer vision system for
+     real-time detection of unsafe behaviours in workplace," Multimedia Tools and Applications,
+     tập 84, số 29, tr. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
+
+[26] M. Abdullah, Y. S. Rawat, S. Vyas, "iSafetyBench: A video-language benchmark for safety in
+     industrial environment," VISION'25 Workshop @ ICCV 2025. arXiv:2508.00399.
+
+[28] A. Radford và cộng sự, "Learning Transferable Visual Models From Natural Language
+     Supervision," ICML 2021. arXiv:2103.00020.
+
+[39] B. Efron, R. J. Tibshirani, "An Introduction to the Bootstrap," Chapman & Hall, 1993.
+
+[40] Q. McNemar, "Note on the sampling error of the difference between correlated proportions or
+     percentages," Psychometrika, tập 12, số 2, tr. 153–157, 1947. DOI: 10.1007/BF02295996.
