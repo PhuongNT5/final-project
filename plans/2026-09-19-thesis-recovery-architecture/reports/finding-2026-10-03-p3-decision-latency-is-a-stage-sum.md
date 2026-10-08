@@ -51,6 +51,16 @@ all — not because the corrected number is known to be worse. Verdict: **the +7
 withdrawn and the contract question is reopened, not answered** (see the self-correction above and
 §10). D2 already deploys P1 and already stops forcing P3 to real time, so no decision rests on it.
 
+**§11 now answers it by measurement** (2026-10-03, 17:33-17:47). Composed, nothing omitted, N=1:
+**pinned 2,493-3,965 dec/s, median 3,479 — meeting the 3,0 contract on 2 of 3 clips; DVFS
+1,141-1,511, median 1,441 — failing on 3 of 3.** The arms are disjoint. So the answer is neither
+"P3 passes" nor "P3 misses in both conditions": **P3's contract is clip-dependent and holds only
+with the clocks pinned.** The second of those — what §4 tried to prove by arithmetic — would have
+been **wrong in the pinned arm**, which is why the measurement was necessary rather than merely
+more rigorous. The published stage sum turns out to be 7,98 % too *high* when pinned and 39,3 % too
+*low* under DVFS: **its bias changes sign with the clock state**, so no correction factor could have
+rescued it.
+
 ## 2. The construct, from the code
 
 `deployment/scripts/jetson-measure-latency.py:211`
@@ -277,6 +287,107 @@ Timing-only use of `data/test` does not consume a pre-registered test touch, and
 decision **counts**, never labels — so this costs no touch.
 
 ---
+
+## 11. The measurement. P3's composed cadence, both clock conditions
+
+§10.4 said two runs per clock condition would settle it. They ran on 2026-10-03, 17:33-17:47, on
+`deployment/scripts/jetson-p3-multi-stream.py` — the harness that already existed, had 21 passing
+unit tests, and had never been run only because it had never been rsynced to the device. Eight
+artifacts, `p3-composed-cadence-fp16-*.json`, all staged.
+
+The loop is composed: file decode → 800×800 letterbox preprocess → detector → select + zone
+geometry → 224² context crops → appearance encoder → 74-d relation-token assembly → binary E3
+head, all inside one wall clock. All six omissions of §3 are closed. Both arms were thermally
+gated (entry tj ≤ 56 °C, load ≤ 0,60, then 180 s settle) and N=1, 480 frames, three test clips.
+Timing only — no labels read, so no pre-registered test touch is consumed.
+
+### 11.1 Free-running: the composed ceiling
+
+| arm | 1_te10 (view 3) | 3_te1 (view 7) | 4_te10 (view 1) | median | vs 3,0 dec/s |
+|---|---|---|---|---|---|
+| **pinned** | **3,479** dec/s | **3,965** dec/s | 2,493 dec/s | **3,479** | **MEETS 2 of 3** |
+| **DVFS** | 1,441 dec/s | 1,511 dec/s | 1,141 dec/s | **1,441** | **FAILS 3 of 3** |
+| pinned composed per-frame | 35,32 ms | 31,01 ms | 49,31 ms | 35,32 | contract needs ≤ 41,67 |
+| DVFS composed per-frame | 85,32 ms | 81,37 ms | 107,76 ms | 85,32 | — |
+
+The two arms are **disjoint**: max DVFS 1,511 < min pinned 2,493. Pinning is worth **+141,4 %
+(2,41×)** on composed cadence, against only +26,4 % (1,26×) on the stage sum.
+
+**The verdict is clip-dependent, and that is the result.** A pinned P3 meets its contract on two of
+three clips and misses on the third — `4_te10`, view 1, the slowest clip in both arms — by 1,20×.
+Neither "P3 passes" nor "P3 misses in both clock conditions" is true. The second of those is the
+claim §4 of this finding tried to establish by arithmetic, and §1 withdrew; it would have been
+**wrong in the pinned arm**. The measurement was necessary, not merely more rigorous.
+
+### 11.2 Why pinning is worth 2,41× composed but 1,26× in the stage sum
+
+Machine-recorded in every DVFS artifact, before and after every run: **`policy4` — CPU cores 4-5 —
+sat at 115 200 kHz, the absolute floor**, while `policy0` wandered 192 000-1 728 000. In the pinned
+arm both clusters held `cur = min = 1 728 000`.
+
+The composed loop is CPU-bound on preprocessing: an 800×800 letterbox, normalise and HWC→CHW per
+frame, plus 54 crops at 224². That is precisely the work the stage sum omits. So the omission does
+not merely remove cost — **it removes the component most sensitive to the clock condition**, which
+is why the stage sum understates the clock effect by nearly 2× as well as misreading the cadence.
+
+### 11.3 The stage sum's error is not consistently signed
+
+| arm | published window sum | stride-coherent recomposition | composed measured | published vs composed |
+|---|---|---|---|---|
+| pinned | 310,37 ms = 3,222 dec/s | 174,24 ms = 5,739 | **287,44 ms = 3,479** | **7,98 % too HIGH** |
+| DVFS | 421,52 ms = 2,372 dec/s | 230,82 ms = 4,332 | **694,00 ms = 1,441** | **39,3 % too LOW** |
+
+In the pinned arm the double-charged stride (+136,13 ms) very nearly cancels the omissions
+(−113,20 ms), leaving the published figure accidentally within 8 % of the truth. In the DVFS arm the
+omissions dominate and the published figure is optimistic by 272,48 ms. Once the double-charge is
+removed, the recomposition is too optimistic in **both** arms — 1,65× pinned, 3,01× DVFS — exactly
+as §3's omission argument predicted. Omitted work: **18,89 ms/frame pinned (2,11×), 62,91 ms/frame
+DVFS (3,64×)**.
+
+**So the stage sum's bias changes sign with the device's clock state.** No correction factor could
+have rescued it. That is the sharpest available form of this finding's own thesis.
+
+### 11.4 Three reading rules, found before they reached a report
+
+Auditing the new harness against its own outputs turned up three ways to misread it. One is a real
+defect; two are citation hazards in correct code.
+
+1. **`--fps F` is an additive pacer, not a deadline** — a defect, in the `--fps`-throttled condition
+   only. `stream-pipeline-utils.py:84` sleeps `period` *after* all per-frame work, so the inter-frame
+   interval is `work + 1/F` and the achievable rate is `1/(1/F + work) < F`. At `--fps 24` the
+   ceiling is 3,000 dec/s only if `work = 0`; at the pinned pipeline's 20,27 ms/frame it is ≈ 2,0.
+   The data proves it internally: pinned aggregate throughput is **30,17 fps at N=2 but 17,89 fps at
+   N=1** — the N=1 figure is pacing-limited, not pipeline-limited. **The `--fps 24` runs are
+   therefore not a contract verdict** and §11.1's free-running throughput against 24 fps processed is
+   the valid comparison.
+2. **`drop_rate = 0` is not evidence of real-time operation at N ≤ 2.** The reader is a coroutine on
+   the consumer's event loop and `preprocess_fn` runs inline on it, so the reader is back-pressured
+   into lockstep rather than dropping. The signature is exact in all five N ≤ 2 configurations:
+   **`read_fps == aggregate_fps` to the cent**, including at `--fps 1000`, where the reader asked for
+   1000 fps and delivered 11,72. Only N=3 decouples (18,93 read vs 13,39 processed, 29,24 % dropped).
+   Cite `read_fps` against `target_fps`; never `drop_rate`.
+3. **`clock_state_stable` means the pin *mode* and the contention did not change — not that the
+   frequencies held.** It compares `clocks_pinned` and `quiet` before and after
+   (`stream-pipeline-utils.py:140`), so it reads `true` for every DVFS run while `policy0 cur_khz`
+   moved 1 574 400 → 192 000 inside a single run. The code does what its docstring says; the field
+   *name* is the hazard. Cite observed `cur_khz`, as the runbook already requires.
+
+### 11.5 Multi-stream
+
+Aggregate composed throughput is roughly **flat in N** — ≈ 28-30 fps pinned, ≈ 13-15 fps DVFS — so
+concurrency redistributes throughput instead of adding it. Worst-stream cadence falls accordingly
+(pinned 2,199 / 1,854 / 1,140 dec/s at N = 1 / 2 / 3), and no N ≥ 2 configuration reaches 3,0 dec/s
+per stream. Read these as the device's ceiling, not as contract verdicts, per rule 1 above.
+
+### 11.6 What this does to D2
+
+D2 deploys P1 and stops forcing P3 to real time. The composed measurement **supports** D2 without
+needing P3 to fail outright: P3's cadence depends on the clip and on the device's clock state, so a
+deployed P3 would carry a contract that holds on some views and not others, and only while the
+clocks are pinned. That is a weaker guarantee than a deployed system should rest on, and it is an
+honest reason to deploy P1 — stronger than the flat failure §4 wrongly claimed, because it is
+measured.
+
 
 ## 9. Unresolved questions
 

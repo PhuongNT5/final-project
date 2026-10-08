@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Run ON the MacBook (M4) to push code, ONNX models, and test features to the Jetson.
+# Run ON the MacBook (M3) to push code, ONNX models, and test features to the Jetson.
 # Excludes large caches that aren't needed on the edge.
 #
-# Usage (on M4):
+# Usage (on M3):
 #   JETSON_HOST=phuong@192.168.1.42 bash deployment/scripts/jetson-rsync-from-mac.sh
 #   LANE=r48 JETSON_HOST=jetson bash deployment/scripts/jetson-rsync-from-mac.sh
 #

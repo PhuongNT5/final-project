@@ -81,6 +81,10 @@ def main():
     ap.add_argument('--head-stage', default=None,
                      help='which discovered head engine --decision should time '
                           '(default: first alphabetically)')
+    ap.add_argument('--detector-stage', default='p3-detector',
+                     help='which discovered detector engine --decision should time, e.g. '
+                          'p3-detector-imgsz640 for the reduced-resolution cadence arm. The '
+                          'reported imgsz is read back from the engine, not from this name.')
     ap.add_argument('--model-size', action='store_true')
     ap.add_argument('--memory', action='store_true')
     ap.add_argument('--parity', action='store_true')
@@ -121,7 +125,8 @@ def main():
         written.append(U.write_json_result(f'latency-{args.mode}', r, args.dry_run))
     if args.decision:
         r = LAT.run_decision_latency(args.engine_dir, args.mode, args.warmup, args.runs,
-                                     args.dry_run, args.head_stage, args.clips_dir, args.n_clips)
+                                     args.dry_run, args.head_stage, args.clips_dir, args.n_clips,
+                                     args.detector_stage)
         written.append(U.write_json_result(f'decision-latency-{args.mode}', r, args.dry_run))
     if args.memory:
         r = POW.run_memory(args.engine_dir, args.mode, args.dry_run)

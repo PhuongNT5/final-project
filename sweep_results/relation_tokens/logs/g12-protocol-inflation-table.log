@@ -1,0 +1,21 @@
+
+=== iSafetyBench (1,100 clips, 151 YouTube sources) ===
+encoder                       params      LSO-1100     RAND-1100   inflation
+E3  DeepSets                  17,270         75.2%         90.6%      +15.4 pp
+E1  d64                       93,222         78.1%         91.3%      +13.2 pp
+E1  d96                      195,558         77.0%         91.9%      +14.9 pp
+E0  RelationTransformer      298,118         80.3%         90.7%      +10.4 pp
+spread across the ladder                     5.1 pp         1.4 pp
+  n clips scored: [1100]   ladder span: 17x params
+  -> the identity-respecting protocol separates the ladder by 5.1 pp; the leaking one by 1.4 pp.
+
+=== Unsafe-Net (687 clips after dedupe, 8 scene groups) ===
+encoder                       params       LCO-691    k-fold-691   inflation
+E3  DeepSets                  18,044         69.6%         82.5%      +13.0 pp
+E1  d64                       94,380         62.3%         84.1%      +21.8 pp
+E1  d96                      197,292         63.9%         84.5%      +20.5 pp
+E2  frame-positional         284,556         66.7%         84.6%      +17.9 pp
+E0  RelationTransformer      298,892         66.7%         83.6%      +16.9 pp
+spread across the ladder                     7.3 pp         2.1 pp
+  n clips scored: [687]   ladder span: 17x params
+  -> the identity-respecting protocol separates the ladder by 7.3 pp; the leaking one by 2.1 pp.

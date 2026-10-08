@@ -1,0 +1,13 @@
+detector=yolo11s.pt device=mps imgsz=640 appearance=True T=16 N_MAX=8
+  [isb] 100/1100
+  [isb] 200/1100
+  [isb] 300/1100
+  [isb] 400/1100
+  [isb] 500/1100
+  [isb] 600/1100
+  [isb] 700/1100
+  [isb] 800/1100
+  [isb] 900/1100
+  [isb] 1000/1100
+  [isb] 1100/1100
+[isb] 1100 clips -> tokens_isb_all.pt | feat=74 | detections=52997 | hazard=420 normal=680 | distinct sources=151

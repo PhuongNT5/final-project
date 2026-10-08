@@ -690,6 +690,36 @@ the raw benchmark, comparable with the paper — but the thesis must say so expl
 ablation the procedure promised does not exist yet. Do not cite `dedupe-procedure.md` as if it had been
 carried out.
 
+> **S11 PARTLY CLOSED (2026-09-06, late).** Steps B–C of the procedure have now been executed on the
+> canonical configuration and logged: `sweep_results/relation_tokens/dedupe_drop_all/dedupe_drop_all_ablation.log`
+> (k-fold tag `yolo26app_`; LCO tag `yolo26L1_` with `--scene_map`, 5 seeds; 51 of 516 pooled clips dropped).
+> k-fold `drop_all`: **86.6±3.1%** top-1, κ 0.802, scene-only 80.6±2.4, NB Δ=**+6.0pp**, t=3.39, **p=0.0014**
+> — versus the `--dedupe none` canonical 80.8±4.0 / Δ=+3.7 / p=0.0600 n.s. LCO `drop_all`: 75.9% top-1 /
+> 79.3% macro, honest margin **+17.7pp** [CI +12.9, +22.4] versus none's 77.7/81.2 and +16.9pp. Per-class LCO
+> moves: UnauthorInt 65.7→72.3, WalkwayViol 70.5→74.6, OpenedPanel 88.7→70.2, CarryOverload 100→100.
+> So dedupe does **not** raise absolute LCO accuracy; it sharpens the margin against the baseline and
+> rebalances the two classes the 26 WalkwayViol↔UnauthorInt duplicate groups had corrupted.
+>
+> `run_kfold_relation.py` now suffixes its OOF file by policy, so a `drop_all` run can no longer silently
+> overwrite the canonical `none` OOF (that did happen once, to the legacy `yoloapp_` artifact).
+>
+> **Step D also done (same evening).** `run_relation_transformer.py` was given `--dedupe` (train split only;
+> the 64-clip test set is never filtered) and re-run under the recovered S4 provenance:
+> `--tag yolo26app_ --seeds 5 --aux_w 0.5 --epochs 120 --dedupe drop_all` → `logits_yolo26_drop_all.pt`,
+> log `dedupe_drop_all/stepD_blind64_drop_all.log`. Train 452→401. Result: **54/64 = 84.4%, macro 87.3%** —
+> *the same top-1 as the `none` headline*, from a demonstrably different predictor (`blind_pred` differs on
+> 5 of 64 clips, discordant 2–2, blind seed 0 vs 1; per-class WalkwayViol 78.1→81.2, OpenedPanel 84.6→76.9).
+> Matched `scene_confound` (deduped model **and** deduped no-pixel floor,
+> `sweep_results/scene_confound_drop_all_matched.json`): floor still 52/64 = 81.2%, model 54/64,
+> **McNemar p = 0.804**, model-right-when-floor-wrong 9/12 — every cell unchanged. The confound itself gets
+> *stronger* after dedupe: Cramér's V 0.784→0.799, I(view;label) 1.101→1.175 bits (59.2%→63.1% of label
+> entropy), because the dropped clips are exactly the ones that weakened the camera↔label association.
+>
+> **Reading for the thesis:** label contamination and camera confound are separable, and step D separates
+> them empirically. Dedupe sharpens the margin under k-fold (p 0.0600→0.0014) and LCO (+16.9→+17.7pp) but
+> moves the same-distribution 64-clip benchmark by **exactly zero**. What caps the 64-clip number is the
+> camera confound, not the contradictory labels.
+
 **S12 — the frame-level dataset was never deduped either, and one detector class is degenerate
 (found 2026-09-06).** The clip-level audit was never propagated to `annotation_guide/dataset`:
 - 62 groups of byte-identical **frames**; **60 of them carry contradictory behaviour labels**;
@@ -834,6 +864,10 @@ this test has never been run there. **Open task: repeat the cluster_seed sweep o
 before the mechanism claim is written into §4.** If it swings there too, the mechanism claim needs
 rewording to the aggregate margin (+16.9 pp macro, CI [+12.5,+21.2]) with per-class shown as
 illustrative only.
+> **CLOSED 2026-09-07 — see S19.** Run on the LCO scene_map. It swings there too, so the rewording
+> above is now required, not conditional: quote the aggregate as **+13.3 to +16.9 pp** across
+> clusterings, per-class illustrative only. (Caveat: cs=2 is a degenerate perturbation, so the
+> clustering term rests on two distinct partitions, not three.)
 
 **4. The Transformer-vs-linear-probe sign flips.** +0.38 / −1.86 / −1.90 pp. All three n.s., so the
 verdict "indistinguishable" is robust — but never quote the sign or the magnitude, either direction.
@@ -943,8 +977,173 @@ evidential.
   the per-class leg**; keep the aggregate +16.9 pp CI [+12.5, +21.2] as the claim.
 * §4 of the thesis: state the mechanism as a hypothesis consistent with the aggregate margin, not as
   something demonstrated by four per-class recalls.
-* Still open from S16: the `--cluster_seed` sweep has never been run on the **LCO** scene_map. Two
-  perturbations now point the same way, so the expected finding is more of the same, but it is
-  unmeasured. Run it before §4 is finalised.
+* ~~Still open from S16: the `--cluster_seed` sweep has never been run on the **LCO** scene_map.~~
+  **DONE 2026-09-07 (S19).** Measured: margin +16.9 / +13.3 / +16.9 pp, all CIs exclude zero and
+  overlap. Aggregate survives; per-class swings again (UnauthorInt spread 24.1 pp at cs=1). §4 must
+  quote the margin as a range across clusterings.
 
 Test touches consumed by S16–S18: **zero** (all on the 516/465 pooled set).
+
+---
+
+## S19 — LCO training-seed variance, folds held fixed + LCO cluster_seed sweep (2026-09-06/07) — **complete**
+
+Closes the "still open from S16" item above, but from an angle S16/S18 could not isolate. S16 varied
+the *clustering*; S18 varied the *population*. Both are confounded — changing either changes the
+folds. This measures the remaining term with **everything else frozen**: same scene_map, same 8
+folds, same 516 clips, same hyperparameters. Only the training seed differs. Instrumented into
+`run_lco_eval.py` (records `seed_pred` per seed alongside the existing softmax accumulation), so it
+costs **no extra training** — the 5 seeds were already being trained and averaged.
+
+Verification that the instrumentation is behaviour-preserving: at cs=0 the run reproduces the
+canonical numbers exactly — 401/516 = 77.7 % top-1, macro 81.2 %, margin **+16.9 pp CI [+12.5,
++21.2]**, identical per-class recalls. Nothing was perturbed except what is now also recorded.
+
+### Result (cs=0, canonical scene_map)
+
+| | per-seed values | sd | spread |
+|---|---|---:|---:|
+| **top-1** | 76.7, 73.4, 72.9, 77.7, 75.0 | 2.08 | **4.8 pp** |
+| recall WalkwayViol | 74.3, 59.0, 70.0, 72.4, 65.7 | 6.10 | **15.3 pp** |
+| recall UnauthorInt | 52.8, 72.2, 70.4, 61.1, 68.5 | 8.02 | **19.4 pp** |
+| recall OpenedPanel | 89.4, 85.2, 68.3, 89.4, 83.8 | 8.71 | **21.1 pp** |
+| recall CarryOverload | 100, 100, 100, 100, 100 | 0.00 | 0.0 |
+
+**This settles the per-class question.** S18 attributed OpenedPanel's 18.5 pp drop to "retraining
+variance" by *elimination* (only 1 of 51 dropped clips was class 2). That inference is now a direct
+measurement: OpenedPanel's own seed-only spread is **21.1 pp** — larger than the 18.5 pp it was
+invoked to explain. Likewise UnauthorInt's 20.4 pp swing across clusterings in S16 sits inside its
+19.4 pp seed-only spread. **Neither perturbation needed to be re-clustering or re-population at all;
+the training seed alone accounts for effects of that size.** The withdrawal of the per-class
+mechanism claim (S18) is not merely prudent, it is required.
+
+Aggregate behaves oppositely and confirms the S16 verdict: top-1 sd 2.08, spread 4.8 pp — an order
+of magnitude tighter than the per-class swings, and the +16.9 pp margin is unmoved.
+
+**One disclosure the headline needs.** 77.7 % is the **5-seed ensemble**; the individual seeds run
+72.9–77.7 with mean **75.2**. The ensemble is the pre-declared decision rule, so 77.7 is the correct
+number to report — but it coincides with the *top* of the seed range, and the mean single seed is
+2.5 pp lower. Report as "5-seed ensemble 77.7 %; individual seeds 72.9–77.7 %, mean 75.2 %", never
+as though a single training run yields 77.7 %.
+
+### LCO cluster_seed sweep — closes the S16 open task (2026-09-07)
+
+S16 ran `--cluster_seed` on the *k-fold* grouping only and left "repeat on the LCO scene_map" open.
+Done. All three legs, `--tag yolo26app_ --seeds 5 --aux_w 0.5`, scene_map re-clustered at
+`--cluster_seed` 0/1/2:
+
+| cluster_seed | top-1 | macro | scene-appearance macro | margin (95 % bootstrap CI) |
+|---|---|---|---|---|
+| cs=0 (canonical) | 401/516 = 77.7 % | 81.2 % | 64.4 % | **+16.9** [+12.5, +21.2] |
+| cs=1 | 387/516 = 75.0 % | 76.2 % | 62.9 % | **+13.3** [+9.2, +17.3] |
+| cs=2 | 401/516 = 77.7 % | 81.2 % | 64.4 % | **+16.9** [+12.5, +21.2] (see caveat) |
+
+**cs=2 is NOT a third independent replicate — do not count it as one.** It returned numbers
+byte-identical to cs=0 on *every* field, including the per-seed arrays. That was checked rather than
+assumed, because `docs/code-standards.md` documents a silent-map-fallback failure mode that would
+produce exactly this signature. It is not that bug. Verified 2026-09-07:
+
+* the two maps are genuinely different partitions — ARI(cs0,cs2) = 0.9952, not 1.0, and
+  `identical_partition = False`;
+* re-running `run_lco_eval.py --scene_map ...k8cs2.json` prints its **own** fold sizes
+  (90/154/35/139/21/18/48/11) against cs=0's (48/139/39/11/90/17/154/18) — the map is loaded, the
+  folds are built from it, there is no fallback;
+* the identity is *forced by the data*: the only clips cs=2 moves are **56 clips, all class 3
+  (CarryOverload)**, reshuffled between two folds (39+17 → 35+21) whose **union is unchanged**, and
+  the model scores **100 % on that union under both partitions**. Every other fold has identical
+  membership. So every per-clip prediction is necessarily identical.
+
+cs=2 is therefore a *degenerate* perturbation of cs=0, not a replicate. The genuine perturbation is
+**cs=1**, whose partition moves 510 clip-labels and reshapes the large folds (101/154/16/139/18/33/7/48).
+
+**Verdict.** The scene-robust margin survives re-clustering: +16.9 / +13.3 / +16.9, all three CIs
+exclude zero and mutually overlap. But with only **one** genuinely independent re-clustering, the
+clustering term is estimated from n=2 distinct partitions, and it moves the margin by **3.6 pp** —
+more than S16's k-fold-based estimate implied. Report the margin as "+13.3 to +16.9 pp across
+scene-clusterings", not as +16.9 with a robustness claim attached. cs=1's per-class transformer
+recall {WalkwayViol 78.1, UnauthorInt 38.0, OpenedPanel 88.7, CarryOverload 100.0} and its per-seed
+top-1 [75.0, 75.8, 70.2, 76.7, 72.7] (mean 74.1, sd 2.66, spread 6.6 pp; **UnauthorInt sd 10.85,
+spread 24.1 pp**) reproduce S19's main finding at a second clustering: aggregate is stable,
+per-class is not.
+
+### Still open
+A third *genuinely* independent LCO clustering (cs=3+, screened for ARI < 0.99 against cs=0 *before*
+spending the ~50 min) would put the clustering term on more than two points. Not blocking — the
+sign and significance of the margin are already unanimous.
+
+Test touches consumed by S19: **zero** (LCO is the 516 pooled set).
+
+---
+
+## S20 — Lane B: P3 weights recovered, exported, parity-gated; same-dist seed spread (2026-09-06)
+
+**The blocker.** P3's headline model had no weights on disk — `logits_yolo26.pt` stores softmax only.
+Nothing about P3 could be exported or deployed. `run_relation_transformer.py --save_model` added;
+regenerated under the recovered provenance (`--tag yolo26app_ --seeds 5 --aux_w 0.5 --epochs 120`).
+`blind_softmax`, `ens_softmax`, `blind_pred`, `labels` all reproduce **bit-exactly** (`torch.equal`,
+max abs diff 0.000e+00) — third independent reproduction. Full detail in `reports/test-touch-log.md`.
+
+**Same-dist per-seed spread, now visible.** Seeds give 51, **54**, 51, 52, 47 correct = 79.7 / 84.4 /
+79.7 / 81.2 / 73.4 %. Mean 79.6 %, **spread 11.0 pp**. Blind seed selected on **val** (seed 1 has the
+top val macro), so selection is clean — but 54/64 is the *top* of the range, 4.8 pp above the seed
+mean. This is the same-dist twin of S19's LCO finding: **report the spread with the headline.**
+
+**Exported and parity-gated** (`deployment/scripts/export-p3-graphs.py`, new):
+
+| graph | size | shape | check |
+|---|---:|---|---|
+| `p3-detector-fp32.onnx` | 38 MB | (1,3,800,800) -> (1,300,6), NMS-free | imgsz pinned to `build_relation_tokens.IMGSZ` |
+| `p3-appearance-fp32.onnx` | 4.2 MB | (K,3,224,224) -> (K,64), K dynamic | torch-vs-onnx **4.649e-06** |
+| `p3-relation-head-fp32.onnx` | — | (1,16,8,74)+(1,16,8) -> (1,4) | torch-vs-onnx **4.768e-07** |
+
+Head vs the *stored* `blind_softmax` over the 64 test clips: max abs diff **2.980e-07**, argmax
+agreement **64/64**, ONNX top-1 **54/64**. The deployable graph *is* the headline predictor.
+`benchmark-p3-onnx.py` refuses to print latency unless this gate passes.
+
+**Edge cost accounting** (full report: `reports/laneb-p3-edge-cost-and-export.md`). Fused, per decision:
+P1 71.6 GFLOPs (32x2.24) vs P3 520.5 (16x32.09 detection + 7.0 appearance) = **7.3x**. Two corrections
+to my own prior claims: (a) I had said the 64-d appearance branch makes P3 "materially heavier" — on
+arithmetic that is **wrong**, A2 is 1.4 % of A1; the driver is detecting at 800² (14.3x a 224² frame).
+(b) An earlier version of that report projected "~15 decisions/s, 5x headroom" — a unit error, it
+scaled the stride-1 e2e instead of the per-decision cost. Corrected band **1.6–11.3 decisions/s**
+depending on assumed device utilisation, against a 3.0 requirement (24 fps, `EMIT_EVERY=8`). **The
+band straddles the threshold, so arithmetic cannot decide P3's real-time feasibility — only the
+Jetson can.** No Ch5 feasibility claim for P3 from projection.
+
+### Measured 2026-09-09 — the band is resolved, and it resolves AGAINST P3
+
+`benchmark-p3-onnx.py --parity --bench --sweep` on an idle M3, parity gate passed first. Per decision
+(16 frames @800 + 58 crops + 1 head pass): detector **1745.0 ms (95.6 %)**, appearance 79.6 ms
+(4.4 %), head 0.46 ms (0.03 %) = **1825.0 ms = 0.55 dec/s**. The FLOP accounting is confirmed in wall
+clock: the detector *is* the cost, the appearance branch is a rounding error, the Transformer is free.
+
+Mac->Jetson transfer calibrated on P1, the one pipeline measured on both machines (26.80 ms Mac
+ORT-CPU vs 12.47 / 8.62 / 8.24 ms Jetson TRT) = 2.15x / 3.11x / 3.25x. Projected P3:
+**1.13 / 1.64 / 1.71 dec/s vs 3.0 required — FAIL at every precision**, a ~2x miss. That is *below*
+even row A of the 1.6–11.3 band, so rows B and C are refuted: they assumed a device utilisation the
+calibration does not support. **Third correction to my own work in this section** — the band was
+presented as genuinely open in both directions; the measurement says the pessimistic end was right.
+
+Cost curve (`--cost_imgsz` probes, fp16 factor; **accuracy unmeasured except the first row**):
+800x16 **1.64** (54/64) | 800x8 3.14 | 640x16 2.51 | **512x16 3.77** | 416x16 4.92 | 416x4 14.27.
+T sits in the head's input shape `(1,16,8,74)` so changing it forces a re-architecture + retrain;
+imgsz changes only token *values*, leaving the head untouched. **imgsz 800->512 at T=16 is the cheapest
+credible route to the cadence** — one token rebuild + one retrain, then re-measure accuracy.
+
+Two measurement bugs were found and fixed in the sweep before any of this was believed: duplicate ORT
+sessions oversubscribed the thread pool (appearance 82->182 ms), and input tensors were generated
+*inside* the timed lambda so `np.random.randn` was being benchmarked alongside the graph (cost scaled
+with sz², which would have made the whole curve steeper than the model is). Post-fix the sweep and
+bench agree to 0.03 ms on appearance and head.
+
+**Ch5 framing.** Report the FAIL honestly and the cost curve as the engineering answer. The defensible
+sentence is *"P3 buys its accuracy with an edge cost P1 does not pay"* — which is a real finding, not
+a hedge, and it is the accuracy/latency trade the thesis exists to characterise.
+
+**Still blocking the on-device run:** `jetson-benchmark.py`'s `TRTRunner` keeps a single
+`host_in`/`dev_in` and cannot bind the relation head's **two** inputs (`tokens`, `mask`); and
+`benchmark()`'s accuracy path is P1-shaped (`stats_pool_np` + cascade). Not yet fixed. Note the
+measurement above makes the device run less urgent for the *verdict* (the direction is settled) and
+more urgent for the *number*.
+
+Test touches consumed by S20: **one** — a reproduction under the existing pre-registration, logged.

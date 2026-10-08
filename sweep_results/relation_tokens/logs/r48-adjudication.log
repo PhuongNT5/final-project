@@ -1,0 +1,20 @@
+
+=== G14 (THE GATE): ESTA vs the best whole-frame baseline at matched backbone ===
+  baseline = B1w (higher of B1, B1w; pre-registered best-of-two)
+  ESTA 83.8%  -  B1w 84.4%  =  -0.5 pp
+    cluster bootstrap over 151 sources (5000/5000 valid): 95% CI [-5.5, +5.0] includes 0
+    McNemar exact: b=72 c=78 p=0.683
+  VERDICT: FAIL  (needs >= 3.0 pp, CI excluding 0, p < 0.05)
+  -> pre-registered consequence: the entity decomposition adds nothing over a whole-frame representation at matched backbone, and that is final.
+
+=== G15 (component ablation, NOT the contribution): representation bottleneck ===
+  ESTA 83.8%  -  E0@64d 80.3%  =  +3.5 pp
+    cluster bootstrap over 151 sources (5000/5000 valid): 95% CI [-2.3, +10.0] includes 0
+    McNemar exact: b=129 c=82 p=0.00148
+  VERDICT: FAIL
+
+=== G16 (honest strong opponent): ESTA vs frozen Kinetics VideoMAE ===
+  ESTA 83.8%  -  B2 81.5%  =  +2.3 pp
+    cluster bootstrap over 151 sources (5000/5000 valid): 95% CI [-2.3, +7.5] includes 0
+    McNemar exact: b=117 c=91 p=0.0828
+  -> ESTA ahead; CI includes 0 (no separation)

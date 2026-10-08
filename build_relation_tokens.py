@@ -27,10 +27,17 @@ import torch
 # Jetson, where pip-installing ultralytics would drag in a torchvision/torch that clashes
 # with the vendor CUDA torch build. Both call sites already do their own local import.
 from shapely.geometry import Polygon, Point, box as shp_box
+from shapely.prepared import prep
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DET = os.path.join(ROOT, 'sweep_results', 'entity_detector', 'detector_best.pt')
-VIEW_MAP = os.path.join(ROOT, 'sweep_results', 'zone_prior', 'clip_view_map.json')
+# The 691-clip map, NOT the 516-clip one. The 516-clip map covers unsafe clips only, so every
+# safe clip silently missed it -> vmap.get(base) is None -> zones.get(None) is None -> geometry()
+# returns all-zero. Zero geometry then correlates almost perfectly with the Safe label, handing
+# the binary task a partial label oracle. The two maps agree on the view id of all 516 shared
+# clips (verified 2026-10-01; they differ only by an extra 'source' key that view_map() does not
+# read), so this default change cannot alter any previously recorded result.
+VIEW_MAP = os.path.join(ROOT, 'sweep_results', 'zone_prior', 'clip_view_map_691.json')
 ZONES_DIR = os.path.join(ROOT, 'annotation_guide', 'zones')
 OUT = os.path.join(ROOT, 'sweep_results', 'relation_tokens')
 T, N_MAX, CONF, IMGSZ = 16, 8, 0.25, 800
@@ -104,25 +111,59 @@ def view_map(path=None):
     return {r['basename']: str(r['view']) for r in json.load(open(path or VIEW_MAP))}
 
 
+# Per-view static precompute for geometry(). Zones never move within a view, so polygon area,
+# centroid, bounds and the prepared containment index are computed once instead of once per box.
+# Keyed by id() but storing the dict itself, so a recycled id can never return a stale entry; the
+# key is NOT written into the zones dict because callers iterate it (jetson-p3-demo-video.py).
+_ZONE_PRE = {}
+
+
+def _zone_pre(zones):
+    hit = _ZONE_PRE.get(id(zones))
+    if hit is not None and hit[0] is zones:
+        return hit[1]
+    pre = {k: [{'pg': pg, 'area': pg.area, 'bounds': pg.bounds, 'prep': prep(pg),
+                'cent': pg.centroid} for pg in zones[k]] for k in ('walkway', 'restricted')}
+    _ZONE_PRE[id(zones)] = (zones, pre)
+    return pre
+
+
 def geometry(cx, cy, w, h, W, H, zones):
-    """Relative geometry of a person box vs the view's zone polygons (pixel space)."""
+    """Relative geometry of a person box vs the view's zone polygons (pixel space).
+
+    Output-identical to the original formulation (verified to 1.665e-16, i.e. double-precision
+    rounding, over 896 box/view pairs by tools/geometry-postprocess-bench.py) but ~1.91x faster:
+    |A u B| is computed as |A| + |B| - |A n B| instead of constructing the union geometry, the
+    per-view statics are hoisted into _zone_pre(), containment uses a prepared polygon, and a
+    bounds test rejects disjoint pairs before any intersection is constructed. postprocess is
+    14.3 % of the Jetson decision budget and geometry is ~28 % of that at median load.
+    """
     x1, y1, x2, y2 = (cx - w / 2) * W, (cy - h / 2) * H, (cx + w / 2) * W, (cy + h / 2) * H
+    if not zones:
+        return [0.0, 0.0, 0.0, 0.0]
+    z = _zone_pre(zones)
     pbox = shp_box(x1, y1, x2, y2)
-    foot = Point((x1 + x2) / 2, y2)          # foot-point = decisive in/out-of-walkway signal
-    def max_iou(polys):
+    parea = pbox.area
+
+    def max_iou(entries):
         best = 0.0
-        for pg in polys:
-            uni = pbox.union(pg).area
+        for e in entries:
+            bx1, by1, bx2, by2 = e['bounds']
+            if x2 <= bx1 or bx2 <= x1 or y2 <= by1 or by2 <= y1:
+                continue                     # disjoint bounds => empty intersection => IoU 0
+            inter = pbox.intersection(e['pg']).area
+            uni = parea + e['area'] - inter
             if uni > 0:
-                best = max(best, pbox.intersection(pg).area / uni)
+                best = max(best, inter / uni)
         return best
-    iou_w = max_iou(zones['walkway']) if zones else 0.0
-    iou_r = max_iou(zones['restricted']) if zones else 0.0
-    foot_in = 1.0 if (zones and any(pg.contains(foot) for pg in zones['walkway'])) else 0.0
+
+    iou_w, iou_r = max_iou(z['walkway']), max_iou(z['restricted'])
+    foot = Point((x1 + x2) / 2, y2)          # foot-point = decisive in/out-of-walkway signal
+    foot_in = 1.0 if any(e['prep'].contains(foot) for e in z['walkway']) else 0.0
     nd = 0.0
-    if zones and zones['restricted']:
+    if z['restricted']:
         pc = Point((x1 + x2) / 2, (y1 + y2) / 2)
-        nd = min(pc.distance(pg.centroid) for pg in zones['restricted']) / max(W, 1)
+        nd = min(pc.distance(e['cent']) for e in z['restricted']) / max(W, 1)
     return [iou_w, iou_r, foot_in, nd]
 
 
@@ -191,12 +232,25 @@ def process_clip(path, det, zones, device, app=None):
     return tokens, mask
 
 
-def build_subset(subset, det, zones, vmap, device, limit=None, app=None, tag='', classes=UNSAFE):
+def build_subset(subset, det, zones, vmap, device, limit=None, app=None, tag='', classes=UNSAFE,
+                 allow_missing_views=False):
     clips = []
     for c in classes:
         clips += sorted(glob.glob(os.path.join(ROOT, 'data', subset, f'{c}_*', '*.mp4')))
     if limit:
         clips = clips[:limit]
+    # Fail loudly on an incomplete view map. A miss is NOT benign: it degrades silently to
+    # all-zero geometry for that clip, which is both a feature corruption and (when the misses
+    # correlate with a label, as they did for the 516-clip map) a leak. Caught by assertion
+    # rather than by noticing an implausible accuracy afterwards.
+    missing = [os.path.basename(p) for p in clips if os.path.basename(p) not in vmap]
+    if missing:
+        msg = (f'[{subset}] view map covers {len(vmap)} clips but {len(missing)} of {len(clips)} '
+               f'selected clips are absent, e.g. {missing[:5]}. Those clips would get all-zero '
+               f'geometry. Pass a complete --view_map, or --allow_missing_views to accept it.')
+        if not allow_missing_views:
+            raise ValueError(msg)
+        print(f'  [WARN] {msg}', flush=True)
     all_tok, all_mask, labels, cids, views = [], [], [], [], []
     for k, path in enumerate(clips):
         base = os.path.basename(path)
@@ -210,7 +264,8 @@ def build_subset(subset, det, zones, vmap, device, limit=None, app=None, tag='',
     layout = ['class', 'xc', 'yc', 'w', 'h', 'conf', 'iou_walkway', 'iou_restricted',
               'foot_in_walkway', 'norm_dist'] + ([f'app_{i}' for i in range(APP_DIM)] if app else [])
     out = {'tokens': torch.tensor(np.stack(all_tok)), 'mask': torch.tensor(np.stack(all_mask)),
-           'labels': torch.tensor(labels), 'clip_ids': cids, 'views': views, 'feat_layout': layout}
+           'labels': torch.tensor(labels), 'clip_ids': cids, 'views': views, 'feat_layout': layout,
+           'imgsz': IMGSZ, 'conf': CONF, 'detector': os.path.relpath(DET, ROOT)}
     os.makedirs(OUT, exist_ok=True)
     torch.save(out, os.path.join(OUT, f'tokens_{tag}{subset}.pt'))
     print(f"[{subset}] {len(clips)} clips → tokens_{tag}{subset}.pt | feat={out['tokens'].shape[-1]} "
@@ -230,17 +285,26 @@ def main():
                     help='test-time corruption/aug applied to frames (F/G robustness)')
     ap.add_argument('--detector', default=None, help='override detector weights (MT3: YOLO26 swap)')
     ap.add_argument('--out_tag', default=None, help='override output tag prefix (avoid clobbering baseline tokens)')
+    ap.add_argument('--imgsz', type=int, default=None,
+                    help='detector input size (default 800). Smaller trades detection quality for '
+                         'edge decision cadence — detector latency scales with input pixels.')
     ap.add_argument('--classes', default=None,
                     help="comma-separated source-class folders to tokenize, e.g. '0,1,2,3,4,5,6,7'. "
                          "Default (unset) reproduces the original UNSAFE=[0,1,2,3] behaviour.")
     ap.add_argument('--view_map', default=None,
-                    help='override the clip->view map json (e.g. the 691-clip map with derived safe-clip views). '
-                         'Default: sweep_results/zone_prior/clip_view_map.json (516 unsafe clips only).')
+                    help='override the clip->view map json. Default: clip_view_map_691.json, which '
+                         'covers all 691 clips. The older clip_view_map.json has the 516 unsafe '
+                         'clips only and leaves every safe clip with all-zero geometry.')
+    ap.add_argument('--allow_missing_views', action='store_true',
+                    help='downgrade an incomplete --view_map from a hard error to a warning. Only '
+                         'for deliberate ablations: clips absent from the map get zero geometry.')
     args = ap.parse_args()
-    global CORRUPT, DET
+    global CORRUPT, DET, IMGSZ
     CORRUPT = args.corrupt
     if args.detector:
         DET = os.path.abspath(args.detector)   # swap detector (+ its ROI backbone) for YOLO26 comparison
+    if args.imgsz:
+        IMGSZ = args.imgsz
     classes = [int(c) for c in args.classes.split(',')] if args.classes else UNSAFE
     device = args.device or ('mps' if torch.backends.mps.is_available() else 'cpu')
     print(f"detector={os.path.relpath(DET, ROOT)} device={device} appearance={args.appearance} "
@@ -255,7 +319,8 @@ def main():
         tag = f'{tag}{args.corrupt}_'
     print(f"zones for views: {sorted(zones)} | view-map entries: {len(vmap)} (source={args.view_map or VIEW_MAP})")
     for sp in args.subsets.split(','):
-        build_subset(sp, det, zones, vmap, device, args.limit, app=app, tag=tag, classes=classes)
+        build_subset(sp, det, zones, vmap, device, args.limit, app=app, tag=tag, classes=classes,
+                     allow_missing_views=args.allow_missing_views)
 
 
 if __name__ == '__main__':

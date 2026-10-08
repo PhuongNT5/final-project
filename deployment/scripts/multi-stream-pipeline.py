@@ -1,5 +1,5 @@
 """
-multi-stream-pipeline.py — Concurrent N-stream ONNX inference on M4 CPU.
+multi-stream-pipeline.py — Concurrent N-stream ONNX inference on M3 CPU.
 
 Design:
 - Single shared backbone ORT session; frames from N streams batched to (N,3,224,224).

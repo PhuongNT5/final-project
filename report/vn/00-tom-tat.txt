@@ -1,0 +1,186 @@
+======================================================================
+TÓM TẮT
+======================================================================
+
+Quy ước số: dấu chấm là dấu thập phân, dấu phẩy là dấu phân cách hàng nghìn. Quy ước dẫn chứng:
+tóm tắt KHÔNG là nguồn trích dẫn cho bất kỳ con số nào. Mỗi con số nêu ở đây được dẫn lại đầy đủ,
+kèm tệp nhật ký đã sinh ra nó, ở chương tương ứng và ở Phụ lục A.
+
+Nhận dạng tự động hành vi không an toàn của người lao động từ video giám sát là một bài toán cốt
+lõi của an toàn lao động công nghiệp. Luận văn này không lấy một con số độ chính xác làm kết luận
+chính. Kết luận chính là một phép đo về **giao thức đánh giá**: khi phép chia dữ liệu không ràng
+buộc nguồn gốc của clip, độ chính xác báo cáo tăng lên tới hai chữ số điểm phần trăm, và phần tăng
+đó là việc mô hình nhận ra nguồn video chứ không phải nhận ra hành vi.
+
+Phép đo được thực hiện trên hai kho dữ liệu độc lập, giữ nguyên mô hình, đặc trưng và công thức
+huấn luyện, chỉ đổi cách dựng fold. Trên iSafetyBench (1,100 clip, 151 nguồn video), độ chính xác
+cân bằng của một bộ mã hoá quan hệ đi từ 75.2% dưới leave-source-out lên 90.6% dưới fold ngẫu
+nhiên, tức **+15.4 điểm phần trăm**, khoảng tin cậy bootstrap theo cụm **[+10.6, +21.5]** loại trừ
+0, McNemar chính xác p = 3.58e-45. Một đối chứng giả dược trên 20 seed — định danh nguồn giả, khớp
+số nhóm, khớp đa tập kích thước nhóm trong từng lớp và khớp tính thuần lớp, chỉ phá xuất xứ — tách
++15.4 điểm phần trăm đó thành **+1.6 điểm phần trăm do hình học fold** và **+13.8 điểm phần trăm do
+danh tính nguồn** (p hoán vị = 0.0476). Trên Unsafe-Net (687 clip, 8 nhóm bối cảnh), năm kiến trúc trải
+từ 18,044 đến 298,892 tham số đều bị lạm phát, biên độ **+13.0 đến +21.8 điểm phần trăm**. Hai hệ
+quả quan trọng hơn bản thân độ lớn: giao thức rò rỉ **nén khả năng phân biệt kiến trúc** (khoảng
+cách giữa bộ mã hoá tốt nhất và kém nhất co từ 5.1 xuống 1.4 điểm phần trăm trên iSafetyBench, và
+từ 7.3 xuống 2.1 điểm phần trăm trên Unsafe-Net), và nó **đảo thứ tự xếp hạng**, tức có thể dẫn
+tới chọn sai mô hình.
+
+Luận văn đồng thời xây dựng và đo một hệ thống quyết định an toàn chạy trên thiết bị biên. Đường
+quyết định được triển khai gồm một tháp thị giác CLIP ViT-B/32 đóng băng áp trên toàn khung và một
+đầu Transformer thời gian 201,090 tham số; dưới leave-source-out trên 1,100 clip, cấu hình này đạt
+**84.2%** độ chính xác cân bằng, báo cáo so với đường sàn tiền đăng ký **63.3%** chứ không so với
+50%. Chính cấu hình đó, trên chính 1,100 clip đó, chỉ đổi phép chia sang fold ngẫu nhiên bỏ qua
+nguồn, báo cáo **97.7%** — tức giao thức rò rỉ cộng thêm **+13.5 điểm phần trăm** (khoảng tin cậy
+theo cụm [+8.0, +20.0], McNemar chính xác p = 1.39e-41). Luận văn **đo được** con số chín mươi mấy
+phần trăm mà giao thức rò rỉ sinh ra trên chính mô hình đang triển khai của nó, và chọn công bố
+84.2%. Trên NVIDIA Jetson Orin Nano Super, vòng lặp tổ hợp — giải mã, tiền xử lý, tháp, đầu, không
+bỏ sót giai đoạn nào — đạt **167.291 ms** mỗi quyết định ở trung vị, tức **5.978 quyết định/giây**,
+vượt ba mức hợp đồng nhịp suy ra từ chính kho dữ liệu với biên 2.39 đến 4.79 lần. Đầu Transformer
+— phần luận văn thực sự thiết kế — chỉ chiếm 0.3% đến 1.7% độ trễ của một quyết định; khung hình
+không bao giờ rời thiết bị.
+
+Tám cổng phán quyết được tiền đăng ký — viết ra trước khi con số tồn tại — cùng hai phép đối chứng
+không phán quyết, trong đó đối chứng giả dược nói trên **không** được đăng ký trước (chỉ tiêu chí
+của nó được cố định trước khi chạy). Kết quả tám cổng là **hai đạt và sáu trượt**, và cả hai cổng
+đạt đều thuộc về phương pháp luận. Cổng trung tâm — giả thuyết rằng phân rã theo thực thể làm tăng
+độ chính xác so với một đường cơ sở toàn khung khớp dung lượng — đã **trượt** (−0.5 điểm phần trăm,
+khoảng tin cậy theo cụm [−5.5, +5.0] chứa 0, p = 0.683), nên cấu hình được triển khai là nhánh toàn
+khung: quyết định triển khai đi theo bằng chứng, không theo đề cương. Trên kho bốn lớp mà công việc
+khởi đầu từ đó, mô hình quan hệ thực thể giữ được biên **+16.9 điểm phần trăm** macro dưới
+leave-context-out, khoảng tin cậy **[+12.5, +21.2]** — khoảng này bootstrap trên **đơn vị clip,
+không phải đơn vị nhóm bối cảnh**, nên theo chính mục 6.12(a) của luận văn nó **không** được dùng
+làm căn cứ chứng nhận. Luận văn không đạt con số 95.81% của bài báo gốc và không tuyên bố đạt; phát
+biểu của luận văn nhắm vào thước đo, không nhắm vào hệ thống của tác giả khác.
+
+Từ khoá: an toàn lao động công nghiệp; phát hiện hành vi không an toàn; đánh giá có ràng buộc
+nhóm; rò rỉ dữ liệu; leave-source-out; lạm phát giao thức; Transformer thời gian; tháp CLIP đóng
+băng; cổng tiền đăng ký; triển khai biên; Jetson Orin Nano; nhịp quyết định.
+
+======================================================================
+TÓM TẮT MỞ RỘNG
+======================================================================
+
+Mục này triển khai từng kết luận nêu trên kèm con số, điều kiện trích dẫn và giới hạn. Nó dành
+cho người đọc cần kiểm tra từng phát biểu; mọi con số đều được dẫn lại đầy đủ, kèm tệp nhật ký đã
+sinh ra nó, ở chương tương ứng và ở Phụ lục A.
+
+Nhận dạng tự động hành vi không an toàn của người lao động từ video giám sát là một bài toán cốt
+lõi của an toàn lao động công nghiệp. Luận văn này không lấy một con số độ chính xác làm kết luận
+chính. Kết luận chính là một phép đo về **giao thức đánh giá**: trên lớp bài toán này, một phép
+chia dữ liệu không ràng buộc nguồn gốc của clip làm độ chính xác báo cáo tăng lên tới hai chữ số
+điểm phần trăm, và phần tăng đó không phải một mô hình tốt hơn — nó là việc mô hình nhận ra nguồn
+video, không phải nhận ra hành vi.
+
+**Phép đo chính.** Luận văn định nghĩa độ lạm phát là hiệu số độ chính xác cân bằng giữa hai cách
+dựng fold trên cùng bộ clip, cùng mô hình, cùng công thức huấn luyện: fold ràng buộc theo nhóm
+nguồn so với fold ngẫu nhiên có rò rỉ nguồn. Trên Unsafe-Net (687 clip sau lọc trùng, 8 nhóm bối
+cảnh), năm kiến trúc bộ mã hoá quan hệ trải từ 18,044 đến 298,892 tham số — chênh hơn 16 lần — cho
+độ lạm phát **+13.0 đến +21.8 điểm phần trăm**, không kiến trúc nào miễn nhiễm. Trên iSafetyBench
+(1,100 clip, 420 không an toàn / 680 bình thường, truy nguyên về 151 nguồn video), bộ mã hoá nhỏ
+nhất đi từ **75.2%** dưới leave-source-out lên **90.6%** dưới fold ngẫu nhiên, tức **+15.4 điểm
+phần trăm**, với khoảng tin cậy bootstrap theo cụm trên 151 nguồn là **[+10.6, +21.5]** — loại trừ
+0 — và McNemar chính xác p = 3.58e-45; ba bộ mã hoá còn lại cho +10.4, +13.2 và +14.9 điểm phần
+trăm. Hai hệ quả mạnh hơn bản thân độ lớn. Thứ nhất, giao thức rò rỉ **nén khả năng phân biệt kiến
+trúc**: khoảng cách giữa bộ mã hoá tốt nhất và kém nhất co từ 5.1 xuống 1.4 điểm phần trăm trên
+iSafetyBench và từ 7.3 xuống 2.1 điểm phần trăm trên Unsafe-Net. Thứ hai, **thứ tự xếp hạng bị
+đảo**: bộ mã hoá 18,044 tham số đứng thứ nhất dưới leave-context-out và cuối cùng dưới k-fold ngẫu
+nhiên — nghĩa là giao thức rò rỉ không chỉ làm mọi con số cao hơn, nó còn có thể chọn sai mô hình.
+Cơ chế được định danh bằng một phép đối chứng dung lượng: dưới đúng phép đổi fold đó, đường sàn
+quy tắc đếm ba đặc trưng chỉ dịch **1.0 điểm phần trăm** (68.2% xuống 67.2%) trong khi bộ mã hoá
+mất 15.4 điểm phần trăm. Phần chênh lệch vì vậy không phải thông tin đếm tầm thường mà fold ngẫu
+nhiên vô tình cấp thêm; nó là thông tin đặc thù theo nguồn, chỉ khai thác được khi một nguồn xuất
+hiện ở cả hai phía của phép chia.
+
+**Đối chứng tách confound.** Phản biện mạnh nhất chống lại phép đo trên là: fold leave-source-out có
+thể thấp hơn chỉ vì nó khó hơn về cấu trúc — nhóm nguồn là khối không chia được, thuần một lớp, kích
+thước lệch — chứ không vì danh tính nguồn rò rỉ. Luận văn tách hai nguyên nhân đó bằng một đối chứng
+giả dược: sinh định danh nguồn giả khớp đúng ba thuộc tính cấu trúc của nguồn thật (cùng số nhóm,
+cùng đa tập kích thước nhóm trong từng lớp, cùng tính thuần lớp — cả ba được bảo đảm bằng assertion
+trong mã), đồng thời rải clip của mỗi nguồn thật ra nhiều nhóm giả. Thứ duy nhất bị phá là xuất xứ.
+Trên 20 seed, bộ mã hoá đạt trung bình **89.0%** (độ lệch chuẩn 0.47, dải 87.7–89.7) — **không một
+seed nào** xuống tới 75.2% của nguồn thật, seed thấp nhất còn cách 12.5 điểm phần trăm, cho giá trị
+**p hoán vị = (0+1)/(20+1) = 0.0476**. Phân tách: hình học fold **+1.6 điểm phần trăm (10.2%)**,
+danh tính nguồn **+13.8 điểm phần trăm (89.8%)**. Đường sàn quy tắc đếm chỉ nhích 1.0 điểm phần
+trăm xuyên cả ba điều kiện, xác nhận cùng chiều. Đối chứng này **không được đăng ký trước** và
+**không phán quyết** cổng nào; nó được công bố đúng mức đó.
+
+**Cùng phép đo đó trên chính mô hình được triển khai.** Phép đo lạm phát ở trên chạy trên biểu diễn
+token quan hệ. Luận văn đo lại nó trên cấu hình **thực sự được triển khai** — tháp CLIP toàn khung
+cộng đầu thời gian 201,090 tham số — giữ nguyên 1,100 clip, nguyên 10 fold, nguyên ba seed và
+nguyên 60 epoch, chỉ đổi phép chia: **97.7%** dưới fold ngẫu nhiên so với **84.2%** dưới
+leave-source-out, tức **+13.5 điểm phần trăm**, khoảng tin cậy bootstrap theo cụm **[+8.0, +20.0]**
+loại trừ 0, McNemar chính xác **p = 1.39e-41** trên 156 cặp bất đồng. Đây là con số đáng nêu trước
+hội đồng khi được hỏi vì sao kết quả thấp hơn literature: mô hình này **đạt** 97.7% dưới giao thức
+mà literature dùng; luận văn chọn báo cáo 84.2% vì 13.5 điểm phần trăm kia là danh tính nguồn video,
+không phải năng lực nhận dạng hành vi. Lượt chạy này cũng **không được đăng ký trước** (cổng G12
+được đăng ký trên làn token quan hệ), nên nó là phần mở rộng hậu nghiệm, không phải một cổng phán
+quyết. Hai con số +13.5 và +15.4 điểm phần trăm là hai phép đo **độc lập** của cùng một hiện tượng
+trên hai biểu diễn khác nhau; luận văn không lấy trung bình chúng và không dùng con số này chứng
+thực con số kia.
+
+**Hệ thống được triển khai và đo trên thiết bị.** Đường quyết định được triển khai là một
+tháp thị giác CLIP ViT-B/32 **đóng băng** áp trên toàn khung, phía trên là một đầu
+Transformer thời gian 201,090 tham số (cấu hình B1, ba seed). Dưới giao thức leave-source-out
+trên 1,100 clip, cấu hình này đạt **84.2%** độ chính xác cân bằng, báo cáo so với **đường sàn
+tiền đăng ký 63.3%** — giá trị mà một quy tắc đếm ba đặc trưng đạt được dưới leave-source-out
+trên một mẫu thăm dò 300 clip cân bằng, đo trước khi bất kỳ bộ mã hoá nào chạy — chứ không
+bao giờ so với 50%. Việc so với 63.3% làm mọi biên của luận văn hẹp lại, và đó chính là lý do
+nó được chọn. Đầu thời gian được xuất sang TensorRT FP16 và đo trên NVIDIA Jetson Orin Nano
+Super (249–499 USD, JetPack 6.2 + TensorRT 10.3) trong một **vòng lặp tổ hợp**: giải mã
+luồng, tiền xử lý, tháp, đầu — không bỏ sót giai đoạn nào. Kết quả là **167.291 ms** mỗi
+quyết định ở trung vị, tức **5.978 quyết định/giây**, và 198.224 ms ở p95, tức 5.045 quyết
+định/giây; so với ba mức hợp đồng nhịp suy ra từ phân bố tốc độ khung của chính kho dữ liệu,
+biên là **2.39 đến 4.79 lần** ở trung vị. Hai quan sát đi kèm quan trọng hơn bản thân độ trễ:
+đầu Transformer — phần mà luận văn thực sự thiết kế — chiếm **0.3% đến 1.7% độ trễ của một
+quyết định**, phần còn lại thuộc các thành phần mà luận văn không thiết kế; và sau khi khắc
+phục một khiếm khuyết tiền xử lý (cải thiện nhịp 1.732 lần) thì điểm nghẽn đã **chuyển sang
+chính mô hình**, nên mọi cải thiện nhịp tiếp theo phải đến từ bộ mã hoá. Kiến trúc triển khai
+chỉ gửi **siêu dữ liệu** ra khỏi biên; khung hình không bao giờ rời thiết bị.
+
+**Tám cổng tiền đăng ký, hai đạt và sáu trượt.** Tám cổng phán quyết cùng hai phép đối chứng
+không phán quyết. Tám cổng phán quyết được viết ra —
+gồm giả thuyết, mô hình được nêu tên, biên tối thiểu và hệ quả nếu trượt — **trước** khi con số
+tồn tại. Cổng trung tâm, kiểm tra giả thuyết rằng phân rã theo thực thể làm tăng độ chính xác so
+với một đường cơ sở toàn khung **khớp dung lượng trên cùng tháp đóng băng**, đã **trượt**: −0.5
+điểm phần trăm, khoảng tin cậy theo cụm [−5.5, +5.0] chứa 0, McNemar p = 0.683. Cổng tương ứng ở
+làn trước đó cũng trượt: bộ mã hoá quan hệ thực thể không tách khỏi một đầu dò toàn khung dùng
+đúng biểu diễn ngoại hình 64 chiều (+1.1 điểm phần trăm, khoảng tin cậy [−4.8, +6.9] chứa 0,
+McNemar p = 0.625). Một mô hình hợp nhất hai luồng cũng không vượt đường cơ sở toàn khung (−0.3
+điểm phần trăm, p = 0.401), và chứng cứ cơ chế cho thấy nó hội tụ về luồng toàn khung thay vì kết
+hợp hai góc nhìn. Hai cổng đạt đều là cổng **phương pháp luận**, không phải cổng kiến trúc. Vì vậy
+cấu hình được triển khai là nhánh toàn khung: quyết định triển khai đi theo bằng chứng, không theo
+đề cương. Sáu phán quyết trượt được công bố với biên, khoảng tin cậy và p ở đúng mức chi tiết như
+hai phán quyết đạt.
+
+**Làn thứ hai.** Trên kho bốn lớp mà công việc khởi đầu từ đó, luận văn tái hiện lại pipeline đã
+công bố với hai hiện đại hoá — bộ mã hoá không gian YOLOv11s thay YOLO v4, và một Transformer quan
+hệ trên token hộp thay ConvLSTM — nhưng theo một triết lý giám sát khác: thay vì gán nhãn hành vi
+trực tiếp, luận văn chú giải một bản thể tám lớp đa thực thể và để Transformer suy ra hành vi từ
+quan hệ không gian giữa các thực thể được phát hiện. Dưới giao thức leave-context-out, mô hình
+quan hệ thực thể giữ được biên **+16.9 điểm phần trăm** macro so với một đường cơ sở ngoại hình
+bối cảnh có thể chuyển giao, khoảng tin cậy bootstrap 95% **[+12.5, +21.2]** — bootstrap trên
+**đơn vị clip chứ không phải đơn vị nhóm bối cảnh**, nên mục 6.12(a) của luận văn tự tuyên bố đơn vị
+lấy mẫu này là **sai** và khoảng này **không** được dùng làm căn cứ chứng nhận. Bộ phát hiện thực
+thể được đánh giá lại độc lập đạt **mAP@50 = 0.9695** trên 343 ảnh giữ riêng. Luận văn **không**
+đạt con số 95.81% của bài báo gốc và **không tuyên bố đạt**; phát biểu của luận văn nhắm vào
+**thước đo**, không nhắm vào hệ thống của tác giả khác, vì trọng số và dự đoán theo clip của hệ
+thống đó không được công bố nên không thể chạy lại dưới giao thức này.
+
+**Giới hạn được nêu cùng với kết quả.** Trên iSafetyBench, **0 trong 151 nguồn** mang cả hai nhãn,
+nên nhãn và định danh nguồn bị trộn lẫn về mặt cấu trúc; hệ quả là khoảng tin cậy theo cụm rất
+rộng, và luận văn không đổi đơn vị lấy mẫu để làm chúng hẹp lại. Nhóm bối cảnh của Unsafe-Net là
+proxy KMeans(8), không phải siêu dữ liệu camera đã kiểm chứng, nên mọi phát biểu nói theo fold chứ
+không nói theo góc nhìn. Độ đồng thuận giữa hai người chú giải đạt κ = 0.65, dưới ngưỡng 0.8 mà
+quy trình chú giải tự đặt ra — đó là một trần chất lượng nhãn. Dải độ chính xác cân bằng theo fold
+rộng **29.7 điểm phần trăm** và sai số hiệu chỉnh kỳ vọng đạt 0.097, nên ngưỡng quyết định phải
+dựa trên thứ hạng và phải hiệu chỉnh lại tại chỗ; hiệu chỉnh theo từng điểm lắp đặt vì vậy là hạng
+mục phát triển thứ nhất.
+
+**Tạo tác và truy xuất xuất xứ.** Trọng số, bản xuất ONNX, engine TensorRT, báo cáo tương đương
+FP16, nhật ký ablation và nhật ký đo trên thiết bị đều nằm trong kho mã. Phụ lục A lập bảng truy
+xuất xuất xứ cho từng con số được công bố, kèm các quy tắc đọc khi nhật ký và tạo tác lệch nhau,
+và một sổ đăng ký các con số đã bị rút khỏi luận văn cùng lý do rút. Phụ lục B công bố cấu hình
+fold đầy đủ kèm chứng minh bằng số rằng không nguồn nào xuất hiện ở cả hai phía của bất kỳ fold
+nào. Giao thức chạm tập kiểm thử được đăng ký trước với đúng hai lần chạm, và vào ngày đóng băng
+số liệu chưa lần nào được chi.

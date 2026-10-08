@@ -1,0 +1,12 @@
+  [wf-isb] 100/1100
+  [wf-isb] 200/1100
+  [wf-isb] 300/1100
+  [wf-isb] 400/1100
+  [wf-isb] 500/1100
+  [wf-isb] 600/1100
+  [wf-isb] 700/1100
+  [wf-isb] 800/1100
+  [wf-isb] 900/1100
+  [wf-isb] 1000/1100
+  [wf-isb] 1100/1100
+[wf-isb] 1100 clips -> /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/relation_tokens/tokens_wf_isb_all.pt | shape (1100, 16, 64) | hazard=420 | sources=151

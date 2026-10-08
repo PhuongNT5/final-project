@@ -1,0 +1,57 @@
+[chain] GPU free; extracting entity features with YOLO26s (G17 ablation)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 30501.81it/s]
+[1mCLIPVisionModelWithProjection LOAD REPORT[0m from: openai/clip-vit-base-patch32
+Key                                                          | Status     |  | 
+-------------------------------------------------------------+------------+--+-
+text_model.encoder.layers.{0...11}.layer_norm2.weight        | UNEXPECTED |  | 
+text_projection.weight                                       | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.bias   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.weight   | UNEXPECTED |  | 
+text_model.final_layer_norm.bias                             | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.bias     | UNEXPECTED |  | 
+text_model.embeddings.position_ids                           | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.weight | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.bias              | UNEXPECTED |  | 
+vision_model.embeddings.position_ids                         | UNEXPECTED |  | 
+text_model.final_layer_norm.weight                           | UNEXPECTED |  | 
+text_model.embeddings.token_embedding.weight                 | UNEXPECTED |  | 
+logit_scale                                                  | UNEXPECTED |  | 
+text_model.embeddings.position_embedding.weight              | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[clip-feat] 1100 clips | detector=yolo26s.pt device=mps backbone=openai/clip-vit-base-patch32 T=16 N_MAX=8
+  [clip-feat] 50/1100  2.25s/clip  eta 39.4 min
+  [clip-feat] 100/1100  2.65s/clip  eta 44.2 min
+  [clip-feat] 150/1100  2.67s/clip  eta 42.4 min
+  [clip-feat] 200/1100  2.84s/clip  eta 42.6 min
+  [clip-feat] 250/1100  2.78s/clip  eta 39.4 min
+  [clip-feat] 300/1100  2.94s/clip  eta 39.2 min
+  [clip-feat] 350/1100  2.85s/clip  eta 35.6 min
+  [clip-feat] 400/1100  2.93s/clip  eta 34.1 min
+  [clip-feat] 450/1100  3.11s/clip  eta 33.7 min
+  [clip-feat] 500/1100  3.31s/clip  eta 33.1 min
+  [clip-feat] 550/1100  3.38s/clip  eta 31.0 min
+  [clip-feat] 600/1100  3.45s/clip  eta 28.7 min
+  [clip-feat] 650/1100  3.44s/clip  eta 25.8 min
+  [clip-feat] 700/1100  3.44s/clip  eta 22.9 min
+  [clip-feat] 750/1100  3.42s/clip  eta 19.9 min
+  [clip-feat] 800/1100  3.40s/clip  eta 17.0 min
+  [clip-feat] 850/1100  3.33s/clip  eta 13.9 min
+  [clip-feat] 900/1100  3.26s/clip  eta 10.9 min
+  [clip-feat] 950/1100  3.19s/clip  eta 8.0 min
+  [clip-feat] 1000/1100  3.13s/clip  eta 5.2 min
+  [clip-feat] 1050/1100  3.05s/clip  eta 2.5 min
+  [clip-feat] 1100/1100  2.99s/clip  eta 0.0 min
+[clip-feat] -> sweep_results/relation_tokens/feats_isbclip26_all.pt | entity (1100, 16, 8, 512) wholeframe (1100, 16, 512) | detections=45512 | hazard=420 normal=680 | sources=151 | 54.8 min

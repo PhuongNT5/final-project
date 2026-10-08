@@ -159,11 +159,23 @@ xác, và không đặt mục tiêu vượt một con số độ chính xác đ�
 
 1.4.2. Thay đổi phạm vi so với đề cương
 
-Ba cam kết trong đề cương đã thay đổi trong quá trình thực hiện. Chúng được nêu ngay ở đây, trước
+Bốn cam kết trong đề cương đã thay đổi trong quá trình thực hiện. Chúng được nêu ngay ở đây, trước
 mọi kết quả, để các chương sau được đọc như những kết luận khoa học có chủ ý chứ không như những
-khoảng trống mà người đọc tự phát hiện.
+khoảng trống mà người đọc tự phát hiện. Thay đổi nặng nhất — tháp thị giác của cấu hình tiêu đề —
+là **dòng đầu tiên** của bảng, không bị để lại cho người đọc tự phát hiện ở Chương 5.
 
   Cam kết trong đề cương | Điều đã thực hiện | Vì sao thay đổi
+  -----------------------+-------------------+----------------------------------------------------
+  Tháp thị giác của cấu  | **Đã thay.** Tháp | Cổng tiền đăng ký G14 — giả thuyết rằng phân rã
+  hình **tiêu đề** là    | tiêu đề là **CLIP | theo thực thể dựa trên bộ phát hiện làm tăng độ
+  **YOLO**               | ViT-B/32 đóng     | chính xác so với một đường cơ sở toàn khung khớp
+                         | băng** áp trên    | dung lượng — đã **TRƯỢT** (−0.5 pp, khoảng tin cậy
+                         | toàn khung. Làn   | theo cụm [−5.5, +5.0] chứa 0, p = 0.683; mục
+                         | YOLO (P3) vẫn được| 6.2.2). Quyết định triển khai vì vậy đi theo bằng
+                         | xây, vẫn được đo  | chứng chứ không theo đề cương. Đây là một **kết quả
+                         | trên thiết bị,    | âm được tuân thủ**, không phải một hạng mục bị bỏ:
+                         | nhưng không phải  | làn YOLO tồn tại, được đo trên Jetson và được báo
+                         | cấu hình tiêu đề. | cáo bằng số của chính nó (Chương 5).
   -----------------------+-------------------+----------------------------------------------------
   YOLO (không gian) →    | **Đạt về bản      | RT-DETR là một **bộ phát hiện** đầu-cuối, không
   tầng suy luận thời     | chất.** Tầng      | phải một bộ mã hoá chuỗi thời gian; đề cương đã
@@ -177,7 +189,7 @@ khoảng trống mà người đọc tự phát hiện.
   **> 95.8%**            | nữa.** Kết luận   | đo dưới một giao thức không ràng buộc nguồn, và
                          | tiêu đề được      | rằng một giao thức như vậy làm phồng độ chính xác
                          | chuyển thành **đại| **13.0 đến 21.8 điểm phần trăm** trên chính kho
-                         | lượng lạm phát    | Unsafe-Net (Chương 6, mục 6.6). Đặt mục tiêu vượt
+                         | lượng lạm phát    | Unsafe-Net (Chương 6, mục 6.5). Đặt mục tiêu vượt
                          | giao thức**.      | một con số đã bị chứng minh là bị phồng thì không
                          |                   | còn là một mục tiêu khoa học có nghĩa.
   -----------------------+-------------------+----------------------------------------------------
@@ -209,7 +221,23 @@ hoá nhỏ nhất đi từ **75.2%** độ chính xác cân bằng dưới leave
 ngẫu nhiên, tức **+15.4 điểm phần trăm**, với khoảng tin cậy bootstrap theo cụm trên 151 nguồn là
 **[+10.6, +21.5]** — loại trừ 0 — và McNemar chính xác p = 3.58e-45. Ba bộ còn lại cho +10.4,
 +13.2 và +14.9 điểm phần trăm. Trên Unsafe-Net, năm bộ mã hoá cho **+13.0 đến +21.8** điểm phần
-trăm dưới cùng phép so sánh. Hai hệ quả mạnh hơn bản thân độ lớn:
+trăm dưới cùng phép so sánh.
+
+Phép đo được lặp lại trên **chính cấu hình được triển khai** — tháp CLIP toàn khung cộng đầu thời
+gian 201,090 tham số — giữ nguyên 1,100 clip, nguyên 10 fold, nguyên ba seed, chỉ đổi phép chia:
+**97.7%** dưới fold ngẫu nhiên so với **84.2%** dưới leave-source-out, tức **+13.5 điểm phần trăm**,
+khoảng tin cậy theo cụm **[+8.0, +20.0]**, McNemar chính xác **p = 1.39e-41** (mục 6.2.7). Nghĩa là
+con số chín mươi mấy phần trăm mà giao thức của tài liệu sinh ra **đã được luận văn đo**, trên chính
+mô hình mà luận văn triển khai; luận văn chọn công bố 84.2%.
+
+Một **đối chứng giả dược** trên 20 seed tách phần lạm phát khỏi phản biện cạnh tranh "fold nhóm chỉ
+khó hơn về cấu trúc": với định danh nguồn giả khớp số nhóm, khớp đa tập kích thước nhóm trong từng
+lớp và khớp tính thuần lớp — chỉ xuất xứ bị phá — bộ mã hoá đạt trung bình **89.0%** (độ lệch chuẩn
+0.47), không seed nào xuống tới 75.2% của nguồn thật, p hoán vị **0.0476**. Phân tách: **+1.6 điểm
+phần trăm do hình học fold** và **+13.8 điểm phần trăm do danh tính nguồn** (mục 6.6.3). Cả hai đối
+chứng này **không được đăng ký trước** và **không phán quyết** cổng nào.
+
+Hai hệ quả mạnh hơn bản thân độ lớn:
 
   (a) **Giao thức rò rỉ nén khả năng phân biệt kiến trúc.** Khoảng cách giữa bộ mã hoá tốt nhất và
       kém nhất co từ **5.1** xuống **1.4** điểm phần trăm trên iSafetyBench, và từ **7.3** xuống
@@ -249,16 +277,16 @@ hình khác, cũng trượt (G11: +1.1 điểm phần trăm, khoảng tin cậy 
 quyết trượt được công bố với biên và khoảng tin cậy ở đúng mức chi tiết như hai phán quyết đạt.
 (Chương 6, mục 6.2, 6.11 và 6.13; Chương 7, mục 7.2.)
 
-**(4) Phân tích thất bại có quy nguyên nhân, và một sổ đăng ký các phát biểu đã bị rút.** Luận văn
-dành một chương cho những gì đã sai. Bốn hạng mục chính: (a) một phép **cộng các giai đoạn đo rời
-rạc** đã từng được trình bày như một nhịp hệ thống — sai số của nó đổi dấu theo trạng thái xung
-nhịp (+7.98% khi ghim nhịp, −39.3% khi để bộ điều tốc tự do), nên nó không phải chặn trên cũng
+**(4) Phân tích kết quả phủ định có quy nguyên nhân, và một sổ đăng ký các phát biểu đã bị rút.**
+Luận văn dành một chương cho những gì đã sai. Bốn hạng mục chính: (a) một phép **cộng các giai đoạn
+đo rời rạc** đã từng được trình bày như một nhịp hệ thống — sai số của nó đổi dấu theo trạng thái
+xung nhịp (+7.98% khi ghim nhịp, −39.3% khi để bộ điều tốc tự do), nên nó không phải chặn trên cũng
 không phải chặn dưới, và không hệ số hiệu chỉnh nào cứu được nó; (b) ba khiếm khuyết của harness đo
 cùng ba quy tắc đọc thay thế, trong đó có một lỗi thật ở bộ định nhịp và hai tên trường gây nhầm;
-(c) một thất bại tập trung theo fold — dải cân bằng theo fold rộng **29.7 điểm phần trăm** — và
-việc nó **di chuyển** sang nguồn khác thay vì biến mất khi đổi biểu diễn; (d) một **sổ đăng ký 11
-dòng** các con số đã bị rút khỏi luận văn, mỗi dòng ghi giá trị cũ, lý do rút và giá trị thay thế
-nếu có. (Chương 7; Phụ lục A, mục A.10.)
+(c) một thất bại tập trung theo fold — dải cân bằng theo fold rộng **29.7 điểm phần trăm** — và việc
+nó **di chuyển** sang nguồn khác thay vì biến mất khi đổi biểu diễn; (d) một **sổ đăng ký 11 dòng**
+các con số đã bị rút khỏi luận văn, mỗi dòng ghi giá trị cũ, lý do rút và giá trị thay thế nếu có.
+(Chương 7; Phụ lục A, mục A.10.)
 
 **(5) Tạo tác tái lập được, và một đường truy xuất xuất xứ cho từng con số.** Mọi trọng số đã huấn
 luyện, bản xuất ONNX, engine TensorRT, báo cáo tương đương, nhật ký ablation và nhật ký đo trên
@@ -338,10 +366,10 @@ nhân — không phải một con số top-1 cạnh tranh.
     các giải thích cạnh tranh; làn tiêu đề; làn token quan hệ thực thể; làn Unsafe-Net bốn lớp cùng
     giới hạn của nó; và tổng hợp phán quyết tám cổng.
 
-  - **Chương 7 — Phân tích thất bại.** Vì sao phân rã thực thể không thắng; một thất bại tập trung
-    theo fold và việc nó di chuyển; vụ tổng-theo-giai-đoạn; ba khiếm khuyết của harness; sổ đăng ký
-    các phát biểu đã rút; các khuyết điểm xuất xứ; nguyên nhân hệ thống của hiện tượng trùng số; và
-    các giới hạn còn mở.
+  - **Chương 7 — Phân tích kết quả phủ định và quy nguyên nhân.** Vì sao phân rã thực thể không
+    thắng; một thất bại tập trung theo fold và việc nó di chuyển; vụ tổng-theo-giai-đoạn; ba khiếm
+    khuyết của harness; sổ đăng ký các phát biểu đã rút; các khuyết điểm xuất xứ; nguyên nhân hệ
+    thống của hiện tượng trùng số; và các giới hạn còn mở.
 
   - **Chương 8 — Kết luận.** Tổng hợp các kết luận có bằng chứng, các kết luận phủ định, đóng góp
     đã giao so với đã rút, và hướng phát triển theo thứ tự ưu tiên.

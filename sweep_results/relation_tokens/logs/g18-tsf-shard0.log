@@ -1,0 +1,7 @@
+[shard 0/4] folds: f1, f5, f9
+[grouping] source YouTube video id: 151 sources, 0 carry both classes (R41) -> 10 StratifiedGroupKFold folds; no source spans the boundary.
+[lso-1100] model=TSF backbone=CLIP ViT-B/32 pooled 1100 clips (unsafe 420) | folds=3 | seeds=3 | params=686,726
+  held-out group f1: n=144 unsafe=42 acc= 84.7%
+  held-out group f5: n=106 unsafe=42 acc= 81.1%
+  held-out group f9: n=106 unsafe=42 acc= 87.7%
+  [shard saved] sweep_results/relation_tokens/shard_isbclip_TSF_0of4.pt  (356 clips scored)

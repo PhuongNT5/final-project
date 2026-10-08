@@ -2,7 +2,9 @@
 
 verify-r48-device-parity.preprocess was changed to swap colour channels AFTER the resize instead of
 before it, because the before-version forces OpenCV to copy the whole full-resolution frame to
-escape a negative-stride view (90,9 of 101,0 ms at 1080p). That is a latency fix, and it is only
+escape a negative-stride view (91,4 of 101,6 ms at 1080p;
+deployment/artifacts/jetson-measurements/r48-preprocess-profile-20261003T153439.json, host build).
+That is a latency fix, and it is only
 legitimate if the pixels are bit-identical: the deployed 84,2 % balanced accuracy was measured
 through the old pixels, and the 3-seed head was trained on features built by the same formula.
 

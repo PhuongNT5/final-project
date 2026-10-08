@@ -1,4 +1,4 @@
-# Benchmark Results — YOLO-Transformer Pipeline on Apple M4
+# Benchmark Results — YOLO-Transformer Pipeline on Apple M3
 
 **Generated:** 2026-06-13 13:24  
 **Machine:** Phgs-Mac.lan  

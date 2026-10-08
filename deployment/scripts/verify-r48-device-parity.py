@@ -62,8 +62,9 @@ def preprocess(frames, mean, std):
     The channel swap is applied to the 224x224 RESULT, not to the full-resolution frame. Both
     orders give bit-identical pixels -- cv2.resize weights within a channel and never across
     channels -- but `f[:, :, ::-1]` is a negative-stride view, so OpenCV materialises a contiguous
-    copy of the whole frame first: 90,9 of 101,0 ms of this function at 1080p
-    (profile-r48-preprocess.py). Bit-equality is not assumed here; it is gated by that script and
+    copy of the whole frame first: 91,4 of 101,6 ms of this function at 1080p
+    (profile-r48-preprocess.py; r48-preprocess-profile-20261003T153439.json, host). Bit-equality
+    is not assumed here; it is gated by that script and
     by tests/test-r48-preprocess-variants.py."""
     ims = [cv2.resize(f, (224, 224))[:, :, ::-1].astype('float32') / 255.0 for f in frames]
     x = np.stack(ims).transpose(0, 3, 1, 2)

@@ -173,5 +173,11 @@ my-project/
 ```
 
 ## Hardware
-- MacBook Pro M4, 36GB unified memory, MPS backend
+- MacBook Pro Apple M3 (Mac15,12), 16 GB unified memory, MPS backend. The proposal recorded
+  "M4 Pro, 36 GB"; that label is wrong. The adjudicating evidence is in the repository: the
+  Ultralytics banner inside the detector training logs prints `MPS (Apple M3)`
+  (`sweep_results/entity_detector/train_run.log`, `sweep_results/r2/behaviour_yolo.log`), and the
+  artifact headers record `Phgs-Mac.lan` / `macOS-14.6-arm64`. No measured latency, FPS or
+  accuracy value depends on this label: every training run was on CPU, MPS was used only for
+  feature extraction.
 - Training times: V3 (3.5h), V6 (25h), YOLO-World (2.5h), Pairwise (2.5h)

@@ -53,6 +53,10 @@ def _attach_ids(d, donor):
     Refuses on any label mismatch: identical labels in identical row order is the only evidence
     that the two runs scored the same clips in the same order.
     """
+    if any('_row' not in r for r in donor.values()):
+        raise ValueError('--ids_from must be a .pt donor carrying clip_ids + groups (e.g. an '
+                         'lco_oof_softmax_*.pt). A *_oof.json donor has no row index, so its rows '
+                         'cannot be ordered against the identity-less tensor.')
     rows = sorted(donor.values(), key=lambda r: r['_row'])
     labels, preds = d['labels'], d['oof_pred']
     if len(rows) != len(labels):

@@ -1,0 +1,62 @@
+[chain] plumbing check: 2 epochs, 1 seed, NOT a result
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+[grouping] source YouTube video id: 151 sources, 0 carry both classes (R41) -> 10 StratifiedGroupKFold folds; no source spans the boundary.
+[lso-1100] model=ESTA backbone=CLIP ViT-B/32 pooled 1100 clips (unsafe 420) | folds=10 | seeds=1 | params=352,258
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+  held-out group f1: n=144 unsafe=42 acc= 80.6%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+  held-out group f2: n=107 unsafe=42 acc= 83.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+  held-out group f3: n=107 unsafe=42 acc= 86.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+  held-out group f4: n=106 unsafe=42 acc= 87.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+  held-out group f5: n=106 unsafe=42 acc= 71.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+  held-out group f6: n=106 unsafe=42 acc= 51.9%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+  held-out group f7: n=106 unsafe=42 acc= 91.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+  held-out group f8: n=106 unsafe=42 acc= 95.3%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+  held-out group f9: n=106 unsafe=42 acc= 88.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:83: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.spatial = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), s_layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:45: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+  held-out group f10: n=106 unsafe=42 acc= 79.2%
+
+=== LSO-1100 (ESTA, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=82.9% macro_f1=81.2% unsafe_recall=88.8% unsafe_precision=70.5% PR-AUC=0.710 ROC-AUC=0.870
+  [saved per-clip OOF] sweep_results/relation_tokens/enc_isbclip_ESTA_smoke_lso-1100_headline-none_oof.json
+  [saved OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isbclip_binary_ESTA_smoke_none.pt

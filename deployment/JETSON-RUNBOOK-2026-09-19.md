@@ -8,8 +8,10 @@
 > 2. **Step 4 (per-stage latency) is the session's headline deliverable.** It converts the
 >    "P3 misses the 3.0 decisions/s cadence" conclusion from a Mac-derived projection
 >    (1.13/1.64/1.71 dec/s, transfer factors 2.15x/3.11x/3.25x) into a real device measurement.
->    **DONE 2026-09-29: 3.02-3.04 dec/s at median crop load, 2.60-2.72 above it — P3 sits *on*
+>    **DONE 2026-09-29: ~~3.02-3.04 dec/s at median crop load, 2.60-2.72 above it~~ — P3 sits *on*
 >    the 3.0 dec/s boundary, not ~2x below it. The projection is refuted; see Step 4.**
+>    **Figures withdrawn 2026-10-01** (engine provenance): 3.226 dec/s pinned / 2.733 DVFS at
+>    median crop load. The refutation stands; the numbers are in Step 4's superseded banner.
 >    If the session is cut short, Steps 1-4 plus Step 11 are the defensible minimum.
 > 3. **P1 is the deployed system (D2).** Its June-03/12 numbers stand; re-verification with the
 >    fixed `TRTRunner` is a nice-to-have, not a blocker. P3 is measured as the accuracy-research
@@ -332,12 +334,19 @@ Record the raw JSON path; do not round or re-derive. If the measured rate clears
 > same process slows the detector by a systematic **+9.4 %** (11.85 → 12.85 ms/frame), and no
 > deployment decodes zero frames.
 
-**Deployment-representative (n=3, decode measured in-process;
-`decision-latency-fp16-20260929T{221836,223133,223401}.json`):**
-**331.19 / 328.88 / 329.69 ms = 3.02 / 3.04 / 3.03 dec/s** at median crop load (54) — clears the
-3.0 dec/s contract by only **0.7-1.3 %** — and **2.60-2.62 dec/s at the 128-crop cap (FAIL)**;
-p95 crops 2.71-2.72, p99 2.64-2.66. **Verdict: P3 sits *on* the cadence boundary**, neither the
-"~2x miss" the projection claimed nor a comfortable pass.
+**SUPERSEDED 2026-10-01 — do not quote the three numbers below.** The 09-29 engines did not
+match the device record and the run's clock state was never captured. Re-measured on rebuilt
+engines in both clock conditions: **310.00 ms = 3.226 dec/s (+7.5 %) at median crop load with
+`sudo jetson_clocks` applied**, versus **365.88 ms = 2.733 dec/s (−8.9 %, FAIL) under default
+DVFS**; p95/p99/cap FAIL in both conditions (pinned 2.883 / 2.810 / 2.760). Authority:
+`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-engine-provenance-invalidates-0929-latency.md`.
+
+> ~~**Deployment-representative (n=3, decode measured in-process;
+> `decision-latency-fp16-20260929T{221836,223133,223401}.json`):**
+> 331.19 / 328.88 / 329.69 ms = 3.02 / 3.04 / 3.03 dec/s at median crop load (54) — clears the
+> 3.0 dec/s contract by only 0.7-1.3 % — and 2.60-2.62 dec/s at the 128-crop cap (FAIL);
+> p95 crops 2.71-2.72, p99 2.64-2.66.~~ The surviving qualitative verdict: **P3 sits *on* the
+> cadence boundary**, neither the "~2x miss" the projection claimed nor a comfortable pass.
 
 Cost structure (deployment-representative): detector **62.1 %** (12.85 ms/frame x 16),
 postprocess 14.3 %, decode 11.7 %, appearance 6.1 %, crop-extract 5.5 %, relation head **0.05 %**

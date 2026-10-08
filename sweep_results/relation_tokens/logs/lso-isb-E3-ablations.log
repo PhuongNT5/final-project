@@ -1,0 +1,57 @@
+[ablation] no_conf: detection-confidence channel zeroed (isolates the mean_conf image-quality cue) | 100.0% of valid slots changed
+[grouping] source YouTube video id from filename: 151 sources, 0 carry both classes (R41) -> packed into 10 StratifiedGroupKFold folds; no source spans the train/held-out boundary.
+[lso-1100] arch=E3 d=- coord=T1 pooled 1100 clips (unsafe 420) | folds=10 | params=17,270
+  held-out group f1: n=144 unsafe=42 acc= 91.7%
+  held-out group f2: n=107 unsafe=42 acc= 74.8%
+  held-out group f3: n=107 unsafe=42 acc= 74.8%
+  held-out group f4: n=106 unsafe=42 acc= 67.9%
+  held-out group f5: n=106 unsafe=42 acc= 62.3%
+  held-out group f6: n=106 unsafe=42 acc= 50.9%
+  held-out group f7: n=106 unsafe=42 acc= 85.8%
+  held-out group f8: n=106 unsafe=42 acc= 87.7%
+  held-out group f9: n=106 unsafe=42 acc= 83.0%
+  held-out group f10: n=106 unsafe=42 acc= 70.8%
+
+=== LSO-1100 (E3, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=76.1% macro_f1=74.9% unsafe_recall=78.6% unsafe_precision=64.8% PR-AUC=0.695 ROC-AUC=0.817
+  [R42 floor, identical folds] count-rule (persons/frame, objects/frame, mean conf) balanced_acc=53.0%  |  encoder-minus-shortcut = +23.2 pp
+  [saved LCO per-clip OOF] sweep_results/relation_tokens/enc_isb_E3_no_conf_lso-1100_headline-none_oof.json
+  [saved LCO OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isb_binary_E3_no_conf_none.pt
+[ablation] no_appearance: the 64 appearance columns zeroed (geometry + class ids only) | 100.0% of valid slots changed
+[grouping] source YouTube video id from filename: 151 sources, 0 carry both classes (R41) -> packed into 10 StratifiedGroupKFold folds; no source spans the train/held-out boundary.
+[lso-1100] arch=E3 d=- coord=T1 pooled 1100 clips (unsafe 420) | folds=10 | params=17,270
+  held-out group f1: n=144 unsafe=42 acc= 66.7%
+  held-out group f2: n=107 unsafe=42 acc= 72.0%
+  held-out group f3: n=107 unsafe=42 acc= 72.9%
+  held-out group f4: n=106 unsafe=42 acc= 81.1%
+  held-out group f5: n=106 unsafe=42 acc= 56.6%
+  held-out group f6: n=106 unsafe=42 acc= 49.1%
+  held-out group f7: n=106 unsafe=42 acc= 84.9%
+  held-out group f8: n=106 unsafe=42 acc= 81.1%
+  held-out group f9: n=106 unsafe=42 acc= 85.8%
+  held-out group f10: n=106 unsafe=42 acc= 79.2%
+
+=== LSO-1100 (E3, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=73.8% macro_f1=72.3% unsafe_recall=78.1% unsafe_precision=61.2% PR-AUC=0.680 ROC-AUC=0.810
+  [R42 floor, identical folds] count-rule (persons/frame, objects/frame, mean conf) balanced_acc=67.2%  |  encoder-minus-shortcut = +6.5 pp
+  [saved LCO per-clip OOF] sweep_results/relation_tokens/enc_isb_E3_no_appearance_lso-1100_headline-none_oof.json
+  [saved LCO OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isb_binary_E3_no_appearance_none.pt
+[ablation] blind_class: entity class id held constant on every valid slot (identity-blind) | 47.1% of valid slots changed
+[grouping] source YouTube video id from filename: 151 sources, 0 carry both classes (R41) -> packed into 10 StratifiedGroupKFold folds; no source spans the train/held-out boundary.
+[lso-1100] arch=E3 d=- coord=T1 pooled 1100 clips (unsafe 420) | folds=10 | params=17,270
+  held-out group f1: n=144 unsafe=42 acc= 92.4%
+  held-out group f2: n=107 unsafe=42 acc= 86.9%
+  held-out group f3: n=107 unsafe=42 acc= 72.0%
+  held-out group f4: n=106 unsafe=42 acc= 72.6%
+  held-out group f5: n=106 unsafe=42 acc= 61.3%
+  held-out group f6: n=106 unsafe=42 acc= 53.8%
+  held-out group f7: n=106 unsafe=42 acc= 76.4%
+  held-out group f8: n=106 unsafe=42 acc= 84.9%
+  held-out group f9: n=106 unsafe=42 acc= 81.1%
+  held-out group f10: n=106 unsafe=42 acc= 72.6%
+
+=== LSO-1100 (E3, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=76.6% macro_f1=75.4% unsafe_recall=79.0% unsafe_precision=65.4% PR-AUC=0.683 ROC-AUC=0.824
+  [R42 floor, identical folds] count-rule (persons/frame, objects/frame, mean conf) balanced_acc=68.1%  |  encoder-minus-shortcut = +8.5 pp
+  [saved LCO per-clip OOF] sweep_results/relation_tokens/enc_isb_E3_blind_class_lso-1100_headline-none_oof.json
+  [saved LCO OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isb_binary_E3_blind_class_none.pt

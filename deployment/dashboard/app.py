@@ -175,9 +175,9 @@ def multi_stream(sessions: dict, mode: str) -> None:
 
 
 def main() -> None:
-    st.set_page_config(page_title="Unsafe Behavior Detection — M4 Edge Demo", layout="wide")
+    st.set_page_config(page_title="Unsafe Behavior Detection — M3 Edge Demo", layout="wide")
     st.title("Real-Time Unsafe Behavior Detection")
-    st.caption("YOLOv11s backbone + Transformer heads · ONNX Runtime on Apple M4 CPU")
+    st.caption("YOLOv11s backbone + Transformer heads · ONNX Runtime on Apple M3 CPU")
 
     precision = st.sidebar.selectbox("Precision", ["fp32", "int8"], index=0)
     mode = st.sidebar.selectbox("Model mode", ["ensemble", "direct4", "cascade"], index=0)

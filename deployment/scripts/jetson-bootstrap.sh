@@ -16,7 +16,7 @@ LOG() { echo "[$(date +%H:%M:%S)] $*"; }
 # ---------- 0. Pre-flight checks ----------
 LOG "=== Day 0 Jetson Bootstrap ==="
 if [[ ! -f "$JETPACK_RELEASE_FILE" ]]; then
-  echo "ERROR: not a Jetson (no $JETPACK_RELEASE_FILE). Run this on the Orin Nano, not the M4." >&2
+  echo "ERROR: not a Jetson (no $JETPACK_RELEASE_FILE). Run this on the Orin Nano, not the M3." >&2
   exit 1
 fi
 LOG "JetPack release: $(head -1 $JETPACK_RELEASE_FILE)"
@@ -125,10 +125,10 @@ LOG "--- 9. Project layout ---"
 if [[ -d "$PROJECT_DIR" ]]; then
   LOG "Found project at $PROJECT_DIR"
   cd "$PROJECT_DIR"
-  ls -la deployment/scripts/jetson-*.py 2>/dev/null || LOG "Jetson scripts not yet rsynced from M4"
-  ls -la deployment/export/*-fp32.onnx 2>/dev/null | head -5 || LOG "ONNX models not yet rsynced from M4"
+  ls -la deployment/scripts/jetson-*.py 2>/dev/null || LOG "Jetson scripts not yet rsynced from M3"
+  ls -la deployment/export/*-fp32.onnx 2>/dev/null | head -5 || LOG "ONNX models not yet rsynced from M3"
 else
-  LOG "Project not present yet. Run jetson-rsync-from-mac.sh on the M4 to push it."
+  LOG "Project not present yet. Run jetson-rsync-from-mac.sh on the M3 to push it."
 fi
 
 # ---------- 10. Summary ----------

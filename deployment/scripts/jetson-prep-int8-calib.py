@@ -5,7 +5,7 @@ Streams 32 calibration samples per head from the cached training-set features
 into per-model .npy batch files. The Jetson INT8 calibrator
 (jetson-build-trt-engine.py) reads these without needing PyTorch on-device.
 
-Run on M4 (or any machine with the .pt cache); copy the output dir to the
+Run on M3 (or any machine with the .pt cache); copy the output dir to the
 Jetson before running jetson-build-trt-engine.py --mode int8.
 
 Output: deployment/artifacts/calib-jetson/<model>-batch-{0..31}.npy

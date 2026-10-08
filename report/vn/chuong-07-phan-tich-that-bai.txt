@@ -1,0 +1,961 @@
+======================================================================
+CHƯƠNG 7. PHÂN TÍCH KẾT QUẢ PHỦ ĐỊNH VÀ QUY NGUYÊN NHÂN:
+           CÁC CỔNG TRƯỢT, CÁC PHÁT BIỂU ĐÃ RÚT, CÁC KHUYẾT ĐIỂM PHÉP ĐO
+======================================================================
+
+----------------------------------------------------------------------
+7.1. MỤC ĐÍCH VÀ NGUYÊN TẮC TỔ CHỨC CỦA CHƯƠNG
+----------------------------------------------------------------------
+
+Chương 6 công bố phán quyết: tám cổng tiền đăng ký, hai đạt và sáu trượt. Chương 5 công bố một hệ
+thống chạy được trên thiết bị biên nhưng không phải hệ thống mà đề cương đã mô tả. Chương này trả
+lời câu hỏi còn lại: **vì sao**, và **điều gì trong quy trình nghiên cứu đã dẫn tới việc các con số
+sai tồn tại đủ lâu để được viết vào bản thảo**.
+
+Một chương phân tích kết quả phủ định không phải một chương xin lỗi. Nó có ba chức năng kỹ thuật
+cụ thể.
+
+  (1) **Quy nguyên nhân.** Một cổng trượt chỉ hữu ích khi biết nó trượt vì giả thuyết sai, vì phép
+      đo yếu, hay vì bộ dữ liệu không đủ phân giải. Ba trường hợp này dẫn tới ba hành động hoàn
+      toàn khác nhau cho công việc tiếp theo, và chương này phân loại từng cổng trượt vào một
+      trong ba.
+
+  (2) **Ghi lại các claim đã rút cùng lý do.** Mọi con số từng xuất hiện trong một bản thảo của
+      luận văn và sau đó bị rút được liệt kê ở mục 7.6, kèm giá trị thay thế nếu có. Lý do công bố
+      danh sách này: một phản biện đọc các phiên bản trước — hoặc đọc các báo cáo tiến độ đã gửi —
+      sẽ gặp các con số đó, và việc im lặng về chúng sẽ là hành vi tệ hơn việc đã mắc lỗi.
+
+  (3) **Biến từng lỗi thành một quy tắc đọc.** Mỗi khuyết điểm phát hiện được ở mục 7.4 và 7.5
+      được viết lại thành một quy tắc có thể kiểm tra được, và các quy tắc đó đã được áp dụng
+      ngược lại lên toàn bộ Chương 5 và Chương 6.
+
+Nguyên tắc tổ chức: **nêu thất bại nặng nhất trước**. Mục 7.2 xử lý việc giả thuyết trung tâm của
+đề cương không được số liệu ủng hộ. Mục 7.3 xử lý thất bại tập trung ở một fold. Mục 7.4 xử lý
+khuyết điểm phép đo nghiêm trọng nhất của luận văn — một phép cộng từng được trình bày như một
+phép đo. Mục 7.5 xử lý ba khuyết điểm của harness đo. Mục 7.6 đến 7.8 là các danh sách. Mục 7.9
+nêu những gì vẫn còn mở.
+
+----------------------------------------------------------------------
+7.2. VÌ SAO PHÂN RÃ THỰC THỂ KHÔNG THẮNG
+----------------------------------------------------------------------
+
+Đây là thất bại nặng nhất của luận văn, vì nó là giả thuyết mà đề cương được viết trên đó: rằng
+việc phân rã một khung ảnh thành các thực thể và mô hình hoá quan hệ giữa chúng sẽ cho kết quả tốt
+hơn một biểu diễn toàn khung trong bài toán phát hiện hành vi không an toàn.
+
+Ba cổng độc lập đã kiểm tra giả thuyết này và cả ba đều trượt (Chương 6, Bảng 6.8):
+
+  G11 — xương sống MobileNetV3, encoder E3 so với đầu dò tuyến tính trên đặc trưng toàn khung:
+        **+1.1 pp**, CI theo cụm [−4.8, +6.9] chứa 0, McNemar p = 0.625.
+  G14 — xương sống CLIP ViT-B/32 ở điều kiện khớp nhau, ESTA so với B1w:
+        **−0.5 pp**, CI [−5.5, +5.0] chứa 0, McNemar p = 0.683.
+  G18 — mô hình hợp nhất hai luồng TSF so với luồng toàn khung đơn lẻ B1w:
+        **−0.3 pp**, CI [−3.7, +2.5] chứa 0, McNemar p = 0.401.
+
+Ba cổng này khác nhau về xương sống, về kiến trúc đầu, về việc có hay không cơ chế hợp nhất. Chúng
+không phải ba lần chạy lại của một thí nghiệm; chúng là ba thí nghiệm khác nhau cho cùng một kết
+luận. Bốn mục sau phân tích cơ chế.
+
+7.2.1. Tín hiệu phân biệt nằm ở ngoại hình, không ở quan hệ
+
+Bằng chứng cơ chế trực tiếp nhất là thang ablation ở mục 6.11.5, và nó đủ chặt để kết luận:
+
+  - Bỏ **toàn bộ** thông tin ngoài ngoại hình (cấu hình `appearance_only`: không lớp, không hộp,
+    không độ tin cậy, không quan hệ) làm thay đổi kết quả **−0.4 pp**, với CI [−2.9, +2.4] chứa 0
+    và McNemar p = 0.551. Nghĩa là: **không mất gì đo được**.
+  - Giữ **chỉ** hình học hộp giới hạn (cấu hình `boxes_only`) làm mất **11.0 pp**, CI [+3.4, +18.8]
+    loại trừ 0, p = 2.6e-13.
+
+Diễn giải chặt: encoder quan hệ thực thể, trên bộ dữ liệu này, là một bộ phân loại **ngoại hình**
+có thêm vài kênh phụ không được dùng. Kênh quan hệ — thứ mà toàn bộ kiến trúc tồn tại để khai thác
+— không đóng góp phần nào đo được.
+
+Nếu đúng như vậy thì G11 và G14 **phải** trượt, và đó chính là điều đã xảy ra. Một biểu diễn toàn
+khung cũng là một biểu diễn ngoại hình, và nó là biểu diễn ngoại hình **không bị mất mát**: nó
+không bỏ qua phần ảnh nằm ngoài các hộp giới hạn, không phụ thuộc vào việc bộ phát hiện có tìm
+thấy thực thể hay không, và không chịu chi phí nội suy của việc cắt-và-thay-đổi-kích-thước. Nói
+cách khác, **phân rã thực thể là một cách lấy mẫu ngoại hình kém hơn**, chừng nào quan hệ không
+mang thông tin.
+
+Ba ablation bỏ thông tin lại ghi điểm cao hơn mô hình đầy đủ (`blind_class` 76.6%, `no_boxes`
+76.2%, `no_conf` 76.1% so với 75.2%) củng cố cùng cách đọc: các kênh phụ không chỉ vô dụng, chúng
+còn là nhiễu mà mô hình phải học cách phớt lờ với dung lượng hữu hạn. Như mục 6.11.5 đã nêu, các
+chênh lệch 0.9–1.4 pp này **chưa** được kiểm định cặp nên không được phát biểu là "tốt hơn"; điều
+phát biểu được là chúng không làm kết quả giảm.
+
+7.2.2. Bộ phát hiện là một điểm nghẽn thông tin, và nâng nó không giúp
+
+Phản biện hiển nhiên với mục 7.2.1 là: kênh quan hệ vô dụng vì **token đầu vào** quá tệ, tức lỗi ở
+bộ phát hiện chứ không ở ý tưởng. Cổng G17 được đăng ký trước để kiểm tra chính phản biện đó, và
+kết quả đi **ngược** chiều dự đoán của phản biện:
+
+  ESTA @ YOLOv11s 83.8%  →  ESTA @ YOLO26s 81.6%   (thế hệ mới hơn, kết quả thấp hơn 2.2 pp)
+
+Số lượng phát hiện giải thích chiều: YOLOv11s sinh 52,997 phát hiện trên 90.2% số khung, YOLO26s
+sinh 45,512 trên 87.9%. Bộ phát hiện mới **bảo thủ hơn**, nên nhánh token nhận ít thực thể hơn và
+mất thêm thông tin ngoại hình.
+
+Điều này cho một cơ chế rõ ràng cho cả ba cổng trượt: **mỗi phát hiện bị bỏ sót là một vùng ảnh mà
+nhánh thực thể không bao giờ nhìn thấy, trong khi nhánh toàn khung vẫn nhìn thấy nó.** Với 9.8% số
+khung không có phát hiện nào (YOLOv11s) hoặc 12.1% (YOLO26s), nhánh thực thể làm việc với một đầu
+vào rỗng trên khoảng một phần mười corpus. Một bộ phát hiện tốt hơn theo nghĩa mAP không sửa được
+điều này; nó có thể làm nặng thêm, nếu "tốt hơn" nghĩa là ít dương tính giả hơn.
+
+Đối chứng làm chặt kết luận: nhánh toàn khung của hai tệp đặc trưng **giống hệt từng byte** (độ
+lệch tuyệt đối lớn nhất 0.0), vì không bộ phát hiện nào can thiệp vào đường toàn khung. Do đó
+trong thí nghiệm G17 **biến duy nhất thay đổi là thế hệ bộ phát hiện**.
+
+7.2.3. Trên bộ dữ liệu tiêu đề, kênh hình học rỗng về mặt cấu tạo
+
+Có một nguyên nhân thứ ba, và nó là nguyên nhân mà luận văn **không** thể loại trừ: bốn cột hình
+học quan hệ-vùng của iSafetyBench (`iou_walkway`, `iou_restricted`, `foot_in_walkway`,
+`norm_dist`) **bằng 0 đồng nhất** trên toàn bộ 1,100 clip, vì bộ dữ liệu không công bố chú giải
+vùng (giới hạn thừa hưởng R45, mục 6.11.6, kiểm chứng bởi `tests/test-isafetybench-dataset.py`).
+
+Hệ quả phải nói rõ theo hai chiều, và cả hai chiều đều quan trọng.
+
+  **Chiều bất lợi cho luận văn:** trên bộ dữ liệu tiêu đề, "quan hệ" mà encoder có thể học bị thu
+  hẹp còn quan hệ giữa các hộp giới hạn với nhau. Khái niệm quan hệ giàu nhất của thiết kế — quan
+  hệ giữa người và **vùng hình học hiện trường** (lối đi dành cho người, vùng hạn chế) — không
+  tồn tại trong dữ liệu. Vì vậy **G11, G14 và G18 không bác bỏ giả thuyết ở dạng mạnh nhất của
+  nó.** Chúng bác bỏ giả thuyết ở dạng đã được kiểm tra: phân rã thực thể **không có chú giải
+  vùng** không hơn biểu diễn toàn khung.
+
+  **Chiều bất lợi cho phản biện:** làn Unsafe-Net bốn lớp **có** hình học vùng thật, và ở đó kết
+  quả cũng không ủng hộ dạng mạnh. Biên +16.9 pp tập trung vào **hai trong bốn lớp** và **hai
+  trong tám nhóm bối cảnh**; với hai lớp mà nhãn là thuộc tính ngoại hình cục bộ (tủ điện mở, xe
+  nâng quá tải) một bộ phân loại ngoại hình toàn khung làm **ngang bằng** (88.0% so với 88.7%, và
+  100.0% so với 100.0%; mục 6.12). Tức là ngay cả khi có hình học vùng, lợi ích chỉ xuất hiện đúng
+  ở các lớp mà nhãn **được định nghĩa** bằng quan hệ người–vùng, và không lan ra ngoài.
+
+Kết luận quy nguyên nhân cho ba cổng: **G11, G14 và G18 trượt vì giả thuyết sai trong phạm vi đã
+kiểm tra, không vì phép đo yếu.** Cả ba có cỡ mẫu 1,100 clip, bootstrap theo cụm trên 151 nguồn,
+McNemar chính xác, và biên quan sát được **mang dấu sai hoặc gần bằng 0** — không phải dấu đúng với
+khoảng tin cậy rộng. Một cỡ mẫu lớn hơn sẽ không cứu được một biên −0.5 pp.
+
+7.2.4. Vì sao mô hình hợp nhất hội tụ về luồng toàn khung
+
+G18 có một chứng cứ cơ chế riêng, và nó là chứng cứ sạch nhất của mục này: **sự sụp đổ của số clip
+bất đồng**.
+
+  ESTA so với B1w : hai mô hình cho dự đoán khác nhau trên **150** clip.
+  TSF  so với B1w : hai mô hình cho dự đoán khác nhau trên **51** clip.
+
+TSF là mô hình hợp nhất hai luồng — một luồng toàn khung, một luồng thực thể — huấn luyện tự do để
+cân hai luồng. Nếu luồng thực thể mang thông tin bổ sung, TSF phải **khác** B1w nhiều hơn ESTA
+khác B1w, vì nó có cả hai nguồn. Quan sát được là ngược lại: TSF khác B1w **ít hơn ba lần**.
+
+Diễn giải: quá trình huấn luyện đã học cách **triệt tiêu luồng thực thể**. Đối chiếu với nhánh
+thực thể riêng của chính nó, TSF chỉ hơn +0.2 pp với b = 81, c = 82 và **p = 1.000** — một bảng
+chéo gần như đối xứng hoàn hảo, tức hai bộ dự đoán không phân biệt được. Hai con số này cùng nói:
+cơ chế hợp nhất hoạt động đúng; nó phát hiện ra một trong hai luồng là vô ích và bỏ luồng đó.
+
+Đối chứng dung lượng B1xl loại nốt cách giải thích "TSF chỉ thiếu tham số": B1xl là mô hình toàn
+khung ở 696,962 tham số — gấp 2.09 lần B1w và lớn hơn chính TSF 1.5% — và đạt 82.7%, tức **thấp
+hơn B1w 1.7 pp**. Đối chứng này được đăng ký **trước khi** kết quả TSF hiện ra. Cùng với việc
+nâng B1 (201,090 tham số) lên B1w (333,570) chỉ nhích +0.2 pp, dung lượng bị loại trên một dải
+tham số 3.5 lần.
+
+----------------------------------------------------------------------
+7.3. FOLD 6: MỘT THẤT BẠI TẬP TRUNG, VÀ NÓ DI CHUYỂN THAY VÌ BIẾN MẤT
+----------------------------------------------------------------------
+
+Độ chính xác cân bằng trung bình che mất một sự thật quan trọng của làn tiêu đề: kết quả **không**
+phân bố đều qua mười fold. Dưới leave-source-out, mỗi fold là một tập nguồn video bị giữ lại hoàn
+toàn, nên độ phân tán giữa các fold đo trực tiếp **độ phụ thuộc bối cảnh** của mô hình.
+
+  Mô hình | f1   | f2   | f3   | f4   | f5   | f6   | f7   | f8   | f9   | f10  | Fold tệ nhất
+  --------+------+------+------+------+------+------+------+------+------+------+-------------
+  E3      | 91.2 | 73.0 | 72.5 | 66.6 | 63.0 | 57.3 | 81.9 | 87.0 | 84.7 | 71.7 | f6  = 57.3
+  E0      | 93.9 | 82.5 | 76.9 | 76.8 | 67.0 | 64.4 | 81.1 | 87.8 | 85.8 | 83.1 | f6  = 64.4
+  B1 [TĐ] | 85.8 | 88.4 | 74.7 | 79.1 | 83.6 | 67.5 | 97.2 | 96.9 | 81.0 | 86.2 | f6  = 67.5
+  B1w     | 84.6 | 82.2 | 74.7 | 78.3 | 83.6 | 78.5 | 95.3 | 95.7 | 81.0 | 88.6 | f3  = 74.7
+  ESTA    | 84.8 | 81.0 | 78.6 | 82.2 | 80.0 | 84.7 | 83.4 | 96.4 | 95.3 | 75.9 | f10 = 75.9
+
+  Mọi giá trị là độ chính xác cân bằng (%), tính lại từ dự đoán theo clip đã lưu bằng
+  `tools/analyse-isb-fold-failures.py`. **Mô tả, không có khoảng tin cậy.**
+
+  Cảnh báo trích dẫn bắt buộc: nhật ký huấn luyện in **top-1** theo fold, không in BA. Với B1 ở
+  fold 6, nhật ký in `acc= 62.3%` trong khi BA là 67.5%. Hai con số này không thay thế nhau được,
+  và các giá trị trong bảng trên là BA.
+
+Dải của B1 là **29.7 pp** (67.5 đến 97.2). Một mô hình có dải 29.7 pp giữa các tập nguồn bị giữ
+lại là một mô hình mà con số trung bình **không** dự báo được hiệu năng trên một hiện trường mới.
+Đây là phát biểu quan trọng nhất của mục này và nó là một phát biểu bất lợi.
+
+Một cảnh báo thứ hai, về thành phần của chính các fold: **fold 1 chỉ chứa duy nhất một nguồn nhãn
+bình thường** (`1tuWxs8fUOk`, 102 clip trong tổng 144 clip của fold), bên cạnh mười nguồn nguy
+hiểm. Nghĩa là độ nhạy lớp bình thường của fold 1 được đo trên **một** bối cảnh duy nhất, nên giá
+trị BA cao nhất bảng (91.2% ở E3, 85.8% ở B1) **không** được đọc là "fold dễ"; nó là một ước lượng
+có phương sai bối cảnh gần như không được lấy mẫu. Chín fold còn lại có 7 đến 9 nguồn bình thường
+và 6 đến 9 nguồn nguy hiểm, nên chúng so sánh được với nhau; fold 1 thì không hoàn toàn so sánh
+được với chúng. Mục 4.4 trình bày đầy đủ thành phần fold và nguyên nhân phân bố này.
+
+7.3.1. Cơ chế: nhiễu loạn cảnh gây dương tính giả, ở mức nguồn chứ không mức fold
+
+Fold 6 là fold tệ nhất của cả hai encoder thực thể và của cả cấu hình được triển khai. Phân tích
+mức nguồn cho cơ chế.
+
+  Fold 6, encoder E3 (BA 57.3%), 15 nguồn, n = 106 clip, 42 clip nguy hiểm:
+
+    Nguồn           | n  | Nhãn      | Độ chính xác | người/khung | vật thể/khung
+    ----------------+----+-----------+--------------+-------------+--------------
+    0a-WuC1Xdl4     |  9 | bình thường|     0.0%     |    0.69     |     3.38
+    0zQ9fI30v1E     | 31 | bình thường|     0.0%     |    1.98     |     8.00
+    b0DEnbTOUvg     |  3 | bình thường|     0.0%     |    1.92     |     3.44
+    oKDlfJKZfBc     |  1 | bình thường|     0.0%     |    0.94     |     2.44
+    vOySf5EIjRA     |  4 | bình thường|    50.0%     |    4.14     |     5.78
+    ----------------+----+-----------+--------------+-------------+--------------
+    Mười nguồn còn lại: năm nguồn nguy hiểm đạt 100.0%, hai nguồn bình thường đạt 100.0%,
+    một nguồn bình thường đạt 66.7%, hai nguồn nguy hiểm đạt 66.7% và 83.3%.
+
+    Trung bình corpus: người/khung 1.59, vật thể/khung 3.01, độ tin cậy 0.586.
+
+  Nguồn: `tools/analyse-isb-fold-failures.py` trên
+         `sweep_results/relation_tokens/enc_isb_E3_lso-1100_headline-none_oof.json`.
+
+  Ghi chú về ba biến đếm: người/khung, vật thể/khung và độ tin cậy được tính từ tệp token
+  thực thể (`tokens_isb_all.pt`, bộ phát hiện YOLOv11s). Chúng mô tả **corpus**, không mô tả
+  đầu vào của riêng một mô hình, nên dùng được làm biến giải thích chung cho cả hai làn. Phân
+  chia fold cũng dùng chung `StratifiedGroupKFold(10, seed=0)` trên cùng cặp (nhãn, nguồn), nên
+  số hiệu fold so sánh trực tiếp được giữa các mô hình trong bảng trên.
+
+**Năm nguồn mà E3 sai hoàn toàn hoặc gần hoàn toàn đều là nguồn nhãn "bình thường".** Mọi nguồn
+nhãn "nguy hiểm" trong cùng fold đều đạt từ 66.7% trở lên. Nghĩa là fold 6 không phải một thất bại
+về độ nhạy; nó là một thất bại về **độ chính xác dương**: mô hình tuyên bố "nguy hiểm" trên các
+cảnh bình thường. Điều này khớp với bảng chỉ số của E3 ở Bảng 6.5 (độ nhạy 78.3% nhưng precision
+chỉ 63.4%, thấp nhất trong làn).
+
+Biến giải thích là **mật độ vật thể**. Fold 6 có 4.85 vật thể/khung so với trung bình corpus 3.01
+(gấp 1.61 lần), và nguồn tệ nhất của nó — `0zQ9fI30v1E`, chiếm 31 trong 106 clip của fold — có
+**8.00 vật thể/khung, tức 2.66 lần trung bình corpus**.
+
+Mối liên hệ này **bất đối xứng theo nhãn**, và sự bất đối xứng chính là bằng chứng cho cách đọc
+"dương tính giả". Trong cùng fold 6, hai nguồn nhãn **nguy hiểm** có mật độ rất cao vẫn đúng hoàn
+toàn: `JNH-RPABpdA` ở 6.16 vật thể/khung đạt 100.0%, và `fs0TzsV5NgU` ở 4.30 người/khung — gấp 2.7
+lần trung bình corpus — cũng đạt 100.0%. Nghĩa là nhiễu loạn cảnh **không** làm mô hình mất khả năng
+nhận ra nguy hiểm; nó làm mô hình **thêm** nguy hiểm vào nơi không có. Đó là định nghĩa của một lỗi
+precision, và nó khớp với con số precision 63.4% ở Bảng 6.5.
+
+Một cảnh báo phải kèm ngay, vì nó giới hạn phát biểu trên: **mật độ vật thể không phải biến dự báo
+ở mức fold.** Fold 1 có mật độ cao thứ hai (3.17 vật thể/khung) và lại là fold **tốt nhất** (91.2%).
+Vì vậy cơ chế được phát biểu ở **mức nguồn**, không ở mức fold: khi một nguồn nhãn bình thường có
+mật độ vật thể rất cao, encoder thực thể có xu hướng đọc nó thành nguy hiểm. Fold 6 tệ vì nó tình
+cờ chứa một nguồn như vậy với cỡ lớn, không vì fold 6 "nhiều vật thể".
+
+7.3.2. Tháp toàn khung sửa một phần, và di chuyển phần còn lại
+
+So sánh cùng fold 6 giữa E3 và cấu hình được triển khai B1:
+
+  Nguồn           | E3     | B1     | Diễn biến
+  ----------------+--------+--------+--------------------------
+  oKDlfJKZfBc     |   0.0% | 100.0% | sửa hoàn toàn (n = 1)
+  0JyepVxTNTg     |  66.7% | 100.0% | sửa hoàn toàn (n = 3)
+  0zQ9fI30v1E     |   0.0% |  22.6% | sửa một phần  (n = 31)
+  0a-WuC1Xdl4     |   0.0% |  11.1% | sửa một phần  (n = 9)
+  b0DEnbTOUvg     |   0.0% |   0.0% | không đổi     (n = 3)
+  zJqzjDX-XFU     |  83.3% |  95.8% | cải thiện     (n = 24)
+  fs0TzsV5NgU     | 100.0% |  66.7% | **thoái lui** (n = 6, nhãn nguy hiểm)
+
+  BA fold 6: E3 57.3%  →  B1 67.5%  (**+10.2 pp**)
+
+Tháp CLIP toàn khung nâng fold 6 lên 10.2 pp, nhưng **nó không đổi bản chất của thất bại**: nguồn
+mật độ cao `0zQ9fI30v1E` vẫn chỉ đạt 22.6%, và một nguồn nguy hiểm trước đó đúng hoàn toàn nay
+thoái lui xuống 66.7%. Fold 6 vẫn là fold tệ nhất của B1.
+
+Và ở biến thể B1w, điều xảy ra là **thất bại di chuyển chứ không biến mất**. B1w nâng fold 6 lên
+78.5% — tức +21.2 pp so với E3, con số lớn nhất của bảng — nhưng fold tệ nhất của B1w là **fold 3
+ở 74.7%**, và chế độ thất bại ở đó **ngược dấu**:
+
+  Fold 3, B1w (BA 74.7%), 16 nguồn, n = 107: ba nguồn đạt 0.0% và **mười ba nguồn còn lại đạt
+  100.0%**. Ba nguồn sai là `H4sC0QCkG7I` (n = 17, **nguy hiểm**, 1.38 người/khung, 1.93
+  vật thể/khung), `uOAJL-g4Y_w` (n = 3, **nguy hiểm**, 5.60 người/khung, 7.23 vật thể/khung) và
+  `1SR4reJQnCM` (n = 2, bình thường, 0.19 người/khung, 1.06 vật thể/khung).
+
+Fold 6 của làn thực thể là thất bại **dương tính giả trên cảnh nhiễu loạn**; fold 3 của làn toàn
+khung là thất bại **bỏ sót nguy hiểm**. Đổi biểu diễn không loại bỏ tính phụ thuộc bối cảnh, nó
+**đổi chỗ** tính phụ thuộc đó.
+
+Và chế độ thất bại mới **không** giải thích được bằng nhiễu loạn cảnh. Nguồn chi phối lỗi của fold 3
+là `H4sC0QCkG7I` với 17 trong 107 clip, và nó có mật độ **dưới** trung bình corpus trên cả hai biến
+(1.93 so với 3.01 vật thể/khung; 1.38 so với 1.59 người/khung). Ba biến đếm mà bộ dữ liệu cho phép
+tính **không** phân biệt được nguồn này với mười ba nguồn đạt 100.0% trong cùng fold. Phát biểu
+trung thực nhất ở đây là: nguyên nhân của lỗi bỏ sót nguy hiểm trên làn toàn khung **chưa được quy
+cho biến nào**, và việc quy nguyên nhân đòi hỏi chú giải mà iSafetyBench không công bố (xem các
+mục 7.2.3 và 7.9). Với một hệ thống cảnh báo an toàn, hai chế độ thất bại này có hậu quả vận hành
+rất khác nhau, và đây là một trong các lý do mục 7.9 xếp "hiệu chuẩn và đặt ngưỡng theo hiện
+trường" lên đầu danh sách công việc còn lại.
+
+Ba điều mục này **không** phát biểu. Thứ nhất, không phát biểu rằng B1w tốt hơn B1: chênh lệch gộp
+chỉ +0.2 pp và quyết định triển khai đã cố định B1 từ trước (quyết định D3). Thứ hai, không phát
+biểu một khoảng tin cậy nào cho các con số theo fold — chúng là mô tả, mỗi fold có 106 clip và
+15–17 nguồn. Thứ ba, không phát biểu rằng mật độ vật thể là **nguyên nhân**; nó là biến tương quan
+mạnh nhất tìm được trong ba biến đếm mà bộ dữ liệu cho phép tính, và bộ dữ liệu không có chú giải
+nào để kiểm chứng cơ chế sâu hơn.
+
+----------------------------------------------------------------------
+7.4. VỤ TỔNG-THEO-GIAI-ĐOẠN: MỘT PHÉP CỘNG ĐÃ ĐƯỢC TRÌNH BÀY NHƯ MỘT
+     PHÉP ĐO
+----------------------------------------------------------------------
+
+Đây là khuyết điểm phương pháp nghiêm trọng nhất của luận văn. Trong các bản thảo trước, nhịp
+quyết định của pipeline P3 trên Jetson được công bố bằng cách **cộng độ trễ trung vị của từng giai
+đoạn đo riêng lẻ**. Chương 5 (mục 5.4.4 và 5.5.2) đã trình bày con số đo tổ hợp thay thế. Mục này
+phân tích vì sao phép cộng sai, vì sao nó không bị phát hiện lâu, và vì sao **không có hệ số hiệu
+chỉnh nào cứu được nó**.
+
+7.4.1. Công thức, và danh sách những gì nó không thấy
+
+Công thức được ghi thẳng vào mỗi tạo tác, trường `formula`
+(`deployment/scripts/jetson-measure-latency.py:211`):
+
+  T_FRAMES*detector_p50 + postprocess_p50 + crop_extract_p50 + appearance_p50 + head_p50
+
+Mỗi số hạng của công thức đến từ hàm `_timed()` (`jetson-measure-latency.py:120-129`): hâm nóng,
+rồi `runs` lần gọi liên tiếp **chỉ riêng giai đoạn đó**, trả về các phân vị. Vòng lặp triển khai
+thật phải trả **sáu chi phí** mà công thức không có trong danh sách; **ba trong số đó là trọn một
+giai đoạn công việc**, không phải một phần bị đánh giá thấp:
+
+  (a) **Tiền xử lý đầu vào bộ phát hiện** — 16 khung -> letterbox 800x800 + chuyển float +
+      chuẩn hoá + HWC->CHW + gộp lô. Đây là **trọn một giai đoạn**: tìm `preprocess`, `letterbox`,
+      `resize`, `blobFromImage` trong `jetson-measure-latency.py` cho **không kết quả nào**; bộ
+      phát hiện được nạp bằng `_fixed_inputs()`, tức một tensor đã ở đúng dạng của engine. Ở làn
+      B1, chính chi phí này là **chi phí lớn nhất của toàn pipeline**: 160.765 ms trước khi sửa
+      (55.5% khoảng quyết định) và 50.867 ms sau khi sửa (30.4%);
+  (b) **Tiền xử lý đầu vào encoder ngoại hình** — 54 vùng cắt uint8 HWC -> lô float32 NCHW đã
+      chuẩn hoá. Cũng là **trọn một giai đoạn**: `extract_crops()`
+      (`benchmark-p3-utils.py:78-87`) trả về một **danh sách mảng uint8 HWC** của Python, trong khi
+      engine ngoại hình được nạp bằng `_fixed_inputs(app)`, một lô float tổng hợp; phép chuyển đổi
+      giữa hai dạng đó không bao giờ được bấm giờ;
+  (c) **Ghép đầu vào cho đầu quan hệ** — dựng vector token 74 chiều. **Trọn một giai đoạn** thứ ba:
+      đầu quan hệ được nạp bằng `_fixed_inputs(head)` (dòng 190);
+  (d) **Chi phí vòng lặp và chi phí tổ hợp** — vùng đệm vòng, `cap.read()` nằm ngoài khoảng được
+      bấm giờ, và keo Python giữa các giai đoạn. Trong harness không tồn tại một vòng lặp nào để
+      mang chi phí này; ở làn B1 nó chiếm **7.4%** khoảng quyết định và không được quy cho giai
+      đoạn nào. Việc giải mã tệp video thuộc lớp chi phí này; về sau nó được bổ sung thành một
+      trường riêng (`ms_per_decision_p50_with_stream_decode`) nhưng vẫn **không** nằm trong
+      `formula`;
+  (e) **Tranh chấp tài nguyên** — `_timed()` bấm giờ mỗi giai đoạn khi những giai đoạn khác đều
+      rỗi. Trên một SoC tích hợp, bus nhớ dùng chung là tài nguyên bị tranh chấp thật sự khi các
+      giai đoạn chạy xen nhau;
+  (f) **Phân vị của tổ hợp** — `sum(p50)` không bằng `p50(sum)`. Công thức cộng các trung vị độc
+      lập, nên ngay cả khi mọi số hạng đúng thì tổng vẫn không phải trung vị của đại lượng tổ hợp;
+      và **không tồn tại p95 hay p99 tổ hợp nào** cho P3. Làn B1, ngược lại, báo p95 tổ hợp trực
+      tiếp: 198.224 ms.
+
+Ba lớp chi phí (a), (d) và (e) đúng là ba lớp mà phân tích ngày 2026-10-01 đã chỉ ra là **không thể
+nhìn thấy về mặt cấu trúc đối với một phép cộng các vi phép đo độc lập**: tiền xử lý (vắng mặt chứ
+không phải bị đánh giá thấp), trạng thái (chạy liên tiếp so với chạy theo chu kỳ làm việc), và tranh
+chấp. Đầu vào của harness ngoài ra còn **tổng hợp**: `synthetic_raw_frames()` sinh 300 hộp mỗi khung
+với `conf ~ U(0,1)` để bấm giờ hậu xử lý, và phép trích vùng cắt chạy trên một khung nhiễu đều. Số
+**lượng** vùng cắt (p50 = 54, p95 = 106, p99 = 119, chặn trên 128) lấy từ ngữ liệu nên vẫn đúng;
+**nội dung** vùng cắt thì không thật. Chỉ sáu chi phí (a)–(f) mang kết luận; tính tổng hợp của nội
+dung đầu vào là một giới hạn thứ cấp.
+
+Bên cạnh sáu chi phí bị bỏ, công thức còn một khuyết điểm thuộc **lớp khác**, và phải đọc riêng:
+
+  (g) **bước nhảy**: `DECISION_T_FRAMES = 16` và `DECISION_EMIT_EVERY = 8` được khai báo cạnh nhau
+      ở `jetson-measure-latency.py:105-106`, nhưng công thức chỉ dùng `T_FRAMES`. Một quyết định
+      mới phát ra mỗi 8 khung trên cửa sổ 16 khung, nên chi phí **biên** của bộ phát hiện cho mỗi
+      quyết định là 8 khung, không phải 16.
+
+Khuyết điểm (g) không phải một chi phí bị bỏ: nó là một chi phí bị **đếm hai lần**, và chính vì nó
+dễ thấy nhất nên nó gây nhầm lẫn. Nó làm công thức **nói quá** chi phí, trong khi (a)–(f) làm công
+thức **nói thiếu**. Hai sai số ngược chiều, và tỉ lệ giữa chúng phụ thuộc điều kiện xung nhịp. Đó là
+lý do lỗi tồn tại lâu: dưới điều kiện ghim xung nhịp, hai sai số gần triệt tiêu nhau và phép cộng
+trông như một phép đo đúng. Mục 7.9.5 vì vậy khuyến nghị **không** sửa công thức mà **thu hồi vai
+trò nhịp** của nó.
+
+7.4.2. Số học công khai, hai điều kiện xung nhịp
+
+Mọi giá trị dưới đây lấy từ hai tạo tác đại diện của cùng một phiên đo ngày 2026-10-03, và phép
+cộng được viết ra để người đọc kiểm tra lại được.
+
+  Bảng 7.1. Ba cách tính một quyết định, so với nhịp tổ hợp đo được
+
+  Đại lượng (ms)                     | Ghim xung nhịp | DVFS
+  -----------------------------------+----------------+---------------
+  Bộ phát hiện / khung               |     11.723     |    17.639
+  Hậu xử lý (chọn + hình học) / q.đ. |     46.925     |    47.367
+  Trích vùng cắt (cv2) / q.đ.        |     18.022     |    18.001
+  Encoder ngoại hình (lô 54) / q.đ.  |     19.304     |    33.807
+  Đầu quan hệ nhị phân E3 / q.đ.     |      0.287     |     0.631
+  Giải mã luồng / khung              |      4.782     |     4.936
+  -----------------------------------+----------------+---------------
+  (1) Tổng theo công thức (16 khung) |    272.11      |   382.03
+      + giải mã luồng (8 khung)      |  **310.37**    | **421.52**
+      suy ra                         |   3.22 q.đ./s  |  2.37 q.đ./s
+  -----------------------------------+----------------+---------------
+  (2) Tái dựng theo bước nhảy        |    216.58      |   280.41
+      (8 khung bộ phát hiện)         |   4.62 q.đ./s  |  3.57 q.đ./s
+  -----------------------------------+----------------+---------------
+  (3) **NHỊP TỔ HỢP ĐO ĐƯỢC**        |  **287.44**    | **694.00**
+                                     | **3.479 q.đ./s**| **1.441 q.đ./s**
+  -----------------------------------+----------------+---------------
+  Sai số của (1) so với (3), theo ms |   **+7.98%**   |  **-39.3%**
+  Sai số của (2) so với (3), theo ms |    -24.6%      |   -59.6%
+
+  Tạo tác: `deployment/artifacts/jetson-measurements/decision-latency-fp16-20261003T170736.json`
+  (ghim) và `...-20261003T172128.json` (DVFS) cho hàng (1) và các giai đoạn;
+  `...p3-composed-cadence-fp16-pinned-free-1_te10-20261003T174352.json` và
+  `...-dvfs-free-1_te10-20261003T173318.json` cho hàng (3). Hàng (2) là số học của luận văn, không
+  có tạo tác riêng; nó được in ra chỉ để chứng minh kết luận ở mục 7.4.3.
+
+  Cảnh báo trích dẫn: con số 272.11 ms / 3.68 q.đ./s ở hàng (1) là **hàng đối chứng không giải mã**
+  và **không được dẫn như một nhịp**. Nó xuất hiện ở đây đúng vì mục này giải thích tại sao. Quy
+  tắc đang có hiệu lực (mục 5.2) là chỉ dẫn `ms_per_decision_p50_with_stream_decode`. Lý do: một
+  pipeline không bao giờ giải mã một khung nào thì không phải một pipeline triển khai được.
+
+7.4.3. Kết luận: sai số không mang dấu nhất quán, nên không hệ số nào cứu được
+
+Đọc hàng cuối Bảng 7.1 theo đơn vị thông lượng cho phát biểu sắc nhất:
+
+  Ghim xung nhịp : công thức dự đoán 3.22 q.đ./s, thực đo 3.479  →  **nói THIẾU 7.4%**
+  DVFS           : công thức dự đoán 2.37 q.đ./s, thực đo 1.441  →  **nói QUÁ 64.5%**
+
+Hệ số hiệu chỉnh cần thiết là 0.926 ở nhánh ghim và 1.646 ở nhánh DVFS. Hai hệ số này **nằm hai
+phía của 1** và lệch nhau 78%. Vì vậy phát biểu sau là chặt: **không tồn tại một hệ số hiệu chỉnh
+nào biến tổng giai đoạn thành một dự báo nhịp dùng được.** Phép cộng không phải một phép đo kém
+chính xác; nó là một phép đo **đại lượng khác**.
+
+Và việc sửa khuyết điểm hiển nhiên nhất — thay cửa sổ 16 khung bằng bước nhảy 8 khung, hàng (2) —
+**làm sai số xấu đi ở cả hai nhánh**: nhánh ghim chuyển từ nói thiếu 8.0% sang nói thiếu 24.6%,
+nhánh DVFS từ nói quá 39.3% lên nói quá 59.6%. Nghĩa là khuyết điểm bước nhảy đang **bù trừ một
+phần** cho khối lượng công việc bị bỏ sót. Đây là lý do một bản vá cục bộ không được chấp nhận và
+toàn bộ đại lượng phải được thay bằng một phép đo một-đồng-hồ-tường.
+
+7.4.4. Vì sao harness không thể thấy hình phạt: đo từng giai đoạn làm đổi hành vi của governor
+
+Câu hỏi còn lại là cơ chế: vì sao khối lượng bị bỏ sót lại nhạy với xung nhịp đến thế, trong khi
+các giai đoạn CPU **được** đo lại gần như không nhạy?
+
+Độ nhạy xung nhịp của từng hạng mục, tính theo tỉ lệ thông lượng ghim/DVFS từ Bảng 7.1:
+
+  Đầu quan hệ E3            x2.199      (0.287 -> 0.631 ms; tuyệt đối không đáng kể)
+  Encoder ngoại hình        x1.751
+  Bộ phát hiện              x1.505
+  Hậu xử lý                 x1.009   <-- gần như BẤT BIẾN
+  Trích vùng cắt (cv2)      x0.999   <-- gần như BẤT BIẾN
+  -------------------------------------------------------------
+  Tổng giai đoạn (dẫn được) x1.359
+  **Vòng lặp tổ hợp**       **x2.414**
+
+Vòng lặp tổ hợp nhạy với xung nhịp **hơn mọi giai đoạn đáng kể mà harness đo**, và hơn tổng giai
+đoạn 1.78 lần. Điều đó chỉ xảy ra được nếu phần chi phí chi phối nằm trong công việc harness không
+bao giờ bấm đồng hồ.
+
+Trạng thái xung nhịp được máy ghi lại trong chính các tạo tác tổ hợp giải thích cơ chế. Trong **cả
+tám** mẫu của nhánh DVFS (bốn lần chạy, mỗi lần ghi trước và sau):
+
+  policy4 (lõi 4-5) : `cur_khz = 115200` — **đúng mức sàn**, trong mọi mẫu
+  policy0 (lõi 0-3) : `cur_khz` nhận các giá trị 1728000, 1651200, 1574400 (trước)
+                      và 1113600, 1036800, 268800, 192000 (sau) — **biến động gấp 9 lần**
+  GPU               : `cur_hz = 306000000` — mức sàn, trong mọi mẫu (trần là 1020000000)
+  `clocks_pinned`   : `{cpu: false, gpu: false, any: false}`
+
+Trong cả tám mẫu của nhánh ghim: `policy0` và `policy4` đều có `min = cur = max = 1728000`, GPU
+`min = cur = max = 1020000000`, `clocks_pinned.any = true`.
+
+Một cảnh báo về phạm vi: các mẫu này được lấy **trước và sau** vòng lặp, không phải trong lúc vòng
+lặp chạy. Vì vậy luận văn **không** phát biểu "GPU chạy ở 306 MHz suốt vòng lặp"; phát biểu được là
+trạng thái xung nhịp ghi nhận được ở hai đầu cho thấy cả cụm lõi hiệu suất-năng-lượng và GPU đều ở
+sàn, và `policy0` đổi giá trị gấp chín lần trong một lần chạy duy nhất.
+
+Từ đó cơ chế giải thích được nghịch lý "giai đoạn CPU bất biến, vòng lặp CPU rất nhạy": một vi đo
+chuẩn chạy 100 lần liên tiếp không có khe nghỉ, nên `schedutil` nâng cụm lõi đang chịu tải lên trần
+và giữ ở đó suốt phép đo; một vòng lặp tổ hợp có khe nghỉ giữa các giai đoạn và có công việc rơi
+vào cụm lõi đang nằm ở sàn. Nói cách khác: **hành vi đo từng giai đoạn tự tạo ra điều kiện xung
+nhịp thuận lợi mà vòng lặp thật không có.** Một harness xây theo kiểu đó không thể phát hiện hình
+phạt DVFS, kể cả về nguyên tắc, chứ không phải vì thiếu một giai đoạn nào trong danh sách.
+
+7.4.5. Hai hệ quả bắt buộc cho cách đọc phần triển khai biên
+
+Hệ quả thứ nhất: **phán quyết hợp đồng nhịp của P3 phụ thuộc vào clip**, và phải được công bố ở
+dạng phụ thuộc đó. Ba clip kiểm thử, chạy tự do (`--fps 1000`), N = 1, 480 khung, FP16, cả hai
+nhánh đều qua cổng nhiệt (tj vào <= 56 °C, tải <= 0.60, lắng 180 s):
+
+  Clip      | Ghim: q.đ./s | Phán quyết | DVFS: q.đ./s | Phán quyết
+  ----------+--------------+------------+--------------+-----------
+  1_te10    |    3.479     |   ĐẠT      |    1.441     |  TRƯỢT
+  3_te1     |    3.965     |   ĐẠT      |    1.511     |  TRƯỢT
+  4_te10    |    2.493     |  TRƯỢT     |    1.141     |  TRƯỢT
+  ----------+--------------+------------+--------------+-----------
+  Trung vị  |  **3.479**   |  2/3 ĐẠT   |  **1.441**   |  0/3 TRƯỢT
+
+Hai nhánh **rời nhau hoàn toàn**: giá trị DVFS lớn nhất (1.511) vẫn nhỏ hơn giá trị ghim nhỏ nhất
+(2.493). Vì vậy **cả hai phát biểu "P3 đạt hợp đồng" và "P3 trượt hợp đồng ở cả hai điều kiện xung
+nhịp" đều sai.** Phát biểu đúng là: với xung nhịp ghim, P3 đạt 3.0 quyết định/s trên hai trong ba
+clip và trượt trên clip thứ ba; với DVFS, P3 trượt trên cả ba, thiếu 2.08 lần ở trung vị.
+
+Hệ quả thứ hai: **DVFS không phải một điều kiện đo tái lập được**, nên mọi biên độ tính trên nó
+phải kèm phạm vi phiên. Trong cùng phiên 2026-10-03, chín lần chạy tổng giai đoạn:
+
+  ba lần ghim : 309.08 / 310.37 / 310.60 ms  → độ phân tán **0.49%**
+  sáu lần DVFS: 397.78 / 399.10 / 421.52 / 422.82 / 437.47 / 440.01 ms → **10.6%**
+  hai tập **không giao nhau**.
+  Riêng bộ phát hiện: ghim 11.723-11.750 (**0.23%**), DVFS 15.474-18.104 (**17.0%**).
+
+Giả thuyết "độ phân tán DVFS là do nhiệt" đã được kiểm tra và **bị loại**: trung vị của ba lần chạy
+có cổng nhiệt là 421.52 ms, của ba lần không cổng là 422.82 ms — lệch **0.31%**. Nguyên nhân là
+governor, không phải nhiệt độ.
+
+----------------------------------------------------------------------
+7.5. BA KHIẾM KHUYẾT CỦA HARNESS, VÀ BA QUY TẮC ĐỌC THAY THẾ
+----------------------------------------------------------------------
+
+Mục 7.4 là một khiếm khuyết về *đại lượng*. Mục này liệt kê ba khiếm khuyết về *cách đọc trường dữ
+liệu*: ba trường của tạo tác mà tên gọi gợi ra một bảo đảm mạnh hơn bảo đảm thật. Chỉ khiếm khuyết
+thứ nhất là lỗi mã nguồn; hai khiếm khuyết còn lại là mã nguồn **đúng** với tên trường **gây nhầm**.
+Phân biệt này quan trọng vì nó quyết định hành động: cái thứ nhất phải sửa mã, hai cái sau phải sửa
+cách trích dẫn.
+
+7.5.1. `--fps F` là một bộ điều nhịp cộng thêm, không phải một hạn kỳ — LỖI MÃ NGUỒN
+
+Vòng lặp tải nghỉ `period = 1/F` giây **sau khi** hoàn thành công việc của một khung
+(`deployment/scripts/stream-pipeline-utils.py:86`). Nhịp thực tế vì vậy là
+
+  rate = 1 / (1/F + work)   <   F     với mọi work > 0
+
+tức `F` là một **giới hạn trên không bao giờ đạt được**, không phải một hạn kỳ mà hệ thống được
+kiểm tra xem có đáp ứng hay không.
+
+Bằng chứng quyết định là một cặp đo **cùng clip, cùng trạng thái xung nhịp, chỉ khác tham số điều
+nhịp**. Clip `1_te10.mp4`, xung nhịp ghim, 480 khung, cửa sổ 16, bước nhảy 8, FP16:
+
+  `--fps 24`   : 17.89 fps gộp,  59 quyết định trong 26.833 s  →  **2.199 q.đ./s  TRƯỢT**
+  `--fps 1000` : 28.31 fps gộp,  59 quyết định trong 16.957 s  →  **3.479 q.đ./s  ĐẠT**
+
+Bộ điều nhịp lấy đi **36.8%** thông lượng và **đảo phán quyết hợp đồng** trên cùng một hệ thống.
+Một dấu hiệu thứ hai củng cố: với xung nhịp ghim, thông lượng gộp là 30.17 fps ở N = 2 nhưng chỉ
+17.89 fps ở N = 1 — thêm một luồng làm *tăng* thông lượng gộp, điều không thể xảy ra nếu `--fps`
+là một hạn kỳ.
+
+  **Quy tắc đọc 1.** Các hàng chạy với `--fps 24` **không phải một phán quyết hợp đồng**. Mọi phán
+  quyết nhịp của luận văn phải lấy từ các lần chạy tự do (`--fps 1000`), và Bảng 7.1 cùng bảng
+  phán quyết ở mục 7.4.5 đều dùng các lần chạy đó. Lưu ý một hệ quả dễ bị đọc sai theo chiều ngược
+  lại: **cả sáu hàng `--fps 24`** của bảng đa luồng đều có `meets_cadence_all_streams = false`, kể
+  cả hàng ghim N = 1; các hàng đó cũng **không** được dẫn như bằng chứng P3 trượt hợp đồng.
+
+7.5.2. `drop_rate = 0` không phải bằng chứng chạy thời gian thực khi N <= 2
+
+Bộ đọc khung là một coroutine chạy trên chính vòng sự kiện của bên tiêu thụ, với `preprocess_fn`
+gọi nội tuyến. Khi N <= 2, bộ đọc và bộ xử lý vì vậy chạy **khoá bước** với nhau: bộ đọc không thể
+chạy trước, nên không có khung nào bị bỏ, nên `drop_rate` bằng 0 **theo cấu tạo**, bất kể hệ thống
+có theo được nguồn hay không.
+
+Dấu hiệu nhận ra tình trạng khoá bước có trong chính tạo tác: `read_fps` bằng `aggregate_fps`
+**đến từng phần trăm** trong cả sáu lần chạy tổ hợp tự do (28.31 / 32.25 / 20.28 / 11.72 / 12.29
+/ 9.28) và trong **năm trong sáu** cấu hình của bảng đa luồng. Chỉ **một** cấu hình duy nhất tách
+được hai con số: DVFS ở N = 3, với 18.93 fps đọc so với 13.39 fps xử lý, tức **29.24%** khung bị
+bỏ.
+
+Hai quan sát phải nói kèm vì chúng chặn hai cách đọc sai. Thứ nhất, **ghim xung nhịp ở N = 3
+vẫn không tách**: 27.83 fps đọc và 27.83 fps xử lý, `drop_rate = 0`, nhưng nhịp luồng tệ nhất
+chỉ 1.140 q.đ./s, tức **trượt hợp đồng với tỉ lệ bỏ khung bằng không**. Thứ hai, sự tách chỉ
+xuất hiện khi hệ thống đủ chậm để bộ đọc chạy vượt bên tiêu thụ — nên `drop_rate > 0` là dấu
+hiệu của *mức độ* chậm, không phải phép kiểm tra thời gian thực, và `drop_rate = 0` không mang
+thông tin nào.
+
+  **Quy tắc đọc 2.** Không bao giờ dẫn `drop_rate` làm bằng chứng vận hành thời gian thực. Đại
+  lượng phải dẫn là `read_fps` đặt cạnh `target_fps`, hoặc trực tiếp
+  `worst_stream_decisions_per_sec` đặt cạnh hợp đồng.
+
+7.5.3. `clock_state_stable` không có nghĩa là tần số đã giữ nguyên
+
+Trường này so sánh `clocks_pinned` và `quiet` giữa hai lần đọc trạng thái thiết bị
+(`stream-pipeline-utils.py:140`). Nó trả lời đúng câu hỏi "chế độ ghim và mức tranh chấp có đổi
+không", và **không** trả lời câu hỏi "tần số có giữ nguyên không". Mã nguồn khớp với chuỗi mô tả
+của chính nó; **tên trường** là chỗ gây nhầm.
+
+Bằng chứng mạnh nhất cho mức độ nguy hiểm của tên này: `clock_state_stable = true` trong **cả tám**
+lần chạy tổ hợp, **bao gồm bốn lần chạy DVFS** mà ở đó `policy0.cur_khz` đi từ 1728000 xuống
+1036800 trong một lần chạy, từ 1574400 xuống 192000 trong lần khác — tức trường báo "ổn định"
+trong khi tần số đổi gấp tám lần.
+
+  **Quy tắc đọc 3.** `clock_state_stable` chỉ được dẫn kèm giải thích nghĩa hẹp của nó. Bằng chứng
+  về tần số phải lấy từ `device_state.cpu_clocks` và `device_state.gpu_clocks`, và phải nói rõ
+  rằng hai mẫu đó là trước-và-sau, không phải trong lúc chạy.
+
+7.5.4. Một phép kiểm tra số học đã làm, và một kết luận về chất lượng harness
+
+Để phân biệt "harness báo sai" với "harness đúng nhưng tên trường gây nhầm", quan hệ giữa số khung
+đã xử lý và số quyết định đã phát ra được kiểm tra trên **toàn bộ 12 bản ghi luồng**:
+
+  n_decisions == floor((processed - 16) / 8) + 1    đúng trong 12/12 bản ghi
+
+(ví dụ kiểm tra được: bản ghi ghim N = 1 ở mục 7.5.1 có `processed = 480` và `n_decisions = 59`,
+và floor((480 - 16) / 8) + 1 = 59)
+
+và hợp đồng 3.0 quyết định/s đúng là 24 fps chia cho bước nhảy 8 khung. Nghĩa là **phần kế toán của
+harness chính xác**; ba khiếm khuyết ở trên là một lỗi điều nhịp cộng với hai cái tên trường. Đó là
+một kết luận cân bằng và nó quan trọng cho mục 7.9: công việc tiếp theo cần sửa một hàm nghỉ và đổi
+tên hai trường, không cần viết lại harness.
+
+----------------------------------------------------------------------
+7.6. SỔ ĐĂNG KÝ CÁC PHÁT BIỂU ĐÃ RÚT
+----------------------------------------------------------------------
+
+Mục này liệt kê mọi con số và mọi phát biểu từng có trong một bản thảo của luận văn hoặc trong một
+báo cáo tiến độ đã gửi, và sau đó bị rút. Mỗi dòng ghi lý do và giá trị thay thế nếu có. Lý do công
+bố sổ này được nêu ở mục 7.1(2): một người đọc các phiên bản trước sẽ gặp những con số đó.
+
+Quy ước: các giá trị trong cột "Đã rút" được in ra **để nhận dạng**, và không con số nào trong cột
+đó được trích dẫn như một kết quả.
+
+  Bảng 7.2. Các phát biểu đã rút, theo nhóm nguyên nhân
+
+  NHÓM A — ĐẠI LƯỢNG SAI (đo một thứ, trình bày như một thứ khác)
+
+  Đã rút                              | Lý do                        | Thay bằng
+  ------------------------------------+------------------------------+---------------------------
+  Nhịp P3 = tổng độ trễ giai đoạn     | phép cộng, không phải phép   | nhịp tổ hợp đo được,
+  (mọi dạng của công thức ở 7.4.1)    | đo; sai số không nhất quán   | Bảng 7.1 hàng (3)
+                                      | dấu (mục 7.4.3)              |
+  Mọi phát biểu nhịp B1 suy ra từ     | cùng khuyết điểm trên        | 167.291 ms = 5.978 q.đ./s
+  tổng giai đoạn                      |                              | (vòng lặp tổ hợp, trạng
+                                      |                              | thái ổn định p50)
+  `throughput_decisions_per_sec_naive`| không phải nhịp quyết định;  | không dùng trường này
+  = 73.051 (P1)                       | nói quá khoảng 20 lần        |
+  Các hàng đối chứng không giải mã    | pipeline không giải mã khung | `*_with_stream_decode`
+  (`decisions_per_sec_p50`)           | nào thì không triển khai     |
+                                      | được                         |
+  Các hàng `--fps 24` dùng làm phán   | bộ điều nhịp cộng thêm, mục  | các lần chạy tự do
+  quyết hợp đồng                      | 7.5.1                        | (`--fps 1000`)
+  `drop_rate = 0` làm bằng chứng      | bằng 0 theo cấu tạo khi      | `read_fps` so `target_fps`
+  thời gian thực                      | N <= 2, mục 7.5.2            |
+  "khoảng 54% dư tải" (P1 đa luồng)   | tính trên một trần không     | N = 4 có nhịp bằng ~85%
+                                      | được đo                      | trần ⇒ dư ~15%
+  "CLIP đắt gấp 18.3 lần MobileNetV3" | ngoại suy từ CPU máy chủ;    | **3.06 lần** (đo trên
+                                      | một tỉ lệ CPU không phải một | thiết bị)
+                                      | tỉ lệ biên                   |
+  "Còn dư 8 W dưới ngưỡng 15 W"       | ngưỡng 15 W không được chứng | chỉ nêu công suất tuyệt
+                                      | thực; *mẫu số* vô căn cứ,    | đối: **7,033.761 mW**
+                                      | không phải phép đo           | (VDD_IN) ở hệ số hoạt
+                                      |                              | động của soak đó
+
+  NHÓM B — ĐƠN VỊ THỐNG KÊ SAI
+
+  Đã rút                              | Lý do                        | Thay bằng
+  ------------------------------------+------------------------------+---------------------------
+  Kiểm định z hai tỉ lệ cho 56/64 so  | giả định hai mẫu độc lập;    | McNemar / biên chính xác
+  57/64 (Δ -1.56 pp, z -0.275,        | đây là hai bộ dự đoán trên   | trên các phân hoạch khả
+  p 0.7835)                           | **cùng** 64 clip             | thi, mục 6.12.5
+  Mọi khoảng tin cậy mức clip dùng    | đơn vị lấy mẫu phải là nguồn | khoảng tin cậy bootstrap
+  làm biên tiêu đề                    | / nhóm bối cảnh              | theo cụm
+  "+58.7 / +60.3 pp" (làn C, so với   | một bộ dự đoán hằng không    | +16.9 pp so với đường sàn
+  tiên nghiệm hằng)                   | phải đường sàn cạnh tranh,   | ngoại hình bối cảnh
+                                      | nó là một phép chia          |
+  Tương phản "77.1% -> 16.9% sụp đổ"  | hai đường sàn là **hai ước   | hai kết luận tách theo
+                                      | lượng khác nhau**; đường sàn | giao thức, mục 6.12.1
+                                      | đa số-theo-view KHÔNG xác    |
+                                      | định dưới LCO                |
+  R47 "bất biến kiến trúc"            | bị bác bỏ trên iSafetyBench  | R47 chỉ còn phạm vi
+                                      | (E0 - E3 = +5.1 pp,          | Unsafe-Net
+                                      | p = 7.74e-06)                |
+
+  NHÓM C — GIÁ TRỊ SỐ SAI
+
+  Đã rút                              | Lý do                        | Thay bằng
+  ------------------------------------+------------------------------+---------------------------
+  Đường sàn không-hộp của bài báo     | hằng số mã hoá cứng sai tại  | **57/64**, macro 85.78
+  = 55/64                             | `run_ablation_significance   |
+                                      | .py:155` đến 2026-10-03      |
+  Cosine thô WalkwayViol<->           | gán sai cặp lớp; 0.834 đúng  | **0.934** trung bình, cực
+  UnauthorInt = 0.834                 | là cosine UnauthorInt<->     | đại trong cặp 1.000; cả
+                                      | CarryOverload                | sáu cặp trong 0.823-0.934
+  Chênh lệch Δ của cặp khó so với     | kéo theo lỗi trên; mọi Δ của | **-0.559** (phục hồi ở
+  đặc trưng thô = -0.459              | bảng tương ứng đều lớn hơn   | mức đầu ra: +0.375)
+  Hàng "hộp + cổng khung, mù" của     | hàng này không dùng ngưỡng    | **51/64, 80.1%** macro
+  bảng cổng = 49/64, 75.3%            | cố định t = 0.15 như mọi hàng |
+                                      | khác trong cùng bảng          |
+  "mAP 95.7%" của bộ phát hiện        | không có tạo tác nào mang    | 0.9695 (mAP@50, 343 ảnh
+                                      | giá trị này                  | kiểm thử, 988 thực thể)
+  Biên "5.69 lần" của làn B1          | mẫu số hợp đồng được tính    | **4.79 lần** so với
+                                      | lại từ toàn bộ 1,100 clip    | 1.249 q.đ./s (và **3.52
+                                      |                              | lần** trên bộ clip 1080p)
+  Hợp đồng "1.05 q.đ./s"              | tương ứng 25.1 fps, chỉ xuất | trung vị 1.249; trung bình
+                                      | hiện ở 11 clip (1.0%)        | 1.427; p95 2.500
+
+  NHÓM D — SỐ ĐÚNG NHƯNG KHÔNG ĐƯỢC DẪN (hạn chế phạm vi, không phải lỗi)
+
+  Phát biểu                           | Lý do không được dẫn
+  ------------------------------------+---------------------------------------------------------
+  `val_macro` 89.15% (E3) / 90.92%    | là độ chính xác tập kiểm định, không phải tập kiểm thử
+  (E0)                                |
+  Tương đương FP16/FP32 của bộ phát   | **chưa đo**; giá trị 0.633 trong tạo tác không phải một
+  hiện                                | phép đo tương đương
+  Cặp "đã ghim xung nhịp"             | xuất xứ không xác định
+  `r48-pipeline-20261001T{222505,     |
+  222511}.json`                       |
+  Đường cơ sở Mac ORT-CPU             | hai giá trị xung đột (1825 ms so với 13727.54 ms); đang
+                                      | tranh chấp
+  TSF hơn B1xl +1.4 pp                | không được dẫn làm bằng chứng cho cơ chế hợp nhất
+                                      | (lệnh cấm G18-a)
+  Độ nhạy nguy hiểm 86.0% của TSF     | không được dẫn như một cải thiện (lệnh cấm G18-b)
+  Các con số hợp nhất từ phép quét    | lệnh cấm G18-c vẫn còn hiệu lực
+  tính bổ sung                        |
+  "Biên +7.5%" trong tệp ghi chép     | tệp đó là **bản ghi lịch sử**, giữ nguyên có chủ ý; không
+  xung nhịp ghim của Chương 5         | phải phát biểu đang có hiệu lực
+  mAP@50 / mAP@50-95 = 0.966 / 0.975  | **giá trị tạm**, chưa đối chiếu tạo tác
+  (bộ phát hiện làn nhị phân)         |
+
+----------------------------------------------------------------------
+7.7. KHUYẾT ĐIỂM XUẤT XỨ: SỐ ĐÚNG, BẰNG CHỨNG THIẾU
+----------------------------------------------------------------------
+
+Một lớp lỗi riêng, và là lớp lỗi khó chịu nhất khi gặp phải trong lúc rà soát: con số **không sai**,
+nhưng không có tạo tác nào chứng minh được nó. Một con số như vậy không bảo vệ được trước hội đồng,
+nên nó bị đối xử như một con số sai cho đến khi được đo lại.
+
+7.7.1. Các trường hợp đã giải quyết bằng cách đo lại
+
+  (a) **Các số đo bộ phát hiện Stage-A của làn bốn lớp.** Nhật ký huấn luyện được dẫn **dừng giữa
+      epoch 20 trong 30**, và `results.csv` duy nhất tồn tại là của nhánh `stage1_frozen/` với 3
+      epoch, đạt đỉnh mAP@50 chỉ **0.462**. Không tạo tác nào mang các giá trị đã công bố. Xử lý:
+      đo lại toàn bộ trên 343 ảnh kiểm thử / 988 thực thể ở độ phân giải 800, và **mọi giá trị
+      công bố đều tái lập**: mAP@50 0.9695, mAP@50-95 0.8939, P 0.934, R 0.967. Tạo tác hiện tại
+      `sweep_results/entity_detector/reval-2026-10-02-detector-best-val343.log`.
+      **Phần còn lại chưa đóng, và phải nói rõ ở đây để không ai đọc (a) rộng hơn mức nó cho
+      phép:** phép đo lại bảo lãnh **các con số**, không bảo lãnh **đường huấn luyện**. Nhật ký
+      duy nhất còn lại là của một phiên chạy trên MPS với AdamW — đúng cấu hình mà mục 4.5.5
+      tuyên bố làm hỏng âm thầm cập nhật Adam — và trong nhật ký đó **mọi dòng kiểm định sau
+      epoch 1 đều ghi mAP@50 = 0**. Phiên đó vì vậy không thể là phiên sinh ra trọng số 0.9695.
+      Bản ghi của tác giả quy trọng số cho một phiên chạy lại trên runtime GPU của Kaggle; **không
+      có nhật ký phía Kaggle trong kho mã**, nên đó là một lời tự khai. Luận văn công bố nguyên
+      trạng: con số kiểm chứng được, nguồn gốc trọng số thì không.
+
+  (b) **Bảy chỉ số của bảng điểm làn bốn lớp.** Chín giá trị được tính lại ngày 2026-10-02 từ
+      `blind_pred`, `blind_softmax` và `labels` trong `sweep_results/relation_tokens/
+      logits_yolo26.pt`, và cả chín **tái lập đúng chữ số in**.
+
+  (c) **Một giá trị p bị dẫn sai chỗ.** Mục kết luận của bản thảo cũ dẫn p = 0.0574 cho biên tiêu
+      đề; 0.0574 là giá trị p của **phép khử YOLO11**, còn giá trị p của chính biên tiêu đề là
+      **0.0600**. Cả hai đều không có ý nghĩa thống kê ở mức 0.05, nên kết luận không đổi, nhưng
+      con số đã được sửa.
+
+  (d) **Bảy bảng chỉ số của làn CLIP.** Các bảng này được tính lại từ dự đoán ngoài-fold đã lưu,
+      cùng fold, cùng clip, cùng công thức, với phép xác nhận trùng khớp `clip_id` tự huỷ nếu tập
+      không khớp. Bốn mô hình (B1, B1w, B1xl, B2) tái lập đúng chữ số in trong nhật ký huấn luyện.
+      Ba mô hình chạy phân mảnh (ESTA, ESTA@YOLO26s, TSF) **không có bảng gộp trong nhật ký**, nên
+      với ba mô hình đó bản tính lại **chính là trích dẫn gốc** và tệp dự đoán ngoài-fold là bằng
+      chứng. Điều này được nói rõ ở mỗi chỗ ba mô hình đó xuất hiện.
+
+7.7.2. Các trường hợp CHƯA giải quyết
+
+  (e) **Bảng số đa luồng P1 (Bảng 5.4)** dựa trên một tạo tác **tự khai là đã sửa tay**
+      (`deployment/artifacts/multi-stream-results.json`). Chương 5 (mục 5.6.1-5.6.4) công bố
+      nguyên trạng: xuất xứ **KHÔNG XÁC ĐỊNH** — không phải sạch, cũng không phải bị loại — và
+      bảng số liệu của luận văn **không bảo lãnh** một con số P1 nào.
+  (f) **Bốn bảng đầu của chương thực nghiệm lịch sử** chưa có tạo tác hậu kiểm.
+  (g) **Năm trong sáu khung của hình minh hoạ lỗi** chưa bao giờ được đưa vào kho mã.
+  (h) **Video minh hoạ dự phòng** được nhắc trong kế hoạch bảo vệ **không tồn tại**.
+  (i) **Nhãn phần cứng máy chủ đo sai ở 49 vị trí — ĐÃ GIẢI QUYẾT 09/10/2026, sau ngày đóng
+      băng.** Hạng mục này được giữ lại trong danh sách vì nó đã từng mở, và được đánh dấu đóng
+      chứ không bị xoá. Hai tạo tác đều ghi `Phgs-Mac.lan` và `macOS-14.6-arm64`; macOS 14.6
+      không chạy được trên thế hệ chip được ghi trong văn bản — mâu thuẫn đó là dấu hiệu, nhưng
+      bằng chứng phân xử thì nằm ở chỗ khác: dòng biểu ngữ mà ultralytics **tự in ra** ở đầu mỗi
+      phiên huấn luyện bộ phát hiện ghi `MPS (Apple M3)`
+      (`sweep_results/entity_detector/train_run.log` dòng 4, 254, 270;
+      `sweep_results/r2/behaviour_yolo.log` dòng 11, 194 — cả hai nhật ký đã vào git). Nhãn đúng
+      là **Apple M3** (`hw.model` = Mac15,12, 16 GB); nhãn `M4 Pro` của đề cương là sai. 49 vị
+      trí đã sửa; chi tiết ở mục 4.6.1. Không một con số nào thay đổi: mọi phiên huấn luyện chạy
+      trên CPU, MPS chỉ dùng ở bước trích đặc trưng, và mọi con số nhịp/độ trễ/năng lượng đo trên
+      Jetson chứ không trên máy chủ.
+  (j) **Các tensor k-fold không lưu mã clip và nhãn nhóm**; chúng được khớp theo hàng bằng
+      `compare-oof-runs.py --ids_from`. Phép khớp này đúng nhưng **mong manh**: nó dựa vào thứ tự
+      hàng, không vào khoá.
+  (k) **Biểu ngữ của một nhật ký huấn luyện mã hoá cứng `backbone=CLIP ViT-B/32` cho mọi mô hình**,
+      kể cả B2, mà xương sống thật là `MCG-NJU/videomae-base-finetuned-kinetics`. Giá trị số không
+      bị ảnh hưởng; biểu ngữ thì sai.
+
+7.7.3. Quy tắc rút ra
+
+  **Quy tắc xuất xứ.** Một con số chỉ được viết vào luận văn sau khi tệp tạo tác được **mở ra và
+  đọc đúng dòng chứa nó**. Việc một con số đã xuất hiện trong một bảng tổng hợp nội bộ không phải
+  bằng chứng; bảng tổng hợp là một bản ghi thứ cấp và có thể mang lại chính lỗi mà nó được lập ra
+  để chặn. Mọi dòng của Chương 5 và Chương 6 đã được rà theo quy tắc này.
+
+----------------------------------------------------------------------
+7.8. TRÙNG SỐ: NGUYÊN NHÂN HỆ THỐNG VÀ CÁCH KHẮC PHỤC
+----------------------------------------------------------------------
+
+Luận văn có ba làn thí nghiệm, hai bộ dữ liệu, bốn giao thức đánh giá và ít nhất năm chỉ số. Hệ quả
+số học là các giá trị phần trăm trùng nhau mà không có quan hệ gì với nhau. Ba trùng số sau đã gây
+nhầm lẫn trong các bản thảo trước và phải được nhận dạng trước mọi buổi bảo vệ.
+
+  Bảng 7.3. Các trùng số phải nhận dạng
+
+  Giá trị  | Cách đọc thứ nhất                      | Cách đọc thứ hai
+  ---------+----------------------------------------+---------------------------------------
+  84.4%    | BA của B1w, iSafetyBench, LSO,         | top-1 của luật mù, Unsafe-Net bốn lớp,
+           | N = 1,100                              | cùng phân phối, **N = 64** (54/64)
+  84.2%    | BA của B1 — **mô hình được triển        | macro k-fold của làn Unsafe-Net bốn
+           | khai** — iSafetyBench, LSO, N = 1,100  | lớp, 50 fold, 516 clip gộp
+  81.2%    | top-1 của đường sàn chỉ-bối-cảnh,      | **macro** của Transformer quan hệ dưới
+           | cùng phân phối, 52/64                  | LCO, 516 clip
+  ---------+----------------------------------------+---------------------------------------
+  48/64    | **ba** cách đọc: bộ hợp lượng tử INT8; `bbox_avg` (trung bình 4 hạt giống, loại
+           | s2024); hàng cascade tại T = 8 của bảng ngưỡng
+  55/64    | **bốn** cách đọc: `direct4_s314` top-1; V7 YOLO-World top-1 (macro 89.54); bộ hợp
+           | hiệu chỉnh nhiệt độ trung thực T* = 0.5 (macro 88.49); và **sai** — đường sàn không-hộp
+           | của bài báo, mã hoá cứng đến 2026-10-03 (giá trị đúng 57/64)
+
+Hai cách đọc trong cùng một hàng **không bao giờ được đặt trong cùng một câu**, và không bao giờ
+được dùng để củng cố nhau. Hai cách đọc thứ nhất và thứ ba của 55/64 còn trùng tiếp giá trị macro
+85.94% với hàng 224x224 của một bảng khác, nên 85.94% cũng thuộc danh sách này.
+
+Nguyên nhân hệ thống không phải sự bất cẩn ngẫu nhiên; nó là một thói quen viết: **ghi phần trăm mà
+không ghi đơn vị đi kèm**. Khi một con số được viết là "84.2%", nó không mang theo bộ dữ liệu, giao
+thức, chỉ số và cỡ mẫu, nên nó trở thành một ký hiệu có thể gán lại nghĩa.
+
+  **Quy tắc trình bày.** Mọi giá trị độ chính xác trong luận văn mang theo bốn thuộc tính: bộ dữ
+  liệu, giao thức đánh giá, chỉ số, cỡ mẫu. Ở dạng gọn trong câu văn, tối thiểu là chỉ số và cỡ
+  mẫu; ở dạng bảng, cả bốn. Quy tắc này đã được áp dụng cho toàn bộ Bảng 6.1-6.8.
+
+----------------------------------------------------------------------
+7.9. GIỚI HẠN CÒN LẠI VÀ CÁC CÂU HỎI CHƯA TRẢ LỜI
+----------------------------------------------------------------------
+
+Các mục 7.2 đến 7.8 trình bày những thất bại đã **quy được nguyên nhân**. Mục này trình bày phần
+ngược lại: những gì còn mở vào ngày đóng băng số liệu. Thứ tự là theo hệ quả đối với việc triển
+khai, không theo mức độ khó.
+
+7.9.1. Hiệu chuẩn và đặt ngưỡng theo hiện trường — hạng mục thứ nhất
+
+Đây là hạng mục đứng đầu danh sách vì ba kết quả của luận văn cùng chỉ về nó.
+
+  (i) **Giá trị trung bình không dự báo được một hiện trường mới.** Mô hình được triển khai có dải
+      cân bằng theo fold rộng **29.7 pp** (mục 7.3). Một con số tổng hợp 84.2% mô tả kho dữ liệu;
+      nó không mô tả fold tệ nhất, và một hiện trường mới là một fold chưa từng thấy.
+  (ii) **Bản thân chế độ lỗi cũng thay đổi theo hiện trường.** Fold 6 là lỗi **mất độ chính xác**
+      (báo nguy hiểm sai trên các nguồn bình thường); fold 3 của làn toàn khung là lỗi **bỏ sót**
+      (không báo trên một nguồn nguy hiểm). Một ngưỡng duy nhất không thể tối ưu cho cả hai, và
+      hai chế độ này có hậu quả vận hành khác nhau về bản chất: một bên gây mệt mỏi báo động, một
+      bên bỏ lọt sự cố.
+  (iii) **Xác suất đầu ra chưa dùng được trực tiếp để đặt ngưỡng.** ECE (15 bin) của làn bốn lớp là
+      **0.097**. Đó là giá trị bất lợi nhất của thẻ điểm. Một hệ thống đặt ngưỡng theo xác suất
+      cần ECE thấp hơn hẳn, nên trước khi có hiệu chuẩn lại, ngưỡng phải được đặt theo **thứ hạng**
+      chứ không theo giá trị xác suất tuyệt đối.
+
+  Hệ quả là một thủ tục triển khai chứ không phải một thay đổi kiến trúc: tại mỗi hiện trường, gán
+  nhãn một tập nhỏ, hiệu chuẩn lại (ví dụ scaling theo nhiệt độ hoặc hồi quy đẳng hướng), rồi chọn
+  ngưỡng theo chi phí vận hành của hai chế độ lỗi ở hiện trường đó. Chương 8 đưa hạng mục này vào
+  hướng phát triển.
+
+7.9.2. Giới hạn của giao thức và của dữ liệu
+
+  (a) **Nhiễu lẫn nguồn-nhãn bị pha loãng, không bị loại bỏ.** Trên iSafetyBench, **0 trong 151
+      nguồn** mang cả hai lớp. Hệ quả trực tiếp: mọi khoảng tin cậy bootstrap theo cụm trong làn
+      CLIP đều chứa 0, trong khi khoảng tin cậy mức clip thì không. Luận văn chọn đơn vị cụm và
+      do đó **không chứng nhận được bất kỳ biên cỡ 3-4 pp nào** ở độ phân giải cụm. Đây là một
+      giới hạn của bộ dữ liệu, không phải của phương pháp: không một cách chia nào khắc phục được
+      việc một nguồn chỉ có một nhãn.
+  (b) **Nhóm bối cảnh của Unsafe-Net là một proxy.** Chúng được sinh bằng KMeans(k = 8) trên mô tả
+      nền tĩnh, không bằng mã định danh camera. Tám đơn vị lấy mẫu là quá ít để phân giải chênh
+      lệch cỡ vài điểm phần trăm, và ba trong tám nhóm chỉ mang một lớp. Vì vậy LCO được phát biểu
+      **theo fold**, không theo view, ở mọi chỗ trong luận văn.
+  (c) **Trần chất lượng nhãn.** Độ đồng thuận giữa hai người gán nhãn độc lập trên 100 clip cho
+      κ = 0.65. Một chênh lệch nhỏ hơn mức nhiễu nhãn này không thể được giải thích bằng mô hình.
+  (d) **Việc quy về bài toán nhị phân làm mọi con số iSafetyBench không so sánh được với bài báo
+      gốc**, vốn là bài toán đa nhãn từ vựng mở trên 165 hạng mục. Luận văn không đặt bất kỳ bảng
+      so sánh nào với bài báo gốc trên kho này.
+  (e) **iSafetyBench không có hộp chân lý**, nên không một giá trị mAP nào được nêu trên kho này —
+      kể cả khi bộ phát hiện chạy trên nó.
+
+7.9.3. Phạm vi của kết luận về phân rã thực thể
+
+Kết luận ở mục 7.2 — phân rã thực thể không thắng — có một phạm vi hẹp và phạm vi đó phải đi kèm
+mỗi lần kết luận được nhắc. Bốn kênh hình học (`iou_walkway`, `iou_restricted`, `foot_in_walkway`,
+`norm_dist`) **bằng không trên toàn bộ 1,100 clip**, nên dạng mạnh của giả thuyết — phân rã thực
+thể **có** chú giải vùng — chưa được kiểm tra trên kho này. Thí nghiệm giải quyết được câu hỏi đó
+là rõ ràng và khả thi: chú giải vùng trên một tập con, dựng lại bốn kênh, rồi chạy lại đúng ba cổng
+G11, G14, G18 với cùng fold. Luận văn không thực hiện thí nghiệm này.
+
+Đối trọng đã nêu ở 7.2.3 vẫn giữ nguyên giá trị: trên Unsafe-Net, nơi hình học vùng **có thật**,
+biên +16.9 pp vẫn tập trung ở hai trong bốn lớp và hai trong tám nhóm bối cảnh, và làn toàn khung
+sánh ngang làn quan hệ trên hai lớp. Đó là bằng chứng ngược chiều nhưng **không phải** bằng chứng
+thay thế: nó đến từ một kho khác, một số lớp khác và một giao thức khác.
+
+Tương ứng, mọi phát biểu bất biến kiến trúc (R47) chỉ có phạm vi Unsafe-Net, vì trên iSafetyBench
+chênh lệch E0 - E3 là +5.1 pp với p = 7.74e-06.
+
+7.9.4. Những phép đo biên chưa thực hiện
+
+Danh sách này là danh sách **chưa đo**, không phải danh sách đo xong rồi bỏ. Mỗi dòng đều có thể
+thực hiện trên thiết bị hiện có.
+
+  (f) **Soak nhiệt ở mức quyết định tổ hợp**: chưa thực hiện. Soak đã có là soak ở mức giai đoạn.
+      Vì vòng lặp tổ hợp có hệ số hoạt động và hành vi bộ điều tần khác giai đoạn đơn lẻ (mục
+      7.4.4), không thể suy kết quả soak tổ hợp từ soak giai đoạn.
+  (g) **Phân phối p95 của độ trễ mỗi quyết định ở vòng lặp tổ hợp**: chưa thực hiện. Luận văn chỉ
+      nêu trung vị. Với một hệ cảnh báo, đuôi phân phối quan trọng hơn trung vị, nên đây là một
+      thiếu sót thực chất chứ không phải thiếu sót hình thức.
+  (h) **Công suất trung bình của vòng lặp tổ hợp**: chưa đo. Giá trị duy nhất được xác nhận là
+      công suất trung bình trong soak, **7,033.761 mW** (VDD_IN, toàn module) ở đúng hệ số hoạt
+      động của soak đó. Mẫu số của mọi phát biểu kiểu "còn dư bao nhiêu watt" đã bị rút (xem 7.6,
+      nhóm A, và mục 5.6.5), nên con số công suất chỉ được dùng để nêu công suất tuyệt đối.
+  (i) **Tương đương FP16/FP32 của bộ phát hiện**: chưa đo. Các giá trị tương đương đã công bố
+      thuộc về bộ mã hoá ngoại hình và đầu phân loại, không thuộc bộ phát hiện.
+  (j) **Vòng lặp tổ hợp của làn B1 dưới xung nhịp ghim có chứng thực sysfs**: chưa đo. Trần lợi
+      ích tính được bằng số học là **+12.5%** (257.5 ms = 3.88 q.đ./s). Giá trị này là **số học,
+      không phải phép đo**, và được nhãn như vậy ở mọi chỗ nó xuất hiện. Nó thấp vì hạng mục chi
+      phối của làn B1 là tiền xử lý trên CPU, mà mục 7.4.4 cho thấy các giai đoạn CPU gần như bất
+      biến với xung nhịp khi được đo riêng.
+  (k) **Tính trùng khớp số học giữa khối lắp vector quan hệ 74 chiều trên thiết bị và pipeline lúc
+      huấn luyện**: chưa kiểm chứng. Hai bên dùng cùng công thức nhưng khác đường dẫn mã. Cho đến
+      khi có phép kiểm chứng này, các con số nhịp của P3 là **số đo thời gian**, và không được dùng
+      để suy ra độ chính xác của P3 khi triển khai.
+
+7.9.5. Công việc cần làm trên harness đo
+
+Kết luận của mục 7.5.4 là cân bằng và nó quy định phạm vi công việc: harness **không cần viết lại**.
+
+  - **Sửa một dòng.** Chuyển `await asyncio.sleep(period)` tại `stream-pipeline-utils.py:86` thành
+    một hàm nghỉ theo thời hạn (nghỉ phần còn lại của chu kỳ, không nghỉ thêm trọn chu kỳ). Trước
+    khi sửa, mọi phán quyết hợp đồng phải lấy từ các lần chạy tự do.
+  - **Đổi tên hai trường.** `drop_rate` -> một tên nói rõ nó chỉ đếm khung bị bỏ ở hàng đợi, và
+    `clock_state_stable` -> `clock_mode_unchanged`. Mã hiện tại **đúng như tài liệu của nó**; chỉ
+    tên trường là nguồn gây nhầm.
+  - **Không sửa công thức tổng giai đoạn — bỏ vai trò dự báo nhịp của nó.** Mục 7.4.3 đã chứng
+    minh rằng sửa riêng bước nhảy làm **cả hai nhánh xấu đi** (-24.6% và -59.6%), vì khuyết điểm
+    bước nhảy đang bù trừ một phần cho các hạng mục bị bỏ sót. Vì vậy khuyến nghị không phải "sửa
+    công thức" mà là: giữ phép đo từng giai đoạn **như một bảng chi phí giai đoạn**, và lấy nhịp
+    **chỉ** từ vòng lặp tổ hợp.
+
+7.9.6. Các hạng mục xuất xứ còn mở
+
+Bảy hạng mục đã liệt kê ở 7.7.2 — bảng số đa luồng P1 dựa trên tạo tác sửa tay, bốn bảng thực
+nghiệm lịch sử chưa hậu kiểm, năm khung hình minh hoạ chưa đưa vào kho, video minh hoạ dự phòng
+không tồn tại, nhãn phần cứng máy chủ sai, phép khớp hàng của tensor k-fold, và biểu ngữ xương
+sống sai trong một nhật ký — đều còn mở vào ngày đóng băng 05/10/2026. Chúng được nêu ở đây một
+lần nữa chỉ để khẳng định rằng chúng **không** được coi là đã đóng.
+
+**Một hạng mục trong bảy đã đóng sau ngày đóng băng**: nhãn phần cứng máy chủ, đóng ngày
+09/10/2026 bằng bằng chứng tạo tác chứ không bằng ký ức (mục 7.7.2(i) và 4.6.1). Sáu hạng mục còn
+lại vẫn mở. Việc đóng được ghi ở đây, chứ không được âm thầm xoá khỏi danh sách, vì một danh sách
+khuyết điểm chỉ có giá trị khi người đọc thấy được cả lịch sử của nó.
+
+7.9.7. Các câu hỏi chưa trả lời
+
+  1. Phân rã thực thể **có** chú giải vùng có thắng được làn toàn khung không? Chưa kiểm tra (mục
+     7.9.3). Đây là câu hỏi mở quan trọng nhất của luận văn về mặt khoa học.
+  2. Thủ tục hiệu chuẩn và đặt ngưỡng theo hiện trường nào là đủ? Cần bao nhiêu clip có nhãn tại
+     mỗi hiện trường để ngưỡng ổn định? Chưa xác định.
+  3. Vì sao fold 3 của làn toàn khung thất bại? Nguồn chi phối có mật độ người và vật **thấp hơn**
+     trung bình kho, nên ba đặc trưng đếm không quy được nguyên nhân (mục 7.3.2). Biến giải thích
+     còn chưa được tìm ra.
+  4. Đuôi phân phối độ trễ mỗi quyết định của vòng lặp tổ hợp là bao nhiêu, và nó có vi phạm hợp
+     đồng ở p95 trong khi đạt ở trung vị không? Chưa đo (mục 7.9.4(g)).
+  5. Dưới soak nhiệt ở mức quyết định tổ hợp, nhịp có giữ được không? Chưa đo.
+  6. Khối lắp vector 74 chiều trên thiết bị có trùng khớp số học với pipeline huấn luyện không?
+     Chưa kiểm chứng — và đây là điều kiện tiên quyết để nói bất cứ điều gì về độ chính xác của P3
+     khi triển khai.
+  7. Công suất trung bình của vòng lặp tổ hợp là bao nhiêu? Chưa đo, nên không có phát biểu nào về
+     ngân sách năng lượng.
+  8. Nhịp của làn B1 dưới xung nhịp ghim có chứng thực là bao nhiêu? Chỉ có trần số học +12.5%.
+  9. Tại sao bộ phát hiện thế hệ mới **kém hơn** cho nhánh thực thể (mục 7.2.2)? Luận văn chỉ ra
+     cơ chế (bộ phát hiện bảo thủ hơn, 45,512 so với 52,997 phát hiện, 87.9% so với 90.2% khung
+     không rỗng) nhưng không kiểm tra giả thuyết rằng hạ ngưỡng tin cậy của bộ phát hiện mới sẽ
+     khôi phục được chênh lệch.
+ 10. Hai lần đọc xung đột của đường cơ sở CPU trên máy chủ, con nào đúng? Đang tranh chấp; cả hai
+     đều không được dẫn (mục 7.6, nhóm D).

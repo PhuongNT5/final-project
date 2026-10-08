@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""F11 (M4 sanity-check): verify exported ONNX graphs are TensorRT-compatible
+"""F11 (M3 sanity-check): verify exported ONNX graphs are TensorRT-compatible
 without requiring NVIDIA hardware.
 
 Checks per ONNX file in deployment/export/:
@@ -109,7 +109,7 @@ def main():
         json.dump(summary, f, indent=2)
     print(f'[SAVED] {OUT_JSON}')
 
-    lines = ['# TensorRT compatibility report (M4 graph-only sanity)\n',
+    lines = ['# TensorRT compatibility report (M3 graph-only sanity)\n',
              f'Export dir: `{summary["export_dir"]}`\n',
              f'Files scanned: {summary["n_files"]} | TRT-compatible: {n_ok} | blocked: {n_blocked}\n',
              '\n## Per-file results\n',

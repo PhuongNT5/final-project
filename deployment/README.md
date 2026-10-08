@@ -93,7 +93,7 @@ in Phase 02 on real test videos.
 - **Opset.** `torch.onnx.export(opset_version=17)` silently emits opset 18 under
   PyTorch 2.11 dynamo. Needs ORT >= 1.18 (we use 1.24.4).
 - **Previous PROGRESS.md claim of "1.39 ms CPU INT8" is superseded.** Researcher
-  measured 10.2 ms CPU / 2.3 ms CoreML ANE for the backbone alone (bs=1) on M4;
+  measured 10.2 ms CPU / 2.3 ms CoreML ANE for the backbone alone (bs=1) on M3;
   full-pipeline numbers are in Phase 02 (CPU-FP32 e2e 26.9 ms p50).
 
 ## Measured results (Phase 02, 03)

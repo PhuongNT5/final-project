@@ -1,0 +1,27 @@
+[dedupe:drop_all] train: dropped 51 of 452 clips
+train 401 clips | test 64 clips | tag='yolo26app_' feat=74 (n_num=73) | params ~298,248
+  seed0: val_macro=89.3@e13 → test 54/64 top1=84.4 macro=87.3
+  seed1: val_macro=87.3@e14 → test 54/64 top1=84.4 macro=87.3
+  seed2: val_macro=86.5@e15 → test 54/64 top1=84.4 macro=87.3
+  seed3: val_macro=88.4@e20 → test 52/64 top1=81.2 macro=85.7
+  seed4: val_macro=88.4@e46 → test 53/64 top1=82.8 macro=86.5
+
+=== RESULTS (4-class unsafe, 64-clip test) ===
+across 5 seeds: test top1 = 53.4±0.8/64 | macro = 86.8%
+BLIND (val-selected seed 0): 54/64 = 84.4% top1, macro 87.3%
+ensemble (test-selected caveat): 54/64 = 84.4% top1, macro 87.3%
+blind top1 BCa 95% CI = [71.9, 90.6]
+per-class (blind):
+  WalkwayViol    n=32  recall= 81.2%  FNR= 18.8%
+  UnauthorInt    n=11  recall= 90.9%  FNR=  9.1%
+  OpenedPanel    n=13  recall= 76.9%  FNR= 23.1%
+  CarryOverload  n= 8  recall=100.0%  FNR=  0.0%
+confusion (rows=true, cols=pred):
+ [[26  6  0  0]
+ [ 0 10  1  0]
+ [ 1  2 10  0]
+ [ 0  0  0  8]]
+
+Paper: no-bbox 57/64 (85.78% macro) | full-bbox 62/64 (95.81% macro)
+blind vs no-bbox baseline: Δ=-4.7pp z=-0.78 p=0.435
+[saved] seed-averaged softmax + blind-seed softmax → sweep_results/relation_tokens/logits_yolo26_drop_all.pt

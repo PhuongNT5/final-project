@@ -1,0 +1,18 @@
+[G12 DIAGNOSTIC — SOURCE-LEAKING PROTOCOL] StratifiedKFold over 1100 clips IGNORING the 151 source ids: clips from one YouTube video appear in train AND held-out. Source identity is a perfect label proxy here (R41). This number measures protocol inflation and is NOT a generalisation result.
+[rand-1100] arch=E0 d=- coord=T1 pooled 1100 clips (unsafe 420) | folds=10 | params=298,118
+  held-out group f1: n=110 unsafe=42 acc= 86.4%
+  held-out group f2: n=110 unsafe=42 acc= 92.7%
+  held-out group f3: n=110 unsafe=42 acc= 91.8%
+  held-out group f4: n=110 unsafe=42 acc= 90.0%
+  held-out group f5: n=110 unsafe=42 acc= 89.1%
+  held-out group f6: n=110 unsafe=42 acc= 94.5%
+  held-out group f7: n=110 unsafe=42 acc= 90.9%
+  held-out group f8: n=110 unsafe=42 acc= 93.6%
+  held-out group f9: n=110 unsafe=42 acc= 90.9%
+  held-out group f10: n=110 unsafe=42 acc= 90.9%
+
+=== RAND-1100 (E0, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=90.7% macro_f1=90.6% unsafe_recall=89.0% unsafe_precision=87.8% PR-AUC=0.923 ROC-AUC=0.963
+  [R42 floor, identical folds] count-rule (persons/frame, objects/frame, mean conf) balanced_acc=68.2%  |  encoder-minus-shortcut = +22.5 pp
+  [saved LCO per-clip OOF] sweep_results/relation_tokens/enc_isb_E0_rand-1100_headline-none_oof.json
+  [saved LCO OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isb_binary_E0_rand-1100_none.pt

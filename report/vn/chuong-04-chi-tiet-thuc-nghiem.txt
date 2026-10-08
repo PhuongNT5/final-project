@@ -1,0 +1,879 @@
+======================================================================
+CHƯƠNG 4. CHI TIẾT THỰC NGHIỆM: DỮ LIỆU, ĐẶC TRƯNG, FOLD,
+           CẤU HÌNH HUẤN LUYỆN VÀ MÔI TRƯỜNG ĐO
+======================================================================
+
+----------------------------------------------------------------------
+4.1. MỤC ĐÍCH VÀ PHẠM VI CỦA CHƯƠNG
+----------------------------------------------------------------------
+
+Chương 3 đã trình bày phương pháp: ba pipeline, kiến trúc các đầu quan hệ, và giao thức đánh giá
+tiền đăng ký với tám cổng. Chương 6 công bố phán quyết của tám cổng đó, Chương 5 công bố hệ thống
+chạy trên thiết bị biên. Giữa phương pháp và kết quả còn một lớp thông tin mà nếu thiếu thì không
+một con số nào ở Chương 5 và Chương 6 có thể tái lập được: **cấu hình thực nghiệm cụ thể**.
+
+Chương này cung cấp lớp đó. Nó không nêu một kết quả nào, không rút ra một kết luận nào về giả
+thuyết, và không so sánh mô hình. Chức năng duy nhất của nó là: **với mỗi con số được công bố ở
+Chương 5, Chương 6 và Chương 7, người đọc xác định được con số ấy được sinh ra từ dữ liệu nào,
+trên cách chia nào, với siêu tham số nào, trên phần cứng nào, và bằng công cụ đo nào.**
+
+Nguyên tắc viết của chương, kế thừa từ quy tắc xuất xứ ở mục 7.7.3: **mọi giá trị trong chương này
+được đọc trực tiếp từ mã nguồn hoặc từ tạo tác sinh ra nó, không lấy từ một bảng tổng hợp trung
+gian.** Vì vậy mỗi mục đều dẫn kèm đường dẫn tệp và, khi là mã nguồn, dẫn kèm số dòng. Lý do của
+quy tắc này được trình bày ở mục 7.7: trong quá trình làm luận văn, đã có trường hợp một bảng tổng
+hợp nội bộ mang đúng chính cái lỗi mà nó được lập ra để chặn.
+
+Chương gồm tám mục nội dung. Mục 4.2 mô tả ba kho dữ liệu. Mục 4.3 mô tả quá trình trích xuất đặc
+trưng, kể cả hai phép đối chứng công bằng được cài vào chính quy trình trích xuất. Mục 4.4 mô tả
+cấu hình fold và chứng minh bằng số rằng phép chia theo nguồn là chính xác. Mục 4.5 mô tả cấu hình
+huấn luyện, cơ chế chọn mô hình và sơ đồ seed. Mục 4.6 mô tả phần cứng và môi trường. Mục 4.7 mô
+tả harness đo biên cùng những điều kiện cần biết khi đọc số của nó. Mục 4.8 nêu quy ước trình bày
+số. Mục 4.9 nêu giao thức chạm tập test.
+
+----------------------------------------------------------------------
+4.2. BA KHO DỮ LIỆU
+----------------------------------------------------------------------
+
+Luận văn dùng ba kho dữ liệu khác nhau cho ba mục đích khác nhau. Việc tách bạch chúng là điều kiện
+để đọc đúng các con số: **hai kho đầu không bao giờ được gộp, không bao giờ được lấy trung bình với
+nhau, và không bao giờ được so sánh trực tiếp** (lý do ở mục 4.2.4 và mục 7.8).
+
+4.2.1. iSafetyBench — làn tiêu biểu của luận văn
+
+Đây là kho mang kết quả tiêu biểu (headline). Sau khi lọc theo điều kiện có đủ khung và giải mã
+được, kho dùng trong luận văn gồm:
+
+  Số clip                                 1,100
+  Clip nhãn nguy hiểm (hazard)              420   (38.2%)
+  Clip nhãn bình thường (normal)            680   (61.8%)
+  Số nguồn video phân biệt (source id)       151
+  Số nguồn mang CẢ HAI nhãn                    0   trên 151
+
+Dòng cuối là một tính chất cấu trúc của kho, không phải một lựa chọn thiết kế, và nó là giới hạn
+quan trọng nhất của toàn bộ làn này. **Nhãn gắn với nguồn, không gắn với tình huống trong nguồn**:
+mỗi video nguồn đóng góp các clip mang cùng một nhãn. Hệ quả được phân tích ở mục 7.9.2(a) — khi
+nhãn và nguồn trùng khớp hoàn toàn thì một bộ phân loại chỉ cần nhận ra **nguồn** là đã đạt điểm
+cao, và phép chia theo nguồn (mục 4.4) làm loãng nhiễu này chứ không loại bỏ được nó.
+
+Nhiệm vụ gốc của iSafetyBench là nhận dạng đa nhãn với từ vựng mở trên 165 hạng mục. Luận văn
+**quy về bài toán nhị phân** nguy hiểm/bình thường. Việc quy đổi này là cần thiết để khớp với bài
+toán triển khai (một hệ cảnh báo chỉ cần quyết định có/không), nhưng nó khiến **không một con số
+nào của luận văn trên kho này so sánh được với kết quả của bài báo gốc** (mục 7.9.2(d)). Luận văn
+không in bảng so sánh với bài báo gốc, và đây là lý do.
+
+Kho này **không có hộp chân lý** (ground-truth bounding box). Vì vậy không một giá trị mAP nào được
+nêu trên iSafetyBench; mọi giá trị mAP trong luận văn thuộc tập huấn luyện bộ phát hiện ở mục 4.2.3
+(mục 7.9.2(e)).
+
+4.2.2. Unsafe-Net — làn đối chứng có hình học thật
+
+Kho thứ hai mang chú thích vùng thật (vùng đi lại an toàn, vùng hạn chế dưới dạng đa giác theo
+từng bối cảnh), nên nó là làn duy nhất mà các kênh hình học của token quan hệ có giá trị khác
+không. Vai trò của nó trong luận văn là **đối chứng cho kết luận của mục 7.2**: giả thuyết phân rã
+thực thể bị các cổng G11/G14/G18 phủ định trên iSafetyBench, nhưng phép phủ định đó chỉ có hiệu lực
+**trong điều kiện không có chú thích vùng**; Unsafe-Net cung cấp điều kiện ngược lại.
+
+Kho có hai làn con, dùng cho hai nhóm kết quả khác nhau:
+
+  Làn bốn lớp  : gộp được 516 clip, 8 nhóm bối cảnh, đặc trưng 72 chiều (một số bảng dùng 74).
+  Làn nhị phân : gộp được 691 clip; chính sách khử trùng lặp `headline-drop_conflict` bỏ 4 clip
+                 nên còn **687 clip (512 nhãn nguy hiểm)**; với `dedupe=none` giữ nguyên 691.
+
+Hai con số 691 và 687 đều đúng và thuộc hai chính sách khác nhau; mọi bảng trong luận văn ghi rõ
+chính sách đang dùng. Cơ chế khử trùng lặp (`unsafenet/dedupe.py`, gọi từ
+`run_relation_transformer.py:48-72`) chỉ loại các clip **giống nhau từng byte nhưng gán nhãn khác
+nhau**, và nó **bất đối xứng theo thiết kế**: chỉ áp dụng cho phần huấn luyện, còn tập test 64 clip
+của bài báo gốc **không bao giờ bị lọc** — docstring ở dòng 49-51 ghi rõ điều này, và `reports/
+test-touch-log.md` ràng buộc nó. Lý do: tập test là tập đã đóng băng của bài báo gốc; lọc nó sẽ là
+một hành vi thay đổi thước đo.
+
+Tám "nhóm bối cảnh" (`'0'` đến `'7'`) **không phải tám camera đã biết**. Chúng được sinh bằng
+KMeans với k = 8 trên mô tả nền tĩnh, tức một **proxy** cho bối cảnh. Chính nhật ký huấn luyện tự
+ghi hạn chế này ở dòng thứ hai, nhãn `[LIMITATION]`. Ba trong tám nhóm chỉ mang một lớp duy nhất.
+Vì vậy toàn luận văn viết "nhóm bối cảnh", không viết "camera"; và tám đơn vị là **quá ít** để một
+khoảng tin cậy ở mức nhóm có độ phân giải hữu ích (mục 7.9.2(b)).
+
+4.2.3. Tập huấn luyện và kiểm định bộ phát hiện thực thể
+
+Bộ phát hiện Stage-A được huấn luyện riêng, trên một tập ảnh có hộp chân lý. Phần kiểm định được
+giữ lại ở **mức clip** (các ảnh của cùng một clip không nằm hai bên), gồm:
+
+  Số ảnh kiểm định                343
+  Số thực thể (instance)          988
+  Số lớp tính vào mAP               6
+
+Hai lớp `Safe_Walkway` và `Restricted_Zone` **không có instance nào** trong tập kiểm định, vì chúng
+là đa giác vùng theo từng bối cảnh chứ không phải đối tượng được phát hiện; vì vậy mAP tổng được
+tính trên 6 lớp, không phải 8. Kết quả kiểm định lại ngày 2026-10-02:
+
+  Bảng 4.1. Bộ phát hiện thực thể Stage-A, 343 ảnh / 988 instance, imgsz 800
+
+  Lớp                     | mAP@50 | Recall | Precision
+  ------------------------+--------+--------+----------
+  Person_Authorized       | 0.9377 | 0.9211 |  0.9785
+  Person_Unauthorized     | 0.9277 | 0.9368 |  0.8157
+  Panel_Closed            | 0.9895 | 0.9462 |  0.9867
+  Panel_Opened            | 0.9719 | 1.0000 |  0.8806
+  Forklift_Safe_Load      | 0.9950 | 1.0000 |  0.9697
+  Forklift_Overload       | 0.9950 | 1.0000 |  0.9722
+  ------------------------+--------+--------+----------
+  TỔNG (6 lớp)            | **0.9695** | 0.9673 | 0.9339
+  mAP@50-95               | **0.8939** |        |
+
+  Tạo tác: `sweep_results/entity_detector/reval-2026-10-02-detector-best-val343.log`.
+  Trọng số: `sweep_results/entity_detector/detector_best.pt` (YOLOv11s, 2026-08-09).
+  Lệnh: `revalidate-entity-detector.py detector_best.pt yolo11s`
+  (ultralytics 8.4.27, torch 2.11.0, device = cpu, imgsz = 800).
+
+Bảng này là **kết quả đo lại, không phải kết quả đọc từ nhật ký huấn luyện**, và lý do phải đo lại
+cần được nêu thẳng: nhật ký huấn luyện gốc (`train_run.log`) **bị cắt giữa epoch 20/30**, còn tệp
+`results.csv` duy nhất còn trong kho mã thuộc giai đoạn `stage1_frozen` 3 epoch và chỉ đạt mAP@50
+**0.462**. Nghĩa là giá trị 0.969 từng được công bố **không có tạo tác sinh ra nó** tại thời điểm
+công bố. Phép đo lại từ trọng số đã lưu, trên đúng tập kiểm định cũ, tái lập được mọi giá trị đã
+công bố. Diễn biến này được ghi ở mục 7.7.1(a); nó là một trong bảy hạng mục xuất xứ của luận văn.
+
+Phép đo lại đóng câu hỏi "con số có đúng không" nhưng **không** đóng câu hỏi "trọng số này được
+huấn luyện ở đâu". Nhật ký còn lại không chỉ bị cắt: nó là nhật ký của một phiên chạy trên MPS đã
+**sụp về mAP@50 = 0 ở mọi epoch sau epoch 1**, nên nó không thể là phiên sinh ra trọng số này. Mục
+4.5.5 trình bày đầy đủ việc này cùng lời tự khai về phiên chạy lại trên runtime GPU của Kaggle và
+việc không có nhật ký phía Kaggle trong kho mã. Bảng 4.1 vì vậy được đọc đúng như nó là: **một phép
+đo lại kiểm chứng được trên một trọng số có nguồn gốc huấn luyện chỉ ở mức tự khai.**
+
+Lưu ý trích dẫn: con số đúng là **0.9695**. Phát biểu "mAP 95.7%" từng xuất hiện trong một bản thảo
+và **đã bị rút** (Bảng 7.2, nhóm C); nó không được phục hồi dưới bất kỳ hình thức nào.
+
+4.2.4. Chất lượng nhãn: trần trên của mọi con số
+
+Độ đồng thuận giữa hai người gán nhãn độc lập được đo trên 100 clip, mỗi lớp 20 clip:
+
+  Bảng 4.2. Ma trận đồng thuận hai người gán nhãn (n = 100)
+
+           lớp 0 | lớp 1 | lớp 2 | lớp 3 |  bg  | tổng | trùng | lệch
+  ---------+-------+-------+-------+------+------+-------+-----
+  lớp 0  |   17  |    1  |    1  |    0  |   1  |  20  |   17  |   3
+  lớp 1  |    6  |   11  |    1  |    0  |   2  |  20  |   11  |   9
+  lớp 2  |    3  |    1  |   14  |    0  |   2  |  20  |   14  |   6
+  lớp 3  |    0  |    0  |    0  |   20  |   0  |  20  |   20  |   0
+  bg     |    2  |    7  |    0  |    1  |  10  |  20  |   10  |  10
+  ---------+-------+-------+-------+------+------+-------+-----
+  Cohen's kappa = **0.65**   Đồng thuận thô = **72%** (72/100)
+
+  Tạo tác: `plans/260613-thesis-defense-revision/reports/kappa-result.json`.
+
+Ba điều phải đọc từ bảng này.
+
+  (1) **kappa = 0.65 là trần trên của mọi con số trong luận văn.** Quy trình gán nhãn
+      (`annotation_guide/annotation-sop.md:58`) đặt mục tiêu kappa > 0.8; giá trị đạt được là 0.65.
+      Một mô hình không thể được đo là chính xác hơn mức mà hai con người đồng ý với nhau về cùng
+      dữ liệu. Vì vậy mọi chênh lệch vài điểm phần trăm giữa hai mô hình, ở mục 6.x, phải được đọc
+      trong bối cảnh này — và đây là một trong ba lý do mục 7.9.1 đặt việc hiệu chuẩn tại hiện
+      trường lên trước mọi hạng mục công việc tiếp theo.
+
+  (2) **Sự bất đồng không phân bố đều.** Lớp 3 đồng thuận hoàn toàn (20/20). Hai hàng tệ nhất là
+      `bg` (10/20 lệch, trong đó 7 bị người kia gán thành lớp 1) và lớp 1 (9/20 lệch, trong đó 6 bị
+      gán thành lớp 0). Nghĩa là bất đồng tập trung ở **ranh giới giữa nền và lớp 1**, chứ không
+      phải rải đều trên taxonomy.
+
+  (3) Bảng này đo trên taxonomy bốn lớp cộng nền của làn Unsafe-Net. Nó **không** là phép đo đồng
+      thuận trên nhãn nhị phân của iSafetyBench; luận văn không có phép đo đó, và không suy kappa
+      của làn này sang làn kia.
+
+Ràng buộc về quyền riêng tư. Quy trình gán nhãn (`annotation_guide/annotation-sop.md`) đặt 2,262
+khung ảnh nhà máy — có hình ảnh người lao động nhận dạng được — dưới phạm vi của các mẫu đồng thuận
+đã thu. Dữ liệu hình ảnh này **không** được đưa vào kho mã công khai; chỉ các tạo tác dạng số và
+dạng văn bản được theo dõi. Đây là một ràng buộc đã được áp dụng trong suốt quá trình làm luận văn,
+không phải một khuyến nghị cho tương lai.
+
+----------------------------------------------------------------------
+4.3. TRÍCH XUẤT ĐẶC TRƯNG
+----------------------------------------------------------------------
+
+Mọi mô hình trong luận văn là một đầu (head) nhỏ huấn luyện trên đặc trưng đã trích sẵn và lưu ra
+tensor; **không có backbone nào được tinh chỉnh**. Lựa chọn này quyết định toàn bộ ngân sách tính
+toán của luận văn: một lần trích đặc trưng tốn hàng chục phút, sau đó mỗi lần huấn luyện một đầu
+chỉ tốn vài phút trên CPU, nên có thể chạy mười fold nhân ba seed cho chín kiến trúc. Nó cũng là
+điều kiện làm cho các phép đối chứng ở mục 4.3.3 và 4.3.4 trở nên **chính xác** thay vì gần đúng:
+khi backbone đóng băng, hai nhánh có thể được chứng minh là đọc đúng cùng những khung ảnh.
+
+4.3.1. Token quan hệ 74 chiều (làn P3 và làn Unsafe-Net)
+
+Cấu hình, đọc từ `build_relation_tokens.py:43`:
+
+  T       = 16     số khung lấy mẫu cách đều trên mỗi clip
+  N_MAX   =  8     số thực thể tối đa giữ lại mỗi khung
+  CONF    = 0.25   ngưỡng tin cậy của bộ phát hiện
+  IMGSZ   = 800    cạnh ảnh đưa vào bộ phát hiện  (làn Unsafe-Net)
+  FEAT    = 10     số chiều hình học/định danh của một token
+
+Chiều của một token là `FEAT + APP_DIM` = 10 + 64 = **74**. Số vùng cắt ngữ cảnh tối đa trên một
+clip là `T * N_MAX` = **128**; phân phối thực tế của số vùng cắt mỗi quyết định (p50 = 54,
+p95 = 106, p99 = 119) được lấy từ ngữ liệu và dùng lại ở mục 4.7.
+
+Một chi tiết cấu hình phải nêu rõ để tránh một nhầm lẫn đã từng xảy ra: **hằng số `IMGSZ = 800` ở
+dòng 43 thuộc làn Unsafe-Net.** Lần trích token cho iSafetyBench dùng **imgsz = 640**, như chính
+nhật ký của nó ghi ở dòng đầu:
+
+  detector=yolo11s.pt device=mps imgsz=640 appearance=True T=16 N_MAX=8
+  [isb] 1100 clips -> tokens_isb_all.pt | feat=74 | detections=52997 |
+        hazard=420 normal=680 | distinct sources=151
+  (`sweep_results/relation_tokens/logs/build-isb-tokens.log`)
+
+Hai giá trị 800 và 640 đều đúng, mỗi giá trị thuộc một làn. Đọc hằng số trong mã mà không đọc nhật
+ký của lần chạy là cách sinh ra một con số sai không thể phát hiện bằng cách đọc lại mã.
+
+4.3.2. Hai nhánh CLIP từ MỘT lần giải mã — phép đối chứng công bằng của cổng G14
+
+Làn tiêu biểu của luận văn so sánh **nhánh thực thể** (phân rã cảnh thành tối đa 8 thực thể, mỗi
+thực thể một embedding CLIP của vùng cắt) với **nhánh toàn khung** (một embedding CLIP của cả
+khung, không qua bộ phát hiện). So sánh này chỉ có giá trị nếu hai nhánh đọc đúng cùng dữ liệu ảnh.
+Điều đó được bảo đảm **ở mức mã nguồn, không phải bằng quy ước**: trong
+`build-isafetybench-clip-features.py`, hàm `process_clip` giải mã clip **một lần duy nhất**
+(`frames, W, H = decode(path)`), lọc ra danh sách khung hợp lệ `valid`, rồi:
+
+  - nhánh toàn khung  : `embed([fr for _, fr in valid], clip)` — chính những khung đó, cùng CLIP,
+                        cùng tiền xử lý, không qua bộ phát hiện;
+  - nhánh thực thể    : `det.predict([fr for _, fr in valid], ...)` — một lượt bộ phát hiện trên
+                        **cùng danh sách khung đó**.
+
+Vì hai nhánh dùng chung biến `valid`, **không thể có trường hợp một nhánh thấy nhiều khung hơn
+nhánh kia**. Đây là phép đối chứng của cổng G14 và nó là đối chứng theo cấu trúc chương trình.
+
+Cấu hình CLIP và nhánh thực thể:
+
+  Backbone          `openai/clip-vit-base-patch32`, đóng băng, CLIP_DIM = 512 (dòng 37-38)
+  Hình học          GEOM = 6: lớp, xc, yc, w, h, conf — **giữ cạnh embedding, không bị chiếu mất**
+                    (chú thích dòng 39)
+  Chọn thực thể     tám hộp tin cậy cao nhất: `np.argsort(-conf)[:N_MAX]`
+  Vùng cắt          đệm ngữ cảnh 30% quanh hộp (`crop_box`, dòng 88-91)
+  Mặc định CLI      `--imgsz 640 --conf 0.25 --detector yolo11s.pt --out_tag isbclip_`
+
+Tensor sinh ra, đọc từ dòng cuối nhật ký:
+
+  entity (1100, 16, 8, 512) | wholeframe (1100, 16, 512) | detections = 52,997
+  hazard = 420 normal = 680 | sources = 151 | 31.7 phút | 1.73 s/clip
+  (`sweep_results/relation_tokens/feats_isbclip_all.pt`, nhật ký `r48-build-clip-features.log`)
+
+4.3.3. Đối chứng thế hệ bộ phát hiện (cổng G17) — và bằng chứng nó là đối chứng chính xác
+
+Cổng G17 hỏi: kết luận của luận văn có phụ thuộc vào việc dùng một bộ phát hiện **cũ** không? Phép
+đối chứng là trích lại toàn bộ đặc trưng bằng YOLO26s thay cho YOLOv11s, giữ mọi thứ khác không
+đổi:
+
+  entity (1100, 16, 8, 512) | wholeframe (1100, 16, 512) | detections = 45,512
+  hazard = 420 normal = 680 | sources = 151 | 54.8 phút | 2.99 s/clip
+  (`feats_isbclip26_all.pt`, nhật ký `r48-build-clip26-features.log`)
+
+Bộ phát hiện mới hơn trả về **ít phát hiện hơn** ở cùng ngưỡng tin cậy 0.25: 45,512 so với 52,997,
+tức giảm 14.1%. Tỉ lệ khung có ít nhất một phát hiện, tính từ tensor `mask`, là **90.2%** với
+YOLOv11s và **87.9%** với YOLO26s.
+
+Điều quan trọng về phương pháp là phép đối chứng này **chính xác chứ không gần đúng**, và luận văn
+chứng minh được bằng số. So sánh trực tiếp hai tệp tensor:
+
+  wholeframe : max|hiệu| = **0.0**   (trùng khớp từng byte)
+  entity     : max|hiệu| = 10.80
+  geom       : max|hiệu| =  7.0
+  mask       : max|hiệu| =  1.0
+
+Nhánh toàn khung **giống nhau từng byte** giữa hai lần trích, đúng như kỳ vọng vì nó không đi qua
+bộ phát hiện; còn ba tensor phụ thuộc bộ phát hiện thì khác nhau. Nghĩa là biến duy nhất thay đổi
+giữa hai lần trích đúng là thế hệ bộ phát hiện, không có biến nào khác lẫn vào. Phán quyết của cổng
+G17 (mục 6.x, Bảng 6.8) vì vậy quy được cho đúng một nguyên nhân.
+
+4.3.4. Nhánh VideoMAE (mô hình B2)
+
+Đặc trưng thời gian-không gian độc lập, dùng cho mô hình B2:
+
+  Backbone   `MCG-NJU/videomae-base-finetuned-kinetics`, đóng băng
+  Tensor     shape = (1100, 8, 768), 2.06 s/clip
+  Tạo tác    `sweep_results/relation_tokens/feats_isbvmae_all.pt`
+             (nhật ký `r48-build-vmae-features.log`)
+
+Bộ trích VideoMAE dùng chung module `frame_sampling` với bộ trích CLIP (chú thích ở
+`build-isafetybench-clip-features.py:95-97`: "Shared with the VideoMAE builder via frame_sampling
+so both provably read the same frames"), nên B2 và các mô hình làn CLIP đọc cùng những khung ảnh.
+
+Một cảnh báo xuất xứ gắn với nhánh này, ghi ở mục 7.7.2(k): **dòng banner của nhật ký huấn luyện
+in cứng `backbone=CLIP ViT-B/32` cho mọi mô hình, kể cả B2**, trong khi backbone thật của B2 là
+VideoMAE. Banner sai; tensor và mã nguồn đúng. Mọi phát biểu về B2 trong luận văn dựa vào tensor,
+không dựa vào banner.
+
+4.3.5. Chi phí trích đặc trưng và điều nó hàm ý cho việc tái lập
+
+  Bảng 4.3. Năm lần trích đặc trưng trên 1,100 clip
+
+  Tạo tác                      | Backbone              | Shape                 | s/clip | Tổng
+  -----------------------------+-----------------------+-----------------------+--------+---------
+  `tokens_isb_all.pt`          | YOLOv11s + ngoại hình | feat = 74             |   —    |   —
+  `feats_isbclip_all.pt`       | YOLOv11s + CLIP B/32  | (1100,16,8,512) + wf  |  1.73  | 31.7 ph
+  `feats_isbclip26_all.pt`     | YOLO26s + CLIP B/32   | (1100,16,8,512) + wf  |  2.99  | 54.8 ph
+  `feats_isbvmae_all.pt`       | VideoMAE base         | (1100,8,768)          |  2.06  | không ghi
+  `tokens_wf_isb_all.pt`       | MobileNetV3-small     | (1100,16,64)          |   —    |   —
+
+  Mọi giá trị trong bảng lấy từ dòng cuối nhật ký tương ứng. Ba ô "—" và ô "không ghi" là **chỗ
+  nhật ký không in giá trị**, không phải chỗ luận văn bỏ trống: nhật ký trích token và nhật ký
+  trích đặc trưng toàn khung không in thời gian, và nhật ký VideoMAE chỉ in nhịp 2.06 s/clip mà
+  không in tổng. Nhân 2.06 s với 1,100 clip cho khoảng 37.8 phút, nhưng con số đó là **số học của
+  luận văn, không phải một giá trị đo**, nên nó không được đưa vào ô bảng.
+
+  Hàng cuối bảng là tập đặc trưng của đường cơ sở toàn khung dùng cho cổng G11. Backbone đầy đủ
+  được tạo tác ghi là `mobilenet_v3_small/IMAGENET1K_V1 -> fixed 64d random projection`, và phép
+  chiếu ngẫu nhiên 64 chiều ấy **đúng là phép chiếu đã dùng cho đặc trưng ngoại hình của các ô
+  cắt**. Đó là điều làm cho G11 là một so sánh có đối chứng: giữa đặc trưng toàn khung và đặc
+  trưng theo thực thể, bộ mã hoá ngoại hình **không** thay đổi, chỉ vùng ảnh được đọc thay đổi.
+
+Tổng chi phí trích đặc trưng của làn tiêu biểu vào khoảng hai giờ máy. Vì các tensor được lưu lại,
+**mọi kết quả của Chương 6 tái lập được mà không cần chạy lại bước trích**; đây cũng là điều kiện
+làm cho việc tính lại bảy bảng chỉ số từ dự đoán ngoài-fold đã lưu (mục 7.7.1(d)) trở nên khả thi.
+
+----------------------------------------------------------------------
+4.4. CẤU HÌNH FOLD
+----------------------------------------------------------------------
+
+Mục này được Chương 7 dẫn tới trực tiếp (mục 7.3), vì một phần kết luận về thất bại tập trung ở
+fold chỉ đọc được khi biết thành phần fold. Toàn bộ số liệu trong mục được **dựng lại từ chính bộ
+nạp dữ liệu**, không lấy từ nhật ký huấn luyện, để có thể kiểm tra chéo với nhật ký.
+
+4.4.1. Bộ chia và lý do chọn nó
+
+  Bộ chia   `StratifiedGroupKFold(n_splits = 10, seed = 0)`
+  Nhóm      định danh nguồn video (source id)
+  Phân tầng nhãn nhị phân nguy hiểm/bình thường
+
+Hai yêu cầu phải thoả đồng thời, và chúng xung đột với nhau. Yêu cầu thứ nhất là **không một nguồn
+nào xuất hiện ở cả hai bên** của một lần chia — nếu không, mô hình nhìn thấy các clip chị em của
+clip test trong khi huấn luyện, và con số đo được là con số nhận dạng nguồn chứ không phải con số
+nhận dạng tình huống. Yêu cầu thứ hai là **mỗi fold test phải có đủ cả hai lớp** với tỉ lệ không
+quá lệch, nếu không thì độ chính xác cân bằng không xác định được trên fold đó.
+
+`StratifiedGroupKFold` là bộ chia thoả cả hai: nó giữ nguyên tính nguyên khối của nhóm trong khi
+cân bằng xấp xỉ tỉ lệ lớp giữa các fold. Giá phải trả là **kích thước fold không đều**, và mục 4.4.4
+dưới đây cho thấy giá đó không nhỏ.
+
+Toàn luận văn gọi giao thức này là **leave-source-out (LSO)**, và ở làn Unsafe-Net gọi là
+leave-context-out (LCO). Một quy ước ngôn từ được giữ nghiêm ngặt: ở làn Unsafe-Net, **nói LCO theo
+FOLD, không nói theo VIEW** — vì "view" gợi ý một camera đã biết, trong khi đơn vị chia thực tế là
+một nhóm KMeans (mục 4.2.2).
+
+4.4.2. Thành phần mười fold
+
+  Bảng 4.4. Thành phần mười fold của iSafetyBench (LSO, StratifiedGroupKFold, seed 0)
+
+  Fold | n_hl.ện | n_test | ng.hiểm | b.thường | %ng.hiểm | nguồn | ngH | ngB | max
+  -----+---------+--------+---------+----------+----------+-------+-----+-----+-----
+    1  |   956   |  144   |   42    |   102    |   29.2   |  11   | 10  |  1  | 102
+    2  |   993   |  107   |   42    |    65    |   39.3   |  16   |  9  |  7  |  49
+    3  |   993   |  107   |   42    |    65    |   39.3   |  16   |  8  |  8  |  44
+    4  |   994   |  106   |   42    |    64    |   39.6   |  16   |  8  |  8  |  39
+    5  |   994   |  106   |   42    |    64    |   39.6   |  15   |  6  |  9  |  32
+    6  |   994   |  106   |   42    |    64    |   39.6   |  15   |  7  |  8  |  31
+    7  |   994   |  106   |   42    |    64    |   39.6   |  17   |  9  |  8  |  31
+    8  |   994   |  106   |   42    |    64    |   39.6   |  15   |  6  |  9  |  30
+    9  |   994   |  106   |   42    |    64    |   39.6   |  15   |  6  |  9  |  29
+   10  |   994   |  106   |   42    |    64    |   39.6   |  15   |  7  |  8  |  28
+  -----+---------+--------+---------+----------+----------+-------+-----+-----+-----
+  Tổng |    —    | 1,100  |  420    |   680    |   38.2   | 151   | 76  | 75  | 102
+
+  Chú giải cột. `n_hl.ện` = số clip huấn luyện; `n_test` = số clip giữ ra; `ng.hiểm` / `b.thường` =
+  số clip nguy hiểm / bình thường trong fold test; `nguồn` = số nguồn trong fold test; `ngH` / `ngB`
+  = trong đó bao nhiêu nguồn nhãn nguy hiểm / nhãn bình thường; `max` = số clip của nguồn lớn nhất
+  trong fold. Thành phần đầy đủ từng nguồn của từng fold được in ở **Phụ lục B**.
+
+Một tính chất của bảng đáng chú ý: **mọi fold đều giữ đúng 42 clip nguy hiểm.** Đây là hệ quả của
+phân tầng, và nó có một hệ quả tốt cho việc đọc kết quả — phần mẫu nguy hiểm của mọi fold bằng
+nhau, nên độ chính xác cân bằng của các fold so sánh được với nhau ở phía lớp nguy hiểm. Toàn bộ
+biến động kích thước fold nằm ở lớp bình thường (102 clip ở fold 1, 64-65 clip ở các fold còn lại).
+
+4.4.3. Kiểm tra bằng số rằng phép chia theo nguồn là chính xác
+
+Một phát biểu "chúng tôi chia theo nguồn" là một phát biểu kiểm tra được, và luận văn kiểm tra nó
+chứ không chỉ khai báo nó. Ba phép kiểm:
+
+  (1) **Giao nhau giữa các fold.** Với mọi cặp trong 45 cặp fold, số nguồn chung = **0**.
+  (2) **Hợp của các fold test.** Hợp số nguồn của mười fold test = **151 nguồn phân biệt**, và số
+      lần xuất hiện trùng lặp = **0**. Nghĩa là mỗi nguồn được giữ ra làm test **đúng một lần**.
+  (3) **Bảo toàn clip.** Tổng clip test của mười fold = **1,100**; tổng nguy hiểm = 420; tổng bình
+      thường = 680. Không clip nào bị mất, không clip nào bị tính hai lần.
+
+Kết hợp ba phép kiểm: cấu hình fold **đúng là một phép leave-source-out đầy đủ**, mỗi nguồn giữ ra
+một lần, và tập hợp mười fold test là một phân hoạch của kho dữ liệu. Vì vậy các dự đoán ngoài-fold
+(out-of-fold) gộp lại được: mỗi clip có đúng một dự đoán, sinh ra khi nguồn của nó không nằm trong
+tập huấn luyện. Đây là điều kiện để bảng điểm gộp ở Chương 6 có nghĩa.
+
+Bằng chứng độc lập trong chính tạo tác dự đoán: mỗi dòng của tệp JSON ngoài-fold mang khoá
+`fold_id` và **giá trị của `fold_id` là định danh nguồn**, không phải chỉ số fold từ 0 đến 9. Nghĩa
+là tạo tác tự ghi lại việc đơn vị giữ ra là nguồn.
+
+4.4.4. Độ lệch quy mô nguồn, và vì sao fold 1 không được đọc là "fold dễ"
+
+Phân phối số clip trên mỗi nguồn cực kỳ lệch:
+
+  Nguồn lớn nhất                           102 clip
+  Năm nguồn lớn nhất              102, 49, 44, 39, 32
+  Trung vị                                   3 clip
+  Nguồn nhỏ nhất                             1 clip
+  Số nguồn chỉ có 1 clip                       23
+  Số nguồn có <= 3 clip               77 trên 151  (51.0%)
+
+  Theo lớp:
+  Nguồn nhãn nguy hiểm      76 nguồn / 420 clip | lớn nhất 32 | trung vị 3
+  Nguồn nhãn bình thường    75 nguồn / 680 clip | lớn nhất 102 | trung vị 5
+
+Hơn một nửa số nguồn đóng góp không quá ba clip, trong khi **năm nguồn bình thường lớn nhất giữ 265
+trong 680 clip bình thường, tức 39.0% của cả lớp**. Một bộ chia tôn trọng tính nguyên khối của nhóm
+không có cách nào làm cho các fold đều nhau khi dữ liệu có hình dạng này: nguồn 102 clip phải nằm
+trọn trong một fold nào đó.
+
+Nó nằm ở fold 1, và hệ quả phải được nói thẳng. **Fold 1 chứa duy nhất MỘT nguồn nhãn bình thường**
+(`1tuWxs8fUOk`, 102 trong tổng 144 clip của fold), bên cạnh mười nguồn nhãn nguy hiểm. Chín fold
+còn lại có 7 đến 9 nguồn bình thường và 6 đến 9 nguồn nguy hiểm.
+
+Vì vậy, khi Chương 6 và Chương 7 trình bày độ chính xác cân bằng theo từng fold và fold 1 đứng đầu
+bảng (91.2% ở E3, 85.8% ở mô hình B1 được triển khai), giá trị đó **không** được đọc là "fold 1 là
+một fold dễ". Nó là **một ước lượng lấy mẫu dưới mức**: toàn bộ phần lớp bình thường của fold 1 đến
+từ một nguồn duy nhất, nên biến động giữa các nguồn bình thường — thành phần biến động lớn nhất ở
+các fold khác — hoàn toàn không xuất hiện ở fold 1. Chín fold còn lại so sánh được với nhau; fold 1
+không hoàn toàn so sánh được với chúng.
+
+Đây cũng là nền tảng định lượng cho một giới hạn nêu ở mục 7.9.2(a): vì **0 trong 151 nguồn mang cả
+hai nhãn**, mọi khoảng tin cậy ở mức cụm (cluster bootstrap theo nguồn) đều chứa giá trị 0, nên
+**không một biên 3-4 điểm phần trăm nào được chứng nhận ở độ phân giải cụm**.
+
+4.4.5. Cấu hình fold của làn Unsafe-Net
+
+Làn Unsafe-Net dùng hai giao thức, cho hai mục đích:
+
+  Giao thức LCO        giữ ra từng nhóm bối cảnh một; 8 nhóm (`'0'`-`'7'`), nên 8 fold.
+                       Đây là giao thức chống lạm phát của làn này.
+  Giao thức k-fold     `StratifiedKFold(k = 5)` có xáo trộn, lặp lại nhiều lần với `random_state`
+                       bằng chỉ số lần lặp; bảng 4 lớp dùng 5 fold x 10 lần lặp = **50 fold** trên
+                       516 clip đã gộp. Đây là giao thức **lạm phát** mà luận văn dùng làm mốc đối
+                       chiếu, chứ không phải giao thức công bố.
+
+Một phân biệt phải giữ nghiêm, vì đã từng bị nhầm và phát biểu sai đã bị rút (Bảng 7.2, nhóm B):
+baseline "chỉ dùng bối cảnh" của **giao thức k-fold** là một bộ dự đoán **đa số theo view**, dựng
+trong từng fold từ phần huấn luyện của fold đó (`run_kfold_relation.py:292-298`). Nó là một **bộ
+ước lượng khác** với baseline ngoại hình bối cảnh MobileNetV3 của giao thức LCO, và nó **không xác
+định được dưới LCO** — khi giữ ra trọn một nhóm bối cảnh thì không có nhãn đa số nào của nhóm đó
+trong tập huấn luyện. Hai con số thuộc hai bộ ước lượng khác nhau, không được đặt cạnh nhau như một
+phép so sánh.
+
+Cuối cùng, số fold thực sự chạy được ở giao thức LCO nhỏ hơn 8 khi một nhóm giữ ra làm cho tập huấn
+luyện thoái hoá: `run_kfold_relation.py:173-174` bỏ qua fold khi tập huấn luyện còn **ít hơn hai
+lớp**, và in dòng `held-out group {g}: skipped (degenerate train pool)`. Việc này xảy ra vì ba
+trong tám nhóm chỉ mang một lớp duy nhất (mục 4.2.2).
+
+----------------------------------------------------------------------
+4.5. CẤU HÌNH HUẤN LUYỆN, CHỌN MÔ HÌNH VÀ SEED
+----------------------------------------------------------------------
+
+4.5.1. Siêu tham số
+
+Mọi đầu quan hệ và mọi mô hình làn CLIP trong luận văn dùng **cùng một cấu hình huấn luyện**, không
+tinh chỉnh riêng cho từng kiến trúc. Đây là một lựa chọn phương pháp có chủ ý: khi so sánh chín
+kiến trúc, việc tinh chỉnh riêng từng kiến trúc sẽ khiến chênh lệch đo được lẫn giữa "kiến trúc tốt
+hơn" và "được tinh chỉnh nhiều hơn". Giá phải trả là **không kiến trúc nào đạt hiệu năng tối đa của
+nó**; đổi lại, các chênh lệch giữa chúng quy được cho kiến trúc.
+
+Cấu hình, đọc từ `run_relation_transformer.py:156-171`:
+
+  Bộ tối ưu           `AdamW(lr = 1e-3, weight_decay = 0.01)`
+  Lịch học            `CosineAnnealingLR(opt, epochs)` — bước mỗi epoch
+  Hàm mất mát chính   `CrossEntropyLoss(weight = w, label_smoothing = 0.05)`
+  Trọng số lớp        `w = class_weights(y_fit, k)` — tính từ phần huấn luyện của fold
+  Chặn gradient       `clip_grad_norm_(params, 5.0)`  (dòng 150)
+  Kích thước lô       32   (`run_epoch`, tham số `bs`, dòng 117)
+  Số epoch            60   (mặc định `--epochs`, `run_kfold_relation.py:239`)
+
+Hàm mất mát của làn nhị phân có **ba số hạng**, không phải một (dòng 127-137):
+
+  L = CE(logits, y)                                        nhãn chính, có trọng số lớp
+    + 0.3 * CE(sub_logits, y_sub)                          đầu phụ dự đoán lớp con
+    + 0.5 * CE(frame_logits[valid], y broadcast)           đầu phụ ở mức khung, chỉ khung hợp lệ
+
+Cả ba số hạng dùng `label_smoothing = 0.05`. Hai hệ số `lambda_sub = 0.3` và `lambda_frame = 0.5`
+là giá trị mặc định của `run_epoch` (dòng 118) và **không được dò tìm**. Số hạng thứ ba chỉ tính
+trên các khung có mặt nạ hợp lệ (`flog[fvalid]`), nên các khung mà bộ phát hiện không trả về thực
+thể nào không đóng góp vào mất mát — đây là lý do tỉ lệ khung không rỗng ở mục 4.3.3
+(90.2% so với 87.9%) là một đại lượng có ý nghĩa, chứ không chỉ là một thống kê mô tả.
+
+Trên kho iSafetyBench không tồn tại taxonomy lớp con, nên đầu phụ lớp con được cho `n_sub = 2` với
+`ysub = ` chính nhãn nhị phân. Docstring ở dòng 158-160 nêu rõ hệ quả: khi đó số hạng thứ hai trở
+thành "một phép đánh trọng số nhẹ lên mục tiêu chính, chứ không phải một đầu dự đoán các lớp chưa
+bao giờ xuất hiện". Cách xử lý này được ghi lại vì nó khiến **vai trò của số hạng thứ hai khác nhau
+giữa hai làn**, và một người đọc so sánh hai làn cần biết điều đó.
+
+4.5.2. Chọn mô hình: tách validation từ phần huấn luyện, không từ fold giữ ra
+
+Đây là điểm dễ sai nhất trong một quy trình k-fold, và luận văn nêu rõ cách làm để phản biện kiểm
+tra được. Mô hình **không** được chọn ở epoch cuối; nó được chọn ở epoch có `val_macro` cao nhất
+(`run_relation_transformer.py:177-180`, lưu `state_dict` sâu rồi nạp lại). Vì vậy câu hỏi quyết
+định là: **tập validation đó lấy từ đâu?**
+
+Câu trả lời, ở `run_kfold_relation.py:175` và `:300`, giống nhau cho cả hai giao thức:
+
+  fit, val = train_test_split(tr, test_size = 0.15, stratify = yn[tr], random_state = 0)
+
+Biến `tr` là phần **huấn luyện** của fold (`tr = np.setdiff1d(arange(n), te)`). Nghĩa là tập
+validation 15% được cắt ra **từ bên trong phần huấn luyện**, và **fold giữ ra `te` không bao giờ
+tham gia vào việc chọn epoch**. Không có rò rỉ từ tập giữ ra sang quá trình chọn mô hình.
+
+Tuy nhiên có một tính chất của phép cắt này phải công bố, vì nó giải thích một lệnh cấm trích dẫn ở
+Bảng 7.2 nhóm D: phép cắt fit/val **phân tầng theo nhãn nhưng KHÔNG nhóm theo nguồn**. Do đó các
+clip của cùng một nguồn có thể nằm hai bên fit/val. Hệ quả chính xác là:
+
+  - `val_macro` là một ước lượng **lạc quan**, vì nó chịu đúng loại rò rỉ nguồn-nhãn mà phép chia
+    ngoài đã loại bỏ;
+  - nhưng nó **không làm sai lệch các con số công bố**, vì nó chỉ được dùng để chọn epoch, và mọi
+    con số công bố đều đo trên fold giữ ra.
+
+Vì vậy quy tắc đang có hiệu lực: **`val_macro` = 89.15% (E3) và 90.92% (E0) là các giá trị đúng,
+nhưng không bao giờ được trình bày như độ chính xác trên tập test.** Chúng là tiêu chí chọn mô
+hình, không phải kết quả.
+
+4.5.3. Seed và tổ hợp seed
+
+  Hàm gieo      `set_seed(s)` = `np.random.seed(s); torch.manual_seed(s)`  (dòng 107-108)
+  Tập seed      `range(args.seeds)` với `--seeds 3` nên seed = **0, 1, 2**
+  Gieo ở đâu    đầu `train_one()`, trước khi khởi tạo mô hình — nên khởi tạo trọng số, thứ tự xáo
+                trộn lô và mọi nguồn ngẫu nhiên khác đều xác định theo seed
+
+Một điểm phải nêu rõ vì nó ảnh hưởng cách đọc mọi con số của Chương 6: **các con số công bố là của
+một TỔ HỢP ba seed, không phải của một mô hình đơn lẻ.** Mã ở `run_kfold_relation.py:301-307` cộng
+softmax của ba seed rồi chia ba:
+
+  soft = 0;  for s in range(seeds):  soft += softmax(predict(model_s, X[te], M[te]))
+  rel_soft[te] = soft / seeds;  rel[te] = argmax(rel_soft[te])
+
+Nghĩa là dự đoán của một clip là `argmax` của xác suất trung bình trên ba seed. Điều này có hai hệ
+quả. Thứ nhất, phương sai theo seed **không xuất hiện** trong con số công bố — nó đã bị tổ hợp làm
+phẳng, nên luận văn không báo độ lệch chuẩn theo seed cho các con số tiêu biểu. Thứ hai, chi phí
+huấn luyện của mỗi dòng bảng là 10 fold x 3 seed = **30 lần huấn luyện**.
+
+Ba kiến trúc là ngoại lệ và phải đọc kèm cảnh báo: ESTA, ESTA trên đặc trưng YOLO26s, và TSF được
+chạy **chia mảnh** (nhật ký của chúng mang `folds=2` và `folds=3` thay vì `folds=10`), nên nhật ký
+**không chứa một bảng điểm gộp nào** cho ba kiến trúc này. Với chúng, phép tính lại từ dự đoán
+ngoài-fold đã lưu **chính là trích dẫn gốc**, không phải một phép kiểm tra chéo (mục 7.7.1(d)).
+
+4.5.4. Số tham số
+
+Mọi giá trị dưới đây đọc từ **dòng banner của chính nhật ký huấn luyện** sinh ra kết quả tương ứng,
+nên chúng là số tham số của đúng mô hình đã chạy.
+
+  Bảng 4.5. Số tham số huấn luyện được, theo làn
+
+  Làn iSafetyBench (`[lso-1100]`, 1,100 clip, 10 fold)
+  -------------------------------------------------------------
+  B1    (đầu thời gian, CLIP ViT-B/32)            201,090   <- mô hình TRIỂN KHAI
+  B1w   (B1 mở rộng chiều)                        333,570
+  B1xl  (B1 mở rộng thêm)                         696,962
+  B2    (VideoMAE)                                233,858
+  ESTA                                            352,258
+  TSF                                             686,726
+  E0    (đầu quan hệ, token 74 chiều)             298,118
+  E1 d=64                                          93,222
+  E1 d=96                                         195,558
+  E3    (đầu quan hệ nhị phân, T1)                 17,270
+
+  Làn Unsafe-Net nhị phân (`[binary]`, 687 clip, feat = 74, n_num = 73)
+  -------------------------------------------------------------
+  E0                                              298,892
+  E1 d=64                                          94,380
+  E1 d=96                                         197,292
+  E2                                              284,556
+  E3                                               18,044
+
+**Hai giá trị của E3 — 17,270 và 18,044 — đều đúng.** Chênh lệch 774 tham số không phải một sai số:
+nó sinh ra từ **độ rộng đầu vào khác nhau** giữa hai làn (`feat = 74, n_num = 73` ở làn Unsafe-Net),
+và chỉ ảnh hưởng lớp chiếu đầu vào. Luận văn dùng 18,044 khi nói về làn Unsafe-Net và 17,270 khi
+nói về làn iSafetyBench, và không bao giờ trộn hai giá trị. Việc ghi lại điều này là cần thiết vì
+một người đọc gặp hai số khác nhau cho cùng một tên kiến trúc sẽ hợp lý khi nghi đó là lỗi.
+
+Hai quan hệ về quy mô được dùng ở Chương 6 khi bàn về cổng dung lượng:
+
+  B1xl / B1w  = 2.089 lần
+  B1xl / TSF  = 1.0149 lần  (B1xl lớn hơn TSF 1.5%)
+
+Giá trị thứ hai quan trọng vì nó khiến so sánh B1xl với TSF trở thành một so sánh **ở cùng ngân
+sách tham số**, chứ không phải một so sánh mà một bên lớn hơn hẳn.
+
+4.5.5. Vì sao huấn luyện trên CPU
+
+Mọi **đầu phân loại** của luận văn — các đầu Transformer thời gian, hồi quy logistic, cây — chạy
+huấn luyện trên CPU, kể cả khi máy có GPU khả dụng. Đây không phải một hạn chế tài nguyên mà là một
+quyết định đúng đắn về tính đúng của số liệu. Mã khai báo thẳng:
+
+  DEVICE = 'cpu'   # never MPS for training on macOS 14 (addcmul_ bug)
+  (`run_relation_transformer.py:45`; docstring dòng 17: "the MPS training bug corrupts Adam updates
+  on macOS 14")
+
+Lỗi nằm ở `addcmul_` trên backend MPS, tức đúng phép toán mà bước cập nhật của Adam/AdamW dùng.
+Huấn luyện trên MPS vẫn chạy và vẫn in ra loss giảm, nhưng các cập nhật bị hỏng âm thầm. Vì bước
+trích đặc trưng đã đóng băng backbone (mục 4.3), các đầu còn lại đủ nhỏ để huấn luyện trên CPU
+trong thời gian chấp nhận được, nên cái giá của quyết định này là thấp. Cần phân biệt: **bước trích
+đặc trưng vẫn dùng MPS** (nhật ký `build-isb-tokens.log` ghi `device=mps`) — suy luận tiến trên
+backbone đóng băng không chịu ảnh hưởng của lỗi cập nhật Adam.
+
+**Một ngoại lệ phải nêu, vì nó là ngoại lệ duy nhất và vì nó thất bại đúng như đoạn trên dự đoán:
+bộ phát hiện YOLO.** Hai phiên huấn luyện YOLO còn nhật ký trong kho mã đều khai `device=mps` và
+`optimizer=AdamW` (`sweep_results/entity_detector/train_run.log`, hai dòng `engine/trainer:`;
+tương tự ở `sweep_results/r2/behaviour_yolo.log`) — nghĩa là chúng chạy đúng cấu hình mà đoạn trên
+nói là hỏng âm thầm. Và kết quả đúng như vậy: trong nhật ký đó **mọi dòng kiểm định sau epoch 1
+đều ghi mAP@50 = 0**, epoch 1 ghi 0.000255. Phiên MPS ấy không sinh ra được trọng số dùng được.
+Đây không phải một lời giải thích suy diễn mà là một quan sát: cấu hình bị cấm ở đoạn trên đã được
+thử một lần trong chính kho mã này và đã sụp về 0, nên quy tắc "đầu phân loại huấn luyện trên CPU"
+có một bằng chứng thực nghiệm chứ không chỉ có một trích dẫn docstring.
+
+Vậy trọng số bộ phát hiện đang dùng (`detector_best.pt`, đạt mAP@50 0.9695 khi đo lại — Bảng 4.1)
+đến từ đâu? **Không từ phiên nào có nhật ký trong kho mã.** Bản ghi của tác giả (bản thảo tiếng Anh
+Chương 3 mục 3.4.2 và Chương 4) quy nó cho **một phiên chạy lại trên runtime GPU của Kaggle**,
+trọng số được tải về và từ đó trở đi chỉ được dùng ở dạng đóng băng trên máy chủ. Luận văn ghi
+nguyên trạng rằng đây là **một lời tự khai, không phải bằng chứng**: không có nhật ký phía Kaggle
+trong kho mã. Điều kiểm chứng được là phép đo lại trên CPU của chính trọng số đó, trên đúng 343 ảnh
+giữ riêng (mục 7.7.1(a)) — nó bảo lãnh **các con số**, không bảo lãnh **đường huấn luyện**.
+
+----------------------------------------------------------------------
+4.6. PHẦN CỨNG VÀ MÔI TRƯỜNG
+----------------------------------------------------------------------
+
+Luận văn dùng hai môi trường tính toán cho hai mục đích tách biệt. Việc tách bạch chúng là bắt
+buộc, vì một con số đo trên máy chủ **không** là một con số triển khai (mục 7.6, nhóm C, ghi lại
+một trường hợp một tỉ lệ ngoại suy từ máy chủ đã phải bị rút và thay bằng giá trị đo trên thiết bị:
+**3.06 lần** thay cho **18.3 lần**).
+
+4.6.1. Môi trường huấn luyện và phân tích (máy chủ)
+
+  Hệ điều hành   macOS 14 (Darwin arm64)
+  Bộ xử lý       Apple **M3** (`hw.model` = Mac15,12), 16 GB bộ nhớ hợp nhất
+  Thiết bị tính  CPU cho mọi đầu phân loại (mục 4.5.5); MPS cho bước trích đặc trưng; bộ
+                 phát hiện YOLO là ngoại lệ duy nhất (mục 4.5.5)
+  Thư viện       PyTorch; ultralytics 8.4.27, torch 2.11.0 cho phép kiểm định lại bộ phát hiện
+
+Một khuyết điểm xuất xứ phải nêu ở đây vì nó liên quan tới nhãn môi trường: **nhãn phần cứng máy
+chủ bị ghi sai ở 49 vị trí** trong các bản thảo và mã nguồn trước đó, và đề cương đã đăng ký ghi
+"Apple M4 Pro (12 lõi CPU, 18 lõi GPU)". Khuyết điểm này nay được **phân xử bằng tạo tác, không
+bằng ký ức**: dòng banner mà ultralytics tự in ra ở đầu mỗi phiên huấn luyện bộ phát hiện ghi
+`MPS (Apple M3)` (`sweep_results/entity_detector/train_run.log` dòng 4, 254, 270;
+`sweep_results/r2/behaviour_yolo.log` dòng 11, 194 — cả hai đã vào git), và hai tạo tác đo đều ghi
+`Phgs-Mac.lan` / `macOS-14.6-arm64`. Vậy nhãn đúng là **Apple M3**; nhãn `M4 Pro` của đề cương là
+sai, và 49 vị trí đã được sửa về M3.
+
+**Không một con số nào thay đổi vì phép sửa nhãn này**, và lý do thì mạnh hơn một lời cam đoan:
+mọi đầu phân loại huấn luyện trên **CPU** (mục 4.5.5), MPS chỉ được dùng ở bước trích đặc trưng và
+ở phiên huấn luyện YOLO đã thất bại, và mọi con số độ trễ/nhịp/năng lượng được trích dẫn trong
+luận văn đều đo trên **Jetson Orin Nano**, không trên máy chủ. Nhãn máy chủ vì vậy chỉ là một phát
+biểu quy thuộc phần cứng, không phải một tham số của bất kỳ phép đo nào. Hạng mục tương ứng ở mục
+7.7.2(i) nay đã đóng.
+
+4.6.2. Môi trường triển khai (thiết bị biên)
+
+Mọi con số triển khai của Chương 5 và mọi con số nhịp của Chương 7 đo trên đúng thiết bị này:
+
+  Bo mạch         NVIDIA Jetson Orin Nano **Super** 8GB
+  JetPack         R36.5.0
+  TensorRT        10.3.0
+  Nền tảng        `Linux-5.15.185-tegra-aarch64-with-glibc2.35`
+  Python          3.10.12
+  Chế độ nguồn    MAXN_SUPER (`nvpmodel` chế độ 2)
+  Governor CPU    `schedutil` (policy0 và policy4)
+  Governor GPU    `nvhost_podgov`
+  Dải nhịp CPU    min 729,600 kHz - max 1,728,000 kHz (mỗi cluster)
+  Dải nhịp GPU    306 MHz - 1.020 GHz
+  OpenCV          4.13.0, **`GStreamer: NO`**
+
+  Nguồn: trường `device_state` của mỗi tạo tác đo, ví dụ
+  `deployment/artifacts/jetson-measurements/p3-composed-cadence-fp16-pinned-free-1_te10-20261003T174352.json`.
+
+Ba điều trong khối trên ảnh hưởng trực tiếp tới cách đọc kết quả.
+
+  (1) **`GStreamer: NO` nghĩa là không có NVDEC.** Bản OpenCV trên thiết bị không liên kết với
+      GStreamer, nên việc giải mã video chạy trên **CPU**. Mọi chi phí giải mã trong các bảng nhịp
+      của Chương 5 và Chương 7 là chi phí giải mã CPU. Một triển khai dùng NVDEC sẽ có hình dạng
+      chi phí khác, và luận văn không ngoại suy sang trường hợp đó.
+
+  (2) **"Ghim xung nhịp" được thực hiện bằng cách đặt min = max, KHÔNG bằng cách đổi governor.**
+      Trong nhánh ghim, `policy0` và `policy4` đều có `min_khz = cur_khz = max_khz = 1728000` và
+      GPU có `min_hz = cur_hz = max_hz = 1020000000`, trong khi **trường `governor` vẫn là
+      `schedutil`**. Nghĩa là không được đọc trường `governor` để kết luận nhánh đo nào đang chạy;
+      phải đọc ba trường `min/cur/max`. Nhánh DVFS, ngược lại, có `policy4.cur_khz = 115200` (mức
+      sàn) và GPU ở mức sàn 306 MHz trong cả tám tạo tác tổ hợp.
+
+  (3) Hai nhánh xung nhịp cho **hai phán quyết khác nhau** về cùng một pipeline, và chênh lệch
+      không nhỏ (mục 7.4 và 7.5): nhánh ghim và nhánh DVFS **rời nhau hoàn toàn** về thông lượng.
+      Vì vậy mọi bảng nhịp trong luận văn đều ghi rõ nhánh xung nhịp; một con số nhịp không kèm
+      nhánh xung nhịp là một con số không đọc được.
+
+Thiết bị đã được **phục hồi về trạng thái nền đã lưu** sau khi kết thúc các phiên đo.
+
+----------------------------------------------------------------------
+4.7. HARNESS ĐO TRÊN THIẾT BỊ BIÊN
+----------------------------------------------------------------------
+
+Luận văn dùng hai công cụ đo khác nhau, cho hai đại lượng khác nhau, và **chỉ một trong hai được
+dùng để phát biểu về nhịp**. Việc nhầm lẫn hai công cụ này là khuyết điểm phương pháp nặng nhất của
+luận văn; mục 7.4 phân tích đầy đủ. Mục này chỉ mô tả hai công cụ và nêu các điều kiện đọc.
+
+4.7.1. Công cụ 1: đo từng giai đoạn (`jetson-measure-latency.py`)
+
+Công cụ này đo **chi phí của từng giai đoạn khi chỉ giai đoạn đó chạy**. Hàm `_timed()` (dòng
+120-129) hâm nóng, rồi gọi liên tiếp `runs` lần đúng một giai đoạn, trả về các phân vị. Nó nạp đầu
+vào tổng hợp: `_fixed_inputs()` trả về tensor đã ở đúng dạng của engine, và
+`synthetic_raw_frames()` sinh 300 hộp mỗi khung với `conf ~ U(0,1)`.
+
+Công cụ này **hợp lệ cho mục đích của nó**: nó cho biết giai đoạn nào đắt, và nó là cơ sở để xếp
+thứ tự chi phí giữa các giai đoạn. Nó **không hợp lệ để suy ra nhịp**, vì tổng các trung vị độc lập
+của nó bỏ qua sáu lớp chi phí và đếm hai lần chi phí bộ phát hiện (mục 7.4.1). Vai trò nhịp của nó
+**đã bị thu hồi**; mục 7.9.5 khuyến nghị giữ nó như một bảng chi phí giai đoạn và không sửa công
+thức.
+
+4.7.2. Công cụ 2: đo vòng lặp tổ hợp (`jetson-p3-multi-stream.py`)
+
+Công cụ này đo **một đồng hồ treo tường trên toàn bộ vòng lặp**: giải mã tệp -> tiền xử lý letterbox
+800x800 -> bộ phát hiện -> chọn đối tượng và hình học vùng -> vùng cắt ngữ cảnh 224^2 -> bộ mã hoá
+ngoại hình -> dựng token quan hệ 74 chiều -> đầu E3 nhị phân. **Cả sáu chi phí mà công cụ 1 bỏ ra
+ngoài đều được tính.** Đây là công cụ duy nhất được dùng để phát biểu về nhịp.
+
+Điều kiện chạy của phiên đo ngày 2026-10-03 (17:33-17:47): hai nhánh xung nhịp, cả hai đều có
+**cổng nhiệt** (nhiệt độ junction lúc vào <= 56 °C, tải <= 0.60, chờ ổn định 180 giây), N = 1 luồng,
+480 khung, 3 đoạn test, FP16, MAXN_SUPER. Phiên này **chỉ đo thời gian, không đọc nhãn**, nên nó
+**không tiêu một lần chạm tập test nào** (mục 4.9).
+
+4.7.3. Quy ước đại lượng và ba điều kiện đọc
+
+Quy ước trích dẫn đang có hiệu lực, thiết lập ở mục 5.2 và áp dụng cho cả Chương 7:
+
+  **Chỉ dẫn `ms_per_decision_p50_with_stream_decode` và `decisions_per_sec_p50_with_stream_decode`.**
+  Các trường không-giải-mã là **hàng đối chứng** và không được dẫn như một nhịp. Lý do: một pipeline
+  không bao giờ giải mã một khung nào thì không phải một pipeline triển khai được.
+
+Với làn B1, đại lượng công bố là `steady_state_ms_per_decision.p50`, và quy ước này giống nhau ở
+Chương 5 và Chương 7.
+
+Ba điều kiện đọc, mỗi điều kiện tương ứng một khuyết điểm của harness được phân tích ở mục 7.5.
+Chúng được nêu ở đây vì chúng là **điều kiện tiên quyết để đọc bất kỳ bảng nhịp nào**, không phải
+một phụ lục kỹ thuật.
+
+  (1) **`--fps F` là một bộ điều nhịp CỘNG THÊM, và đây là một khuyết điểm mã thật.**
+      `deployment/scripts/stream-pipeline-utils.py:86` gọi `await asyncio.sleep(period)` **sau**
+      khi đã làm xong việc đọc khung, tiền xử lý và đẩy vào hàng đợi, nên nhịp thực tế là
+      `1/(1/F + work) < F`. Hệ quả: mọi hàng `--fps 24` **không** là một phép thử hợp đồng 24 fps,
+      và không được dẫn như bằng chứng P3 trượt hợp đồng.
+
+  (2) **`drop_rate = 0` KHÔNG là bằng chứng hệ chạy thời gian thực.** Bộ đọc là một coroutine trên
+      cùng vòng lặp sự kiện của bên tiêu thụ, với `preprocess_fn` gọi nội tuyến, nên hai bên chạy
+      đồng bộ theo bước: bộ đọc chậm lại cùng bên tiêu thụ thay vì làm rơi khung. Bằng chứng:
+      `read_fps == aggregate_fps` tới hàng cent trong cả sáu lần chạy tự do.
+
+  (3) **`clock_state_stable` nghĩa là CHẾ ĐỘ ghim và mức tranh chấp không đổi, không phải nhịp
+      không đổi.** `stream-pipeline-utils.py:140` chỉ so sánh hai trường `clocks_pinned` và
+      `quiet` giữa trước và sau. Mã khớp với docstring của nó; **tên trường là chỗ gây hiểu sai.**
+      Trường này bằng `true` trong cả tám tạo tác tổ hợp, kể cả bốn tạo tác mà `policy0` dao động
+      9 lần trong khoảng.
+
+Phần kế toán quyết định của harness thì **đúng**, và điều này cũng cần nêu để phân định phạm vi
+khuyết điểm: trong cả 12 bản ghi luồng, `n_decisions == floor((processed - 16)/8) + 1` (ví dụ:
+480 khung cho 59 quyết định), và hợp đồng 3.0 quyết định/giây đúng là 24 fps chia cho bước nhảy 8
+khung. Nghĩa là tổng số khuyết điểm của harness là **một lỗi sleep và hai tên trường gây hiểu sai**;
+không cần viết lại harness.
+
+4.7.4. Mẫu số của hợp đồng nhịp
+
+**Hai làn có hai cửa sổ, hai bước nhảy và hai hợp đồng khác nhau**, và việc trộn chúng là một lỗi
+dễ mắc. Bảng dưới đây tách bạch chúng một lần, và mọi bảng nhịp ở Chương 5 và Chương 7 đọc theo
+bảng này.
+
+  Bảng 4.6. Hai làn, hai hợp đồng nhịp
+
+  Đại lượng               | Làn B1 (triển khai)      | Làn P3
+  ------------------------+--------------------------+------------------------
+  Cửa sổ                  | 48 khung                 | 16 khung
+  Bước nhảy               | 24 khung                 |  8 khung
+  Mẫu số hợp đồng         | tốc độ khung ngữ liệu/24 | 24 fps / 8
+  Ngưỡng hợp đồng         | **1.249** q.đ./giây      | **3.0** q.đ./giây
+  Đại lượng công bố       | `steady_state_ms_per_    | `ms_per_decision_p50_
+                          |  decision.p50`           |  with_stream_decode`
+
+Với **làn B1**, ngưỡng hợp đồng phụ thuộc tốc độ khung của ngữ liệu, nên luận văn công bố cả ba mẫu
+số để người đọc thấy phạm vi:
+
+  Trung vị ngữ liệu   29.970 fps / 24 = **1.249** quyết định/giây   <- mẫu số công bố
+  Trung bình          34.245 fps / 24 =   1.427
+  p95 (cực đại 60.0)  60.000 fps / 24 =   2.500
+
+Mẫu số công bố là **trung vị**, vì nó là giá trị đại diện cho ngữ liệu và không bị kéo bởi các clip
+tốc độ cao. Giá trị "1.05 quyết định/giây" từng xuất hiện trong một bản thảo **đã bị rút**
+(Bảng 7.2, nhóm C): nó tương ứng 25.1 fps, một tốc độ chỉ có ở **11 clip trong 1,100, tức 1.0%**
+của ngữ liệu, nên nó không phải mẫu số đại diện.
+
+Với **làn P3**, ngưỡng là 3.0 quyết định/giây, cố định, vì nó là 24 fps chia cho bước nhảy 8 khung.
+Đây là ngưỡng mà phán quyết "phụ thuộc đoạn video" ở mục 7.4.5 nói tới.
+
+----------------------------------------------------------------------
+4.8. QUY ƯỚC TRÌNH BÀY SỐ VÀ TRÍCH DẪN
+----------------------------------------------------------------------
+
+4.8.1. Quy ước chữ số
+
+Toàn bộ các tệp báo cáo dùng **dấu chấm cho phần thập phân và dấu phẩy cho phân cách nghìn**
+(ví dụ: 1,100 clip; 84.2%; 201,090 tham số; 7,033.761 mW). Quy ước này được giữ nhất quán trong tất
+cả các chương để tránh nhầm lẫn giữa 1,100 (một nghìn một trăm) và 1.100.
+
+4.8.2. Quy tắc trình bày một giá trị độ chính xác
+
+Quy tắc này sinh ra từ một phân tích thất bại cụ thể. Mục 7.8 cho thấy **cùng một con số xuất hiện
+nhiều lần trong luận văn với các nghĩa hoàn toàn khác nhau**: "84.2%" là độ chính xác cân bằng của
+B1 trên iSafetyBench LSO với N = 1,100, nhưng cũng từng được viết cạnh một giá trị macro 4 lớp
+k-fold trên 516 clip gộp; "48/64" có **ba** cách đọc khác nhau; "55/64" có **bốn**. Nguyên nhân hệ
+thống là **viết phần trăm mà không viết đơn vị của nó**.
+
+Quy tắc đang có hiệu lực:
+
+  **Mọi giá trị độ chính xác phải mang theo bốn thuộc tính: kho dữ liệu, giao thức, chỉ số, và N.**
+  Tối thiểu phải có **chỉ số và N** khi viết trong câu văn; trong bảng phải có **đủ bốn**.
+
+Ví dụ đúng: "độ chính xác cân bằng 84.2% (iSafetyBench, LSO 10 fold, N = 1,100)". Ví dụ sai:
+"độ chính xác 84.2%".
+
+Quy ước chỉ số: với các giá trị theo fold, luận văn **dẫn độ chính xác cân bằng (balanced accuracy),
+không dẫn top-1**. Lý do: trường `acc=` in trong nhật ký huấn luyện là **top-1**, và vì tỉ lệ lớp
+lệch 38.2/61.8 nên top-1 và độ chính xác cân bằng khác nhau đáng kể. Trộn hai chỉ số giữa các bảng
+là một lỗi đã từng xảy ra.
+
+4.8.3. Quy tắc xuất xứ
+
+  **Một con số chỉ được vào luận văn sau khi tệp tạo tác của nó đã được mở và dòng chính xác đã
+  được đọc.** Một bảng tổng hợp nội bộ là **bằng chứng thứ cấp**, và nó có thể mang đúng chính cái
+  lỗi mà nó được lập ra để chặn.
+
+Quy tắc này không phải một nguyên tắc chung mà là kết luận của mục 7.7, nơi bảy hạng mục xuất xứ
+được liệt kê, bốn trong số đó đã được giải quyết bằng cách đo lại hoặc tính lại, và ba còn mở. Bốn
+hạng mục đã giải quyết đều được giải quyết bằng cách **mở tạo tác gốc**, không bằng cách đối chiếu
+hai bảng tổng hợp với nhau.
+
+----------------------------------------------------------------------
+4.9. GIAO THỨC CHẠM TẬP TEST
+----------------------------------------------------------------------
+
+Luận văn vận hành một giao thức hạn chế số lần chạm tập test, nhằm bảo vệ giá trị của các con số
+công bố khỏi hiện tượng lạm phát do chọn lọc nhiều lần trên cùng tập đánh giá.
+
+  Số lần chạm được tiền đăng ký      **2**
+  Số lần đã tiêu                     **0**
+  Sổ đăng ký                         `reports/test-touch-log.md`
+  Điều kiện thực hiện một lần chạm   phải tiền đăng ký trong sổ **trước khi chạy**, và phải có
+                                     sự đồng ý tường minh
+
+Ba loại hoạt động **không** tiêu một lần chạm, và việc nêu rõ chúng là cần thiết để giao thức khả
+thi trên thực tế:
+
+  (1) **Kiểm thử đơn vị phần mềm** — không thuộc phạm vi giao thức.
+  (2) **Sử dụng `data/test` chỉ để đo thời gian** — phiên đo nhịp trên Jetson ngày 2026-10-03 đọc
+      các đoạn video của tập test nhưng **không đọc nhãn** và không tính một chỉ số chính xác nào;
+      nó chỉ đo thời gian. Vì vậy nó không tiêu một lần chạm.
+  (3) **Phân tích chỉ đọc trên dự đoán ngoài-fold đã lưu** — việc tính lại một chỉ số từ tệp dự
+      đoán đã lưu không phải một lần chạm mới, vì nó không sinh ra một lựa chọn mô hình mới.
+
+Hệ quả quan trọng của việc **cả hai lần chạm vẫn còn nguyên**: mọi con số trong Chương 6 là con số
+ngoài-fold trên giao thức leave-source-out, không phải con số trên một tập test đã đóng băng được
+chạm tới. Phán quyết của tám cổng ở Chương 6 vì vậy đứng trên dự đoán ngoài-fold, và hai lần chạm
+tiền đăng ký vẫn khả dụng cho các công việc sau này nêu ở mục 7.9.

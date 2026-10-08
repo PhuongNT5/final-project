@@ -7,7 +7,7 @@ Architecture (Camera → Edge → Server → Dashboard):
     [Video files (camera proxy)]
        └→ Jetson Orin Nano Super: jetson-multi-stream-pipeline.py --emit-jsonl <path>
             └→ writes one JSON event per inference emission to ~/jetson-stream.jsonl
-                 └→ this M4 dashboard pulls the file via rsync over SSH every poll-interval
+                 └→ this M3 dashboard pulls the file via rsync over SSH every poll-interval
                       └→ rolling 3-second aggregation → alert/warning/monitoring tiers
 
 Privacy property (by construction):
@@ -22,7 +22,7 @@ Decision policy (real-time alerting):
 - WARNING badge when aggregated confidence in [WARN_THRESHOLD, ALERT_THRESHOLD).
 - Otherwise MONITORING (low confidence — uncertain or likely safe).
 
-Usage (on M4):
+Usage (on M3):
     .venv/bin/python3 -m streamlit run deployment/dashboard/jetson-live-monitor.py
 """
 import collections
@@ -279,7 +279,7 @@ def main() -> None:
     st.title("Unsafe Behavior Detection — Jetson Edge Live Monitor")
     st.caption(
         "Camera → Jetson Orin Nano Super (TensorRT FP16 inference) → SSH transport → "
-        "this M4 dashboard. Raw frames stay on edge; only predictions traverse the network."
+        "this M3 dashboard. Raw frames stay on edge; only predictions traverse the network."
     )
 
     # Sidebar — connection + policy config

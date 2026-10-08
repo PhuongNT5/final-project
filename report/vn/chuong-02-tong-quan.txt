@@ -196,6 +196,19 @@ vực khác nhau. Điểm quan trọng với luận văn là một kết luận 
 luôn làm kết quả *tốt hơn*, nên nó không bị phát hiện bởi các quy trình soát xét chỉ chú ý tới kết
 quả tệ bất thường.
 
+Geirhos và cộng sự [44] đặt tên và khái quát cơ chế đứng sau hiện tượng này: **học đường tắt**
+(shortcut learning). Mạng sâu học bất kỳ đặc trưng nào tương quan với nhãn trên tập huấn luyện,
+không riêng đặc trưng mà người thiết kế có ý định dạy; khi tồn tại một đặc trưng rẻ hơn và dự báo
+tốt như nhau, mô hình chọn đặc trưng rẻ hơn. Bài báo chỉ ra hệ quả chẩn đoán quan trọng nhất cho
+luận văn này: một đường tắt **không** bộc lộ trên tập kiểm tra cùng phân phối — nó chỉ bộc lộ trên
+một *tập kiểm tra ngoài phân phối* được thiết kế để phá vỡ chính tương quan đó. Đó chính là vai
+trò của leave-source-out và leave-context-out ở Chương 6: chúng không phải một phép chia khắt khe
+hơn cho đẹp, chúng là **tập kiểm tra ngoài phân phối** duy nhất khả dụng khi không có kho dữ liệu
+thứ hai. Và hợp với [29], danh tính nguồn ở đây là trường hợp đường tắt tệ nhất: nó không chỉ
+tương quan với nhãn mà là một **proxy hoàn hảo** cho nhãn (không một nguồn nào trong 151 nguồn
+mang cả hai lớp — mục 6.6), nên một mô hình nhận ra nguồn sẽ đạt kết quả gần như hoàn hảo mà không
+học gì về hành vi.
+
 2.4.2. Chia dữ liệu theo nhóm trong các ngành khác
 
 Các ngành làm việc với dữ liệu có cấu trúc cụm đã chuẩn hoá việc chia theo nhóm từ lâu:
@@ -501,3 +514,10 @@ TÀI LIỆU THAM KHẢO
 [43] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser,
      I. Polosukhin, "Attention Is All You Need," Advances in Neural Information Processing
      Systems (NeurIPS), tập 30, 2017. arXiv:1706.03762.
+
+[44] R. Geirhos, J.-H. Jacobsen, C. Michaelis, R. Zemel, W. Brendel, M. Bethge, F. A. Wichmann,
+     "Shortcut Learning in Deep Neural Networks," Nature Machine Intelligence, tập 2, tr.
+     665–673, 2020. DOI: 10.1038/s42256-020-00257-z. arXiv:2004.07780.
+
+[45] C. Nadeau, Y. Bengio, "Inference for the Generalization Error," Machine Learning, tập 52,
+     số 3, tr. 239–281, 2003. DOI: 10.1023/A:1024068626366.

@@ -1,0 +1,97 @@
+
+########## DEDUPE POLICY = none (none) — hard ceiling 124/125=99.2%  practical ceiling 121/125=96.8% ##########
+
+=== kfold-691 | dedupe=none | n=691 (dropped 0) ===
+
+  [kfold-691/none/s1_logreg] n=691
+    balanced_acc=60.5% CI95=[57.3,63.8]  macro_f1=61.5% CI95=[56.9,66.0]  unsafe_recall=97.5%  unsafe_prec=79.0%  safe_recall=23.4%  PR-AUC=0.714  ROC-AUC=0.710
+    per-subclass recall: {'WalkwayViol': np.float64(98.1), 'UnauthorInt': np.float64(92.6), 'OpenedPanel': np.float64(99.3), 'CarryOverload': np.float64(100.0), 'SafeWalkway': np.float64(4.0), 'AuthorInt': np.float64(18.4), 'ClosedPanel': np.float64(3.1), 'SafeCarrying': np.float64(100.0)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=99.3%  ClosedPanel=3.1%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s1_logreg_kfold-691_none_oof.json
+
+  [kfold-691/none/s1_tree] n=691
+    balanced_acc=58.6% CI95=[56.1,61.7]  macro_f1=58.5% CI95=[54.2,63.3]  unsafe_recall=100.0%  unsafe_prec=78.1%  safe_recall=17.1%  PR-AUC=0.690  ROC-AUC=0.707
+    per-subclass recall: {'WalkwayViol': np.float64(100.0), 'UnauthorInt': np.float64(100.0), 'OpenedPanel': np.float64(100.0), 'CarryOverload': np.float64(100.0), 'SafeWalkway': np.float64(0.0), 'AuthorInt': np.float64(0.0), 'ClosedPanel': np.float64(0.0), 'SafeCarrying': np.float64(100.0)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=100.0%  ClosedPanel=0.0%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s1_tree_kfold-691_none_oof.json
+
+  [kfold-691/none/s2_logreg] n=691
+    balanced_acc=74.6% CI95=[70.8,78.3]  macro_f1=70.4% CI95=[66.8,74.0]  unsafe_recall=73.8%  unsafe_prec=89.9%  safe_recall=75.4%  PR-AUC=0.784  ROC-AUC=0.830
+    per-subclass recall: {'WalkwayViol': np.float64(80.5), 'UnauthorInt': np.float64(77.8), 'OpenedPanel': np.float64(54.2), 'CarryOverload': np.float64(91.1), 'SafeWalkway': np.float64(73.3), 'AuthorInt': np.float64(57.9), 'ClosedPanel': np.float64(81.2), 'SafeCarrying': np.float64(96.7)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=54.2%  ClosedPanel=81.2%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s2_logreg_kfold-691_none_oof.json
+  [S0 majority] acc=74.7%  (constant predicts Unsafe for every clip)
+  McNemar S2-logreg vs S1-logreg: b=101 c=132 p=0.0491 diff=-4.49pp CI95=[-8.827785817655565, -0.14471780028944004]
+  NB-corrected (S2-logreg vs S1-logreg, 25 fold-diffs): mean_diff=-4.14pp t=-2.05 p=0.0515
+
+=== lco-691 | dedupe=none | n=691 (dropped 0) ===
+
+  [lco-691/none/s1_logreg] n=691
+    balanced_acc=59.2% CI95=[55.8,62.9]  macro_f1=60.0% CI95=[55.8,64.3]  unsafe_recall=90.9%  unsafe_prec=78.7%  safe_recall=27.4%  PR-AUC=0.584  ROC-AUC=0.461
+    per-subclass recall: {'WalkwayViol': np.float64(97.6), 'UnauthorInt': np.float64(94.4), 'OpenedPanel': np.float64(74.6), 'CarryOverload': np.float64(100.0), 'SafeWalkway': np.float64(4.0), 'AuthorInt': np.float64(39.5), 'ClosedPanel': np.float64(0.0), 'SafeCarrying': np.float64(100.0)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=74.6%  ClosedPanel=0.0%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s1_logreg_lco-691_none_oof.json
+
+  [lco-691/none/s1_tree] n=691
+    balanced_acc=47.4% CI95=[43.8,51.6]  macro_f1=47.4% CI95=[44.0,51.5]  unsafe_recall=70.2%  unsafe_prec=73.3%  safe_recall=24.6%  PR-AUC=0.487  ROC-AUC=0.391
+    per-subclass recall: {'WalkwayViol': np.float64(91.4), 'UnauthorInt': np.float64(89.8), 'OpenedPanel': np.float64(12.0), 'CarryOverload': np.float64(100.0), 'SafeWalkway': np.float64(26.7), 'AuthorInt': np.float64(39.5), 'ClosedPanel': np.float64(0.0), 'SafeCarrying': np.float64(26.7)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=12.0%  ClosedPanel=0.0%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s1_tree_lco-691_none_oof.json
+
+  [lco-691/none/s2_logreg] n=691
+    balanced_acc=52.8% CI95=[48.5,56.9]  macro_f1=46.6% CI95=[42.9,50.4]  unsafe_recall=43.2%  unsafe_prec=77.2%  safe_recall=62.3%  PR-AUC=0.543  ROC-AUC=0.530
+    per-subclass recall: {'WalkwayViol': np.float64(62.9), 'UnauthorInt': np.float64(43.5), 'OpenedPanel': np.float64(19.0), 'CarryOverload': np.float64(30.4), 'SafeWalkway': np.float64(50.7), 'AuthorInt': np.float64(71.1), 'ClosedPanel': np.float64(56.2), 'SafeCarrying': np.float64(86.7)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=19.0%  ClosedPanel=56.2%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s2_logreg_lco-691_none_oof.json
+  [S0 majority] acc=74.7%  (constant predicts Unsafe for every clip)
+  McNemar S2-logreg vs S1-logreg: b=81 c=266 p=0.0000 diff=-26.77pp CI95=[-31.54848046309696, -21.848769898697586]
+
+########## DEDUPE POLICY = headline-drop_conflict (drop_conflict) — hard ceiling 124/125=99.2%  practical ceiling 124/125=99.2% ##########
+
+=== kfold-691 | dedupe=headline-drop_conflict | n=687 (dropped 4) ===
+
+  [kfold-691/headline-drop_conflict/s1_logreg] n=687
+    balanced_acc=60.3% CI95=[57.2,63.7]  macro_f1=61.4% CI95=[56.7,65.8]  unsafe_recall=97.3%  unsafe_prec=78.8%  safe_recall=23.4%  PR-AUC=0.713  ROC-AUC=0.706
+    per-subclass recall: {'WalkwayViol': np.float64(97.6), 'UnauthorInt': np.float64(93.5), 'OpenedPanel': np.float64(98.6), 'CarryOverload': np.float64(100.0), 'SafeWalkway': np.float64(4.0), 'AuthorInt': np.float64(18.4), 'ClosedPanel': np.float64(3.1), 'SafeCarrying': np.float64(100.0)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=98.6%  ClosedPanel=3.1%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s1_logreg_kfold-691_headline-drop_conflict_oof.json
+
+  [kfold-691/headline-drop_conflict/s1_tree] n=687
+    balanced_acc=58.6% CI95=[56.0,61.6]  macro_f1=58.4% CI95=[54.1,63.2]  unsafe_recall=100.0%  unsafe_prec=77.9%  safe_recall=17.1%  PR-AUC=0.700  ROC-AUC=0.716
+    per-subclass recall: {'WalkwayViol': np.float64(100.0), 'UnauthorInt': np.float64(100.0), 'OpenedPanel': np.float64(100.0), 'CarryOverload': np.float64(100.0), 'SafeWalkway': np.float64(0.0), 'AuthorInt': np.float64(0.0), 'ClosedPanel': np.float64(0.0), 'SafeCarrying': np.float64(100.0)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=100.0%  ClosedPanel=0.0%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s1_tree_kfold-691_headline-drop_conflict_oof.json
+
+  [kfold-691/headline-drop_conflict/s2_logreg] n=687
+    balanced_acc=74.1% CI95=[70.3,77.7]  macro_f1=70.0% CI95=[66.4,73.6]  unsafe_recall=73.4%  unsafe_prec=89.5%  safe_recall=74.9%  PR-AUC=0.794  ROC-AUC=0.836
+    per-subclass recall: {'WalkwayViol': np.float64(80.7), 'UnauthorInt': np.float64(72.9), 'OpenedPanel': np.float64(55.6), 'CarryOverload': np.float64(92.9), 'SafeWalkway': np.float64(73.3), 'AuthorInt': np.float64(52.6), 'ClosedPanel': np.float64(84.4), 'SafeCarrying': np.float64(96.7)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=55.6%  ClosedPanel=84.4%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s2_logreg_kfold-691_headline-drop_conflict_oof.json
+  [S0 majority] acc=74.5%  (constant predicts Unsafe for every clip)
+  McNemar S2-logreg vs S1-logreg: b=102 c=134 p=0.0434 diff=-4.66pp CI95=[-9.170305676855895, -0.29112081513827937]
+  NB-corrected (S2-logreg vs S1-logreg, 25 fold-diffs): mean_diff=-4.19pp t=-2.28 p=0.0319
+
+=== lco-691 | dedupe=headline-drop_conflict | n=687 (dropped 4) ===
+
+  [lco-691/headline-drop_conflict/s1_logreg] n=687
+    balanced_acc=59.7% CI95=[56.3,63.5]  macro_f1=60.6% CI95=[56.4,65.0]  unsafe_recall=90.8%  unsafe_prec=78.8%  safe_recall=28.6%  PR-AUC=0.594  ROC-AUC=0.479
+    per-subclass recall: {'WalkwayViol': np.float64(98.1), 'UnauthorInt': np.float64(94.4), 'OpenedPanel': np.float64(73.9), 'CarryOverload': np.float64(100.0), 'SafeWalkway': np.float64(5.3), 'AuthorInt': np.float64(42.1), 'ClosedPanel': np.float64(0.0), 'SafeCarrying': np.float64(100.0)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=73.9%  ClosedPanel=0.0%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s1_logreg_lco-691_headline-drop_conflict_oof.json
+
+  [lco-691/headline-drop_conflict/s1_tree] n=687
+    balanced_acc=47.4% CI95=[43.7,51.2]  macro_f1=47.5% CI95=[43.9,51.2]  unsafe_recall=70.3%  unsafe_prec=73.2%  safe_recall=24.6%  PR-AUC=0.468  ROC-AUC=0.406
+    per-subclass recall: {'WalkwayViol': np.float64(92.3), 'UnauthorInt': np.float64(89.7), 'OpenedPanel': np.float64(12.0), 'CarryOverload': np.float64(100.0), 'SafeWalkway': np.float64(26.7), 'AuthorInt': np.float64(39.5), 'ClosedPanel': np.float64(0.0), 'SafeCarrying': np.float64(26.7)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=12.0%  ClosedPanel=0.0%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s1_tree_lco-691_headline-drop_conflict_oof.json
+
+  [lco-691/headline-drop_conflict/s2_logreg] n=687
+    balanced_acc=52.7% CI95=[48.6,57.0]  macro_f1=46.6% CI95=[43.0,50.3]  unsafe_recall=43.2%  unsafe_prec=77.0%  safe_recall=62.3%  PR-AUC=0.545  ROC-AUC=0.533
+    per-subclass recall: {'WalkwayViol': np.float64(63.3), 'UnauthorInt': np.float64(43.0), 'OpenedPanel': np.float64(19.0), 'CarryOverload': np.float64(30.4), 'SafeWalkway': np.float64(50.7), 'AuthorInt': np.float64(71.1), 'ClosedPanel': np.float64(56.2), 'SafeCarrying': np.float64(86.7)}
+    PANEL PAIR (2 OpenedPanel vs 6 ClosedPanel, 0.12 co-cluster overlap): OpenedPanel=19.0%  ClosedPanel=56.2%
+    OOF saved: /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/binary_gates/s2_logreg_lco-691_headline-drop_conflict_oof.json
+  [S0 majority] acc=74.5%  (constant predicts Unsafe for every clip)
+  McNemar S2-logreg vs S1-logreg: b=79 c=264 p=0.0000 diff=-26.93pp CI95=[-31.877729257641917, -22.12518195050946]
+
+=== GATE VERDICT ===
+See report for the full pre-committed reading of the numbers above (phase-06 §Risk R1/R6).

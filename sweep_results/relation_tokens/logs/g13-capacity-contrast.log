@@ -1,0 +1,26 @@
+### G13 capacity contrast -- largest (E0) minus smallest (E3), all four cells
+### positive = the 17x larger encoder is better
+
+-- iSafetyBench LSO-1100 (identity-respecting)
+  A - B = +5.1 pp
+  [cluster bootstrap over 151 groups, 5000/5000 valid draws] diff=+5.1 pp  95% CI [+2.0, +8.3]  EXCLUDES 0
+  [clip-level bootstrap -- WRONG UNIT, disclosure only] 95% CI [+2.9, +7.4]
+  [McNemar exact] b=102 c=47 n_discordant=149 p=7.74e-06 | N=1100, 149 discordant cells
+
+-- iSafetyBench RAND-1100 (identity-leaking)
+  A - B = +0.1 pp
+  [cluster bootstrap over 151 groups, 5000/5000 valid draws] diff=+0.1 pp  95% CI [-1.2, +1.5]  includes 0
+  [clip-level bootstrap -- WRONG UNIT, disclosure only] 95% CI [-1.5, +1.8]
+  [McNemar exact] b=45 c=40 n_discordant=85 p=0.665 | N=1100, 85 discordant cells
+
+-- Unsafe-Net LCO-691 (identity-respecting)
+  A - B = -2.8 pp
+  [cluster bootstrap over 8 groups, 5000/5000 valid draws] diff=-2.8 pp  95% CI [-7.1, +0.1]  includes 0
+  [clip-level bootstrap -- WRONG UNIT, disclosure only] 95% CI [-6.3, +0.6]
+  [McNemar exact] b=44 c=50 n_discordant=94 p=0.606 | N=687, 94 discordant cells
+
+-- Unsafe-Net k-fold-691 (identity-leaking)
+  A - B = +1.1 pp
+  [cluster bootstrap over 8 groups, 5000/5000 valid draws] diff=+1.1 pp  95% CI [-1.6, +5.2]  includes 0
+  [clip-level bootstrap -- WRONG UNIT, disclosure only] 95% CI [-1.9, +4.3]
+  [McNemar exact] b=43 c=24 n_discordant=67 p=0.0271 | N=687, 67 discordant cells

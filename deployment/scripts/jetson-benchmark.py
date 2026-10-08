@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""F11 — Jetson Orin TRT benchmark harness (mirrors benchmark-harness.py on M4).
+"""F11 — Jetson Orin TRT benchmark harness (mirrors benchmark-harness.py on M3).
 
 Loads pre-built TRT engines from deployment/export/jetson/ and reports
 end-to-end p50/p95 latency, FPS, peak memory, and 4-class accuracy on the
@@ -7,7 +7,7 @@ held-out test features. Designed for JetPack 6 (CUDA 12.x, TRT 10.x).
 
 Outputs: deployment/artifacts/benchmarks-jetson.json + .md
 
-Run on the Jetson, NOT on M4.
+Run on the Jetson, NOT on M3.
 
 Usage:
     python3 deployment/scripts/jetson-benchmark.py --mode fp16 --runs 100
@@ -79,7 +79,7 @@ def benchmark(trt, cuda, mode, features, labels, warmup, runs):
     def run_cas():
         sc = softmax(runners['scenario-s7'].run(sample_stats))
         # Pair models output [P(safe), P(unsafe)]. Cascade weight is P(unsafe) =
-        # column 1, matching M4 bench-utils.py accuracy_4class which uses [0, 1].
+        # column 1, matching M3 bench-utils.py accuracy_4class which uses [0, 1].
         pair = np.concatenate(
             [softmax(runners[f'pair{i}-s7'].run(sample_stats))[:, 1:2] for i in range(4)],
             axis=1)
@@ -102,7 +102,7 @@ def benchmark(trt, cuda, mode, features, labels, warmup, runs):
 
     # Accuracy on full test set (uses real features, not dummy).
     # Pair models output [P(safe), P(unsafe)] — cascade uses P(unsafe) (col 1)
-    # to match M4 bench-utils.py reference implementation.
+    # to match M3 bench-utils.py reference implementation.
     correct = 0
     for i in range(len(features)):
         s = stats_pool_np(features[i:i + 1]).astype(np.float32)
@@ -114,7 +114,7 @@ def benchmark(trt, cuda, mode, features, labels, warmup, runs):
         cas = sc * pair
         cas = cas / (cas.sum(1, keepdims=True) + 1e-8)
         ens = (d4 + cas) / 2
-        # Match M4 reference: renormalize ensemble before argmax (doesn't change
+        # Match M3 reference: renormalize ensemble before argmax (doesn't change
         # argmax for non-negative inputs, but kept for parity).
         ens = ens / (ens.sum(1, keepdims=True) + 1e-8)
         if int(ens.argmax(1)[0]) == int(labels[i]):

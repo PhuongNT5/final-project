@@ -1,0 +1,8 @@
+  [train] 100/566
+  [train] 200/566
+  [train] 300/566
+  [train] 400/566
+  [train] 500/566
+[train] 566 clips → /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/relation_tokens/tokens_wf_bin8_train.pt  shape (566, 16, 64)
+  [test] 100/125
+[test] 125 clips → /Users/nguyenthiphuong/Learning/Proposal/project/my-project/sweep_results/relation_tokens/tokens_wf_bin8_test.pt  shape (125, 16, 64)

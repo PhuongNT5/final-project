@@ -1,0 +1,17 @@
+[grouping] source YouTube video id: 151 sources, 0 carry both classes (R41) -> 10 StratifiedGroupKFold folds; no source spans the boundary.
+[lso-1100] model=B1xl backbone=CLIP ViT-B/32 pooled 1100 clips (unsafe 420) | folds=10 | seeds=3 | params=696,962
+  held-out group f1: n=144 unsafe=42 acc= 86.1%
+  held-out group f2: n=107 unsafe=42 acc= 80.4%
+  held-out group f3: n=107 unsafe=42 acc= 78.5%
+  held-out group f4: n=106 unsafe=42 acc= 77.4%
+  held-out group f5: n=106 unsafe=42 acc= 81.1%
+  held-out group f6: n=106 unsafe=42 acc= 61.3%
+  held-out group f7: n=106 unsafe=42 acc= 99.1%
+  held-out group f8: n=106 unsafe=42 acc= 96.2%
+  held-out group f9: n=106 unsafe=42 acc= 82.1%
+  held-out group f10: n=106 unsafe=42 acc= 84.0%
+
+=== LSO-1100 (B1xl, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=82.7% macro_f1=82.0% unsafe_recall=82.6% unsafe_precision=74.8% PR-AUC=0.836 ROC-AUC=0.893
+  [saved per-clip OOF] sweep_results/relation_tokens/enc_isbclip_B1xl_lso-1100_headline-none_oof.json
+  [saved OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isbclip_binary_B1xl_none.pt

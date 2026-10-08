@@ -1,5 +1,32 @@
 # Real-Time Unsafe Behaviour Detection — Hybrid YOLOv11 + Transformer
 
+> ## ⚠️ SUPERSEDED — NOT THE SUBMITTED RESULT (as of 2026-10-05)
+>
+> **The submitted thesis is the sole authority for every number.** It lives in `report/vn/`
+> (11 files, Vietnamese). This file is a **development log** kept for provenance; it was written
+> while the project's headline was still the YOLO lane, and it has **not** been rewritten to match
+> the submission.
+>
+> What changed, in one paragraph: the thesis's headline configuration is **not** a YOLO pipeline.
+> It is **B1** — a frozen CLIP ViT-B/32 tower feeding a 201,090-parameter temporal head — scoring
+> **84.2 % balanced accuracy** on iSafetyBench (1,100 clips, binary) under **leave-source-out**
+> folds grouped by source video, reported against a pre-registered **63.3 %** count-rule floor.
+> The entity-decomposition hypothesis that motivated the YOLO lane was tested as a pre-registered
+> gate (G14) and **failed** (−0.5 pp, cluster CI [−5.5, +5.0] containing 0, McNemar p = 0.683).
+> Eight pre-registered gates were adjudicated: **two passed, six failed.**
+>
+> **Numbers in this file that the thesis does NOT stand behind** — do not cite them, from here or
+> from anywhere else: any "+3.5 pp macro win"; "57/64"; "95.7 % mAP"; the P3 cadence figures
+> "331 ms / 3.02 dec/s / 3.91 J" and any claim that P3 "passes" or "fails" the 3.0 dec/s contract
+> as a single verdict (the composed measurement of 2026-10-03 is clip- **and** clock-dependent);
+> and any per-stage **sum** presented as a system cadence. The thesis's own Chapter 7 documents why
+> each was withdrawn.
+>
+> Cross-lane comparison is also forbidden: the 1,100-clip binary iSafetyBench numbers and the
+> 64-clip 4-class Unsafe-Net numbers are different corpora, different tasks and different metrics.
+> They are never averaged and never set against each other (thesis §6.1.1).
+
+
 > **Capstone / Thesis Project** — End-to-end system for industrial safety monitoring built from a **YOLO–Transformer engineering composition** on the Unsafe-Net video dataset (frozen YOLOv11s spatial encoder + multi-stream gated Transformer head; the contribution is the empirical study and edge-deployable artifact, not a new architectural mechanism — see thesis §3.2.0).
 
 ## Overview
@@ -12,7 +39,10 @@ This project develops an end-to-end unsafe-behaviour detection system on the **U
 ### Key Results
 
 > **Honest headline.** This thesis is **deployment-led**: the delivered contribution is a
-> measured, open-source, real-time **edge system** (M4 + Jetson, **P1 pipeline**; P3 accuracy-headline re-benchmark pending). On accuracy, the best zero-bbox
+> measured, open-source, real-time **edge system** (M3 + Jetson, **P1 pipeline**). P3 is now measured
+> on the device too (2026-09-29, TRT FP16): it sits **on** the 3.0 dec/s cadence boundary — 3.02-3.04
+> dec/s at the median crop load, 2.60-2.72 above it — so "real-time" may be claimed for P1 and only
+> with that qualification for P3. On accuracy, the best zero-bbox
 > configuration — **hybrid (frozen ⊕ detection-finetuned) features + YOLO frame-gate** — reaches
 > **macro parity-to-advantage over the published no-bbox baseline even under the blind protocol**.
 
@@ -68,7 +98,7 @@ Spatial Tokens: (T×16×768)  — pool4 = 4×4 spatial grid × 768 channels
 
 ### Thesis Contributions (deployment-led)
 
-1. **Measured, open-source, real-time edge-deployment system (primary, delivered).** All figures below are for the **P1 pipeline** (frozen-COCO detector + multi-stream Transformer), the model currently on the device — **not** the P3 accuracy headline, whose Jetson re-measurement is scheduled for Lane B. Jetson Orin Nano Super TRT-FP16 8.62 ms / 116 FPS; **4-stream zero-drop throughput (88 FPS agg) + 2-stream 36.2-min soak**, 0 drops, 7.0 W; INT8 256-frame calibration; power Pareto; metadata-only privacy boundary; live dashboard. M4 CPU 26.8 ms / 37.3 FPS, INT8 156→40 MB. No published baseline reports edge deployment for this task.
+1. **Measured, open-source, real-time edge-deployment system (primary, delivered).** All figures below are for the **P1 pipeline** (frozen-COCO detector + multi-stream Transformer), the model currently on the device — **not** the P3 accuracy headline. P3's own Jetson re-measurement is **done** (2026-10-01, rebuilt engines, both clock conditions, n=3 each, decode counted): TRT FP16, **310 ms/decision = 3.23 dec/s at median crop load with clocks pinned (`sudo jetson_clocks`), +7.5 % margin on the 3.0 dec/s contract** — but **366 ms = 2.73 dec/s (FAIL) under the default DVFS governor**, and FAIL at p95 and above in both conditions (pinned 2.88 / 2.81 / 2.76). Clock state must be named with any P3 cadence figure. Energy 4.02 J/decision total-board (2.90 J marginal over a settled 4.691 W idle baseline); 24.46 MB of engines. The 2026-09-29 figures (331 ms / 3.02 dec/s / 3.91 J) are **withdrawn** — those engines did not match the device record. See `plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-10-01-engine-provenance-invalidates-0929-latency.md`. Jetson Orin Nano Super TRT-FP16 8.62 ms / 116 FPS; **4-stream zero-drop throughput (88 FPS agg) + 2-stream 36.2-min soak**, 0 drops, 7.0 W; INT8 256-frame calibration; power Pareto; metadata-only privacy boundary; live dashboard. M3 CPU 26.8 ms / 37.3 FPS, INT8 156→40 MB. No published baseline reports edge deployment for this task.
 2. **Corrected paper-mechanism replication + a data-bound diagnosis.** Identified that the paper's YOLO is a *frame filter*, not a feature extractor; replicated it at 1,200 bbox frames. Detection-finetuning regresses (over-specialises the backbone); the **hybrid (frozen ⊕ detection-finetuned) + frame-gate** combination recovers and is best — **blind 53/64 (85.4 % macro) = macro parity with the no-bbox baseline even blind**, best-case 86.9 % > baseline. The ≈54/64 ceiling holds across 12+ tracks (incl. 86 M VideoMAE and the paper's exact mechanism), confirming the gap to full-bbox 95.81 % is **data-volume-bound** (§4.6.2).
 3. **V10 negative result** at 400 frames of behaviour-aware bbox annotation (54/64): evidence suggests the bbox route needs substantially more than a 400-frame pilot (paper-scale).
 4. **YOLO–Transformer engineering composition** (Objective 1, substantially met): frozen YOLOv11s spatial encoder + multi-stream Transformer temporal head; not a new mechanism. The temporal streams show no measurable lift on this dataset (§4.7.8).
@@ -88,7 +118,10 @@ Spatial Tokens: (T×16×768)  — pool4 = 4×4 spatial grid × 768 channels
 > even blind**, best-case 86.9 % > baseline; top-1 below baseline (53–54 vs 57). The earlier "parity on
 > top-1 + macro lifts +3.50 pp" claim was based on the test-selected 56/64 and is **withdrawn** — it does
 > not survive blind evaluation. At matched (test-selected) protocol the cross-paper comparison is
-> parity-minus-one on top-1 (56/64 vs 57/64; z = −0.27, p = 0.79), reported as a caveat, not a headline.
+> parity-minus-one on top-1 (56/64 vs 57/64; paired exact-McNemar bound **p = 1.000 at every feasible
+> split** — a one-clip gap on N = 64 carries no signal; the z-test p = 0.79 previously quoted here
+> assumed independent samples, which two systems scored on the same clips are not), reported as a
+> caveat, not a headline.
 > Root cause: paper's YOLO v4 was trained on per-frame bbox annotations encoding zone boundaries; we use
 > frozen COCO features without zone labels. The "57/64 calibrated" figure is also **withdrawn** (§4.7.7).
 

@@ -172,7 +172,7 @@ def finetune_yolo_detection():
     # Phase-02 FIX: full fine-tune like the paper (YOLO v4 full training → mAP 95.66%). The earlier
     # freeze=10 + aggressive mosaic/mixup/copy_paste augmentation destabilised the head (NMS overflow,
     # mAP≈0). freeze only made sense for the V10 *feature-extractor* route, not this frame-FILTER
-    # detector. Defaults here: full unfreeze, tamer aug, smaller batch (memory stability on M4+CVAT).
+    # detector. Defaults here: full unfreeze, tamer aug, smaller batch (memory stability on M3+CVAT).
     FREEZE_BACKBONE = int(os.environ.get('FT_FREEZE', '0'))  # 0 = full fine-tune (paper-faithful)
     print(f"  Fine-tuning detection (freeze={FREEZE_BACKBONE}, full fine-tune, tamer aug)...")
     results = model.train(

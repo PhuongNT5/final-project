@@ -348,6 +348,21 @@ Bảng 6.2 — Các cặp so sánh theo cặp của làn tiêu đề. Mọi kho�
   Nguồn: tools/adjudicate-r48-gates.py, tools/compare-oof-runs.py
          sweep_results/relation_tokens/logs/r48-adjudication.log
 
+  Hai chú thích đọc bảng, nêu ra để người đọc không mất thời gian truy một sai khác không có
+  thật:
+
+  (i) **Làm tròn 0.1 pp.** Cột Δ được tính trên giá trị **chưa làm tròn** rồi mới làm tròn tới
+      0.1 pp; nó **không** bằng hiệu của hai con số đã làm tròn in ở nơi khác trong chương. Ví dụ
+      kiểm được: B1w − B2 = +2.9 pp trong bảng, trong khi 84.4 − 81.6 = 2.8; và ESTA ở mục 6.2.4
+      in là 83.8% trong khi ESTA − E0 = +3.5 pp với E0 = 80.4% ngụ ý 83.9%. Cả hai là **cùng một
+      hiện tượng làm tròn**, biên độ tối đa 0.1 pp, và **không** ảnh hưởng tới bất kỳ phán quyết
+      cổng nào — mọi phán quyết trong bảng do khoảng tin cậy quyết định, và không khoảng nào có
+      đầu mút nằm trong 0.1 pp của 0.
+ (ii) **Quy ước dấu của dòng G17.** Δ = −2.2 pp là hiệu *v11s − 26s*, còn khoảng tin cậy
+      [−1.7, +6.0] do `compare-oof-runs.py` in ra theo chiều ngược lại (*26s − v11s*). Hai con số
+      **không** mâu thuẫn; chúng là cùng một phép so sánh với hai dấu. Phán quyết ("chứa 0") không
+      phụ thuộc vào chiều.
+
 **G18 TRƯỢT ở cả hai chiều.** TSF kém B1w 0.3 pp (CI [−3.7, +2.5] chứa 0, p = 0.401) và chỉ hơn
 chính nhánh thực thể của nó 0.2 pp (b = 81, c = 82, **p = 1.000** — tức bảng chéo gần như đối
 xứng hoàn hảo).
@@ -452,6 +467,50 @@ có con số cao, đo được, và chọn không báo cáo nó.
          sweep_results/relation_tokens/enc_isbclip_B1_rand-1100_headline-none_oof.json
          sweep_results/relation_tokens/enc_isbclip_B1_lso-1100_headline-none_oof.json
          lệnh: run-esta-lso.py --model B1 --split random --folds 10 --seeds 3 --epochs 60
+
+6.2.8. Ma trận nhầm lẫn của cấu hình tiêu đề, cả hai giao thức
+
+Hai bảng dưới đây là **ma trận nhầm lẫn đầy đủ** của chính đồ thị được triển khai, đếm trực tiếp
+từ các tệp dự đoán từng clip ngoài fold. Chúng được in ra vì một con số độ chính xác cân bằng
+không cho biết **lỗi rơi vào phía nào** — và với một hệ an toàn thì bỏ sót hiểm hoạ và báo động
+giả là hai loại lỗi có hậu quả khác nhau hoàn toàn.
+
+Bảng 6.2a — B1 dưới **leave-source-out** (giao thức được công bố), 1,100 clip, 10 fold × 3 hạt
+             giống, dự đoán ngoài fold.
+
+                             | dự đoán: bình thường | dự đoán: hiểm hoạ | tổng
+  ---------------------------+----------------------+-------------------+------
+  thật: bình thường          |         570          |        110        |  680
+  thật: hiểm hoạ             |          65          |        355        |  420
+  ---------------------------+----------------------+-------------------+------
+  tổng                       |         635          |        465        | 1,100
+
+  Độ nhạy với hiểm hoạ (recall) = 355/420 = **84.5%**; độ đặc hiệu = 570/680 = **83.8%**; độ chính
+  xác cân bằng = (84.5 + 83.8)/2 = **84.2%** — tái lập đúng con số tiêu đề. Số **bỏ sót hiểm hoạ
+  là 65 clip (15.5%)** và số **báo động giả là 110 clip (16.2%)**. Hai loại lỗi gần như cân nhau,
+  tức mô hình **không** được hiệu chỉnh lệch về phía an toàn. Với một triển khai thật, ngưỡng
+  quyết định nên được dịch để đổi báo động giả lấy việc giảm bỏ sót; luận văn **không** làm phép
+  dịch đó, vì ngưỡng vận hành đúng phụ thuộc vào chi phí can thiệp tại hiện trường — một đại lượng
+  nằm ngoài kho dữ liệu này (xem thêm mục 5.4.4 về xuất xứ của hợp đồng nhịp).
+
+Bảng 6.2b — **Cùng mô hình, cùng 1,100 clip đó**, chỉ đổi phép chia sang fold ngẫu nhiên bỏ qua
+             nguồn (giao thức của tài liệu, mục 6.2.7).
+
+                             | dự đoán: bình thường | dự đoán: hiểm hoạ | tổng
+  ---------------------------+----------------------+-------------------+------
+  thật: bình thường          |         665          |         15        |  680
+  thật: hiểm hoạ             |          10          |        410        |  420
+  ---------------------------+----------------------+-------------------+------
+  tổng                       |         675          |        425        | 1,100
+
+  Độ nhạy = 410/420 = **97.6%**; độ đặc hiệu = 665/680 = **97.8%**; độ chính xác cân bằng =
+  **97.7%**. Đặt hai bảng cạnh nhau cho thấy lạm phát giao thức **không** phải một dịch chuyển nhẹ
+  ở mép: số bỏ sót hiểm hoạ tụt từ 65 xuống 10 (giảm 6.5 lần) và số báo động giả tụt từ 110 xuống
+  15 (giảm 7.3 lần). Không có thay đổi nào về mô hình, dữ liệu, số fold, số hạt giống hay số epoch
+  giữa hai bảng; biến duy nhất là **fold có tôn trọng danh tính nguồn hay không**. Một hệ thống
+  sai 75 clip trở thành một hệ thống sai 25 clip chỉ bằng cách đổi cách chia dữ liệu.
+
+  Nguồn: đếm trực tiếp từ hai tệp `*_oof.json` dẫn ở trên (đã vào git, xem mục 6.1.2).
 
 ----------------------------------------------------------------------
 6.3. CÂU HỎI PHƯƠNG PHÁP LUẬN: CÁI GIÁ CỦA CÁCH CHIA DỮ LIỆU
@@ -780,7 +839,8 @@ Do đó chương này dùng:
   - **Bootstrap theo cụm** với đơn vị lấy mẫu là *nguồn* (không phải clip), cài đặt tại
     eval_utils/cluster_bootstrap.py, có bộ kiểm thử đơn vị đi kèm.
   - **McNemar chính xác** cho so sánh cặp trên cùng tập dự đoán.
-  - **Hiệu chỉnh Nadeau–Bengio** cho sai số chuẩn của trung bình k-fold, vì các fold dùng chung
+  - **Hiệu chỉnh Nadeau–Bengio** (Nadeau & Bengio 2003; mục [45] trong danh mục tài liệu tham
+    khảo ở Chương 2) cho sai số chuẩn của trung bình k-fold, vì các fold dùng chung
     dữ liệu huấn luyện nên sai số chuẩn ngây thơ là ước lượng thấp. Ví dụ với E3 trên Unsafe-Net,
     trên trung bình top-1 theo fold (82.1%): sai số chuẩn ngây thơ 1.66 được hiệu chỉnh thành
     2.49, khoảng tin cậy 95% là 77.2–87.0% (tier2_binary_logs/E3.log). Hiệu chỉnh này nới khoảng
@@ -791,12 +851,48 @@ Do đó chương này dùng:
   áp dụng cho các dự đoán theo cặp trên cùng một tập clip; nó giả định hai mẫu độc lập, điều
   không đúng ở đây. Quy tắc này được thực thi ở mức mã nguồn.
 
+6.8.1. Đa so sánh: không hiệu chỉnh, và vì sao điều đó không làm sụp hai cổng đạt
+
+Luận văn kiểm định **nhiều** giả thuyết trên cùng một tập dữ liệu, và **không** áp dụng hiệu chỉnh
+Bonferroni hay FDR. Điều này phải được nói thẳng vì nó là một phản biện hợp lệ: khi kiểm định đủ
+nhiều lần, một vài giá trị p nhỏ xuất hiện do ngẫu nhiên.
+
+Quy mô, đếm được chứ không phỏng đoán: **31 giá trị p phân biệt** xuất hiện trong các chương kết
+quả của luận văn (Chương 6, 7, 8), trên **10 mã cổng** cùng các ablation đặc trưng, ablation dung
+lượng và các so sánh xương sống. Ngưỡng Bonferroni tương ứng ở α = 0.05 là **α' = 0.05/31 =
+1.61e-03**.
+
+Đối chiếu từng kết quả có vai trò chứng nhận với ngưỡng đó:
+
+  - **G12** (lạm phát giao thức, làn B): p = 3.58e-45. Nhỏ hơn α' **42 bậc độ lớn**. Vượt.
+  - **Lạm phát giao thức ở làn A** (mục 6.2.7): p = 1.39e-41. Vượt với biên tương đương.
+  - **G10** (encoder hơn đường sàn quy tắc đếm): p = 1.02e-05. Nhỏ hơn α' khoảng 158 lần. Vượt.
+  - **G19** (đối chứng giả dược, mục 6.6.3): p hoán vị = 0.0476. **KHÔNG vượt** α'. Phải nói rõ:
+    nếu áp Bonferroni trên toàn bộ 31 kiểm định, giá trị p của G19 **mất ý nghĩa**. Giá trị p đó
+    bị chặn trên bởi thiết kế — với 20 seed, p nhỏ nhất có thể đạt là 1/21 ≈ 0.048 — nên nó không
+    bao giờ có khả năng vượt một ngưỡng hiệu chỉnh, bất kể hiệu ứng mạnh đến đâu. Vì vậy bằng
+    chứng của G19 **không** nằm ở giá trị p của nó mà ở **khoảng cách**: cả 20 seed giả dược nằm
+    trong dải 87.7–89.7%, trong khi nguồn thật dưới leave-source-out cho 75.2% — seed gần nhất
+    còn cách **12.5 pp**, tức hơn **26 lần độ lệch chuẩn giữa các seed** (sd = 0.47). Một hiệu
+    ứng cỡ đó không phải là thứ mà hiệu chỉnh đa so sánh có thể giải thích đi.
+
+Ba điều kiện biên phải nêu kèm. Thứ nhất, **căn cứ chứng nhận của luận văn là khoảng tin cậy
+bootstrap theo cụm, không phải giá trị p** (mục 6.1.5); p được in ra để người đọc kiểm chứng, và
+mọi phán quyết cổng đều do khoảng tin cậy và biên tiền đăng ký quyết định. Thứ hai, hiệu chỉnh đa
+so sánh **không thể cứu** một cổng đã trượt: sáu cổng trượt đều trượt vì khoảng tin cậy chứa 0,
+và nới ngưỡng chỉ làm chúng trượt rõ hơn. Thứ ba, 31 kiểm định này **không độc lập** — nhiều cặp
+dùng chung tập clip và chung các fold — nên Bonferroni ở đây là ngưỡng **bảo thủ quá mức**, không
+phải ngưỡng đúng; luận văn dùng nó vì nó là ngưỡng khắt khe nhất mà hội đồng có thể đòi, không vì
+nó là ngưỡng chính xác.
+
 ----------------------------------------------------------------------
 6.9. HẠN CHẾ CỦA PHÉP ĐO
 ----------------------------------------------------------------------
 
-Chương này công bố ba hạn chế. Cả ba đều đã được ghi trong nhật ký ở thời điểm chạy, không phải
-bổ sung sau.
+Chương này công bố **sáu** hạn chế. Ba hạn chế đầu đã được ghi trong nhật ký ở thời điểm chạy,
+không phải bổ sung sau; hạn chế (4) và (5) liên quan đến hai đối chứng được bổ sung ngày
+08/10/2026 và được khai cùng chúng; hạn chế (6) nói về chính khung tiền đăng ký mà các phán quyết
+của chương dựa vào, và vì vậy là hạn chế nặng nhất trong sáu.
 
 (1) Nhóm bối cảnh của Unsafe-Net là **proxy, không phải siêu dữ liệu camera đã kiểm chứng**. Tám
     nhóm được sinh bằng KMeans(k=8) trên mô tả nền, không phải bằng mã định danh camera thật.
@@ -805,6 +901,21 @@ bổ sung sau.
     đúng là "giữ nguyên nhóm bối cảnh", không phải "giữ nguyên camera". Ở phần này, iSafetyBench
     mạnh hơn hẳn — 151 mã nguồn là siêu dữ liệu thật, không phải proxy, và đó là lý do kết quả
     tái lập ở mục 6.6 có giá trị chứng minh cao hơn chính kết quả gốc ở mục 6.5.
+
+    **Nguy cơ vòng tròn logic, nêu thêm cho đủ.** Proxy này không chỉ là "không chính xác"; nó
+    mang một khiếm khuyết nặng hơn. Tám nhóm được sinh bằng KMeans trên **chính không gian đặc
+    trưng ngoại hình mà mô hình đang được đánh giá trên đó**. Nghĩa là thuật toán phân nhóm được
+    tối ưu để làm các nhóm **cách xa nhau nhất có thể trong đúng biểu diễn đó**, nên
+    leave-context-out trên các nhóm ấy **tất yếu** khó hơn một phép chia theo camera thật — và
+    phần "khó hơn tất yếu" đó không phân biệt được với phần "mô hình không chuyển giao được".
+    Hệ quả: dải lạm phát **+13.0 đến +21.8 pp** đo trên Unsafe-Net (mục 6.5) là một **chặn trên
+    có thiên lệch lên**, không phải một ước lượng không chệch. Luận văn không hiệu chỉnh cho
+    thiên lệch này — không có phép hiệu chỉnh nào khả dụng mà không cần mã camera thật — nên nó
+    được công bố như một giới hạn và kết luận lạm phát **không** được dựng trên làn này. Làn
+    iSafetyBench, nơi 151 nhóm là mã định danh video nguồn thật và không nhóm nào do thuật toán
+    sinh ra, là làn mang giá trị chứng minh; và chính ở làn đó đối chứng giả dược G19 (mục 6.6.3)
+    tách được phần hình học fold ra khỏi phần rò rỉ. Phép tách tương ứng cho Unsafe-Net **chưa
+    được thực hiện**.
 
 (2) Mức đồng thuận giữa nhãn fold và nhãn view chỉ đạt **81.7%**. Do đó mọi phát biểu liên quan
     đến LCO trong luận văn này đều được phát biểu **theo fold**, không bao giờ theo view. Các
@@ -829,6 +940,54 @@ bổ sung sau.
     hỏi tính đơn điệu hay chỉ đòi hỏi tương quan dương. Đó là lỗi soạn thảo của chính nhóm thực
     hiện. Nguyên tắc đã cam kết là không thương lượng lại giả thuyết sau khi đã thấy kết quả, nên
     cách đọc bảo thủ được áp dụng: **G13 không đạt**.
+
+(4) **Phép tách confound chỉ được thực hiện trên một trong hai kho.** Đối chứng giả dược ở mục
+    6.6.3 tách hiệu số lạm phát thành phần do danh tính nguồn và phần do hình học fold — nhưng nó
+    chạy trên **iSafetyBench**, nơi có 151 nhóm nguồn thật. Trên **Unsafe-Net**, phép tách tương
+    ứng **chưa được thực hiện**, và với chỉ 8 nhóm bối cảnh thì một đối chứng hoán vị khớp cấu
+    trúc không có đủ số nhóm để cho một phân bố null hữu ích. Vì vậy trên Unsafe-Net, dải
+    **+13.0 đến +21.8 pp** vẫn **trộn** hai nguyên nhân: rò rỉ bối cảnh và độ khó cấu trúc của
+    phép chia theo nhóm. Luận văn tự nhận ở mục 6.12 rằng một phần biên ở làn bốn lớp là "dịch
+    chuyển phân bố nhãn, không phải năng lực quan hệ" và cũng **không định lượng** phần đó. Đây
+    là giới hạn mở, được khai ở đây thay vì để người đọc tìm ra.
+
+(5) **Hai đối chứng của chương không được đăng ký trước.** G19 (mục 6.6.3) và lượt chạy chia ngẫu
+    nhiên ở làn A (mục 6.2.7) đều được nghĩ ra **sau** khi các cổng tiền đăng ký đã có phán quyết,
+    cụ thể là để trả lời hai phản biện dự kiến. Chỉ *tiêu chí* của chúng được cố định trước khi
+    chạy — 20 seed, α = 0.05, ba thuộc tính cấu trúc được bảo đảm bằng `assert` với G19; và với
+    lượt chạy làn A thì cấu hình, số fold, số seed và số epoch đều bị buộc phải giống hệt lượt
+    chạy tiêu đề. Cả hai **không phán quyết** cổng nào và **không** xuất hiện trong tổng "hai
+    đạt, sáu trượt". Lý do công bố điều này thay vì im lặng: một đối chứng hậu nghiệm vẫn là bằng
+    chứng hợp lệ, nhưng nó yếu hơn một cổng tiền đăng ký, và việc trình bày nó như nhau sẽ phá
+    chính khung tiền đăng ký mà toàn bộ kết luận của luận văn dựa vào.
+
+(6) **Việc "tiền đăng ký" là tự khai có ghi ngày, KHÔNG phải một dấu thời gian kiểm chứng được
+    bằng git.** Hạn chế này nặng hơn năm hạn chế trên, vì khung tiền đăng ký là nền của chính
+    kết luận tiêu đề, nên nó được nêu bằng đúng các mốc kiểm được:
+
+      - `tools/adjudicate-r48-gates.py` — script phán quyết, tự khai trong chú thích rằng các
+        ngưỡng được sao từ `risks.md` và được viết trước khi các mô hình này tồn tại — vào git
+        lần đầu **29/09/2026 23:14**, trong **cùng một commit** với mô hình ESTA và script
+        huấn luyện của nó (`9cf01ca`).
+      - `plans/2026-09-19-thesis-recovery-architecture/risks.md` — nơi G14–G17 được tiền đăng
+        ký — vào git lần đầu **01/10/2026 21:13** (`26cdf1f`), tức **sau** phán quyết ngày
+        29/09 **hai ngày**.
+      - `plans/2026-09-19-thesis-recovery-architecture/phase-12-isafetybench-accuracy-lane.md`
+        — nơi làn tiêu đề được đặc tả — vào git lần đầu **07/10/2026 23:03** (`df1dab7`), tức
+        sau cả mốc đóng băng số 05/10/2026.
+
+    Hệ quả phải nói thẳng: một người đọc **không thể dùng git để chứng minh** rằng ngưỡng được
+    cố định trước khi kết quả được biết. Những gì git **có** chứng minh là yếu hơn: rằng từ
+    01/10/2026 trở đi các ngưỡng không còn bị sửa (`MARGIN = 3.0`, `G18B_MARGIN = 2.0`,
+    `ALPHA = 0.05` không đổi trong mọi commit sau đó), và rằng phán quyết do một script hằng số
+    sinh ra chứ không do người đọc số rồi chọn ngưỡng. Luận văn **không** yêu cầu người đọc tin
+    hơn mức đó.
+
+    Vì sao điều này không được sửa bằng cách viết lại nhật ký: một dấu thời gian được tạo lại
+    sau sự việc còn tệ hơn không có dấu thời gian nào. Cách sửa đúng là một cách sửa **cho lần
+    sau** — đăng ký công khai có dấu thời gian của bên thứ ba (OSF, hoặc một commit đã ký được
+    đẩy lên trước khi chạy) — và nó được ghi vào mục 8.3.7 như một hạng mục xuất xứ còn mở, không
+    phải một việc có thể làm hồi tố cho luận văn này.
 
 ----------------------------------------------------------------------
 6.10. KẾT LUẬN VỀ LẠM PHÁT GIAO THỨC, VÀ HỆ QUẢ CHO CÁCH ĐỌC MỌI CON SỐ
@@ -1290,6 +1449,29 @@ mAP@50 / mAP@50-95 = 0.966 / 0.975 trong nhánh nhị phân của làn C là **g
 đo lại, và được đánh dấu như vậy ở mọi nơi chúng xuất hiện (mục 6.5).
 
 6.12.4. Thẻ điểm phân loại và hiệu chuẩn
+
+Bảng 6.7a — Ma trận nhầm lẫn bốn lớp của **đúng bộ dự đoán mà mọi con số làn C trích dẫn** (quy
+              tắc mù được chọn trên tập val, 54/64), trên 64 clip test cùng phân phối. Hàng là
+              nhãn thật, cột là dự đoán.
+
+                       | WalkwayViol | UnauthorInt | OpenedPanel | CarryOverload | tổng
+  ---------------------+-------------+-------------+-------------+---------------+------
+  WalkwayViol          |     25      |      6      |      1      |       0       |  32
+  UnauthorInt          |      0      |     10      |      1      |       0       |  11
+  OpenedPanel          |      1      |      1      |     11      |       0       |  13
+  CarryOverload        |      0      |      0      |      0      |       8       |   8
+  ---------------------+-------------+-------------+-------------+---------------+------
+  tổng                 |     26      |     17      |     13      |       8       |  64
+
+  Đường chéo tổng **54/64 = 84.4% top-1**, trung bình recall theo lớp **88.4%**. Cấu trúc lỗi đọc
+  được từ bảng chứ không cần diễn giải: **toàn bộ 6 lỗi nặng nhất là WalkwayViol bị gọi thành
+  UnauthorInt** — hai lớp mà sự khác nhau nằm ở *người đó có được phép ở đó hay không*, một thuộc
+  tính không nhìn thấy được trong khung hình. Đó cũng là lý do precision của UnauthorInt chỉ
+  **58.8%** trong khi recall của nó là **90.9%**: lớp này hút về mình các clip của lớp khác.
+  CarryOverload tách sạch (8/8, không lỗi theo cả hai chiều). Ma trận này lấy từ
+  `sweep_results/relation_tokens/full_eval.json`, trường `confusion`, và **không** phải ma trận
+  của bộ ensemble 56/64 — bộ ensemble đó là một bộ dự đoán khác và không được trích ở làn C
+  (mục 6.12.6).
 
 Bảy chỉ số của bộ dự đoán được chọn bằng tập validation (seed 1, 54/64), tính trên tập kiểm tra
 64 clip theo giao thức cùng phân phối:

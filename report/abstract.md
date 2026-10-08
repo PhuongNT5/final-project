@@ -8,7 +8,14 @@ frozen CLIP ViT-B/32 tower feeding a small temporal Transformer head (B1, 201,09
 seeds) scores **84.2 % balanced accuracy under LSO-1100**: ten folds grouped by *source video*, so
 no source can supply clips to both sides of a split. The figure is reported against a
 **pre-registered 63.3 % floor** — a three-feature detector-count rule fitted on identical folds —
-never against 50 %. That same head is exported to TensorRT FP16 and measured on an Orin Nano Super
+never against 50 %. **The same configuration, on the same 1,100 clips, scores 97.7 % when the split
+is allowed to leak** — ten `StratifiedKFold` folds ignoring source identity, everything else held
+fixed — so the protocol itself is worth **+13.5 pp** on the deployed graph (clustered bootstrap CI
+[+8.0, +20.0], exact McNemar p = 1.39e-41 over 156 discordant pairs). The thesis therefore *measured*
+the ninety-something number its own deployed model produces under the literature's protocol, and
+chose to publish 84.2 %. That random-split run was **not** pre-registered (gate G12 was registered on
+the relation-token lane) and is reported as a post-hoc extension, not as an adjudicated gate.
+That same head is exported to TensorRT FP16 and measured on an Orin Nano Super
 8 GB (§5.6.9), where the **composed** loop — decode, preprocess, tower, head, nothing omitted —
 sustains **5.98 decisions/s** against this corpus's median real-time contract of 1.249 decisions/s
 (a 4.79x margin; 4.40 decisions/s and a 3.52x margin on all-1080p sources, against that
@@ -18,7 +25,14 @@ timed separately, never summed into the decision cost. The protocol carries as m
 the number does: on this corpus a random fold turns source identity into a label proxy and inflates
 balanced accuracy by **+15.4 pp** (measured on the E3 encoder, McNemar p = 3.6e-45), while the same
 swap moves the three-feature count-rule floor by only +1.0 pp — a capacity contrast that identifies
-source memorisation, not a better fit, as the mechanism.
+source memorisation, not a better fit, as the mechanism. A **placebo-grouping control** (20 seeds)
+separates that inflation from the competing explanation that grouped folds are merely structurally
+harder: fake source ids matched to the real ones on group count, on the per-class multiset of group
+sizes and on class purity — provenance destroyed, geometry preserved — score **89.0 % (sd 0.47)**,
+with no seed coming within 12.5 pp of the real leave-source-out number (permutation p = 0.0476).
+The +15.4 pp therefore decomposes into **+1.6 pp fold geometry** and **+13.8 pp source provenance**.
+This control was **not** pre-registered — only its criteria were fixed before it ran — and it
+adjudicates no gate.
 
 **A second lane** carries the thesis's evaluation-rigour contribution on the 4-class benchmark the
 work started from. The published Unsafe-Net system (Önal & Dandıl, 2024) reports 95.81 %
@@ -39,7 +53,9 @@ classifier (the paper's scene-dependent style) scores an identical 81.2 % — i.
 accuracy largely measures *which camera*, not the behaviour. Under a **leave-camera-out (scene-robust)
 protocol** a trained, transferable scene-appearance baseline reaches only 64.4 % macro while the
 proposed entity-relation model retains **81.2 % macro (77.7 % top-1)** — an **honest margin of +16.9 pp
-macro, 95 % bootstrap CI [+12.5, +21.2]** (n_boot = 5 000 over 516 pooled clips). The per-class
+macro, 95 % bootstrap CI [+12.5, +21.2]** (n_boot = 5 000 over 516 pooled clips — note that this
+resamples **clips, not the 8 context groups**, which §6.12(a) of the thesis declares the wrong
+sampling unit; the interval is descriptive and is not used as certifying evidence). The per-class
 pattern is *consistent with* the margin being carried by the spatially-defined classes (OpenedPanel
 88.7 vs 88.0 and CarryOverload 100 vs 100 tie; WalkwayViolation 70.5 vs 17.6 and UnauthorizedIntervention
 65.7 vs 51.9), but we deliberately do **not** rest the claim on those four numbers: a stability study
@@ -56,16 +72,22 @@ weights and per-clip predictions are unreleased, so it cannot be run under this 
 about the *metric*, not about their system. The work is supported by a full multi-lens evaluation (macro-F1,
 balanced accuracy, Cohen's κ = 0.775, MCC = 0.785, per-class miss-rate and cost-sensitive safety
 metrics, one-vs-rest ROC-AUC = 0.951, PR-AUC = 0.880, ECE = 0.097, and BCa/Wilson/McNemar statistics)
-and an edge-deployment characterisation (YOLO26 + Jetson TensorRT **FP16** — INT8 was never built for
-P3, no calibration set exists for it; the measured verdict is that P3's cadence is
-decided by the device's clock state — pinning the clocks cuts the per-decision cost by 18.0 %
-(365.88 to 310.00 ms) and narrows the detector's p95/p50 tail from 1.51 to 1.03. That contrast is
-protocol-identical and is the P3 result. The underlying P3 figures are **a sum of separately-timed
-stages, not a composed loop**, and they omit the input preprocessing that this same campaign found
-to be the largest single cost in the deployed B1 graph; they are therefore **upper bounds on
-cadence**, the pinned arm's 7.5 % headroom over the 3.0 dec/s contract is less than half the omitted
-stage's measured floor, and **P3 misses its real-time contract in both clock conditions** — a second
-instance, on a different graph, of this thesis's own finding that a stage sum is not a cadence). Every 4-class figure in this paragraph comes
+and an edge-deployment characterisation (YOLO26 + Jetson TensorRT **FP16** — INT8 was never built
+for P3, no calibration set exists for it). The P3 verdict is a **composed** measurement — decode,
+preprocessing, detector, context crops, appearance encoder, 74-d relation-token assembly and head
+inside one wall clock, nothing omitted — and it is **clip-dependent and clock-dependent**: with the
+clocks pinned P3 sustains **2.49-3.97 decisions/s (median 3.48) and meets its 3.0 decisions/s
+contract on two of three test clips**, while under the default governor it sustains **1.14-1.51
+(median 1.44) and meets it on none**. The two arms are disjoint and pinning is worth 2.41x. An
+earlier P3 headline built as **a sum of separately-timed stages** is withdrawn: that construct
+double-charged a 16-frame window where the contract is defined on an 8-frame stride, *and* omitted
+the input preprocessing this same campaign found to be the largest single cost in the deployed B1
+graph, so it runs **7.98 % too fast when pinned and 39.3 % too slow under DVFS** — its bias changes
+sign with the clock state, and no correction factor could have rescued it. The mechanism is recorded
+in the artifacts themselves: under the default governor the second CPU cluster stays parked at its
+115 MHz floor, and the composed loop is CPU-bound on precisely the preprocessing the stage sum left
+out — so the omission hid the component most sensitive to the clock condition. This is a second
+instance, on a different graph, of this thesis's own finding that a stage sum is not a cadence. Every 4-class figure in this paragraph comes
 from the **same predictor** — the val-selected blind rule scoring 54/64 — including the probability-based
 ones; earlier drafts had to compute those on a seed-averaged ensemble (52/64) because the blind seed's
 softmax had not been persisted, and that mismatch is now resolved (§7.5).
@@ -80,7 +102,9 @@ them, never compares them, and never quotes the larger of the two.
 ## Honest headline (one paragraph)
 
 The deployed claim is the one above: 84.2 % balanced accuracy, leak-free, on the graph that runs on
-the device. On the 4-class benchmark this thesis does **not** beat the paper's 95.81 % on the
+the device — and that same graph reports **97.7 %** once the split is permitted to leak, a +13.5 pp
+protocol gap measured on the deployed configuration itself. That pair of figures is iSafetyBench
+binary throughout and is **never** set against any 4-class number in this paragraph. On the 4-class benchmark this thesis does **not** beat the paper's 95.81 % on the
 same-distribution top-1 metric, and it is candid that it should not try to: that metric, on this benchmark, is scene-confounded — a model that ignores the
 video and guesses the camera scores 81.2 %, and the paper-style whole-frame classifier does no better. What
 the thesis **does** deliver is (a) a **leak-free, deployed binary detector** — 84.2 % balanced
@@ -90,7 +114,8 @@ measured end-to-end on an Orin Nano Super at 5.98 decisions/s; (b) a modern, rep
 (54/64, 88.4 % macro, above the no-bbox baseline on macro) whose supervision is placed on interpretable
 entities rather than behaviours; (c) a **rigorous scene-robustness analysis** showing that under
 leave-camera-out evaluation the entity-relation model generalises substantially better than a trained
-scene-appearance baseline (81.2 % vs 64.4 % macro, +16.9 pp, CI [+12.5, +21.2]), because it reasons over
+scene-appearance baseline (81.2 % vs 64.4 % macro, +16.9 pp, clip-unit CI [+12.5, +21.2], not a
+group-unit interval and not certifying evidence — §6.12(a)), because it reasons over
 person×zone geometry instead of memorising scenes; and (d) the resulting **critique that same-distribution top-1 on this
 benchmark rewards scene memorisation**, together with a fairer, cross-camera evaluation protocol for
 the task. The contribution is a measured, deployed system reported under a protocol that cannot leak,

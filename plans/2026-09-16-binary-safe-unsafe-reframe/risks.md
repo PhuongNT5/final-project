@@ -1,0 +1,25 @@
+# Risk Register — Binary Safe/Unsafe Reframe
+
+| ID | Risk | Likelihood | Impact | Mitigation | Owner phase |
+|---|---|---|---|---|---|
+| R1 | **Detector-rule baseline S1 ≈ the encoder** — the 8 detector classes are safe/unsafe counterpart pairs, so a 3-feature rule may already solve the binary task | **High** | Critical | S1 is a **gate run before any encoder training**. If it fires: restructure the claim to protocol + LCO transfer + edge characterisation, with the honest sentence "a 3-feature detector rule matches a 298k-param Transformer on this dataset". Thesis survives; the accuracy claim does not. | 06 |
+| R2 | E1 does not beat E0 | Med-High | Med | **Pre-committed negative-result wording:** "E1 matches E0 with 3.2× fewer parameters and 12.7× fewer attention pairs" — a parameter-efficiency result for the deployment chapter. | 02, 06 |
+| R3 | Binary accuracy explained by background alone | **High** (panel pair 0.12 co-cluster) | Critical | S2 scene baseline promoted to **primary control** on all 691; LCO-691 required for every headline; pre-registered Δ_rand/Δ_LCO rule forces the words "scene fitting". | 06 |
+| R4 | **Jetson session fails on 19/9 (no second date)** | Med | Critical | Runbook pre-written + dry-run 18/9; copy-pasteable commands; P1 (8.62 ms) smoke test; fallback = screen recording + raw tegrastats for offline parsing. | 05 |
+| R5 | Seed variance swamps the effect (2.08 pp aggregate sd; 11.0 pp same-distribution; 15.3-21.1 pp per-class) | **High** | High | ≥5 seeds everywhere; paired seeds for McNemar; k-fold-691 as primary; per-class marked descriptive-not-evidential; never quote one seed. | 06 |
+| R6 | Test split too small — Wilson half-width ±8.7 pp | **Certain** | High | k-fold-691 is the evidence; test = confirmatory touches only. | 06 |
+| R7 | Prior shift (train 3.96:1 unsafe, test ~1:1) | **Certain** | High | Class weights **ON** (0.403/1.597, mean-normalised); balanced accuracy / macro-F1 as headline; stated as a deliberate prior-matched decision. | 02, 03 |
+| R8 | **Test-set contamination** — `0_te23`≡`4_te9` both in test with opposite binary labels; 3 test clips ≡ unsafe train clips | **Confirmed** | High | Hard ceiling 124/125 and practical ≈121/125 **printed in every table**; dedupe policy fixed **before** the touches; contaminated number shown beside deduped. Post-hoc exclusion forbidden. | 12 |
+| R9 | TRT single-input runner silently corrupts the 2-input binary head | **Confirmed defect** | Critical | Phase 03 D2 is a hard gate (G3) before 19/9. Outranks all other defects. | 03 |
+| R10 | Significance claims were false positives (z-test on paired data) | **Confirmed, fixed** | High | Neither previously-"significant" result survives. Strike every significance claim vs the paper; report b, c + bound interval; never a bare p-value. | 07, 08, 09, 10 |
+| R11 | Thesis rests its central claim on beating the paper's aggregate — which **can never be paired-tested** (no per-clip outputs) | Med | High | Central claims restricted to comparisons where we own both sides (encoder variants, S1, S2). Stated as a methodological choice. | 06, 08 |
+| R12 | Panel pair confound not disentanglable by the current descriptor | **Confirmed** | High | Pre-registered limitation L1; per-sub-class recall published for all 8 incl. the panel pair; optional motion-descriptor diagnostic off the critical path. | 06, 08 |
+| R13 | CarryOverload 100% recall is a 1-line detector rule; binary collapse makes it *stronger* | High | High | Report binary accuracy with and without classes 3/7; class-id-blinded ablation; limitation L2. | 06, 08 |
+| R14 | Wall-clock unknown — two logged throughput anchors disagree **6×** (8.9 vs 1.6 s/epoch) | **Certain** | Med | 10-minute calibration run before committing the schedule; **one heavy job at a time** (contention caused the spread); all estimates quoted as ranges. | 02, 06 |
+| R15 | Test touch burned prematurely | Low | Critical | Exactly two declared touches, pre-registered in the log **before** running, each requiring explicit user go-ahead. | 06 |
+| R16 | ONNX export drift (existing head outputs 4 logits) | High | High | Re-export after arch freeze; parity ≤1e-5 (G4). | 04 |
+| R17 | Edge budget fails (1.64 dec/s @800 vs 3.0 required) | **Confirmed** | Med | Measure imgsz 512/416 on device; report the curve. **Do not claim the smaller encoder fixes it** — the cost is detector+appearance dominated. | 05, 08 |
+| R18 | Scope creep / architecture search | Med | Med | Candidate list frozen at E0/E1(64,96)/E2/E3 + 4 ablations. No loss zoo, no augmentation search, no tracker. | 02 |
+| R19 | Numbers drift between repo, sheet and VN thesis | High | Med | Sheet is the ONLY lane-C source; generated not typed; G8 trace check. | 07, 10 |
+| R20 | Withdrawn claims resurface via the EN source text | High | High | Strike-list in phase 08; `WDR-*` sheet rows; EN files read-only. | 08, 10 |
+| R21 | Deadline slip past ~26/9 | Med | Med | Phases 09/11 droppable; chapters written in defence-criticality order. | plan |

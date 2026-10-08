@@ -83,7 +83,7 @@ Sanity-check expected ranges:
 - backbone p50: 6–10 ms
 - direct4 + cascade: <1 ms each
 - e2e p50: 10–15 ms / 65–100 FPS
-- accuracy: 56/64 (matches M4 ensemble)
+- accuracy: 56/64 (matches M3 ensemble)
 
 ## Day 3 — INT8 calibration + comparison (~2 h)
 
@@ -119,7 +119,7 @@ python3 deployment/scripts/multi-stream-pipeline.py \
   --duration 120 \
   --out deployment/artifacts/multi-stream-jetson.json
 
-# 30-min soak at N=2 (matches M4 protocol)
+# 30-min soak at N=2 (matches M3 protocol)
 python3 deployment/scripts/multi-stream-pipeline.py \
   --providers tensorrt,cuda \
   --streams 2 --duration 1800 \

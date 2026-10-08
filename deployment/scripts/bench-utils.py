@@ -86,7 +86,7 @@ def accuracy_4class(features: np.ndarray, labels: np.ndarray,
 
 def write_benchmarks_md(results: List[Dict], model_sizes: Dict) -> str:
     lines = [
-        "# Benchmark Results — YOLO-Transformer Pipeline on Apple M4",
+        "# Benchmark Results — YOLO-Transformer Pipeline on Apple M3",
         f"\n**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M')}  ",
         f"**Machine:** {platform.node()}  ",
         "",

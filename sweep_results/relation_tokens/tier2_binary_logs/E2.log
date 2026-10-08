@@ -1,0 +1,24 @@
+[dedupe:binary/drop_conflict] dropped 4 of 691 pooled clips (train=drop_conflict, test untouched)
+[binary] arch=E2 d=- coord=T1 pooled 687 clips (unsafe 512) | feat=74 n_num=73 | params=284,556
+  rep 1 fold 1: relation 87.0%  scene-only 78.3%  Δ=+8.7
+  rep 1 fold 2: relation 79.0%  scene-only 76.1%  Δ=+2.9
+  rep 1 fold 3: relation 89.1%  scene-only 75.9%  Δ=+13.1
+  rep 1 fold 4: relation 83.9%  scene-only 76.6%  Δ=+7.3
+  rep 1 fold 5: relation 86.9%  scene-only 75.2%  Δ=+11.7
+
+=== STRATIFIED 5-FOLD x 1 REPEATS (5 folds, pooled 687 clips) ===
+  relation-Transformer: top-1 85.2±3.5% | pooled 585/687 | macro 84.6%
+  balanced_acc=84.6% macro_f1=81.9% unsafe_recall=85.7% unsafe_precision=93.8% PR-AUC=0.972 ROC-AUC=0.918
+  per-sub-class recall (pooled OOF, folded back to source 0-7):
+    0:WalkwayViol    n=207 recall= 87.0%
+    1:UnauthorInt    n=107 recall= 90.7%
+    2:OpenedPanel    n=142 recall= 74.6%
+    3:CarryOverload  n= 56 recall=100.0%
+    4:SafeWalkway    n= 75 recall= 74.7%
+    5:AuthorInt      n= 38 recall= 78.9%
+    6:ClosedPanel    n= 32 recall= 93.8%
+    7:SafeCarrying   n= 30 recall=100.0%
+  fold-mean top-1 85.2%  naive SE 1.74  NB-corrected SE 2.62 (95% CI 80.0-90.3%)
+  scene-only baseline : top-1 76.4±1.0%
+  Nadeau–Bengio (relation vs scene-only): mean Δ=8.7pp  t=3.25  df=4  p=0.0312  (significant)
+  [saved OOF selection set] sweep_results/relation_tokens/kfold_oof_softmax_bin8_binary_E2_drop_conflict.pt

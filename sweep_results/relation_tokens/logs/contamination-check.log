@@ -1,0 +1,15 @@
+  [unsafenet] 200/691
+  [unsafenet] 400/691
+  [unsafenet] 600/691
+[unsafenet] 691 clips -> 2059 frame hashes
+  [isafetybench] 200/1100
+  [isafetybench] 400/1100
+  [isafetybench] 600/1100
+  [isafetybench] 800/1100
+  [isafetybench] 1000/1100
+[isafetybench] 1100 clips -> 3300 frame hashes
+
+exact frame-hash collisions: 0
+
+minimum cross-corpus Hamming distance: 13/64  pair=(np.str_('data/train/3_carrying_overload_with_forklift/3_tr3.mp4'), np.str_('data/isafetybench/normal/MEEGwePfDgM_trim_49.mp4'))
+VERDICT: NO contamination detected (no exact collision, min distance > 6)

@@ -15,8 +15,15 @@ if ROOT not in sys.path:
 
 import build_relation_tokens as BRT  # noqa: E402  (read-only: CONF/N_MAX/geometry() reuse)
 
-TOKENS = os.path.join(ROOT, 'sweep_results', 'relation_tokens', 'tokens_yolo26app_test.pt')
-TOKENS_TRAIN = os.path.join(ROOT, 'sweep_results', 'relation_tokens', 'tokens_yolo26app_train.pt')
+_TOK_DIR = os.path.join(ROOT, 'sweep_results', 'relation_tokens')
+# P3_TOKEN_TAG selects WHICH token build the crop-count percentiles come from, because the
+# crop-count distribution is a property of the detector's operating point, not a constant: the
+# 640 px arm must be costed against its own tokens (tokens_bin8i640_*), not against the 800 px
+# ones. Default keeps the historical 'yolo26app' set so every previously recorded number
+# reproduces unchanged.
+_TAG = os.environ.get('P3_TOKEN_TAG', 'yolo26app')
+TOKENS = os.path.join(_TOK_DIR, f'tokens_{_TAG}_test.pt')
+TOKENS_TRAIN = os.path.join(_TOK_DIR, f'tokens_{_TAG}_train.pt')
 CLIP_W, CLIP_H = 1920, 1080     # Unsafe-Net source resolution (build_relation_tokens fallback)
 # Last-measured fallback (all8, 516 clips) if the token files aren't present in this checkout
 # (e.g. a fresh clone before tokens are rebuilt) — crop_count_percentiles() recomputes these
@@ -42,7 +49,8 @@ def crop_count_percentiles():
     return {'p50': int(round(np.percentile(counts, 50))),
             'p95': int(round(np.percentile(counts, 95))),
             'p99': int(round(np.percentile(counts, 99))),
-            'cap': int(counts.max()), 'n_clips': int(len(counts)), 'source': 'measured'}
+            'cap': int(counts.max()), 'n_clips': int(len(counts)), 'source': 'measured',
+            'token_tag': _TAG}
 
 
 def postprocess_frame(raw, zones):

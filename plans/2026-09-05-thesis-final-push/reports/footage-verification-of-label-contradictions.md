@@ -50,6 +50,21 @@ Contact sheet lưu ở scratchpad (`g00,g06,g07,g09,g25,g26,g29,g30,g31.png`); t
 
 Đọc: **không có khác biệt.** Không thể nói clip mâu thuẫn "đông người hơn". Nhưng con số của nhóm đối chứng mới là điều đáng báo cáo: trong một clip điển hình của benchmark có ~3 người cùng xuất hiện, làm những việc khác nhau, mà clip chỉ mang **một** nhãn. Đây là bằng chứng định lượng, đo bằng detector ngoài, rằng công thức single-label không mô tả đúng dữ liệu.
 
+### Phép đo thứ hai: số lớp hành vi khác nhau phát hiện được trong mỗi clip
+
+Đếm người không phân biệt được, nên đo trực tiếp cái ta thật sự quan tâm: một clip chứa **bao nhiêu lớp hành vi khác nhau** trong taxonomy 8 lớp của chính benchmark. Dùng detector hành vi `beh_ctx` (8 frame/clip, gộp mọi lớp phát hiện được).
+
+| | n | số lớp hành vi/clip (TB) | ≥2 lớp | phân bố |
+|---|---|---|---|---|
+| nhóm mâu thuẫn | 32 | 2.94 | **97 %** | {1:1, 2:2, 3:27, 4:2} |
+| đối chứng | 60 | 2.12 | **72 %** | {1:17, 2:22, 3:18, 4:3} |
+
+Mann-Whitney (mâu thuẫn > đối chứng) p = 2.4e-6.
+
+Hai điều rút ra:
+1. **Clip đối chứng cũng đa hành vi**: 72 % chứa ≥2 lớp hành vi được gán nhãn, trung bình 2.12 lớp — nhưng mỗi clip chỉ mang 1 nhãn. Đây là bằng chứng định lượng cho tính tuỳ tiện của single-label trên toàn dataset.
+2. Lần này nhóm mâu thuẫn **có** khác biệt (27/32 clip chứa đúng 3 lớp hành vi). Nhưng **không được coi đây là bằng chứng độc lập**: detector `beh_ctx` được train bằng chính nhãn clip đang bị nghi ngờ (nhãn clip lan xuống box), nên nó thừa hưởng đúng sự nhập nhằng đang xét. Là bằng chứng hỗ trợ, không phải bằng chứng xác lập.
+
 Số liệu thô: `sweep_results/contradictory_actor_counts.json`.
 
 ## Vì sao 26/32 nhóm là cặp 0↔1

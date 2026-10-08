@@ -9,7 +9,7 @@ Build modes:
   --mode fp16 : FP16 engine (default; standard Jetson Orin deployment target)
   --mode int8 : INT8 engine (requires --calib-dir from jetson-prep-int8-calib.py)
 
-Run on the Jetson, NOT on M4. Requires `tensorrt` (10.x bundled with JetPack 6),
+Run on the Jetson, NOT on M3. Requires `tensorrt` (10.x bundled with JetPack 6),
 `pycuda`, and CUDA visible. Engines are device-specific; do not copy across
 Jetson SKUs.
 

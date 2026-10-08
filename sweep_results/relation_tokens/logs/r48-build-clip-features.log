@@ -1,0 +1,55 @@
+Loading weights:   0%|          | 0/200 [00:00<?, ?it/s]Loading weights: 100%|██████████| 200/200 [00:00<00:00, 58040.60it/s]
+[1mCLIPVisionModelWithProjection LOAD REPORT[0m from: openai/clip-vit-base-patch32
+Key                                                          | Status     |  | 
+-------------------------------------------------------------+------------+--+-
+text_model.encoder.layers.{0...11}.layer_norm1.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.weight            | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc1.bias              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.weight | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.v_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.q_proj.bias     | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm2.bias          | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.bias     | UNEXPECTED |  | 
+vision_model.embeddings.position_ids                         | UNEXPECTED |  | 
+text_model.embeddings.position_ids                           | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.k_proj.weight   | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.self_attn.out_proj.bias   | UNEXPECTED |  | 
+text_model.embeddings.position_embedding.weight              | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.layer_norm1.weight        | UNEXPECTED |  | 
+text_model.encoder.layers.{0...11}.mlp.fc2.bias              | UNEXPECTED |  | 
+text_model.final_layer_norm.weight                           | UNEXPECTED |  | 
+text_model.embeddings.token_embedding.weight                 | UNEXPECTED |  | 
+text_projection.weight                                       | UNEXPECTED |  | 
+logit_scale                                                  | UNEXPECTED |  | 
+text_model.final_layer_norm.bias                             | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[clip-feat] 1100 clips | detector=yolo11s.pt device=mps backbone=openai/clip-vit-base-patch32 T=16 N_MAX=8
+  [clip-feat] 50/1100  0.89s/clip  eta 15.5 min
+  [clip-feat] 100/1100  1.01s/clip  eta 16.8 min
+  [clip-feat] 150/1100  1.02s/clip  eta 16.1 min
+  [clip-feat] 200/1100  1.15s/clip  eta 17.2 min
+  [clip-feat] 250/1100  1.17s/clip  eta 16.6 min
+  [clip-feat] 300/1100  1.28s/clip  eta 17.1 min
+  [clip-feat] 350/1100  1.27s/clip  eta 15.9 min
+  [clip-feat] 400/1100  1.35s/clip  eta 15.7 min
+  [clip-feat] 450/1100  1.40s/clip  eta 15.2 min
+  [clip-feat] 500/1100  1.47s/clip  eta 14.7 min
+  [clip-feat] 550/1100  1.52s/clip  eta 13.9 min
+  [clip-feat] 600/1100  1.57s/clip  eta 13.0 min
+  [clip-feat] 650/1100  1.61s/clip  eta 12.1 min
+  [clip-feat] 700/1100  1.67s/clip  eta 11.1 min
+  [clip-feat] 750/1100  1.71s/clip  eta 10.0 min
+  [clip-feat] 800/1100  1.76s/clip  eta 8.8 min
+  [clip-feat] 850/1100  1.76s/clip  eta 7.3 min
+  [clip-feat] 900/1100  1.76s/clip  eta 5.9 min
+  [clip-feat] 950/1100  1.74s/clip  eta 4.4 min
+  [clip-feat] 1000/1100  1.75s/clip  eta 2.9 min
+  [clip-feat] 1050/1100  1.73s/clip  eta 1.4 min
+  [clip-feat] 1100/1100  1.73s/clip  eta 0.0 min
+[clip-feat] -> sweep_results/relation_tokens/feats_isbclip_all.pt | entity (1100, 16, 8, 512) wholeframe (1100, 16, 512) | detections=52997 | hazard=420 normal=680 | sources=151 | 31.7 min

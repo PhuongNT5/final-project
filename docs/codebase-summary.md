@@ -103,7 +103,7 @@ Out of scope for `eval_utils`: Jetson metrics (§4g of the contract) — `deploy
 | `export/` | ONNX exports (FP32 + INT8) of the P1 backbone and Transformer heads |
 | `scripts/export-backbone.py`, `export-transformer-heads.py` | ONNX export scripts |
 | `scripts/quantize-int8.py`, `verify-onnx-parity.py` | INT8 quantization + FP32/INT8 drift check |
-| `scripts/benchmark-harness.py` | M4 (CPU/CoreML) latency benchmark -> `artifacts/benchmarks.json` |
+| `scripts/benchmark-harness.py` | M3 (CPU/CoreML) latency benchmark -> `artifacts/benchmarks.json` |
 | `scripts/jetson-benchmark.py`, `jetson-build-trt-engine.py` | Jetson-side TensorRT engine build + latency/FPS benchmark -> `artifacts/benchmarks-jetson-{fp16,int8}.json` |
 | `scripts/jetson-multi-stream-pipeline.py` | Multi-stream throughput + zero-drop verification -> `artifacts/multi-stream-jetson-fp16-realtime.json` |
 | `scripts/jetson-power-sweep.sh` | Power/energy sweep -> `artifacts/power-sweep-summary.json` |

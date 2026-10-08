@@ -1,0 +1,26 @@
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/.venv/lib/python3.13/site-packages/torch/nn/modules/transformer.py:531: UserWarning: The PyTorch API of nested tensors is in prototype stage and will change in the near future. We recommend specifying layout=torch.jagged when constructing a nested tensor, as this layout receives active development, has better operator coverage, and works with torch.compile. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/NestedTensorImpl.cpp:182.)
+  output = torch._nested_tensor_from_mask(
+[dedupe:binary/drop_conflict] dropped 4 of 691 pooled clips (train=drop_conflict, test untouched)
+[binary] arch=E1 d=64 coord=T3 pooled 687 clips (unsafe 512) | feat=74 n_num=73 | params=94,380
+  rep 1 fold 1: relation 86.2%  scene-only 78.3%  Δ=+8.0
+  rep 1 fold 2: relation 83.3%  scene-only 76.1%  Δ=+7.2
+  rep 1 fold 3: relation 87.6%  scene-only 75.9%  Δ=+11.7
+  rep 1 fold 4: relation 83.9%  scene-only 76.6%  Δ=+7.3
+  rep 1 fold 5: relation 82.5%  scene-only 75.2%  Δ=+7.3
+
+=== STRATIFIED 5-FOLD x 1 REPEATS (5 folds, pooled 687 clips) ===
+  relation-Transformer: top-1 84.7±1.9% | pooled 582/687 | macro 84.1%
+  balanced_acc=84.1% macro_f1=81.3% unsafe_recall=85.4% unsafe_precision=93.6% PR-AUC=0.970 ROC-AUC=0.923
+  per-sub-class recall (pooled OOF, folded back to source 0-7):
+    0:WalkwayViol    n=207 recall= 88.4%
+    1:UnauthorInt    n=107 recall= 86.0%
+    2:OpenedPanel    n=142 recall= 74.6%
+    3:CarryOverload  n= 56 recall=100.0%
+    4:SafeWalkway    n= 75 recall= 72.0%
+    5:AuthorInt      n= 38 recall= 86.8%
+    6:ClosedPanel    n= 32 recall= 87.5%
+    7:SafeCarrying   n= 30 recall=100.0%
+  fold-mean top-1 84.7%  naive SE 0.95  NB-corrected SE 1.43 (95% CI 81.9-87.5%)
+  scene-only baseline : top-1 76.4±1.0%
+  Nadeau–Bengio (relation vs scene-only): mean Δ=8.3pp  t=6.47  df=4  p=0.0029  (significant)
+  [saved OOF selection set] sweep_results/relation_tokens/kfold_oof_softmax_bin8_binary_E1_d64_drop_conflict.pt

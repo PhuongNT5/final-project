@@ -428,7 +428,7 @@ chỉ khác bộ chia:
   -------------------|--------|----------|-----------|-----------|--------|--------
   Lạm phát giao thức | **+15.4 pp** (KTC 95% bootstrap cụm [+10.6, +21.5], loại trừ 0)
 
-Đây là con số trung tâm của luận văn, được bàn ở mục 6.5 và là phán quyết của cổng G12. Sàn quy tắc
+Đây là con số trung tâm của luận văn, được bàn ở mục 6.6 và là phán quyết của cổng G12. Sàn quy tắc
 đếm (R42) cũng dịch theo giao thức: 68.2% dưới giao thức rò rỉ so với 67.2% dưới leave-source-out,
 khiến biên "bộ mã hoá trừ đường tắt" rơi từ +22.4 pp xuống **+8.0 pp** — tức là gần hai phần ba
 biên ấy, dưới giao thức rò rỉ, là đường tắt theo nguồn chứ không phải năng lực của bộ mã hoá. Biên

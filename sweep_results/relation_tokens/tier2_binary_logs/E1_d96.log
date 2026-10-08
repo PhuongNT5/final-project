@@ -1,0 +1,26 @@
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/.venv/lib/python3.13/site-packages/torch/nn/modules/transformer.py:531: UserWarning: The PyTorch API of nested tensors is in prototype stage and will change in the near future. We recommend specifying layout=torch.jagged when constructing a nested tensor, as this layout receives active development, has better operator coverage, and works with torch.compile. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/NestedTensorImpl.cpp:182.)
+  output = torch._nested_tensor_from_mask(
+[dedupe:binary/drop_conflict] dropped 4 of 691 pooled clips (train=drop_conflict, test untouched)
+[binary] arch=E1 d=96 coord=T3 pooled 687 clips (unsafe 512) | feat=74 n_num=73 | params=197,292
+  rep 1 fold 1: relation 86.2%  scene-only 78.3%  Δ=+8.0
+  rep 1 fold 2: relation 81.2%  scene-only 76.1%  Δ=+5.1
+  rep 1 fold 3: relation 87.6%  scene-only 75.9%  Δ=+11.7
+  rep 1 fold 4: relation 83.9%  scene-only 76.6%  Δ=+7.3
+  rep 1 fold 5: relation 83.2%  scene-only 75.2%  Δ=+8.0
+
+=== STRATIFIED 5-FOLD x 1 REPEATS (5 folds, pooled 687 clips) ===
+  relation-Transformer: top-1 84.4±2.3% | pooled 580/687 | macro 84.5%
+  balanced_acc=84.5% macro_f1=81.2% unsafe_recall=84.4% unsafe_precision=94.1% PR-AUC=0.973 ROC-AUC=0.922
+  per-sub-class recall (pooled OOF, folded back to source 0-7):
+    0:WalkwayViol    n=207 recall= 86.0%
+    1:UnauthorInt    n=107 recall= 85.0%
+    2:OpenedPanel    n=142 recall= 75.4%
+    3:CarryOverload  n= 56 recall=100.0%
+    4:SafeWalkway    n= 75 recall= 73.3%
+    5:AuthorInt      n= 38 recall= 89.5%
+    6:ClosedPanel    n= 32 recall= 90.6%
+    7:SafeCarrying   n= 30 recall=100.0%
+  fold-mean top-1 84.4%  naive SE 1.13  NB-corrected SE 1.70 (95% CI 81.1-87.8%)
+  scene-only baseline : top-1 76.4±1.0%
+  Nadeau–Bengio (relation vs scene-only): mean Δ=8.0pp  t=5.03  df=4  p=0.0074  (significant)
+  [saved OOF selection set] sweep_results/relation_tokens/kfold_oof_softmax_bin8_binary_E1_d96_drop_conflict.pt

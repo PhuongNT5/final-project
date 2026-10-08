@@ -214,10 +214,21 @@ CÂU HỎI CHƯA GIẢI QUYẾT
 VIỆC CÒN LẠI TRƯỚC ĐÓNG BĂNG 05/10 (việc đóng gói, không phải việc đo)
 ======================================================================
 
-  1. Buộc thêm 2.7 MB tạo tác văn bản trong `deployment/artifacts/` vào git: `git add -f`,
-     vì `.gitignore:49` đang loại chúng. Không có bước này thì các con số của Ch5 mất đường
-     truy xuất xuất xứ.
-  2. Khiếm khuyết nhãn phần cứng M3/M4 ở 24 chỗ: để tác giả quyết, chưa sửa.
+  1. ĐÃ XONG. Tạo tác đo trong `deployment/artifacts/` đã vào git: 133 tệp, trong đó 103 tệp
+     dưới `jetson-measurements/`, tổng 11 MB, vào kho ở commit `df1dab7` (07/10/2026). Mọi con
+     số Ch5 vì vậy có đường truy xuất. Một phủ định `.gitignore` riêng (`!sweep_results/**/
+     *_oof.json`, ~7.4 MB / 50 tệp) đưa thêm các dự đoán out-of-fold vào kho, vì mọi thống kê
+     tiêu điểm của Ch6–Ch7 (bootstrap theo cụm, McNemar chính xác, 20 hạt giống G19) tính từ
+     chúng; dùng phủ định chứ không dùng `git add -f` để tạo tác sinh sau này tự được theo dõi.
+  2. ĐÃ XONG 09/10/2026. Khiếm khuyết nhãn phần cứng M3/M4 ở 49 chỗ: KHÔNG còn là việc "để
+     tác giả quyết" — nó được phân xử bằng tạo tác. Biểu ngữ ultralytics tự in trong nhật ký
+     huấn luyện bộ phát hiện ghi `MPS (Apple M3)`
+     (`sweep_results/entity_detector/train_run.log` dòng 4, 254, 270;
+     `sweep_results/r2/behaviour_yolo.log` dòng 11, 194), tạo tác đo ghi `Phgs-Mac.lan` /
+     `macOS-14.6-arm64`, và máy ghi `hw.model` = Mac15,12 với 16 GB. Nhãn đúng là **Apple M3**;
+     nhãn "M4 Pro, 36 GB" của đề cương và của PROGRESS.md là sai và đã sửa ở 49 chỗ. Không một
+     con số nào đổi: huấn luyện chạy trên CPU, MPS chỉ trích đặc trưng, và mọi số nhịp/độ
+     trễ/năng lượng đo trên Jetson. Ghi ở Ch4 mục 4.6.1, Ch5 sổ đăng ký, Ch7 mục 7.7.2(i).
   3. Bảng 5.4 vẫn dựa trên `multi-stream-results.json` tự ghi là "hand-patched" (ràng buộc 8).
   4. Video demo dự phòng chưa tồn tại (câu hỏi 6).
   5. Quyết định về `cache_r2/frames/` (2.8 GB, đã gitignore, sinh lại được) và các đồ thị ONNX

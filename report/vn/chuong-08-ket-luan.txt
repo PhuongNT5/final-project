@@ -103,7 +103,7 @@ lặp tổ hợp** chứ từ tổng các giai đoạn đo rời (mục 3.9, m�
       (mục 5.8). Không khung hình nào của phần dữ liệu nhà máy rời thiết bị hay vào kho mã trong
       suốt quá trình thực hiện luận văn.
 
-8.1.5. Phần phân tích thất bại có quy nguyên nhân
+8.1.5. Phần phân tích kết quả phủ định có quy nguyên nhân
 
 Luận văn không chỉ báo cáo rằng một số phán quyết trượt; nó quy nguyên nhân cho từng phán quyết và
 công bố ở mức chi tiết ngang các kết quả dương (Chương 7). Ba ví dụ có giá trị độc lập với kết quả
@@ -181,9 +181,9 @@ kết luận thay vì ở phần phụ lục vì nó là một phần của kế
   (3) **Giao thức đánh giá tiền đăng ký** gồm tám cổng và một đối chứng, kèm **hệ quả đã nhận
       trước** cho từng phán quyết trượt, và **sáu phán quyết trượt được công bố ở mức chi tiết
       ngang hai phán quyết đạt** (mục 3.8, 6.13).
-  (4) **Phân tích thất bại có quy nguyên nhân**, gồm cơ chế của việc phân rã thực thể không thắng,
-      một thất bại tập trung theo fold và việc nó di chuyển, và một phép cộng từng được trình bày
-      như một phép đo (Chương 7).
+  (4) **Phân tích kết quả phủ định có quy nguyên nhân**, gồm cơ chế của việc phân rã thực thể không
+      thắng, một thất bại tập trung theo fold và việc nó di chuyển, và một phép cộng từng được trình
+      bày như một phép đo (Chương 7).
   (5) **Hạ tầng truy xuất xuất xứ**: mỗi con số được công bố có một dòng chỉ tới tệp đã sinh ra
       nó, kèm trạng thái đã đối chiếu hay chưa (Phụ lục A); cấu hình fold đầy đủ kèm chứng minh
       bằng số và **dấu vết nhận dạng giao thức** (Phụ lục B).
@@ -343,10 +343,33 @@ mà nó đã dùng.
 
 Bảy hạng mục ở mục 7.7.2 — bảng số đa luồng của giai đoạn trước dựa trên một tạo tác **sửa tay**,
 bốn bảng thực nghiệm lịch sử chưa hậu kiểm, năm khung hình minh hoạ chưa đưa vào kho, một video
-minh hoạ dự phòng **không tồn tại**, nhãn phần cứng máy chủ sai ở **24** vị trí, phép khớp hàng của
-tensor k-fold, và một biểu ngữ xương sống sai trong một nhật ký — **vẫn còn mở** vào ngày đóng băng
-số liệu. Chúng được nhắc lại ở chương kết luận để khẳng định rằng chúng **không** được coi là đã
-đóng, và để người đọc biết chính xác phần nào của bộ chứng cứ còn chưa hoàn tất.
+minh hoạ dự phòng **không tồn tại**, nhãn phần cứng máy chủ sai, phép khớp hàng của tensor k-fold,
+và một biểu ngữ xương sống sai trong một nhật ký — **đều còn mở** vào ngày đóng băng số liệu. Chúng
+được nhắc lại ở chương kết luận để khẳng định rằng chúng **không** được coi là đã đóng, và để người
+đọc biết chính xác phần nào của bộ chứng cứ còn chưa hoàn tất.
+
+**Một trong bảy đã đóng sau ngày đóng băng, và cách nó đóng đáng ghi lại.** Nhãn phần cứng máy chủ
+được xếp vào loại "chỉ tác giả trả lời được", vì nó là một phát biểu về thiết bị của tác giả. Xếp
+như vậy là sai: kho mã đã tự trả lời. Dòng biểu ngữ mà ultralytics **tự in ra** ở đầu mỗi phiên
+huấn luyện bộ phát hiện ghi `MPS (Apple M3)` (`sweep_results/entity_detector/train_run.log` dòng 4,
+254, 270; `sweep_results/r2/behaviour_yolo.log` dòng 11, 194), và `hw.model` của máy là
+`Mac15,12`. Một phát biểu do máy sinh ra, đã nằm trong git từ trước, mạnh hơn một lời xác nhận của
+tác giả đưa ra sau khi biết kết quả. Nhãn đúng là **Apple M3**; **đề cương đăng ký là bên sai** khi
+ghi "Apple M4 Pro"; 49 vị trí đã sửa (mục 4.6.1, 7.7.2(i)). Đề cương không bị sửa lại — sai lệch
+so với văn bản đã đăng ký phải được khai, không được viết lại. Không một con số đo nào đổi: huấn
+luyện chạy trên CPU, MPS chỉ dùng ở bước trích đặc trưng, và mọi con số nhịp đo trên Jetson. Sáu
+hạng mục còn lại vẫn mở.
+
+Một hạng mục thứ tám phải được nêu ở đây chứ không chỉ ở Chương 6, vì nó chạm vào nền của mọi phán
+quyết: **việc tiền đăng ký của luận văn là tự khai có ghi ngày, không phải một dấu thời gian kiểm
+chứng được**. Mục 6.9 hạn chế (6) nêu đủ ba mốc git: script phán quyết vào git 29/09/2026 cùng
+commit với mô hình nó phán quyết, `risks.md` — nơi G14–G17 được đăng ký — vào git **sau** đó hai
+ngày, và đặc tả làn tiêu đề vào git sau cả mốc đóng băng số. Điều git chứng minh được chỉ là các
+ngưỡng không bị sửa kể từ 01/10/2026 và phán quyết do một script hằng số sinh ra; luận văn không
+yêu cầu người đọc tin hơn mức đó. Cách sửa là **cho lần sau**, không hồi tố: một đăng ký công khai
+có dấu thời gian của bên thứ ba, hoặc một commit đã ký được đẩy lên **trước** khi phép đo chạy.
+Viết lại nhật ký để tạo mốc thời gian thuận lợi là việc luận văn này từ chối làm, vì một dấu thời
+gian dựng lại sau sự việc còn kém hơn việc không có dấu thời gian nào.
 
 ----------------------------------------------------------------------
 8.4. PHÁT BIỂU KẾT LUẬN

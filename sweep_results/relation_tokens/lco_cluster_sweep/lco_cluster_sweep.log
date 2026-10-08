@@ -1,1 +1,133 @@
 === LCO cluster_seed=0  map=sweep_results/zone_prior/clip_scene_map.json ===
+[scene_map] overriding views from sweep_results/zone_prior/clip_scene_map.json | mapped 516/516 clips
+[LIMITATION] this grouping is a KMeans(8) proxy on per-clip static-background descriptors (tools/build_scene_grouping.py) — NOT verified camera metadata (no camera IDs exist in filenames, per r4). LCO strength is bounded by how well this proxy tracks real cameras.
+pooled 516 clips | views [np.str_('0'), np.str_('1'), np.str_('2'), np.str_('3'), np.str_('4'), np.str_('5'), np.str_('6'), np.str_('7')] | feat 72 | seeds 5 epochs 60
+  held-out view 0: n= 48 classes=[0, 1, 2] (train majority class=0) → transformer acc= 60.4%  prior acc= 20.8%  scene-appearance acc= 58.3%
+  held-out view 1: n=139 classes=[0, 1] (train majority class=2) → transformer acc= 80.6%  prior acc=  0.0%  scene-appearance acc= 10.1%
+  held-out view 2: n= 39 classes=[3] (train majority class=0) → transformer acc=100.0%  prior acc=  0.0%  scene-appearance acc=100.0%
+  held-out view 3: n= 11 classes=[0, 1] (train majority class=0) → transformer acc= 54.5%  prior acc= 45.5%  scene-appearance acc= 54.5%
+  held-out view 4: n= 90 classes=[0, 1] (train majority class=0) → transformer acc= 73.3%  prior acc= 57.8%  scene-appearance acc= 60.0%
+  held-out view 5: n= 17 classes=[3] (train majority class=0) → transformer acc=100.0%  prior acc=  0.0%  scene-appearance acc=100.0%
+  held-out view 6: n=154 classes=[0, 1, 2] (train majority class=0) → transformer acc= 80.5%  prior acc= 11.7%  scene-appearance acc= 75.3%
+  held-out view 7: n= 18 classes=[1] (train majority class=0) → transformer acc= 44.4%  prior acc=  0.0%  scene-appearance acc=  0.0%
+
+=== LEAVE-CAMERA-OUT (scene-robust, 516 clips pooled, 8 camera-groups) ===
+  relation-Transformer      : 401/516 = 77.7% top-1 | macro 81.2%
+  [1] prior (trivial floor) : 85/516 = 16.5% top-1 | macro 10.1% (arithmetic expectation for a CONSTANT predictor over 4 classes = 25.0% macro EXACTLY, by construction — 100% recall on one class, 0% on the rest; the measured macro above will equal this whenever a single class is predicted for the whole held-out camera, which is the common case here)
+  [2] scene-appearance      : 274/516 = 53.1% top-1 | macro 64.4% (logistic regression on whole-frame MobileNetV3 features, background/scene-encoding, NOT crop-based — trained on training cameras only, no access to the held-out camera)
+  [3] per-view-majority     : UNDEFINED under LCO (the held-out view has zero training clips, so 'majority class within this view from training data' cannot be computed) — degenerates to [1] prior by construction. This is the honest reason the k-fold script's 77.1% baseline and this script's numbers are NOT comparable estimators; see brief.md S2.
+  per-class recall (LCO transformer)    : {'WalkwayViol': 70.5, 'UnauthorInt': 65.7, 'OpenedPanel': 88.7, 'CarryOverload': 100.0}
+  per-class recall (LCO scene-appearance): {'WalkwayViol': 17.6, 'UnauthorInt': 51.9, 'OpenedPanel': 88.0, 'CarryOverload': 100.0}
+
+  --- per-seed spread over 5 training seeds (same folds, same data) ---
+  top-1 per seed : [np.float64(76.7), np.float64(73.4), np.float64(72.9), np.float64(77.7), np.float64(75.0)]  mean 75.2  sd 2.08  spread 4.8 pp
+  recall WalkwayViol   : [74.3, 59.0, 70.0, 72.4, 65.7]  sd  6.10  spread  15.3 pp
+  recall UnauthorInt   : [52.8, 72.2, 70.4, 61.1, 68.5]  sd  8.02  spread  19.4 pp
+  recall OpenedPanel   : [89.4, 85.2, 68.3, 89.4, 83.8]  sd  8.71  spread  21.1 pp
+  recall CarryOverload : [100.0, 100.0, 100.0, 100.0, 100.0]  sd  0.00  spread   0.0 pp
+  confusion (LCO transformer):
+ [[148  44  18   0]
+ [ 26  71  11   0]
+ [  3  13 126   0]
+ [  0   0   0  56]]
+  confusion (LCO scene-appearance):
+ [[ 37 161  12   0]
+ [ 34  56  18   0]
+ [  6  11 125   0]
+ [  0   0   0  56]]
+
+  → HONEST margin (relation-Transformer macro - scene-appearance macro) = +16.9 pp  [95% bootstrap CI +12.5, +21.2 pp, n_boot=5000, resampled over 516 pooled clips]
+
+  (withdrawn framing, DO NOT USE: the old +60.3pp figure compared the model against the trivial constant baseline [1], not against a transferable classifier — see brief.md S2)
+
+Contrast: SAME-DISTRIBUTION scene-only=52/64 (81.2%), our S1a=54/64 (84.4%).
+=== DONE cs=0 ===
+=== LCO cluster_seed=1  map=sweep_results/zone_prior/clip_scene_map_k8cs1.json ===
+[scene_map] overriding views from sweep_results/zone_prior/clip_scene_map_k8cs1.json | mapped 516/516 clips
+[LIMITATION] this grouping is a KMeans(8) proxy on per-clip static-background descriptors (tools/build_scene_grouping.py) — NOT verified camera metadata (no camera IDs exist in filenames, per r4). LCO strength is bounded by how well this proxy tracks real cameras.
+pooled 516 clips | views [np.str_('0'), np.str_('1'), np.str_('2'), np.str_('3'), np.str_('4'), np.str_('5'), np.str_('6'), np.str_('7')] | feat 72 | seeds 5 epochs 60
+  held-out view 0: n=101 classes=[0, 1] (train majority class=0) → transformer acc= 57.4%  prior acc= 56.4%  scene-appearance acc= 64.4%
+  held-out view 1: n=154 classes=[0, 1, 2] (train majority class=0) → transformer acc= 80.5%  prior acc= 11.7%  scene-appearance acc= 75.3%
+  held-out view 2: n= 16 classes=[3] (train majority class=0) → transformer acc=100.0%  prior acc=  0.0%  scene-appearance acc=100.0%
+  held-out view 3: n=139 classes=[0, 1] (train majority class=2) → transformer acc= 80.6%  prior acc=  0.0%  scene-appearance acc= 10.1%
+  held-out view 4: n= 18 classes=[1] (train majority class=0) → transformer acc= 44.4%  prior acc=  0.0%  scene-appearance acc=  0.0%
+  held-out view 5: n= 33 classes=[3] (train majority class=0) → transformer acc=100.0%  prior acc=  0.0%  scene-appearance acc=100.0%
+  held-out view 6: n=  7 classes=[3] (train majority class=0) → transformer acc=100.0%  prior acc=  0.0%  scene-appearance acc=100.0%
+  held-out view 7: n= 48 classes=[0, 1, 2] (train majority class=0) → transformer acc= 60.4%  prior acc= 20.8%  scene-appearance acc= 58.3%
+
+=== LEAVE-CAMERA-OUT (scene-robust, 516 clips pooled, 8 camera-groups) ===
+  relation-Transformer      : 387/516 = 75.0% top-1 | macro 76.2%
+  [1] prior (trivial floor) : 85/516 = 16.5% top-1 | macro 10.1% (arithmetic expectation for a CONSTANT predictor over 4 classes = 25.0% macro EXACTLY, by construction — 100% recall on one class, 0% on the rest; the measured macro above will equal this whenever a single class is predicted for the whole held-out camera, which is the common case here)
+  [2] scene-appearance      : 279/516 = 54.1% top-1 | macro 62.9% (logistic regression on whole-frame MobileNetV3 features, background/scene-encoding, NOT crop-based — trained on training cameras only, no access to the held-out camera)
+  [3] per-view-majority     : UNDEFINED under LCO (the held-out view has zero training clips, so 'majority class within this view from training data' cannot be computed) — degenerates to [1] prior by construction. This is the honest reason the k-fold script's 77.1% baseline and this script's numbers are NOT comparable estimators; see brief.md S2.
+  per-class recall (LCO transformer)    : {'WalkwayViol': 78.1, 'UnauthorInt': 38.0, 'OpenedPanel': 88.7, 'CarryOverload': 100.0}
+  per-class recall (LCO scene-appearance): {'WalkwayViol': 28.6, 'UnauthorInt': 35.2, 'OpenedPanel': 88.0, 'CarryOverload': 100.0}
+
+  --- per-seed spread over 5 training seeds (same folds, same data) ---
+  top-1 per seed : [np.float64(75.0), np.float64(75.8), np.float64(70.2), np.float64(76.7), np.float64(72.7)]  mean 74.1  sd 2.66  spread 6.6 pp
+  recall WalkwayViol   : [77.6, 70.5, 80.5, 75.2, 76.2]  sd  3.67  spread  10.0 pp
+  recall UnauthorInt   : [38.0, 61.1, 37.0, 50.9, 37.0]  sd 10.85  spread  24.1 pp
+  recall OpenedPanel   : [89.4, 85.2, 68.3, 89.4, 83.8]  sd  8.71  spread  21.1 pp
+  recall CarryOverload : [100.0, 100.0, 100.0, 100.0, 100.0]  sd  0.00  spread   0.0 pp
+  confusion (LCO transformer):
+ [[164  28  18   0]
+ [ 56  41  11   0]
+ [  3  13 126   0]
+ [  0   0   0  56]]
+  confusion (LCO scene-appearance):
+ [[ 60 138  12   0]
+ [ 52  38  18   0]
+ [  6  11 125   0]
+ [  0   0   0  56]]
+
+  → HONEST margin (relation-Transformer macro - scene-appearance macro) = +13.3 pp  [95% bootstrap CI +9.2, +17.3 pp, n_boot=5000, resampled over 516 pooled clips]
+
+  (withdrawn framing, DO NOT USE: the old +60.3pp figure compared the model against the trivial constant baseline [1], not against a transferable classifier — see brief.md S2)
+
+Contrast: SAME-DISTRIBUTION scene-only=52/64 (81.2%), our S1a=54/64 (84.4%).
+=== DONE cs=1 ===
+=== LCO cluster_seed=2  map=sweep_results/zone_prior/clip_scene_map_k8cs2.json ===
+[scene_map] overriding views from sweep_results/zone_prior/clip_scene_map_k8cs2.json | mapped 516/516 clips
+[LIMITATION] this grouping is a KMeans(8) proxy on per-clip static-background descriptors (tools/build_scene_grouping.py) — NOT verified camera metadata (no camera IDs exist in filenames, per r4). LCO strength is bounded by how well this proxy tracks real cameras.
+pooled 516 clips | views [np.str_('0'), np.str_('1'), np.str_('2'), np.str_('3'), np.str_('4'), np.str_('5'), np.str_('6'), np.str_('7')] | feat 72 | seeds 5 epochs 60
+  held-out view 0: n= 90 classes=[0, 1] (train majority class=0) → transformer acc= 73.3%  prior acc= 57.8%  scene-appearance acc= 60.0%
+  held-out view 1: n=154 classes=[0, 1, 2] (train majority class=0) → transformer acc= 80.5%  prior acc= 11.7%  scene-appearance acc= 75.3%
+  held-out view 2: n= 35 classes=[3] (train majority class=0) → transformer acc=100.0%  prior acc=  0.0%  scene-appearance acc=100.0%
+  held-out view 3: n=139 classes=[0, 1] (train majority class=2) → transformer acc= 80.6%  prior acc=  0.0%  scene-appearance acc= 10.1%
+  held-out view 4: n= 21 classes=[3] (train majority class=0) → transformer acc=100.0%  prior acc=  0.0%  scene-appearance acc=100.0%
+  held-out view 5: n= 18 classes=[1] (train majority class=0) → transformer acc= 44.4%  prior acc=  0.0%  scene-appearance acc=  0.0%
+  held-out view 6: n= 48 classes=[0, 1, 2] (train majority class=0) → transformer acc= 60.4%  prior acc= 20.8%  scene-appearance acc= 58.3%
+  held-out view 7: n= 11 classes=[0, 1] (train majority class=0) → transformer acc= 54.5%  prior acc= 45.5%  scene-appearance acc= 54.5%
+
+=== LEAVE-CAMERA-OUT (scene-robust, 516 clips pooled, 8 camera-groups) ===
+  relation-Transformer      : 401/516 = 77.7% top-1 | macro 81.2%
+  [1] prior (trivial floor) : 85/516 = 16.5% top-1 | macro 10.1% (arithmetic expectation for a CONSTANT predictor over 4 classes = 25.0% macro EXACTLY, by construction — 100% recall on one class, 0% on the rest; the measured macro above will equal this whenever a single class is predicted for the whole held-out camera, which is the common case here)
+  [2] scene-appearance      : 274/516 = 53.1% top-1 | macro 64.4% (logistic regression on whole-frame MobileNetV3 features, background/scene-encoding, NOT crop-based — trained on training cameras only, no access to the held-out camera)
+  [3] per-view-majority     : UNDEFINED under LCO (the held-out view has zero training clips, so 'majority class within this view from training data' cannot be computed) — degenerates to [1] prior by construction. This is the honest reason the k-fold script's 77.1% baseline and this script's numbers are NOT comparable estimators; see brief.md S2.
+  per-class recall (LCO transformer)    : {'WalkwayViol': 70.5, 'UnauthorInt': 65.7, 'OpenedPanel': 88.7, 'CarryOverload': 100.0}
+  per-class recall (LCO scene-appearance): {'WalkwayViol': 17.6, 'UnauthorInt': 51.9, 'OpenedPanel': 88.0, 'CarryOverload': 100.0}
+
+  --- per-seed spread over 5 training seeds (same folds, same data) ---
+  top-1 per seed : [np.float64(76.7), np.float64(73.4), np.float64(72.9), np.float64(77.7), np.float64(75.0)]  mean 75.2  sd 2.08  spread 4.8 pp
+  recall WalkwayViol   : [74.3, 59.0, 70.0, 72.4, 65.7]  sd  6.10  spread  15.3 pp
+  recall UnauthorInt   : [52.8, 72.2, 70.4, 61.1, 68.5]  sd  8.02  spread  19.4 pp
+  recall OpenedPanel   : [89.4, 85.2, 68.3, 89.4, 83.8]  sd  8.71  spread  21.1 pp
+  recall CarryOverload : [100.0, 100.0, 100.0, 100.0, 100.0]  sd  0.00  spread   0.0 pp
+  confusion (LCO transformer):
+ [[148  44  18   0]
+ [ 26  71  11   0]
+ [  3  13 126   0]
+ [  0   0   0  56]]
+  confusion (LCO scene-appearance):
+ [[ 37 161  12   0]
+ [ 34  56  18   0]
+ [  6  11 125   0]
+ [  0   0   0  56]]
+
+  → HONEST margin (relation-Transformer macro - scene-appearance macro) = +16.9 pp  [95% bootstrap CI +12.5, +21.2 pp, n_boot=5000, resampled over 516 pooled clips]
+
+  (withdrawn framing, DO NOT USE: the old +60.3pp figure compared the model against the trivial constant baseline [1], not against a transferable classifier — see brief.md S2)
+
+Contrast: SAME-DISTRIBUTION scene-only=52/64 (81.2%), our S1a=54/64 (84.4%).
+=== DONE cs=2 ===
+### LCO CLUSTER SWEEP COMPLETE ###

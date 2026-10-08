@@ -1,11 +1,11 @@
-# Edge Deployment Latency — Apple M4 vs Jetson Orin
+# Edge Deployment Latency — Apple M3 vs Jetson Orin
 
 ## Introduction
 
 This table mixes three kinds of row, and the distinction is load-bearing — read the
 **Source** column before citing any figure:
 
-- **`This work (measured, M4)`** — our pipeline, measured on Apple M4 via ONNX Runtime.
+- **`This work (measured, M3)`** — our pipeline, measured on Apple M3 via ONNX Runtime.
 - **`This work (measured, Jetson)`** — our pipeline, measured on physical Jetson Orin Nano
   hardware (`phuongnguyen-desktop`, Linux-5.15.185-tegra-aarch64, TensorRT 10.3.0,
   2026-06-03), from `benchmarks-jetson-{fp16,int8}.json`. **These rows benchmark the P1
@@ -14,17 +14,17 @@ This table mixes three kinds of row, and the distinction is load-bearing — rea
   workload**, included only as external context. They are *not* measurements of this system
   and must never be reported as our results.
 
-M4 ORT-CPU and Jetson Ampere-GPU-with-TensorRT are distinct accelerator architectures; no
+M3 ORT-CPU and Jetson Ampere-GPU-with-TensorRT are distinct accelerator architectures; no
 scaling ratio or projection between them is claimed.
 
 ## Side-by-Side Latency Table
 
 | Device | Accelerator | Model | Format | Latency p50 (ms) | FPS | Source |
 |--------|------------|-------|--------|-----------------|-----|--------|
-| MacBook Air M4 | ORT CPU | YOLO11s backbone | FP32 | 27.3 | 37 | This work (measured, M4) |
-| MacBook Air M4 | ORT CPU | YOLO11s backbone | INT8 | 31.8 | 31 | This work (measured, M4) |
-| MacBook Air M4 | ORT CoreML | YOLO11s backbone | FP32 | 45.1 | 22 | This work (measured, M4) |
-| MacBook Air M4 | ORT CoreML | YOLO11s backbone | INT8 | 85.0 | 12 | This work (measured, M4) |
+| MacBook Air M3 | ORT CPU | YOLO11s backbone | FP32 | 27.3 | 37 | This work (measured, M3) |
+| MacBook Air M3 | ORT CPU | YOLO11s backbone | INT8 | 31.8 | 31 | This work (measured, M3) |
+| MacBook Air M3 | ORT CoreML | YOLO11s backbone | FP32 | 45.1 | 22 | This work (measured, M3) |
+| MacBook Air M3 | ORT CoreML | YOLO11s backbone | INT8 | 85.0 | 12 | This work (measured, M3) |
 | **Jetson Orin Nano 8GB** | **TensorRT (Ampere GPU)** | **P1 full pipeline** | **FP16** | **8.62** (p95 9.13 / p99 9.21) | **116.0** | **This work (measured, Jetson)** |
 | **Jetson Orin Nano 8GB** | **TensorRT (Ampere GPU)** | **P1 full pipeline** | **INT8** | **8.24** (p95 8.58 / p99 8.71) | **121.4** | **This work (measured, Jetson)** |
 | Jetson Orin Nano Super 8GB | TensorRT (Ampere GPU) | YOLO11s | INT8 | 5.25 | 190 | [Ult.2025] |
@@ -32,13 +32,13 @@ scaling ratio or projection between them is claimed.
 | Jetson Orin NX 16GB | TensorRT (Ampere GPU) | YOLO11s | INT8 | 6.05 | 165 | [Ult.2025] |
 | Jetson Orin Nano 8GB (15W std) | TensorRT | YOLOv8s | INT8 | 28.25 | 35 | [arXiv:2502.15737] |
 
-*M4 end-to-end includes: backbone + stats-aggregation + direct4-head + cascade heads (scenario + 4 pairs). Backbone-only FP32 CPU: ~10.2 ms (consistent with prior researcher measurement). Jetson figures cover YOLO11s backbone only at 640×640.*
+*M3 end-to-end includes: backbone + stats-aggregation + direct4-head + cascade heads (scenario + 4 pairs). Backbone-only FP32 CPU: ~10.2 ms (consistent with prior researcher measurement). Jetson figures cover YOLO11s backbone only at 640×640.*
 
 ## Hardware Context
 
 | Device | INT8 Compute | Power | Accelerator Type |
 |--------|-------------|-------|-----------------|
-| Apple M4 | ~38 TOPS (ANE) | 15–20 W TDP | ARM CPU + Neural Engine |
+| Apple M3 (MacBook Air — this work's host) | ANE present; vendor TOPS not verified here | not measured (fanless chassis) | ARM CPU + Neural Engine |
 | Jetson Orin Nano Super 8GB | 67 TOPS (Ampere sparse) | 25 W | NVIDIA Ampere GPU + CUDA Tensor Cores |
 | Jetson AGX Orin 64GB | 275 TOPS (Ampere sparse) | 60 W | NVIDIA Ampere GPU + CUDA Tensor Cores |
 
@@ -49,13 +49,13 @@ scaling ratio or projection between them is claimed.
    Jetson Orin Nano 8GB kit with JetPack 6.x. No separate hardware is required. Source:
    NVIDIA Developer Blog, December 2024 [3].
 
-2. **Accelerator class mismatch.** M4 ORT-CPU uses ARM Cortex cores with no dedicated
+2. **Accelerator class mismatch.** M3 ORT-CPU uses ARM Cortex cores with no dedicated
    matrix unit for ONNX INT8 workloads. Jetson Orin TensorRT uses NVIDIA Ampere GPU with
    hardware INT8 Tensor Cores. Latency ratios between the two reflect accelerator
    architecture differences, not merely clock speed or TOPS. No linear projection between
-   M4 and Orin latency is claimed.
+   M3 and Orin latency is claimed.
 
-3. **CoreML EP behavior.** ORT CoreML EP on M4 delegates ops to the Apple Neural Engine
+3. **CoreML EP behavior.** ORT CoreML EP on M3 delegates ops to the Apple Neural Engine
    or GPU. The INT8 CoreML result (85 ms) is slower than FP32 (45 ms) because CoreML does
    not support dynamic INT8 ORT quantization natively — it falls back to CPU for
    quantized ops, adding overhead. A native CoreML `.mlpackage` export would access the ANE

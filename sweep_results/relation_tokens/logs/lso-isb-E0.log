@@ -1,0 +1,18 @@
+[grouping] source YouTube video id from filename: 151 sources, 0 carry both classes (R41) -> packed into 10 StratifiedGroupKFold folds; no source spans the train/held-out boundary.
+[lso-1100] arch=E0 d=- coord=T1 pooled 1100 clips (unsafe 420) | folds=10 | params=298,118
+  held-out group f1: n=144 unsafe=42 acc= 92.4%
+  held-out group f2: n=107 unsafe=42 acc= 81.3%
+  held-out group f3: n=107 unsafe=42 acc= 77.6%
+  held-out group f4: n=106 unsafe=42 acc= 76.4%
+  held-out group f5: n=106 unsafe=42 acc= 64.2%
+  held-out group f6: n=106 unsafe=42 acc= 59.4%
+  held-out group f7: n=106 unsafe=42 acc= 81.1%
+  held-out group f8: n=106 unsafe=42 acc= 88.7%
+  held-out group f9: n=106 unsafe=42 acc= 85.8%
+  held-out group f10: n=106 unsafe=42 acc= 83.0%
+
+=== LSO-1100 (E0, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=80.3% macro_f1=79.0% unsafe_recall=84.0% unsafe_precision=68.9% PR-AUC=0.747 ROC-AUC=0.857
+  [R42 floor, identical folds] count-rule (persons/frame, objects/frame, mean conf) balanced_acc=67.2%  |  encoder-minus-shortcut = +13.1 pp
+  [saved LCO per-clip OOF] sweep_results/relation_tokens/enc_isb_E0_lso-1100_headline-none_oof.json
+  [saved LCO OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isb_binary_E0_none.pt

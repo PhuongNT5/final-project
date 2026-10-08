@@ -1,0 +1,7 @@
+[wholeframe baseline] 1100 clips / 151 sources / 10 leave-source-out folds | features 16x64 (whole frame, no detector)
+  linear-mean            balanced_acc= 74.1%  macro_f1= 73.0%  ROC-AUC=0.826
+  linear-meanstd         balanced_acc= 72.7%  macro_f1= 71.5%  ROC-AUC=0.810
+  mlp-meanstd            balanced_acc= 73.6%  macro_f1= 73.2%  ROC-AUC=0.808
+
+  BEST whole-frame probe: linear-mean at 74.1% balanced accuracy
+  [saved OOF] sweep_results/relation_tokens/wholeframe_isb_lso-1100_oof.json

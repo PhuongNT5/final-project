@@ -1,0 +1,38 @@
+[ablation] boxes_only: conf + appearance + class ALL neutralised -- only box xc/yc/w/h over time survives (the three single ablations were each within noise, so this is the one that can actually falsify the geometry reading) | 100.0% of valid slots changed
+[grouping] source YouTube video id from filename: 151 sources, 0 carry both classes (R41) -> packed into 10 StratifiedGroupKFold folds; no source spans the train/held-out boundary.
+[lso-1100] arch=E3 d=- coord=T1 pooled 1100 clips (unsafe 420) | folds=10 | params=17,270
+  held-out group f1: n=144 unsafe=42 acc= 48.6%
+  held-out group f2: n=107 unsafe=42 acc= 75.7%
+  held-out group f3: n=107 unsafe=42 acc= 78.5%
+  held-out group f4: n=106 unsafe=42 acc= 65.1%
+  held-out group f5: n=106 unsafe=42 acc= 53.8%
+  held-out group f6: n=106 unsafe=42 acc= 35.8%
+  held-out group f7: n=106 unsafe=42 acc= 66.0%
+  held-out group f8: n=106 unsafe=42 acc= 75.5%
+  held-out group f9: n=106 unsafe=42 acc= 76.4%
+  held-out group f10: n=106 unsafe=42 acc= 56.6%
+
+=== LSO-1100 (E3, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=64.2% macro_f1=62.4% unsafe_recall=70.2% unsafe_precision=50.9% PR-AUC=0.540 ROC-AUC=0.697
+  [R42 floor, identical folds] count-rule (persons/frame, objects/frame, mean conf) balanced_acc=47.4%  |  encoder-minus-shortcut = +16.8 pp
+  [saved LCO per-clip OOF] sweep_results/relation_tokens/enc_isb_E3_boxes_only_lso-1100_headline-none_oof.json
+  [saved LCO OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isb_binary_E3_boxes_only_none.pt
+[ablation] no_boxes: box xc/yc/w/h zeroed, everything else intact -- the converse of boxes_only | 100.0% of valid slots changed
+[grouping] source YouTube video id from filename: 151 sources, 0 carry both classes (R41) -> packed into 10 StratifiedGroupKFold folds; no source spans the train/held-out boundary.
+[lso-1100] arch=E3 d=- coord=T1 pooled 1100 clips (unsafe 420) | folds=10 | params=17,270
+  held-out group f1: n=144 unsafe=42 acc= 92.4%
+  held-out group f2: n=107 unsafe=42 acc= 74.8%
+  held-out group f3: n=107 unsafe=42 acc= 75.7%
+  held-out group f4: n=106 unsafe=42 acc= 70.8%
+  held-out group f5: n=106 unsafe=42 acc= 62.3%
+  held-out group f6: n=106 unsafe=42 acc= 50.9%
+  held-out group f7: n=106 unsafe=42 acc= 83.0%
+  held-out group f8: n=106 unsafe=42 acc= 86.8%
+  held-out group f9: n=106 unsafe=42 acc= 84.0%
+  held-out group f10: n=106 unsafe=42 acc= 70.8%
+
+=== LSO-1100 (E3, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=76.2% macro_f1=75.1% unsafe_recall=78.3% unsafe_precision=65.1% PR-AUC=0.695 ROC-AUC=0.820
+  [R42 floor, identical folds] count-rule (persons/frame, objects/frame, mean conf) balanced_acc=67.2%  |  encoder-minus-shortcut = +9.0 pp
+  [saved LCO per-clip OOF] sweep_results/relation_tokens/enc_isb_E3_no_boxes_lso-1100_headline-none_oof.json
+  [saved LCO OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isb_binary_E3_no_boxes_none.pt

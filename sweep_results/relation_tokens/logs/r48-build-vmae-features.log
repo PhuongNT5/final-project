@@ -1,0 +1,37 @@
+[chain] CLIP features settled at 328416583 bytes; starting VideoMAE extraction
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/182 [00:00<?, ?it/s]Loading weights: 100%|██████████| 182/182 [00:00<00:00, 8483.42it/s]
+[1mVideoMAEModel LOAD REPORT[0m from: MCG-NJU/videomae-base-finetuned-kinetics
+Key               | Status     |  | 
+------------------+------------+--+-
+fc_norm.bias      | UNEXPECTED |  | 
+fc_norm.weight    | UNEXPECTED |  | 
+classifier.bias   | UNEXPECTED |  | 
+classifier.weight | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[vmae] 1100 clips | backbone=MCG-NJU/videomae-base-finetuned-kinetics device=mps T=16
+  [vmae] 50/1100  0.92s/clip  eta 16.0 min
+  [vmae] 100/1100  1.14s/clip  eta 19.1 min
+  [vmae] 150/1100  1.26s/clip  eta 19.9 min
+  [vmae] 200/1100  1.36s/clip  eta 20.4 min
+  [vmae] 250/1100  1.36s/clip  eta 19.3 min
+  [vmae] 300/1100  1.43s/clip  eta 19.1 min
+  [vmae] 350/1100  1.42s/clip  eta 17.8 min
+  [vmae] 400/1100  1.44s/clip  eta 16.8 min
+  [vmae] 450/1100  1.49s/clip  eta 16.2 min
+  [vmae] 500/1100  1.57s/clip  eta 15.7 min
+  [vmae] 550/1100  1.59s/clip  eta 14.6 min
+  [vmae] 600/1100  1.65s/clip  eta 13.8 min
+  [vmae] 650/1100  1.77s/clip  eta 13.2 min
+  [vmae] 700/1100  1.88s/clip  eta 12.5 min
+  [vmae] 750/1100  1.98s/clip  eta 11.6 min
+  [vmae] 800/1100  2.08s/clip  eta 10.4 min
+  [vmae] 850/1100  2.07s/clip  eta 8.6 min
+  [vmae] 900/1100  2.07s/clip  eta 6.9 min
+  [vmae] 950/1100  2.05s/clip  eta 5.1 min
+  [vmae] 1000/1100  2.07s/clip  eta 3.5 min
+  [vmae] 1050/1100  2.06s/clip  eta 1.7 min
+  [vmae] 1100/1100  2.06s/clip  eta 0.0 min
+[vmae] saved sweep_results/relation_tokens/feats_isbvmae_all.pt  shape=(1100, 8, 768)

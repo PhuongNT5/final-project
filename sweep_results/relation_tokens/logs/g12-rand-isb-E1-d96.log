@@ -1,0 +1,20 @@
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/.venv/lib/python3.13/site-packages/torch/nn/modules/transformer.py:531: UserWarning: The PyTorch API of nested tensors is in prototype stage and will change in the near future. We recommend specifying layout=torch.jagged when constructing a nested tensor, as this layout receives active development, has better operator coverage, and works with torch.compile. (Triggered internally at /Users/runner/work/pytorch/pytorch/pytorch/aten/src/ATen/NestedTensorImpl.cpp:182.)
+  output = torch._nested_tensor_from_mask(
+[G12 DIAGNOSTIC — SOURCE-LEAKING PROTOCOL] StratifiedKFold over 1100 clips IGNORING the 151 source ids: clips from one YouTube video appear in train AND held-out. Source identity is a perfect label proxy here (R41). This number measures protocol inflation and is NOT a generalisation result.
+[rand-1100] arch=E1 d=96 coord=T3 pooled 1100 clips (unsafe 420) | folds=10 | params=195,558
+  held-out group f1: n=110 unsafe=42 acc= 89.1%
+  held-out group f2: n=110 unsafe=42 acc= 92.7%
+  held-out group f3: n=110 unsafe=42 acc= 92.7%
+  held-out group f4: n=110 unsafe=42 acc= 90.9%
+  held-out group f5: n=110 unsafe=42 acc= 91.8%
+  held-out group f6: n=110 unsafe=42 acc= 94.5%
+  held-out group f7: n=110 unsafe=42 acc= 92.7%
+  held-out group f8: n=110 unsafe=42 acc= 91.8%
+  held-out group f9: n=110 unsafe=42 acc= 90.9%
+  held-out group f10: n=110 unsafe=42 acc= 93.6%
+
+=== RAND-1100 (E1_d96, 1100/1100 clips scored, 10 held-out groups) ===
+  balanced_acc=91.9% macro_f1=91.7% unsafe_recall=91.2% unsafe_precision=88.5% PR-AUC=0.915 ROC-AUC=0.960
+  [R42 floor, identical folds] count-rule (persons/frame, objects/frame, mean conf) balanced_acc=68.2%  |  encoder-minus-shortcut = +23.7 pp
+  [saved LCO per-clip OOF] sweep_results/relation_tokens/enc_isb_E1_d96_rand-1100_headline-none_oof.json
+  [saved LCO OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isb_binary_E1_d96_rand-1100_none.pt

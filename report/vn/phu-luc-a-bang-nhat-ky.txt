@@ -1,0 +1,505 @@
+======================================================================
+PHỤ LỤC A. BẢNG NHẬT KÝ VÀ TẠO TÁC
+======================================================================
+
+Mục đích của phụ lục này là một mục đích duy nhất: **với mỗi con số được công bố trong luận văn,
+chỉ ra tệp đã sinh ra nó**. Phụ lục không đưa thêm kết quả mới và không lập luận.
+
+Quy ước trích dẫn áp dụng trong toàn bộ phụ lục. Một ô ghi giá trị nghĩa là giá trị ấy được **in ra
+trong tệp tương ứng**. Một ô ghi "không in" nghĩa là tệp không in giá trị ấy — đây là một phát biểu
+về nhật ký, không phải một chỗ bỏ trống của luận văn. Một giá trị ghi "tính lại" nghĩa là **không
+một nhật ký nào in nó** và nó được tính lại từ dự đoán ngoài-fold đã lưu; với những giá trị ấy,
+tạo tác ngoài-fold là nguồn trích dẫn sơ cấp, không phải nhật ký.
+
+----------------------------------------------------------------------
+A.1. CÁCH ĐỌC PHỤ LỤC NÀY
+----------------------------------------------------------------------
+
+Thư mục gốc của nhật ký huấn luyện là `sweep_results/relation_tokens/logs/`. Thư mục gốc của tạo
+tác đo trên thiết bị biên là `deployment/artifacts/jetson-measurements/`. Mọi đường dẫn trong phụ
+lục này là đường dẫn tương đối tính từ gốc kho mã.
+
+Ba điều người đọc cần biết trước khi dùng bảng.
+
+  (a) **Nhật ký không phải tạo tác duy nhất.** Mỗi lần chạy huấn luyện lưu thêm hai tệp: một tệp
+      JSON dự đoán ngoài-fold theo từng clip và một tensor softmax ngoài-fold. Khi nhật ký và tạo
+      tác lệch nhau, **tạo tác thắng**, vì nhật ký là văn bản in ra còn tạo tác là dữ liệu.
+
+  (b) **Một dòng tiêu đề (banner) có thể sai trong khi tensor đúng.** Mục 4.3.4 đã nêu một trường
+      hợp: nhật ký in cứng `backbone=CLIP ViT-B/32` cho mọi mô hình, kể cả B2 là mô hình dùng
+      VideoMAE. Banner sai; tensor và mã nguồn đúng.
+
+  (c) **Hằng số trong mã không thay cho nhật ký của lần chạy.** Mục 4.3.1 đã nêu bẫy `imgsz`: mã
+      đặt 800 cho làn Unsafe-Net trong khi lần trích của kho iSafetyBench chạy ở 640, và chỉ dòng
+      đầu nhật ký nói ra điều đó.
+
+----------------------------------------------------------------------
+A.2. NHẬT KÝ TRÍCH ĐẶC TRƯNG
+----------------------------------------------------------------------
+
+Năm lần trích trên 1,100 clip của kho iSafetyBench. Các giá trị dưới đây là dòng cuối của mỗi nhật
+ký, lấy nguyên văn.
+
+  `build-isb-tokens.log`
+    cấu hình in ở dòng đầu   detector=yolo11s.pt device=mps imgsz=640 appearance=True T=16 N_MAX=8
+    tạo tác                  `tokens_isb_all.pt`
+    kết quả                  feat=74 | detections=52997 | hazard=420 normal=680 | sources=151
+    thời gian chạy           không in
+
+  `r48-build-clip-features.log`
+    tạo tác                  `feats_isbclip_all.pt`
+    shape                    entity (1100, 16, 8, 512)  wholeframe (1100, 16, 512)
+    kết quả                  detections=52997 | hazard=420 normal=680 | sources=151
+    thời gian chạy           1.73 s/clip | 31.7 phút
+
+  `r48-build-clip26-features.log`
+    ghi chú đầu nhật ký      [chain] GPU free; extracting entity features with YOLO26s
+                             (G17 ablation)
+    tạo tác                  `feats_isbclip26_all.pt`
+    shape                    entity (1100, 16, 8, 512)  wholeframe (1100, 16, 512)
+    kết quả                  detections=45512 | hazard=420 normal=680 | sources=151
+    thời gian chạy           2.99 s/clip | 54.8 phút
+
+  `r48-build-vmae-features.log`
+    tạo tác                  `feats_isbvmae_all.pt`
+    shape                    (1100, 8, 768)
+    backbone                 MCG-NJU/videomae-base-finetuned-kinetics
+    thời gian chạy           2.06 s/clip | tổng không in
+
+  `build-isb-wholeframe.log`
+    tạo tác                  `tokens_wf_isb_all.pt`
+    shape                    (1100, 16, 64)
+    backbone                 mobilenet_v3_small/IMAGENET1K_V1 -> fixed 64d random projection
+    kết quả                  hazard=420 | sources=151
+    thời gian chạy           không in
+
+Hai quan sát có giá trị kiểm tra. Thứ nhất, **số lượng phát hiện là bất biến giữa hai lần trích
+dùng cùng bộ phát hiện**: `tokens_isb_all.pt` và `feats_isbclip_all.pt` đều ghi 52,997 phát hiện,
+đúng như mong đợi khi cả hai chạy YOLOv11s trên cùng 1,100 clip. Thứ hai, lần trích YOLO26s ghi
+45,512 phát hiện, **ít hơn 14.1 %**; đây là đại lượng mà cổng G17 đo tác động, và nó là khác biệt
+duy nhất giữa hai tập đặc trưng (mục 4.3.3).
+
+----------------------------------------------------------------------
+A.3. NHẬT KÝ HUẤN LUYỆN — KHO ISAFETYBENCH
+----------------------------------------------------------------------
+
+Mọi hàng dưới đây là giao thức leave-source-out, 10 fold, 3 hạt giống, 60 epoch, trừ nơi ghi khác.
+Cột "BA" là độ chính xác cân bằng trên dự đoán ngoài-fold gộp của cả 1,100 clip.
+
+  Mô hình        | Tham số  |   BA   | Nhật ký
+  ---------------+----------+--------+------------------------------------------
+  B1w            | 333,570  | 84.4%  | `r48-lso-B1w.log`
+  B1 [triển khai]| 201,090  | 84.2%  | `r48-lso-B1.log`
+  TSF            | 686,726  | 84.1%  | tính lại (4 phân mảnh, xem A.5)
+  ESTA           | 352,258  | 83.8%  | tính lại (4 phân mảnh, xem A.5)
+  B1xl           | 696,962  | 82.7%  | `g18-b1xl.log`
+  ESTA @ YOLO26s | 352,258  | 81.6%  | tính lại (4 phân mảnh, xem A.5)
+  B2 (VideoMAE)  | 233,858  | 81.5%  | `r48-lso-B2.log`
+  E0             | 298,118  | 80.3%  | `lso-isb-E0.log`
+  E1 d=64        |  93,222  | 78.1%  | `g13-lso-isb-E1-d64.log`
+  E1 d=96        | 195,558  | 77.0%  | `g13-lso-isb-E1-d96.log`
+  E3 [tiêu đề]   |  17,270  | 75.2%  | `lso-isb-E3.log`
+  ---------------+----------+--------+------------------------------------------
+  Toàn khung G11 |    —     | 74.1%  | `g11-wholeframe-baseline.log` (linear-mean)
+
+Bảng điểm đầy đủ của hàng B1, lấy nguyên văn dòng cuối `r48-lso-B1.log`:
+
+  balanced_acc=84.2% macro_f1=83.5% unsafe_recall=84.5% unsafe_precision=76.3%
+  PR-AUC=0.792 ROC-AUC=0.897
+
+Nhật ký `g11-wholeframe-baseline.log` in ba biến thể của đường cơ sở toàn khung, không chỉ một:
+linear-mean 74.1%, linear-meanstd 72.7%, mlp-meanstd 73.6%. Luận văn trích **linear-mean** vì đó là
+biến thể đã đăng ký trước cho cổng G11; hai biến thể còn lại được ghi ở đây để người đọc thấy việc
+chọn biến thể không đổi phán quyết của cổng, vì cả ba đều nằm dưới mọi hàng của bảng trên.
+
+Giao thức rò rỉ nguồn (`StratifiedKFold`, bỏ qua 151 định danh nguồn) được chạy cho bốn kiến trúc:
+
+  Mô hình   | BA rò rỉ | BA leave-source-out | Lạm phát | Nhật ký
+  ----------+----------+---------------------+----------+--------------------------
+  E1 d=96   |  91.9%   |        77.0%        | +14.9 pp | `g12-rand-isb-E1-d96.log`
+  E1 d=64   |  91.3%   |        78.1%        | +13.2 pp | `g12-rand-isb-E1-d64.log`
+  E0        |  90.7%   |        80.3%        | +10.4 pp | `g12-rand-isb-E0.log`
+  E3        |  90.6%   |        75.2%        | +15.4 pp | `g12-rand-isb-E3.log`
+
+Bốn giá trị cột "Lạm phát" ở trên được in nguyên văn trong `g12-protocol-inflation-table.log`, là
+tệp tổng hợp cả hai kho.
+
+Khoảng tin cậy cho hiệu ấy **không nằm trong bốn nhật ký `g12-rand-*`**; nó nằm ở một tệp riêng,
+`g12-inflation-paired.log`, vì nó là phép so sánh cặp trên cùng 1,100 clip chứ không phải một kết
+quả của một lần huấn luyện. Tệp ấy in cho mỗi bộ mã hoá ba đại lượng:
+
+  E3   diff=+15.4 pp | bootstrap cụm trên 151 nhóm, 5000/5000 lần rút hợp lệ
+                       95% CI [+10.6, +21.5] EXCLUDES 0 | McNemar b=186 c=8 p=3.58e-45
+  E0   diff=+10.4 pp | bootstrap cụm trên 151 nhóm, 5000/5000 lần rút hợp lệ
+                       95% CI [+6.3, +15.3] EXCLUDES 0  | McNemar b=150 c=22 p=1.3e-24
+
+Cùng tệp ấy in thêm một khoảng tin cậy thứ hai mà **luận văn không được trích**: bootstrap ở mức
+clip, [+13.1, +17.6] cho E3. Chính nhật ký đánh dấu nó là `WRONG UNIT -- disclosure only`, vì đơn
+vị lấy mẫu đúng là nguồn chứ không phải clip; khoảng ở mức clip hẹp hơn một cách giả tạo. Nó được
+in ra để công khai, không để trích dẫn.
+
+Dấu vết nhận dạng giao thức được bàn ở Phụ lục B mục B.5: dưới giao thức rò rỉ, mười fold test đều
+đúng 110 clip; dưới leave-source-out chúng không đều.
+
+----------------------------------------------------------------------
+A.4. HỌ PHÉP CẮT BỎ CỦA E3
+----------------------------------------------------------------------
+
+Bảy lần chạy, cùng kiến trúc E3 (17,270 tham số), cùng cấu hình fold, khác nhau ở các cột đặc trưng
+bị vô hiệu hoá. Cột "sàn R42" là quy tắc đếm được tính **trên đúng các fold ấy**, nên nó dịch theo
+phép cắt bỏ; đó là lý do cột "biên" không suy ra được từ cột BA.
+
+  Phép cắt bỏ       |  BA   | sàn R42 |  biên   | Nhật ký
+  ------------------+-------+---------+---------+-------------------------------
+  blind_class       | 76.6% |  68.1%  |  +8.5pp | `lso-isb-E3-ablations.log`
+  no_boxes          | 76.2% |  67.2%  |  +9.0pp | `lso-isb-E3-ablations-2.log`
+  no_conf           | 76.1% |  53.0%  | +23.2pp | `lso-isb-E3-ablations.log`
+  appearance_only   | 75.6% |  47.4%  | +28.3pp | `lso-isb-E3-appearance-only.log`
+  (không cắt bỏ)    | 75.2% |  67.2%  |  +8.0pp | `lso-isb-E3.log`
+  no_appearance     | 73.8% |  67.2%  |  +6.5pp | `lso-isb-E3-ablations.log`
+  boxes_only        | 64.2% |  47.4%  | +16.8pp | `lso-isb-E3-ablations-2.log`
+
+Mỗi nhật ký in kèm một dòng mô tả phép cắt bỏ và một dòng xác nhận tỉ lệ ô đặc trưng bị thay đổi.
+Năm trong sáu phép cắt bỏ ghi `100.0% of valid slots changed`. Phép thứ sáu, `blind_class`, ghi
+**`47.1% of valid slots changed`**, và con số ấy **đúng chứ không phải lỗi**: phép này giữ mã lớp
+thực thể ở một hằng số, nên nó chỉ thay đổi những ô mà mã lớp vốn khác hằng số đó. Luận văn ghi lại
+tỉ lệ 47.1 % vì nó là lý do kết quả `blind_class` phải đọc thận trọng hơn năm phép còn lại: phép
+cắt bỏ ấy tác động lên chưa tới một nửa dữ liệu vào.
+
+Dòng mô tả của lần chạy `appearance_only` nêu thẳng mục đích của nó: "the run that decides whether
+this is a relation model or an appearance classifier over detected crops". Dòng của `boxes_only`
+nêu lý do nó tồn tại: "the three single ablations were each within noise, so this is the one that
+can actually falsify the geometry reading". Kết luận rút ra từ bảng này được trình bày ở Chương 6
+và Chương 7; phụ lục chỉ ghi nguồn.
+
+Mỗi nhật ký trong họ này cũng in độc lập một dòng về cách phân nhóm:
+
+  [grouping] source YouTube video id from filename: 151 sources, 0 carry both classes (R41)
+  -> packed into 10 StratifiedGroupKFold folds; no source spans the train/held-out boundary.
+
+Dòng ấy là bằng chứng thứ tư cho cấu hình fold, bên cạnh ba phép kiểm ở Phụ lục B mục B.2.
+
+----------------------------------------------------------------------
+A.5. PHÂN MẢNH VÀ TÁI HỢP
+----------------------------------------------------------------------
+
+Ba mô hình — ESTA, ESTA @ YOLO26s và TSF — **không có bảng điểm gộp trong bất kỳ nhật ký nào**.
+Đây là một phát biểu đã được kiểm trực tiếp: số dòng chứa `balanced_acc` trong
+`r48-lso-ESTA.log`, `r48-lso-ESTA-abandoned-thread-starved.log` và `g18-tsf-shard0.log` đều bằng
+**không**.
+
+Nguyên nhân có thật và được ghi trong tên tệp: lần chạy đủ mười fold bị thiếu luồng và bị bỏ
+(`r48-lso-ESTA-abandoned-thread-starved.log`). Mười fold sau đó được chạy thành bốn phân mảnh:
+
+  phân mảnh 0/4   fold f1, f5, f9    (356 clip)
+  phân mảnh 1/4   fold f2, f6, f10
+  phân mảnh 2/4   fold f3, f7
+  phân mảnh 3/4   fold f4, f8
+
+Bốn phân mảnh **phân hoạch đúng mười fold**, không trùng và không thiếu, và cách chia này giống
+nhau cho cả ba mô hình. Mỗi phân mảnh lưu một tensor riêng, ví dụ
+`sweep_results/relation_tokens/shard_isbclip_TSF_0of4.pt`.
+
+Các phân mảnh sau đó được tái hợp thành tạo tác ngoài-fold đầy đủ. Ba tạo tác tái hợp đã được kiểm
+trực tiếp và **mỗi tạo tác chứa đúng 1,100 dòng với đúng 151 giá trị `fold_id` phân biệt**:
+
+  `sweep_results/relation_tokens/enc_isbclip_ESTA_lso-1100_headline-none_oof.json`
+  `sweep_results/relation_tokens/enc_isbclip_ESTA_y26_lso-1100_headline-none_oof.json`
+  `sweep_results/relation_tokens/enc_isbclip_TSF_lso-1100_headline-none_oof.json`
+
+Con số 151 đáng chú ý: nó xác nhận lần nữa rằng `fold_id` trong các tạo tác này **là định danh
+nguồn**, không phải chỉ số fold từ 0 đến 9 (Phụ lục B mục B.2).
+
+Hệ quả trích dẫn, đã nêu ở mục 7.7.1(d) và nhắc lại ở đây vì nó là một ngoại lệ: với ba mô hình
+này, **phép tính lại từ tạo tác ngoài-fold là nguồn sơ cấp**. Các phán quyết cổng dùng ba giá trị
+ấy nằm trong `r48-adjudication.log` (G14, G15, G16) và trong báo cáo
+`plans/2026-09-19-thesis-recovery-architecture/reports/finding-2026-09-30-two-stream-fusion-g18.md`
+(G18). Cổng G17 được phán quyết trong báo cáo
+`.../reports/finding-2026-09-29-esta-entity-spatiotemporal.md`.
+
+Một lần chạy nữa cần phân biệt rõ: `r48-esta-smoke.log` **có** in bảng điểm, BA 82.9%, nhưng banner
+của nó ghi `seeds=1`. Đó là lần chạy thử một hạt giống, **không phải** giá trị công bố 83.8% của
+ESTA với ba hạt giống. Hai con số không được dùng lẫn.
+
+----------------------------------------------------------------------
+A.6. NHẬT KÝ HUẤN LUYỆN — KHO UNSAFE-NET
+----------------------------------------------------------------------
+
+  Làn bốn lớp, leave-group-out, 8 nhóm bối cảnh, 516 clip
+    `sweep_results/relation_tokens/canonical/lco_seeds5_yolo26L1_CANONICAL.log`
+    bản đồ nhóm                `sweep_results/zone_prior/clip_scene_map.json` (516/516 clip)
+    Transformer quan hệ        401/516 = 77.7% top-1 | macro 81.2%
+    nền-ngoại hình MobileNetV3 274/516 = 53.1% top-1 | macro 64.4%
+    sàn hằng số [1]            85/516 = 16.5% top-1 | macro 10.1%
+    per-view-majority          KHÔNG XÁC ĐỊNH dưới LCO (nhật ký tự ghi lý do)
+    biên trung thực            +16.9 pp [bootstrap 95% +12.5, +21.2, n_boot=5000]
+
+  Làn bốn lớp, giao thức lạm phát
+    `sweep_results/relation_tokens/canonical/kfold_repeats10_yolo26app_HEADLINE.log`
+    tiêu đề khối               === STRATIFIED 5-FOLD x 10 REPEATS (50 folds, pooled 516 clips) ===
+
+  Làn hai lớp, leave-group-out, 8 nhóm bối cảnh, 687 clip
+    `sweep_results/relation_tokens/tier3_lco_logs/E3.log`  (và E0, E1_d64, E2 cùng thư mục)
+    bản đồ nhóm                `sweep_results/zone_prior/clip_scene_map_691.json`
+    lọc trùng                  dropped 4 of 691 pooled clips (train=drop_conflict, test untouched)
+    E3                         params=18,044 | balanced_acc=69.6% macro_f1=70.4%
+                               unsafe_recall=87.7% unsafe_precision=84.1%
+                               PR-AUC=0.856 ROC-AUC=0.742
+
+Kho Unsafe-Net cũng có bảng lạm phát giao thức riêng, in trong cùng
+`g12-protocol-inflation-table.log` với kho iSafetyBench, trên làn hai lớp 687 clip:
+
+  Bộ mã hoá            | Tham số | LCO-691 | k-fold-691 | Lạm phát
+  ---------------------+---------+---------+------------+----------
+  E1 d=64              |  94,380 |  62.3%  |   84.1%    | +21.8 pp
+  E1 d=96              | 197,292 |  63.9%  |   84.5%    | +20.5 pp
+  E2 frame-positional  | 284,556 |  66.7%  |   84.6%    | +17.9 pp
+  E0 RelationTransformer| 298,892 |  66.7%  |   83.6%    | +16.9 pp
+  E3 DeepSets          |  18,044 |  69.6%  |   82.5%    | +13.0 pp
+
+Bảng này tái lập **cùng một kết luận** trên một kho dữ liệu độc lập, và tái lập nó theo hai chiều.
+Thứ nhất, lạm phát dương cho cả năm bộ mã hoá, biên độ 13.0 đến 21.8 pp. Thứ hai, và quan trọng
+hơn, **thứ tự của bậc thang bị đảo**: dưới giao thức tôn trọng định danh, E3 với 18,044 tham số
+đứng **đầu** (69.6 %) và E1 d=64 đứng cuối; dưới giao thức rò rỉ, cả năm bộ mã hoá dồn vào dải
+82.5–84.6 % và E3 tụt xuống **cuối**. Nhật ký tự tính độ trải của bậc thang: **7.3 pp** dưới LCO so
+với **2.1 pp** dưới k-fold. Nghĩa là giao thức rò rỉ không chỉ làm mọi con số cao hơn, nó còn **xoá
+khả năng phân biệt giữa các kiến trúc** — đúng hiện tượng mà kho iSafetyBench cho thấy ở mục A.3
+(5.1 pp so với 1.4 pp).
+
+Nhật ký của cả hai làn đều in một dòng `[LIMITATION]` nói rằng nhóm bối cảnh là proxy KMeans(8)
+trên mô tả nền, không phải siêu dữ liệu camera đã kiểm chứng. Thành phần đầy đủ của tám nhóm ở cả
+hai làn, cùng ba nhóm suy biến của làn bốn lớp, nằm ở Phụ lục B mục B.4.
+
+Giá trị tham số của E3 ở kho này là **18,044**, khác giá trị 17,270 của kho iSafetyBench đúng 774
+tham số. Cả hai đều đúng; nguyên nhân là bề rộng đầu vào, đã giải thích ở mục 4.5.4.
+
+----------------------------------------------------------------------
+A.7. HỌ TẠO TÁC ĐO TRÊN THIẾT BỊ BIÊN
+----------------------------------------------------------------------
+
+Thư mục `deployment/artifacts/jetson-measurements/` chứa 91 tệp JSON. Bảng dưới đây liệt kê theo
+họ, kèm số tệp, để người đọc biết họ nào có bao nhiêu lần đo lặp.
+
+  Họ tạo tác                                  | số tệp | dùng cho
+  --------------------------------------------+--------+--------------------------------------
+  `decision-latency-fp16-*`                   |   26   | tổng giai đoạn (Bảng 7.1)
+  `r48-composed-cadence-fp16-*`               |    9   | nhịp tổ hợp đường B1 (mục A.8)
+  `p3-composed-cadence-fp16-{pinned,dvfs}-*`  |    8   | phán quyết hợp đồng P3
+  `memory-fp16-*`                             |    8   | bộ nhớ
+  `model-size-*`                              |    7   | kích thước mô hình
+  `r48-pipeline-*`                            |    6   | đường ống B1
+  `r48-preprocess-profile-*`                  |    5   | khiếm khuyết tiền xử lý
+  `energy-*`                                  |    5   | năng lượng theo giai đoạn
+  `latency-fp16-*`                            |    4   | độ trễ theo giai đoạn
+  `thermal-soak-p3-detector-fp16-*`           |    3   | ngâm nhiệt (chỉ bộ phát hiện)
+  `r48-parity-fp16-*`                         |    3   | đối sánh số học thiết bị-so-máy chủ
+  `r48-idle-droop-probe-fp16-*`               |    3   | sụt xung nhịp khi rỗi
+  `streams-fp16-*`                            |    2   | nhiều luồng
+  `parity-*`, `power-state-*`                 |  1 + 1  | đối sánh, trạng thái nguồn
+
+Hai điều phải đọc kèm bảng này.
+
+  (a) **Số tệp không phải số phép đo độc lập.** Nhiều tệp trong cùng một họ là các lần lặp của cùng
+      một cấu hình, chạy liền nhau để lấy trung vị. Ví dụ ba tệp
+      `r48-composed-cadence-fp16-20261003T1557*` là ba lần lặp của một cấu hình duy nhất.
+
+  (b) **Họ `thermal-soak` chỉ ngâm bộ phát hiện, không ngâm vòng quyết định tổ hợp.** Vì vậy luận
+      văn **không có** phép đo nhịp tổ hợp dưới ngâm nhiệt, và điều đó được ghi là một hạn chế còn
+      mở ở Chương 7, không được che bằng cách trích số ngâm nhiệt của riêng bộ phát hiện.
+
+Tám tệp quyết định hợp đồng của P3, trích dẫn đầy đủ vì Chương 5 dựa trực tiếp vào chúng. Giá trị
+được đọc từ trường `worst_stream_decisions_per_sec` và phán quyết từ trường
+`meets_cadence_all_streams`, cả hai do chính tạo tác ghi:
+
+  tệp (`p3-composed-cadence-fp16-...`)          | qđ/giây | meets_cadence
+  ----------------------------------------------+---------+---------------
+  `pinned-free-3_te1-20261003T174413.json`      |  3.965  |  true
+  `pinned-free-1_te10-20261003T174352.json`     |  3.479  |  true
+  `pinned-free-4_te10-20261003T174432.json`     |  2.493  |  false
+  `dvfs-free-3_te1-20261003T173404.json`        |  1.511  |  false
+  `dvfs-free-1_te10-20261003T173318.json`       |  1.441  |  false
+  `dvfs-free-4_te10-20261003T173449.json`       |  1.141  |  false
+
+Nhánh ghim xung nhịp: trung vị 3.479 qđ/giây, ĐẠT trên 2 trong 3 clip. Nhánh DVFS: trung vị 1.441
+qđ/giây, KHÔNG ĐẠT trên cả 3. Phán quyết của làn P3 vì vậy **phụ thuộc clip**, không phải một chữ
+đạt hay không đạt phẳng.
+
+**Ngưỡng hợp đồng của hai làn khác nhau, và đây không phải hai cái thước đặt tuỳ tiện.** Trường
+`cadence_contract_decisions_per_sec` của tám tệp trên ghi **3.0**, trong khi làn B1 ở mục A.8 được
+xét trên ngưỡng **1.249**. Nguyên nhân là **bước nhảy phát quyết định**: một nguồn *f* khung/giây
+với bước nhảy *s* đòi hỏi *f*/*s* quyết định mỗi giây. Làn P3 phát ở bước nhảy **8** trên khung đã
+xử lý, nên ở 24 khung/giây nó đòi 3.0 qđ/giây; làn B1 phát ở bước nhảy **24**, nên ở trung vị kho
+29.970 khung/giây nó đòi 1.249 qđ/giây. Hai ngưỡng là hai hệ quả của cùng một công thức áp lên hai
+bước nhảy khác nhau. Luận văn **không** được so hai con số nhịp của hai làn với nhau, và cũng không
+được áp ngưỡng của làn này lên làn kia: 1.441 qđ/giây của P3 vượt 1.249 nhưng điều đó vô nghĩa, vì
+P3 không phát ở bước nhảy 24.
+
+Bước nhảy của làn P3 được kiểm bằng một đẳng thức chứ không bằng niềm tin: điều kiện
+`n_decisions == floor((processed-16)/8)+1` đúng trong **cả 12 bản ghi luồng**.
+
+Hai tệp `contract24` (mỗi tệp ba cấu hình luồng) **không được trích làm phán quyết hợp đồng**:
+
+  `pinned-contract24-...T174500.json`   2.199 / 1.854 / 1.140 qđ/giây   meets_cadence = false
+  `dvfs-contract24-...T173546.json`     1.478 / 0.895 / 0.486 qđ/giây   meets_cadence = false
+
+Lý do loại trừ là một khiếm khuyết mã thật, không phải một lựa chọn thuận tiện: tham số `--fps F`
+cộng thêm thời gian chờ *sau* phần việc chứ không điều hoà nhịp, nên nhịp đạt được là
+1/(1/F + work), luôn nhỏ hơn F **bất kể đường ống nhanh đến đâu**. Sáu giá trị trên vì vậy đo cái
+bộ tạo nhịp cho phép, không đo cái thiết bị làm được. Chúng vẫn đọc được như trần thông lượng tổng
+hợp nhiều luồng, và theo nghĩa ấy chúng cho một kết quả riêng: thông lượng gần như phẳng theo số
+luồng, nên đồng thời **phân phối lại** thông lượng chứ không cộng thêm. Quy tắc đọc này và hai quy
+tắc còn lại ở mục 4.7.3.
+
+Một lệnh cấm trích dẫn thứ hai áp lên **họ `decision-latency-fp16-*`**, không áp lên họ tổ hợp ở
+trên: mỗi tệp của họ ấy ghi mỗi tình huống hai lần, một lần không giải mã khung
+(`decisions_per_sec_p50`) và một lần có giải mã (`decisions_per_sec_p50_with_stream_decode`). Chỉ
+cặp **có giải mã** được trích, vì một đường ống không bao giờ giải mã khung không phải một đường
+ống triển khai được. Các tệp tổ hợp ở trên không có cặp trường này, nên quy tắc không áp vào
+chúng.
+
+----------------------------------------------------------------------
+A.8. HAI CỤM ĐO CỦA ĐƯỜNG B1 SAU KHI SỬA TIỀN XỬ LÝ
+----------------------------------------------------------------------
+
+Chín tệp `r48-composed-cadence-fp16-*` chia thành ba cụm. Mục này ghi đầy đủ vì nếu chỉ đọc giá trị
+trung vị của từng cụm, người đọc sẽ thấy hai con số rất khác nhau **mang cùng một mã nguồn** và
+không có cách nào tự giải thích được.
+
+Mỗi cụm gồm ba lần chạy; mọi giá trị dưới đây là **trung vị của ba lần chạy ấy**, không phải giá
+trị của một lần chạy được chọn.
+
+  Cụm      | Commit         | ss p50 (ms) | giải mã/khung | tiền xử lý p50 | tải  | clip
+  ---------+----------------+-------------+---------------+----------------+------+--------------
+  10-01    | 9c1e219        |   289.672   |    2.055 ms   |   160.765 ms   | 1.415| iSafetyBench
+  10-03 A  | 6319b21-dirty  |   167.291   |    2.182 ms   |    50.867 ms   | 2.307| iSafetyBench
+  10-03 B  | 6319b21-dirty  |   227.214   |    4.432 ms   |    37.293 ms   | 3.567| data/test
+
+Cột "tải" là trung bình tải một phút do `device_state` của chính tạo tác ghi, trước mỗi lần chạy.
+Giá trị commit là giá trị trường `git_commit` ghi trong tạo tác; sổ số liệu của dự án gọi bản sửa
+này bằng tên commit đã kết sổ sau đó, nhưng phụ lục ghi cái mà tạo tác ghi.
+
+Khác biệt giữa cụm A và cụm B **không phải mã nguồn và không phải nhiễu đo**. Nó là **kho clip đầu
+vào**, và điều này đã được kiểm bằng cách đọc danh sách clip trong trường `per_clip` của chính các
+tạo tác:
+
+  cụm 10-01 và cụm 10-03 A dùng **đúng cùng 24 clip** iSafetyBench, cùng 5,559 khung, cùng 201
+  quyết định — danh sách clip của hai cụm so sánh bằng nhau tuyệt đối;
+
+  cụm 10-03 B dùng 24 clip khác, thuộc `data/test` của kho Unsafe-Net, 5,836 khung, 209 quyết định.
+
+Độ phân giải của hai tập clip, đo trực tiếp từ tệp video, giải thích chênh lệch chi phí giải mã:
+
+  24 clip iSafetyBench   **tám độ phân giải khác nhau** — 1280x720 (12 clip), 360x640 (5),
+                         640x360 (2), và mỗi loại một clip: 480x270, 720x1280, 450x360, 626x360,
+                         320x240. Trong đó hai clip ở hướng dọc.
+  24 clip `data/test`    **đồng nhất 1920x1080** cả 24 clip.
+
+Ba hệ quả.
+
+  (a) **Phép so sánh A/B của bản sửa tiền xử lý là một phép so sánh khớp tham số.** Cùng 24 clip,
+      cùng 5,559 khung, cùng 201 quyết định, cùng cửa sổ 48 và bước nhảy 24; khác biệt duy nhất là
+      bản sửa. Vì vậy 289.672 → 167.291 ms (hệ số 1.732, tức giảm 42.2 % thời gian mỗi quyết
+      định) là một phát biểu đọc được. Tải hệ thống của nhánh *sau khi sửa* còn **cao hơn** nhánh
+      trước (trung vị 2.307 so với 1.415), nên bản sửa được đo dưới điều kiện bất lợi hơn chứ
+      không thuận lợi hơn — chiều của chênh lệch tải ngược với chiều có lợi cho kết luận.
+
+  (b) **227.214 ms không phải một phép đo cạnh tranh với 167.291 ms, và không được trộn với nó.**
+      Nó là nhịp của cùng hệ thống trên **đầu vào 1080p đồng nhất**. Đây là lần đo 1080p đầu tiên
+      và là con số phải dùng khi nói về đầu vào 1080p. Ngược lại, 167.291 ms **không** được mô tả
+      là "nhịp ở một độ phân giải": tập clip sinh ra nó là tập trộn tám độ phân giải.
+
+  (c) **Cả hai đều vượt hợp đồng của làn B1.** Ngưỡng là 1.249 quyết định/giây (mục 4.7.4);
+      167.291 ms cho 5.978 qđ/giây (biên 4.79 lần) và 227.214 ms cho 4.401 qđ/giây (biên 3.52
+      lần). Phán quyết hợp đồng **không phụ thuộc** vào việc chọn cụm nào, và đó là lý do chênh
+      lệch giữa hai cụm không làm thay đổi kết luận triển khai của Chương 5.
+
+      Hai con số qđ/giây trên là **nghịch đảo của trung vị trạng thái dừng**, 1000/167.291 và
+      1000/227.214. Tạo tác còn ghi riêng một trường `measured_decisions_per_sec` thấp hơn,
+      **5.772** cho cụm A, vì trường ấy tính trên **toàn bộ** 201 quyết định trong khi trạng thái
+      dừng chỉ lấy 177 quyết định sau khi bỏ giai đoạn khởi động. Cả hai đều đúng và đo hai thứ
+      khác nhau; dùng con số nào thì biên hợp đồng vẫn là 4.62 lần hoặc 4.79 lần, nên kết luận
+      không đổi. Ngoài ra vòng đo chạy **một luồng**, nên thông lượng là một **chặn dưới** và hệ
+      số sử dụng là một **chặn trên**.
+
+Chi phí tiền xử lý giảm khi chuyển sang 1080p (50.867 → 37.564 ms) trong khi tổng nhịp tăng
+(167.291 → 227.214 ms). Hai chiều ngược nhau này là một ví dụ cụ thể cho điều mục 7.4.1 gọi là
+**ngụy biện tổ hợp phân vị**: trung vị của từng giai đoạn không cộng được thành trung vị của tổng,
+vì phân phối chi phí giữa các giai đoạn dịch chuyển khi điều kiện đổi.
+
+Năm tệp `r48-preprocess-profile-*` là tạo tác định vị khiếm khuyết, ở ba commit: `a70e597` (một
+tệp, trước khi sửa), `6319b21` (hai tệp) và `6319b21-dirty` (hai tệp). Phần "dirty" đã được kiểm ở
+mức cây cú pháp và **chỉ khác ở chuỗi tài liệu (docstring)**, không khác ở mã thực thi.
+
+----------------------------------------------------------------------
+A.9. KIỂM ĐỊNH BỘ PHÁT HIỆN, ĐỘ ĐỒNG THUẬN NHÃN, KIỂM TRA NHIỄM CHÉO
+----------------------------------------------------------------------
+
+  Kiểm định lại bộ phát hiện thực thể
+    `sweep_results/entity_detector/reval-2026-10-02-detector-best-val343.log`
+    lệnh        revalidate-entity-detector.py detector_best.pt yolo11s
+    môi trường  ultralytics 8.4.27, torch 2.11.0, device=cpu, imgsz=800
+    dữ liệu     343 ảnh / 988 thực thể, giữ riêng ở mức clip
+    lưu ý        2 trong 8 lớp (Safe_Walkway, Restricted_Zone) **không có thực thể nào** trong
+                 tập val, nên mAP ở trên là mAP trên 6 lớp có thực thể
+    kết quả     mAP@50 0.9695 | mAP@50-95 0.8939 | P 0.9339 | R 0.9673
+    bảng theo lớp ở Bảng 4.1
+
+  Lý do phải đo lại được ghi ở mục 4.2.3: `train_run.log` bị cắt giữa epoch 20/30 và tệp
+  `results.csv` duy nhất còn lại (stage1_frozen, 3 epoch) đạt cao nhất mAP@50 0.462. Nghĩa là giá
+  trị 0.969 từng được công bố **không có tạo tác sinh ra nó** tại thời điểm công bố. Phát biểu
+  "mAP 95.7%" từng xuất hiện trong một bản thảo đã bị rút và không được phục hồi.
+
+  Độ đồng thuận nhãn giữa hai người gán
+    `plans/260613-thesis-defense-revision/reports/kappa-result.json`
+    n = 100 clip, 20 clip cho mỗi nhãn trong ['0','1','2','3','bg']
+    Cohen kappa 0.65 | đồng thuận thô 0.72
+    ma trận 5x5 đầy đủ ở Bảng 4.2; mục tiêu của quy trình là kappa > 0.8 và **không đạt**
+
+  Kiểm tra nhiễm chéo giữa hai kho
+    `sweep_results/relation_tokens/logs/contamination-check.log`
+    unsafenet       691 clip -> 2,059 băm khung
+    isafetybench    1,100 clip -> 3,300 băm khung
+    trùng khớp băm chính xác                      **0**
+    khoảng cách Hamming nhỏ nhất giữa hai kho     13/64
+    cặp gần nhất    data/train/3_carrying_overload_with_forklift/3_tr3.mp4
+                    và data/isafetybench/normal/MEEGwePfDgM_trim_49.mp4
+    kết luận của chính nhật ký   VERDICT: NO contamination detected
+
+  Phép kiểm nhiễm chéo này quan trọng vì luận văn dùng hai kho dữ liệu và không bao giờ trộn chúng.
+  Nó xác nhận hai kho **không chia sẻ khung ảnh**, nên không có đường rò rỉ nào giữa hai làn.
+
+----------------------------------------------------------------------
+A.10. SỔ CÁC GIÁ TRỊ ĐÃ BỊ RÚT
+----------------------------------------------------------------------
+
+Phụ lục kết thúc bằng một bảng mà hầu hết luận văn không có: danh sách những con số **đã từng xuất
+hiện trong bản thảo và đã bị rút**. Sổ này được giữ vì một giá trị bị rút mà không ghi lại sẽ quay
+trở lại ở lần sửa bản thảo sau.
+
+  Giá trị đã rút         | Lý do rút                                            | Thay bằng
+  -----------------------+------------------------------------------------------+-----------------
+  mAP 95.7%              | không có tạo tác sinh ra nó ở thời điểm công bố;      | 0.9695 (A.9)
+                         | nhật ký huấn luyện bị cắt giữa epoch 20/30            |
+  B1 tổng giai đoạn      | tổng các giai đoạn đo rời, không phải nhịp tổ hợp;    | nhịp tổ hợp đo
+   144.9 ms = 6.9 qđ/giây| phép đo tổ hợp chậm hơn khoảng 4 lần                  | trực tiếp (A.8)
+  CLIP nhanh hơn         | là tỉ số đo trên CPU máy chủ, không phải trên thiết   | 3.06 lần, đo
+   MobileNetV3 18.3 lần  | bị biên                                              | trên thiết bị
+  biên +7.5% của P3      | dựa trên tổng giai đoạn, và **dấu** của sai số đổi    | phán quyết tổ
+                         | chiều theo xung nhịp: +7.98 % khi ghim, −39.3 % khi   | hợp, phụ thuộc
+                         | DVFS, nên nó không chặn nhịp theo chiều nào           | clip (A.7)
+  nhịp 1.05 qđ/giây      | giả định nguồn 25.1 khung/giây, tần số chỉ xuất hiện  | 1.249 qđ/giây
+                         | ở 11 trong 1,100 clip (1.0 %); trung vị kho là 29.970 | (trung vị kho)
+  biên +5.69 lần của B1  | là 5.978 chia cho ngưỡng 1.05 đã bị rút ở hàng trên   | 4.79 lần
+  biên +60.3 pp của LCO  | so với sàn hằng số, không phải với một bộ phân lớp    | +16.9 pp
+   bốn lớp               | chuyển được sang bối cảnh mới                         | [+12.5, +21.2]
+  CI mức clip của G12    | sai đơn vị lấy mẫu; chính nhật ký đánh dấu            | CI cụm trên 151
+   [+13.1, +17.6]        | `WRONG UNIT -- disclosure only`                      | nguồn (A.3)
+  val_macro 89.15% (E3)  | là giá trị đúng của tập val, nhưng tập val không được | BA ngoài-fold
+   và 90.92% (E0)        | nhóm theo nguồn nên nó lạc quan                       | 75.2% và 80.3%
+  TSF +1.4 pp so B1xl    | đã đăng ký trước là điều kiện loại trừ năng lực, cấm  | −0.3 pp so B1w
+                         | trích cho phần hợp nhất                              | (p=0.401)
+  ESTA 82.9% (seeds=1)   | lần chạy thử một hạt giống, không phải cấu hình công  | 83.8% (3 hạt
+                         | bố ba hạt giống                                      | giống, A.5)
+
+Mỗi hàng trong sổ này được lập luận đầy đủ tại một mục của Chương 5, Chương 6 hoặc Chương 7; cột
+"lý do" ở đây chỉ là nhắc lại ngắn để sổ đọc được độc lập.

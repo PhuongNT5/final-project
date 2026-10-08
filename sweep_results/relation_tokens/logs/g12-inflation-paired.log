@@ -1,0 +1,12 @@
+### Delta_inflation E3  (rand - lso, paired on the same 1100 clips)
+  A - B = +15.4 pp
+  [cluster bootstrap over 151 groups, 5000/5000 valid draws] diff=+15.4 pp  95% CI [+10.6, +21.5]  EXCLUDES 0
+  [clip-level bootstrap -- WRONG UNIT, disclosure only] 95% CI [+13.1, +17.6]
+  [McNemar exact] b=186 c=8 n_discordant=194 p=3.58e-45 | N=1100, 194 discordant cells
+
+### Delta_inflation E0  (rand - lso, paired on the same 1100 clips)
+  A - B = +10.4 pp
+  [cluster bootstrap over 151 groups, 5000/5000 valid draws] diff=+10.4 pp  95% CI [+6.3, +15.3]  EXCLUDES 0
+  [clip-level bootstrap -- WRONG UNIT, disclosure only] 95% CI [+8.1, +12.6]
+  [McNemar exact] b=150 c=22 n_discordant=172 p=1.3e-24 | N=1100, 172 discordant cells
+
