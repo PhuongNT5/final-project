@@ -89,3 +89,82 @@ không đổi lớp đầu tiên. Khai ra thay vì giấu. Nó **không** cứu 
   đó luật quyết định ở §3 (ô "< −1.5 pp") được đọc kèm cảnh báo này.
 
 Luật quyết định §3 và ba dự đoán §4 **không đổi**.
+
+---
+
+## KẾT QUẢ — 2026-10-10, ĐỌC THEO LUẬT §3 KHÔNG SỬA NGƯỠNG
+
+Trích đặc trưng: 94.9 phút, 1,100/1,100 clip, `backbone: openai/clip-vit-large-patch14`,
+`wholeframe (1100,16,768)`. **Mặt nạ sao y đã kiểm khớp byte-đúng** với `feats_isbclip_all.pt`:
+52,997 phát hiện, 15,874 khung hợp lệ ở *cả hai* bên. Tháp là biến duy nhất, như §2 cam kết.
+Tham số đầu phân loại: **233,858**, đúng con số phụ lục đã khai trước.
+
+| | BA | macro-F1 | PR-AUC | ROC-AUC |
+|---|---|---|---|---|
+| B1 / CLIP ViT-B/32 (nền) | 84.17% | 83.5 | 0.792 | 0.897 |
+| B1 / CLIP ViT-L/14 (E2) | **87.42%** | 87.0 | 0.905 | 0.940 |
+| **ΔBA** | **+3.25 pp** | | | |
+
+- **Cluster bootstrap theo 151 nguồn** (đơn vị đúng, 5000/5000 lần rút hợp lệ): +3.2 pp,
+  95% CI **[−1.4, +8.0] — CHỨA 0**.
+- Clip-level CI [+1.1, +5.3] — **đơn vị sai**, chỉ khai báo.
+- **McNemar chính xác:** b=46, c=84, 130 ô bất đồng, **p = 0.00109**.
+
+### Phán quyết: ô trên cùng của §3 KHÔNG kích hoạt
+
+§3 đòi **phép hội**: "≥ +3.0 pp **và** CI loại trừ 0". Biên độ đạt, CI không đạt. Điều kiện CI có
+trong luật chính là để chặn tuyên bố dựa trên điểm ước lượng, nên **không được tuyên bố "dư địa
+biểu diễn có thật"**. Chỉ thị hiệu lực là của ô thứ hai: **chưa tuyên bố gì cho tới bậc thang thứ hai.**
+
+Đây **không** phải cách đọc tuỳ ứng: sổ số đã có tiền lệ cùng dạng — **G15 (+3.5 pp, CI chứa 0)
+được ghi là "FAILS — margin clears, CI does not"**. E2 nhận đúng chuẩn đó.
+
+**CI chứa 0 ở đây là vấn đề lực thống kê, không phải vắng hiệu ứng.** Hai bằng chứng:
+lượt chạy lại cùng cấu hình cho `rows` **bit-identical** (sàn nhiễu run-to-run = **0/1100 clip**),
+nên cả 130 ô bất đồng là tín hiệu thật; và cùng giao thức 151 cụm *có* phân giải được một hiệu ứng
+6 pp (xem dưới). 151 cụm không đủ cho 3 pp — đó là thuộc tính đo được của giao thức.
+
+### Ba dự đoán §4
+
+| # | Dự đoán nếu giới hạn là NHÃN | Đo được | Phán |
+|---|---|---|---|
+| 1 | dải fold **không** co | 29.7 → **21.5 pp** (co 8.2) | bác — *nhưng xem cảnh báo* |
+| 2 | phần lớn 87 clip **vẫn sai** | **56/87 vẫn sai (64.4%)**; sửa 31/87 = 35.6% | giữ theo văn bản |
+| 3 | lỗi vẫn tập trung ở f6/f3/f4 | tập trung **48.0% → 46.7%**; 3 fold tệ nhất đổi thành f10/f5/f4 | hỗn hợp |
+
+**Cảnh báo huỷ giá trị của chỉ báo (1):** B1w — *cùng tháp B/32*, chỉ thêm tham số — đã co dải
+xuống 21.0 pp mà chỉ được +0.2 pp BA. Vậy co dải **không phân biệt được tháp với dung lượng**.
+Chỉ báo (1) được ghi trước như một phép thử sắc, và phép đo cho thấy **nó không sắc**. Ghi lại
+đúng như thế thay vì dùng nó làm bằng chứng.
+
+**Chỉ báo (3) là thứ giá trị nhất:** mức tập trung lỗi gần như bất biến (48.0 → 46.7%) nhưng
+*danh tính* các fold khó đổi hoàn toàn (f6 +17.2 pp, f10 −8.7 pp). Tháp tốt hơn **di chuyển** chỗ
+khó mà **không giảm mức tập trung** của nó → độ khó theo nguồn là thuộc tính của **phân bố nguồn**,
+không của biểu diễn. Đây là luận cứ cho E3, độc lập với phán quyết E2.
+
+**Chỉ báo (2):** 87 clip đó **không** phải sàn nhiễu nhãn thuần — 35.6% được sửa, trong khi mọi
+mẹo rẻ trên cùng tháp chỉ cho +0.12 / −0.47 / +0.33 pp. Nhưng 64.4% còn lại vẫn là ứng viên
+cho trần nhãn, nên **E1 vẫn là con số chưa đo quan trọng nhất**.
+
+### Thăm dò (KHÔNG tiền đăng ký) — nhiễu tham số bị bác bằng thực nghiệm
+
+Phụ lục khai rằng +32,768 tham số là lời giải thích cạnh tranh. Sổ số đã có hàng bác nó:
+**B2 (VideoMAE-base, 768-d) có đúng 233,858 tham số — bằng chính xác B1 trên L/14.**
+Dung lượng đầu phân loại và bề rộng đặc trưng khớp tuyệt đối; chỉ tháp đóng băng khác.
+
+**B1@L/14 − B2 = +5.9 pp, cluster CI [+0.6, +10.8] LOẠI TRỪ 0, McNemar b=69 c=137 p=2.49e-06.**
+
+Nên ở dung lượng khớp, lựa chọn biểu diễn đóng băng dịch BA gần 6 pp với CI chứng nhận.
+Hai giới hạn phải nêu: cặp này **không** tiền đăng ký, và B2 khác L/14 ở nhiều chiều cùng lúc
+(kiến trúc, dữ liệu tiền huấn luyện, video vs ảnh) nên nó **không** là một bậc thang quy mô sạch.
+Nó chứng minh "tháp có ý nghĩa", **không** chứng minh "tháp lớn hơn thì tốt hơn".
+
+### Sự cố xuất xứ đã xảy ra và đã sửa
+
+Lượt E2 đầu **ghi đè đúng tệp OOF của bản headline**: đường dẫn hiện vật mã hoá cứng chuỗi
+`isbclip_`, không phụ thuộc `--feats`. Baseline phục hồi từ git (`18903f5`) và **tái lập đúng
+84.17%**; `run-esta-lso.py` nay suy tag từ tên tệp đặc trưng (đường dẫn mặc định byte-đúng như cũ),
+và E2 đã chạy lại bằng mã đã sửa để hiện vật được sinh đúng chỗ, không qua khâu cứu hộ.
+Tệp `.pt` softmax của bản headline **chưa từng được git theo dõi và đã mất** — nó là hiện vật dẫn
+xuất, không dùng trong bất kỳ phép so sánh nào ở trên (các công cụ đọc JSON), nhưng cần tái sinh
+nếu muốn sổ xuất xứ đầy đủ.

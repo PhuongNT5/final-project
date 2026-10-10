@@ -723,6 +723,46 @@ No headline accuracy moves; three tables now agree with artifacts they contradic
 `ablations/calibration_holdout.json` (4.13a). The first two were never cited by
 name anywhere in the thesis — a citation sweep is structurally blind to them.
 
+## Block 1e — E2 backbone ladder (post-freeze, `next-round` ONLY — MUST NOT enter `report/vn/` or the defence)
+
+Added 2026-10-10. Measured **after** the 05/10/2026 freeze, so by the scope limit in
+`plans/261010-hoi-dong-danh-gia-khoa-hoc/tien-dang-ky-e2-thang-xuong-song.md` §6 **no number in
+this block may appear in the thesis, the defence, or any answer to the defence committee.**
+Pre-registered (decision rule and three falsifiable predictions committed as `6df16e1`) before any
+number existed. Same P-D LSO-1100 partition, same clips, same recipe as Block 1b.
+
+| metric | protocol | value | 95% CI / range | script | log_path | date | touch | status |
+|---|---|---|---|---|---|---|---|---|
+| **balanced accuracy, B1 @ CLIP ViT-L/14** (233,858) — whole-frame, 1 temporal layer, 768-d | P-D LSO-1100 | **87.4%** | macro-F1 87.0, rec 86.9, prec 81.7, PR-AUC 0.905, ROC-AUC 0.940 | `run-esta-lso.py --model B1 --feats …feats_isbclipL_all.pt --folds 10 --seeds 3 --epochs 60` | `…/logs/e2-lso-B1-clipL14.log` | 2026-10-10 | 0 | measured, post-freeze |
+| **paired Δ, B1@L/14 − B1@B/32 (E2, THE PRE-REGISTERED TEST)** | P-D LSO-1100 | **+3.25 pp** | cluster CI **[−1.4, +8.0] includes 0**; clip-level [+1.1, +5.3] — WRONG UNIT, disclosure only; McNemar b=46 c=84 **p=0.00109** | `tools/compare-oof-runs.py` | — | 2026-10-10 | 0 | **E2 FAILS its own rule — margin clears +3.0, CI does not exclude 0. Same standard as G15. No ladder climb is authorised on this evidence alone.** |
+| paired Δ, B1@L/14 − B2 (VideoMAE-base) — **matched head: both 233,858 params, both 768-d** | P-D LSO-1100 | **+5.9 pp** | cluster CI **[+0.6, +10.8] EXCLUDES 0**, McNemar b=69 c=137 p=2.49e-06 | same | — | 2026-10-10 | 0 | **exploratory, NOT pre-registered.** Refutes the +32,768-param confound empirically; proves the frozen tower matters at matched capacity. Does NOT prove "bigger tower is better" — B2 differs from L/14 on architecture, pretraining data and video-vs-image at once. |
+| per-fold BA spread, B1@L/14 | P-D LSO-1100 | **21.5 pp** (min 77.5 f10 / max 99.0 f1) | vs 29.7 pp for B1@B/32 | `tools/analyse-backbone-ladder.py` | — | 2026-10-10 | 0 | **prediction (1) is NOT a sharp test**: B1w on the *same* B/32 tower also narrows to 21.0 pp while gaining only +0.2 pp BA, so spread narrowing cannot separate tower from capacity |
+| all-model-wrong clips fixed by L/14 | P-D LSO-1100 | **31/87 = 35.6%** | 56/87 (64.4%) still wrong | same | — | 2026-10-10 | 0 | the 87 are **not** a pure label-noise floor; the residual 64.4% remains the E1 candidate |
+| error concentration in 3 worst folds | P-D LSO-1100 | **46.7%** (f10/f5/f4) | vs 48.0% (f6/f4/f3) for B/32 | same | — | 2026-10-10 | 0 | **concentration is invariant while the identity of the hard folds moves entirely** — per-source difficulty is a property of the source distribution, not the representation. The E3 argument, independent of E2's verdict. |
+
+**Run-to-run noise floor = 0.** Re-running the identical configuration produced **bit-identical
+`rows`** (0/1100 clips changed prediction; the only differing JSON field was `tag`, changed by the
+path fix below). So all 130 McNemar discordant cells are signal, and the wide cluster CI reflects
+**source-sampling variance at 151 clusters**, not run instability. The same protocol does resolve a
+~6 pp effect (the B2 row), so the CI failure is a power limit at 3 pp, not a protocol defect.
+
+**Provenance incident, 2026-10-10 — found, fixed, disclosed.** The first E2 run **overwrote the
+headline B1 OOF file**: artifact paths hard-coded the literal `isbclip_` and ignored `--feats`. The
+baseline was restored from git (`18903f5`) and **reproduces 84.17% exactly**; `run-esta-lso.py` now
+derives the tag from the feature filename, so the default feature file yields byte-identical
+headline paths and a different tower cannot collide. E2 was then re-run under the fixed code so its
+artifacts are natively produced rather than rescued. **The headline run's softmax `.pt` was never
+git-tracked and is lost** — a derived artifact, used by none of the comparisons above (all tools
+read the JSON), but it needs regenerating for a complete provenance ledger.
+
+**The fix does not — and should not — stop a same-tower rerun from overwriting.** The default
+feature file must keep yielding the headline paths, so any `run-esta-lso.py --model B1` with
+default `--feats` legitimately rewrites them; a 2-fold smoke test did exactly that during this
+session and was restored from git again. **The git-tracked baseline is therefore the only
+safeguard, and every exploratory rerun must pass `--tag_suffix`.** Verified after the fix:
+`--model B1` on the default feature file still reports `backbone=openai/clip-vit-base-patch32
+dim=512 params=201,090` and the same artifact paths as 2026-09-29.
+
 ## Unresolved questions
 
 1. ~~Does the thesis headline become the iSafetyBench 75.2% or stay Unsafe-Net?~~ **RESOLVED

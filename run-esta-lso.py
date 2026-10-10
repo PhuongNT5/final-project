@@ -12,6 +12,8 @@ Usage: .venv/bin/python run-esta-lso.py --model ESTA [--seeds 3] [--epochs 60]
 """
 import argparse
 import json
+import os
+import re
 
 import numpy as np
 import torch
@@ -27,6 +29,10 @@ FEATS = f'{TOK}/feats_isbclip_all.pt'
 # Set by load_aligned from the feature file itself. The run banner used to hard-code
 # "CLIP ViT-B/32", which silently mislabels any run on a different frozen tower (E2 ladder).
 BACKBONE = 'unknown'
+# Artifact paths used to hard-code the literal 'isbclip_', so a run on a different frozen tower
+# OVERWROTE the headline run's OOF files. Derive the tag from the feature filename instead; the
+# default feature file yields 'isbclip_', so every headline path stays byte-identical.
+FEAT_TAG = 'isbclip_'
 
 
 def load_aligned(path):
@@ -36,8 +42,10 @@ def load_aligned(path):
     labels is the only evidence that ESTA and the 64-d encoders scored the same corpus."""
     _, _, y, groups, ids = ISB.load('isb_')
     d = torch.load(path, weights_only=False)
-    global BACKBONE
+    global BACKBONE, FEAT_TAG
     BACKBONE = str(d.get('backbone', 'unknown'))
+    m = re.match(r'feats_(.+_)all\.pt$', os.path.basename(path))
+    FEAT_TAG = m.group(1) if m else 'isbclip_'
     pos = {str(c): i for i, c in enumerate(d['clip_ids'])}
     missing = [c for c in ids if c not in pos]
     if missing:
@@ -71,13 +79,13 @@ def finalise(model, tag_suffix, yn, y, pred, soft, clip_ids, groups, seeds, n_gr
 
     rows = [{'clip_id': str(clip_ids[i]), 'y_true': int(yn[i]), 'prob_unsafe': float(soft[i, 1]),
              'y_pred': int(pred[i]), 'fold_id': str(groups[i])} for i in range(len(yn))]
-    jp = f'{TOK}/enc_isbclip_{model}{tag_suffix}_{proto}_headline-none_oof.json'
+    jp = f'{TOK}/enc_{FEAT_TAG}{model}{tag_suffix}_{proto}_headline-none_oof.json'
     json.dump({'model': f'clip_{model}', 'protocol': proto, 'dedupe_policy': 'none',
-               'tag': 'isbclip_', 'n': len(rows), 'rows': rows}, open(jp, 'w'))
-    pt = (f'{TOK}/lco_oof_softmax_isbclip_binary_{model}{tag_suffix}_none.pt' if proto == 'lso-1100'
-          else f'{TOK}/oof_softmax_isbclip_binary_{model}{tag_suffix}_{proto}.pt')
+               'tag': FEAT_TAG, 'n': len(rows), 'rows': rows}, open(jp, 'w'))
+    pt = (f'{TOK}/lco_oof_softmax_{FEAT_TAG}binary_{model}{tag_suffix}_none.pt' if proto == 'lso-1100'
+          else f'{TOK}/oof_softmax_{FEAT_TAG}binary_{model}{tag_suffix}_{proto}.pt')
     torch.save({'ens_softmax': torch.from_numpy(soft), 'labels': y, 'clip_ids': clip_ids,
-                'groups': groups, 'tag': 'isbclip_', 'arch': model, 'oof_pred': pred}, pt)
+                'groups': groups, 'tag': FEAT_TAG, 'arch': model, 'oof_pred': pred}, pt)
     print(f"  [saved per-clip OOF] {jp}\n  [saved OOF tensor] {pt}")
 
 
@@ -148,7 +156,7 @@ def main():
               f"acc={100 * (pred[te] == yn[te]).mean():5.1f}%", flush=True)
 
     if args.nshards > 1:
-        sp = f'{TOK}/shard_isbclip_{args.model}{args.tag_suffix}_{args.shard}of{args.nshards}.pt'
+        sp = f'{TOK}/shard_{FEAT_TAG}{args.model}{args.tag_suffix}_{args.shard}of{args.nshards}.pt'
         torch.save({'model': args.model, 'shard': args.shard, 'nshards': args.nshards,
                     'folds': [g for g, _ in folds], 'idx': np.where(pred != -1)[0],
                     'pred': pred[pred != -1], 'soft': soft[pred != -1],

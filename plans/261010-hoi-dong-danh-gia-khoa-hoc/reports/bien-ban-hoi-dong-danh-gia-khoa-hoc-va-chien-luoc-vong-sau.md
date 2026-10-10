@@ -159,7 +159,40 @@ tự khai là lần trước chưa làm được.
   toàn bộ công sức sang E3/E4. Nếu Po ≥ 92% → E2 đáng chạy.
 - **Chi phí:** công người, không phải compute. `run_kappa_prepare.py` / `run_kappa_compute.py` đã có.
 
-### E2. Thang xương sống dưới ĐÚNG bộ fold đã công bố — tuyến accuracy duy nhất có bằng chứng
+### E2. Thang xương sống dưới ĐÚNG bộ fold đã công bố — **ĐÃ CHẠY 10/10, KHÔNG ĐẠT LUẬT CỦA CHÍNH NÓ**
+
+> **KẾT QUẢ, 2026-10-10 (sau mốc đóng băng — `next-round` only).** B1 @ CLIP ViT-L/14:
+> **87.42% BA**, ΔBA **+3.25 pp** so với 84.17%. Biên độ vượt ngưỡng +3.0 pp **nhưng cluster CI
+> theo 151 nguồn = [−1.4, +8.0] CHỨA 0**. Luật tiền đăng ký là phép hội → **ô "dư địa biểu diễn
+> có thật" KHÔNG kích hoạt; chưa được tuyên bố gì, chưa được leo thang.** Cùng chuẩn với tiền lệ
+> G15 trong sổ số ("margin clears, CI does not"). McNemar b=46 c=84 p=0.00109; sàn nhiễu
+> run-to-run = **0/1100 clip** (lượt chạy lại bit-identical), nên CI rộng là **phương sai lấy mẫu
+> nguồn ở 151 cụm**, không phải bất ổn mô hình. Chi tiết và ba dự đoán §4:
+> `plans/261010-hoi-dong-danh-gia-khoa-hoc/tien-dang-ky-e2-thang-xuong-song.md`; hàng số:
+> sổ số **Block 1e**.
+>
+> **Ba hệ quả đổi thứ tự ưu tiên của chương trình này:**
+> 1. **Nhiễu "+32K tham số" bị bác bằng thực nghiệm, không bằng lập luận.** B2 (VideoMAE-base)
+>    có *đúng* 233,858 tham số như B1@L/14, cùng 768 chiều. Ở dung lượng khớp tuyệt đối:
+>    **+5.9 pp, cluster CI [+0.6, +10.8] LOẠI TRỪ 0**, p=2.49e-06. Tháp đóng băng **có** ý nghĩa.
+>    (Thăm dò, không tiền đăng ký; và B2 khác L/14 nhiều chiều cùng lúc nên **không** chứng minh
+>    "tháp lớn hơn thì tốt hơn".)
+> 2. **Giao thức có lực phân giải ~6 pp, không có lực ở 3 pp.** Cùng 151 cụm chứng nhận được hiệu
+>    ứng 5.9 pp và không chứng nhận được 3.25 pp. Nên "CI chứa 0" ở E2 là **giới hạn lực thống
+>    kê**, và mọi bậc thang sau phải được thiết kế với điều đó biết trước — một bậc đơn lẻ ~3 pp
+>    sẽ *không bao giờ* qua được luật này.
+> 3. **Mức tập trung lỗi là bất biến (48.0% → 46.7%) trong khi danh tính fold khó đổi hoàn toàn**
+>    (f6/f4/f3 → f10/f5/f4; f6 +17.2 pp, f10 −8.7 pp). Tháp tốt hơn **di chuyển** chỗ khó mà
+>    **không giảm** mức tập trung → độ khó theo nguồn là thuộc tính của **phân bố nguồn**.
+>    **E3 được nâng ưu tiên bằng bằng chứng trực tiếp, độc lập với phán quyết E2.**
+>
+> **Chỉ báo (1) của §4 tự chứng minh là không sắc:** B1w — *cùng tháp B/32*, chỉ thêm tham số —
+> cũng co dải fold xuống 21.0 pp mà chỉ được +0.2 pp BA. Co dải **không** phân biệt tháp với dung
+> lượng. Ghi lại đúng như thế thay vì dùng nó làm bằng chứng.
+>
+> **E1 vẫn là con số chưa đo quan trọng nhất,** nhưng đã hẹp hơn: L/14 sửa **31/87 = 35.6%** clip
+> "sai ở cả 5 mô hình", nên tập đó **không** phải sàn nhiễu nhãn thuần; 64.4% còn lại mới là ứng
+> viên trần nhãn.
 - **Căn cứ:** §6.2.6 (lợi ích đến từ tháp, không từ đầu) + 87 clip sai ở cả 5 mô hình cùng họ CLIP.
 - **Cách:** giữ nguyên đầu B1 201,090 tham số, **chỉ đổi tháp đóng băng**: SigLIP2-B/16, CLIP
   ViT-L/14, DINOv3, V-JEPA2. Dùng lại đúng `StratifiedGroupKFold(10, seed=0)` theo 151 nguồn ở Phụ lục B.
@@ -177,6 +210,7 @@ tự khai là lần trước chưa làm được.
   Hệ quả cho các bậc thang sau: nút cổ chai là giải mã, nên cache khung đã giải mã một lần rồi
   dùng lại cho mọi tháp sẽ cắt gần hết chi phí của SigLIP2/DINOv3 — đáng làm trước bậc thứ hai.
 - **Tiền đăng ký:** ≥ +3.0 pp so với 84.2%, CI theo cụm loại trừ 0, trên cùng bộ fold.
+  Commit `6df16e1`, **trước khi tồn tại bất kỳ con số L/14 nào**. Đã thực thi nguyên văn ở trên.
 - **Phản đối về độ trễ đã được chủ trì bác bỏ bằng số học.** R3 kết luận L/14 "vỡ ngân sách" — sai
   khung: hợp đồng của làn B1 là **nhịp**, không phải trần 100 ms. Thay tháp 58.1 ms bằng tháp ~160 ms:
 
@@ -247,7 +281,12 @@ xác minh**, và **không** được đưa vào luận văn hay bài báo khi ch
 
 ## 8. CÂU HỎI CHƯA GIẢI ĐÁP
 
-1. Trần nhiễu nhãn trên nhãn nhị phân iSafetyBench — **chưa đo**. Quyết định toàn bộ việc E2 có đáng làm không.
+1. Trần nhiễu nhãn trên nhãn nhị phân iSafetyBench — **vẫn chưa đo, vẫn là con số quan trọng
+   nhất**, nhưng câu hỏi đã đổi hình: E2 đã chạy mà *không* chờ E1, và kết quả thu hẹp phạm vi
+   trần nhãn còn **64.4% của 87 clip** (L/14 sửa 35.6%). E1 bị chặn ở **cần người đánh giá thứ
+   hai** — không chạy được trên máy, khác hẳn E2. (`run_kappa_prepare.py` đo κ=0.65 trên **khung
+   Unsafe-Net, 5 lớp**, không phải nhãn clip nhị phân iSafetyBench — chính nhiễu khiến κ=0.65
+   không chuyển được sang đây.)
 2. ~~`tools/analyse-isb-fold-failures.py` chưa chạy lại; R5 dựng fold map bằng tay.~~ **ĐÃ ĐÓNG
    10/10:** `tools/analyse-backbone-ladder.py` lấy bản đồ fold từ chính `isafetybench_dataset.folds`
    — cùng lời gọi mà driver huấn luyện dùng — và tái lập **đúng 10/10** dãy BA in ở §6.2.1
@@ -259,3 +298,12 @@ xác minh**, và **không** được đưa vào luận văn hay bài báo khi ch
 5. ECE 11.4 pp dựa trên bin rất mỏng — nên bootstrap CI hay bỏ hẳn, chỉ giữ "1.7% lỗi trong băng 0.4–0.6"?
 6. GVHD đã ký báo cáo giải trình chưa? (A4 — hạng mục duy nhất còn ảnh hưởng ĐẠT/KHÔNG ĐẠT.)
 7. Lịch bảo vệ chính xác — quyết định chân trời 1 còn bao nhiêu ngày.
+8. **Bậc thang E2 thứ hai có đáng chạy không, và chạy thế nào để qua được luật?** Một bậc đơn lẻ
+   ~3 pp sẽ không bao giờ loại trừ 0 ở 151 cụm. Hai lựa chọn phải quyết trước khi tải trọng số:
+   (a) chạy SigLIP2 **và** DINOv3 rồi đọc *xu hướng qua nhiều bậc* thay vì ΔBA của một bậc —
+   cần tiền đăng ký mới, vì luật hiện tại không bao phủ phép đọc đó; (b) bỏ thang, dồn vào E3,
+   mà chỉ báo (3) vừa cung cấp bằng chứng trực tiếp cho. Cả hai tháp **chưa có trong cache HF**
+   → cần tải.
+9. **Nên tái sinh `.pt` softmax của bản headline B1@B/32 không?** Nó bị lượt E2 đầu ghi đè và chưa
+   từng được git theo dõi. Không phép so sánh nào dùng nó (công cụ đọc JSON, đã phục hồi từ git),
+   nhưng sổ xuất xứ sẽ có một ô trống nếu không chạy lại ~10 phút.
