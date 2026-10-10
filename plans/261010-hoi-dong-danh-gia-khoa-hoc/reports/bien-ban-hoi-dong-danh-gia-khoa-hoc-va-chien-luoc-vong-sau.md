@@ -172,8 +172,10 @@ tự khai là lần trước chưa làm được.
 - **Chi phí đã đo trên máy này (MPS, 10/10):** B/32 5.35 ms/ảnh, L/14 91.55 ms/ảnh (chậm 17.1×).
   B1/B1w chỉ đọc nhánh **toàn khung** (`esta_training.py:66-68`) = 17,600 forward → **≈27 phút tính
   toán** cho L/14. Trích cả hai nhánh (thêm 140,800 crop thực thể) mới là ≈4 giờ — **E2 không cần nó**.
-  Chưa gồm giải mã video và lượt YOLO; cần cờ `--wholeframe_only` (~5 dòng, hai nhánh tách sạch
-  trong `process_clip`).
+  **Đo lại trên lượt chạy thật (10/10, 1,100 clip): 5.75 s/clip → ~100 phút.** Con số 27 phút là
+  thuần tính toán; **giải mã video chiếm phần lớn thời gian thực** (CPU một core ~60%, MPS rảnh).
+  Hệ quả cho các bậc thang sau: nút cổ chai là giải mã, nên cache khung đã giải mã một lần rồi
+  dùng lại cho mọi tháp sẽ cắt gần hết chi phí của SigLIP2/DINOv3 — đáng làm trước bậc thứ hai.
 - **Tiền đăng ký:** ≥ +3.0 pp so với 84.2%, CI theo cụm loại trừ 0, trên cùng bộ fold.
 - **Phản đối về độ trễ đã được chủ trì bác bỏ bằng số học.** R3 kết luận L/14 "vỡ ngân sách" — sai
   khung: hợp đồng của làn B1 là **nhịp**, không phải trần 100 ms. Thay tháp 58.1 ms bằng tháp ~160 ms:

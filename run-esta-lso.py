@@ -47,7 +47,13 @@ def load_aligned(path):
     lab = torch.as_tensor(d['labels']).long()[perm]
     if not torch.equal(lab, y):
         raise SystemExit('label mismatch after permutation -- refusing')
-    keys = [k for k in ('entity', 'geom', 'mask', 'wholeframe') if k in d]
+    # A --wholeframe_only file stores no entity arm. It used to be written as a 0-row tensor, which
+    # is present-but-unindexable, so `k in d` was not a strong enough test. Require one row per clip.
+    keys = [k for k in ('entity', 'geom', 'mask', 'wholeframe')
+            if k in d and len(d[k]) == len(d['clip_ids'])]
+    dropped = [k for k in ('entity', 'geom', 'mask', 'wholeframe') if k in d and k not in keys]
+    if dropped:
+        print(f'[load] {path}: no {", ".join(dropped)} arm -- whole-frame only', flush=True)
     feats = {k: torch.as_tensor(d[k]).float()[perm] for k in keys}
     return feats, y, groups, ids
 

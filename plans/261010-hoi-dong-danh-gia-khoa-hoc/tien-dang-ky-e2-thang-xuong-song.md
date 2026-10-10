@@ -65,3 +65,27 @@ ghép cặp trên OOF so với B1-B/32.
 Số của thí nghiệm này đo **sau** mốc đóng băng 05/10. Nó **không** được xuất hiện trong
 `report/vn/`, trong bản bảo vệ, hay trong bất kỳ câu trả lời nào trước hội đồng bảo vệ. Nó thuộc
 nhánh `next-round` và chỉ dùng cho chương trình sau bảo vệ.
+
+---
+
+## PHỤ LỤC — SỬA ĐỔI TIỀN ĐĂNG KÝ, 2026-10-10, TRƯỚC KHI CÓ BẤT KỲ SỐ NÀO
+
+Trích đặc trưng L/14 vẫn đang chạy; không một con số L/14 nào tồn tại khi phụ lục này được ghi.
+Phép thử đường ống (tệp đặc trưng giả 768-d, đã xoá) phơi ra một nhiễu **không thể tránh** mà
+§2 nói "giữ nguyên đầu phân loại" đã phát biểu quá mạnh:
+
+**Đầu phân loại không giữ nguyên số tham số.** Cấu hình giống hệt (`WholeFrameTemporal`,
+`t_layers=1`, cùng `d`/`heads`/`ff`/dropout/BS/LR/epochs), nhưng lớp chiếu đầu vào phải nở theo
+chiều đặc trưng: **201,090 → 233,858 tham số (+32,768, +16.3%)**.
+
+Đây là nhiễu nội tại của *mọi* thí nghiệm thang xương sống: không thể đổi chiều đặc trưng mà
+không đổi lớp đầu tiên. Khai ra thay vì giấu. Nó **không** cứu được một kết quả dương, vì:
+
+- B1xl có **696,962** tham số (gấp 3.5×) và cho **82.7%**, tức *thấp hơn* B1 201K là 1.5 pp.
+  Trên chính kho này, thêm dung lượng cho đầu phân loại đã được đo là **đi lùi**.
+- Nên nếu L/14 thắng, "chỉ vì thêm 32K tham số" không phải lời giải thích khả dụng — hướng của
+  bằng chứng hiện có đi ngược lại.
+- Ngược lại, nếu L/14 **thua**, +16.3% tham số là một lời giải thích cạnh tranh phải nêu, và khi
+  đó luật quyết định ở §3 (ô "< −1.5 pp") được đọc kèm cảnh báo này.
+
+Luật quyết định §3 và ba dự đoán §4 **không đổi**.

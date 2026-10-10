@@ -213,7 +213,8 @@ def main():
             raise SystemExit('label mismatch vs --mask_from -- refusing to borrow a mask')
         out['mask'] = torch.as_tensor(ref['mask']).float()[perm]
         out['geom'] = torch.as_tensor(ref['geom']).float()[perm]
-        out['entity'] = torch.zeros(0)      # never written here; dropping it saves ~430 MB of zeros
+        out.pop('entity')   # never written here; dropping the key (not zeroing it) saves ~430 MB
+                            # AND keeps `k in d` an honest test of which arms the file actually has
         out['mask_borrowed_from'] = os.path.basename(args.mask_from or 'feats_isbclip_all.pt')
         print(f"  [clip-feat] mask/geom borrowed from {out['mask_borrowed_from']}: "
               f"{int(out['mask'].sum())} detections, frame-validity identical to B/32", flush=True)
