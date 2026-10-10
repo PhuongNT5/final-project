@@ -246,7 +246,12 @@ xác minh**, và **không** được đưa vào luận văn hay bài báo khi ch
 ## 8. CÂU HỎI CHƯA GIẢI ĐÁP
 
 1. Trần nhiễu nhãn trên nhãn nhị phân iSafetyBench — **chưa đo**. Quyết định toàn bộ việc E2 có đáng làm không.
-2. `tools/analyse-isb-fold-failures.py` (công cụ chính thức) chưa chạy lại để đối chiếu với phép tái lập độc lập của R5 (R5 khớp 10/10 fold nhưng dựng fold map bằng tay từ Phụ lục B).
+2. ~~`tools/analyse-isb-fold-failures.py` chưa chạy lại; R5 dựng fold map bằng tay.~~ **ĐÃ ĐÓNG
+   10/10:** `tools/analyse-backbone-ladder.py` lấy bản đồ fold từ chính `isafetybench_dataset.folds`
+   — cùng lời gọi mà driver huấn luyện dùng — và tái lập **đúng 10/10** dãy BA in ở §6.2.1
+   (85.8 88.4 74.7 79.1 83.6 67.5 97.2 96.9 81.0 86.2), dải 29.7 pp. Phép đo tay của R5 đúng.
+   Phát hiện phụ: dãy đó là **balanced accuracy**, không phải accuracy thuần (acc thuần:
+   86.8 86.9 79.4 79.2 81.1 62.3 97.2 96.2 84.0 86.8) — đáng ghi rõ nhãn trong luận văn.
 3. Ánh xạ "lớp 0–3 Unsafe-Net = hazard, nền = normal" dùng ở phép gộp κ là **giả định của R5**, chưa ai xác nhận có nghĩa.
 4. Cặp ensemble hậu nghiệm tốt nhất (B1w+ESTA = 86.63%, +2.46 pp) là nhiễu lấy mẫu hay thật? Chỉ trả lời được bằng một tập đánh giá mới + chọn cặp **trước** khi nhìn số.
 5. ECE 11.4 pp dựa trên bin rất mỏng — nên bootstrap CI hay bỏ hẳn, chỉ giữ "1.7% lỗi trong băng 0.4–0.6"?
