@@ -24,6 +24,9 @@ from run_kfold_relation import report_binary
 
 TOK = 'sweep_results/relation_tokens'
 FEATS = f'{TOK}/feats_isbclip_all.pt'
+# Set by load_aligned from the feature file itself. The run banner used to hard-code
+# "CLIP ViT-B/32", which silently mislabels any run on a different frozen tower (E2 ladder).
+BACKBONE = 'unknown'
 
 
 def load_aligned(path):
@@ -33,6 +36,8 @@ def load_aligned(path):
     labels is the only evidence that ESTA and the 64-d encoders scored the same corpus."""
     _, _, y, groups, ids = ISB.load('isb_')
     d = torch.load(path, weights_only=False)
+    global BACKBONE
+    BACKBONE = str(d.get('backbone', 'unknown'))
     pos = {str(c): i for i, c in enumerate(d['clip_ids'])}
     missing = [c for c in ids if c not in pos]
     if missing:
@@ -117,7 +122,7 @@ def main():
         print(f"[grouping] source YouTube video id: {len(set(groups))} sources, 0 carry both "
               f"classes (R41) -> {args.folds} StratifiedGroupKFold folds; no source spans the "
               f"boundary.")
-    print(f"[{proto}] model={args.model} backbone=CLIP ViT-B/32 pooled {len(yn)} clips "
+    print(f"[{proto}] model={args.model} backbone={BACKBONE} dim={in_dim} pooled {len(yn)} clips "
           f"(unsafe {int(yn.sum())}) | folds={len(folds)} | seeds={args.seeds} "
           f"| params={count_params(T.build(args.model, in_dim)):,}", flush=True)
 

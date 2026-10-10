@@ -22,6 +22,7 @@ Usage:
 """
 import argparse
 import os
+import sys
 import time
 
 import cv2
@@ -39,13 +40,14 @@ CLIP_DIM = 512
 GEOM = 6          # class, xc, yc, w, h, conf — kept beside the embedding, never projected away
 
 
-def load_clip(device):
+def load_clip(device, model_id=None):
     """Frozen CLIP vision tower + its own processor stats. Offline; the model is already cached."""
     from transformers import CLIPImageProcessor, CLIPVisionModelWithProjection
-    m = CLIPVisionModelWithProjection.from_pretrained(CLIP_ID).eval().to(device)
+    model_id = model_id or CLIP_ID
+    m = CLIPVisionModelWithProjection.from_pretrained(model_id).eval().to(device)
     for p in m.parameters():
         p.requires_grad_(False)
-    proc = CLIPImageProcessor.from_pretrained(CLIP_ID)
+    proc = CLIPImageProcessor.from_pretrained(model_id)
     mean = torch.tensor(proc.image_mean, device=device).view(1, 3, 1, 1)
     std = torch.tensor(proc.image_std, device=device).view(1, 3, 1, 1)
     return {'model': m, 'mean': mean, 'std': std, 'device': device}
@@ -97,7 +99,7 @@ def decode(path):
     return FS.decode(path, B.T)
 
 
-def process_clip(path, det, clip, lut, device):
+def process_clip(path, det, clip, lut, device, wf_only=False):
     """-> (entity (T,N,512), geom (T,N,6), mask (T,N), wholeframe (T,512))."""
     frames, W, H = decode(path)
     ent = np.zeros((B.T, B.N_MAX, CLIP_DIM), dtype=np.float32)
@@ -112,6 +114,11 @@ def process_clip(path, det, clip, lut, device):
     wf_emb = embed([fr for _, fr in valid], clip)
     for (t, _), e in zip(valid, wf_emb):
         wf[t] = e
+    if wf_only:
+        # E2 ladder: B1/B1w read only the whole-frame arm, so the detector pass and the 8x larger
+        # crop workload buy nothing here. `mask`/`geom` are borrowed from the B/32 file in main()
+        # so frame-validity stays byte-identical and the tower is the only variable.
+        return ent, geo, msk, wf
 
     # entity arm: one detector pass over the same frames
     res = det.predict([fr for _, fr in valid], imgsz=B.IMGSZ, conf=B.CONF, verbose=False, device=device)
@@ -123,7 +130,7 @@ def process_clip(path, det, clip, lut, device):
         xywhn, cls, conf = b.xywhn.cpu().numpy(), b.cls.cpu().numpy().astype(int), b.conf.cpu().numpy()
         for j, oi in enumerate(np.argsort(-conf)[:B.N_MAX]):
             cx, cy, w, h = xywhn[oi]
-            geo[t, j] = [lut[int(np.clip(cls[oi], 0, 79))], cx, cy, w, h, float(conf[oi])]
+            geo[t, j] = [lut[int(np.clip(cls[oi], 0, len(lut) - 1))], cx, cy, w, h, float(conf[oi])]
             msk[t, j] = 1.0
             crops.append(crop_box(fr, cx, cy, w, h, W, H)); slots.append((t, j))
     for (t, j), e in zip(slots, embed(crops, clip)):
@@ -139,19 +146,39 @@ def main():
     ap.add_argument('--imgsz', type=int, default=640)
     ap.add_argument('--conf', type=float, default=0.25)
     ap.add_argument('--out_tag', default='isbclip_')
+    ap.add_argument('--class_map', default='coco', choices=['coco', 'identity'],
+                    help="geom class channel. 'coco' maps the 80 COCO ids onto 8 coarse groups and "
+                         "is correct for COCO-pretrained detectors. 'identity' passes the detector's "
+                         "own class id through unchanged — required for the fine-tuned 8-class "
+                         "factory detectors, whose ids are NOT COCO ids (G20 arm B).")
+    ap.add_argument('--backbone', default=CLIP_ID,
+                    help='frozen vision tower. The E2 ladder changes ONLY this.')
+    ap.add_argument('--wholeframe_only', action='store_true',
+                    help='extract the whole-frame arm only (what B1/B1w read) and borrow '
+                         'mask/geom from --mask_from, so frame-validity is byte-identical')
+    ap.add_argument('--mask_from', default=None,
+                    help='feature file to copy mask/geom from (default: the B/32 headline file)')
     args = ap.parse_args()
 
+    global CLIP_DIM
     B.IMGSZ, B.CONF, B.CORRUPT = args.imgsz, args.conf, None
     device = args.device or ('mps' if torch.backends.mps.is_available() else 'cpu')
-    clip, det, lut = load_clip(device), YOLO(args.detector), ISB.coco_to_group()
+    clip = load_clip(device, args.backbone)
+    CLIP_DIM = int(clip['model'].config.projection_dim)
+    det = None if args.wholeframe_only else YOLO(args.detector)
+    lut = (ISB.coco_to_group() if args.class_map == 'coco' or det is None
+           else np.arange(len(det.names), dtype=np.int64))
     items = ISB.clips()[:args.limit] if args.limit else ISB.clips()
-    print(f'[clip-feat] {len(items)} clips | detector={os.path.basename(args.detector)} '
-          f'device={device} backbone={CLIP_ID} T={B.T} N_MAX={B.N_MAX}', flush=True)
+    print(f'[clip-feat] {len(items)} clips | '
+          f"detector={'(skipped)' if det is None else os.path.basename(args.detector)} "
+
+          f'device={device} backbone={args.backbone} dim={CLIP_DIM} T={B.T} '
+          f'N_MAX={B.N_MAX} wholeframe_only={args.wholeframe_only}', flush=True)
 
     E, G, M, WF, labels, cids, srcs = [], [], [], [], [], [], []
     t0 = time.time()
     for k, (path, label, src) in enumerate(items):
-        e, g, m, w = process_clip(path, det, clip, lut, device)
+        e, g, m, w = process_clip(path, det, clip, lut, device, args.wholeframe_only)
         E.append(e); G.append(g); M.append(m); WF.append(w)
         labels.append(label); cids.append(os.path.basename(path)); srcs.append(src)
         if (k + 1) % 50 == 0:
@@ -163,7 +190,33 @@ def main():
            'mask': torch.tensor(np.stack(M)), 'wholeframe': torch.tensor(np.stack(WF)),
            'labels': torch.tensor(labels), 'clip_ids': cids, 'views': srcs,
            'geom_layout': ['class', 'xc', 'yc', 'w', 'h', 'conf'],
-           'entity_names': ISB.GROUP_NAMES, 'backbone': CLIP_ID, 'dataset': 'isafetybench'}
+           'entity_names': (ISB.GROUP_NAMES if args.class_map == 'coco' or det is None
+                            else [det.names[i] for i in range(len(det.names))]),
+           'backbone': args.backbone, 'dataset': 'isafetybench',
+           'wholeframe_only': args.wholeframe_only,
+           # Provenance, added 2026-10-10: no stored feature or token file recorded which detector
+           # built it, so establishing that rested on log archaeology. Written into the artifact now.
+           'meta': {'detector': os.path.relpath(os.path.abspath(args.detector), ROOT),
+                    'detector_nc': (None if det is None else len(det.names)),
+                    'class_map': args.class_map,
+                    'imgsz': B.IMGSZ, 'conf': B.CONF, 'T': B.T, 'n_max': B.N_MAX,
+                    'argv': ' '.join(sys.argv)}}
+    if args.wholeframe_only:
+        # B1/B1w read the whole-frame arm plus `mask` (frame validity). `parts_for` silently falls
+        # back to all-ones when `mask` is absent, which would let the new tower see MORE frames than
+        # the B/32 headline -- a second variable. Borrow the mask instead, keyed by clip_id.
+        ref = torch.load(args.mask_from or os.path.join(B.OUT, 'feats_isbclip_all.pt'),
+                         map_location='cpu', weights_only=False)
+        pos = {str(c): i for i, c in enumerate(ref['clip_ids'])}
+        perm = torch.as_tensor([pos[str(c)] for c in cids])
+        if not torch.equal(torch.as_tensor(ref['labels']).long()[perm], out['labels'].long()):
+            raise SystemExit('label mismatch vs --mask_from -- refusing to borrow a mask')
+        out['mask'] = torch.as_tensor(ref['mask']).float()[perm]
+        out['geom'] = torch.as_tensor(ref['geom']).float()[perm]
+        out['entity'] = torch.zeros(0)      # never written here; dropping it saves ~430 MB of zeros
+        out['mask_borrowed_from'] = os.path.basename(args.mask_from or 'feats_isbclip_all.pt')
+        print(f"  [clip-feat] mask/geom borrowed from {out['mask_borrowed_from']}: "
+              f"{int(out['mask'].sum())} detections, frame-validity identical to B/32", flush=True)
     os.makedirs(B.OUT, exist_ok=True)
     path = os.path.join(B.OUT, f'feats_{args.out_tag}all.pt')
     torch.save(out, path)
