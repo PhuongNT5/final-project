@@ -1,0 +1,209 @@
+{
+  "preregistration": "tien-dang-ky-g21-g25.md",
+  "lane": "C (Unsafe-Net) only",
+  "unsafe4_mps_2026_09_06": {
+    "artifact": "sweep_results/r2/temporal_convlstm.pt",
+    "device": "mps (pre-2026-10-11 default)",
+    "n": 64,
+    "correct": 50,
+    "top1": 0.78125,
+    "paper_macro_mean_per_class_sensitivity": 0.7563920454545454,
+    "per_class_sensitivity": [
+      0.84375,
+      0.18181818181818182,
+      1.0,
+      1.0
+    ],
+    "per_class_n": [
+      32,
+      11,
+      13,
+      8
+    ],
+    "macro_f1": 0.7274839743589744,
+    "top1_ci_wilson": [
+      0.6656721604337418,
+      0.8649768059328052
+    ],
+    "val_macro": 0.7638888888888888,
+    "per_seed_val_macro": [
+      0.7941919191919191,
+      0.8017676767676768,
+      0.7908981115502856,
+      0.7840909090909091,
+      0.7840909090909091
+    ],
+    "vs_paper_nobbox_57": {
+      "their_correct": 57,
+      "their_macro": 0.8578,
+      "delta_correct": -7,
+      "mcnemar_feasible_interval": [
+        0.015625,
+        0.18924713134765625
+      ]
+    },
+    "vs_paper_full_62": {
+      "their_correct": 62,
+      "their_macro": 0.9581,
+      "delta_correct": -12,
+      "mcnemar_feasible_interval": [
+        0.00048828125,
+        0.004180908203125
+      ]
+    }
+  },
+  "unsafe4_cpu_2026_10_11": {
+    "artifact": "sweep_results/r2/temporal_convlstm_cpu.pt",
+    "device": "cpu",
+    "n": 64,
+    "correct": 47,
+    "top1": 0.734375,
+    "paper_macro_mean_per_class_sensitivity": 0.7021962412587412,
+    "per_class_sensitivity": [
+      0.84375,
+      0.2727272727272727,
+      0.6923076923076923,
+      1.0
+    ],
+    "per_class_n": [
+      32,
+      11,
+      13,
+      8
+    ],
+    "macro_f1": 0.7021978021978021,
+    "top1_ci_wilson": [
+      0.6151712627143486,
+      0.8270362092577738
+    ],
+    "val_macro": 0.7916666666666666,
+    "per_seed_val_macro": [
+      0.8055555555555556,
+      0.8057751427316644,
+      0.8055555555555556,
+      0.822463768115942,
+      0.8055555555555556
+    ],
+    "vs_paper_nobbox_57": {
+      "their_correct": 57,
+      "their_macro": 0.8578,
+      "delta_correct": -10,
+      "mcnemar_feasible_interval": [
+        0.001953125,
+        0.06391465663909912
+      ]
+    },
+    "vs_paper_full_62": {
+      "their_correct": 62,
+      "their_macro": 0.9581,
+      "delta_correct": -15,
+      "mcnemar_feasible_interval": [
+        6.103515625e-05,
+        0.000728607177734375
+      ]
+    }
+  },
+  "binary_np125": {
+    "artifact": "sweep_results/r2/temporal_convlstm_binary.pt",
+    "device": "cpu",
+    "policy": "drop_conflict",
+    "n": 125,
+    "n_unsafe": 64,
+    "n_safe": 61,
+    "correct": 93,
+    "top1": 0.744,
+    "top1_ci_wilson": [
+      0.6610171570738385,
+      0.8124329307964983
+    ],
+    "balanced_accuracy": 0.7419313524590163,
+    "ba_ci_bootstrap_CLIP_UNIT_not_group": [
+      0.6648745519713262,
+      0.8136651744840765
+    ],
+    "recall_safe_unsafe": [
+      0.6557377049180327,
+      0.828125
+    ],
+    "precision_safe_unsafe": [
+      0.7843137254901961,
+      0.7162162162162162
+    ],
+    "macro_f1": 0.7412008281573499,
+    "mcc": 0.4921257679562511,
+    "kappa": 0.4857289791720237,
+    "roc_auc": 0.8484887295081966,
+    "pr_auc_unsafe": 0.876131863739062,
+    "ece": 0.09805897474288941,
+    "brier": 0.3383522983670596,
+    "confusion_rows_true_safe_unsafe": [
+      [
+        40,
+        21
+      ],
+      [
+        11,
+        53
+      ]
+    ],
+    "floor_majority_class_top1": 0.512,
+    "ceiling_duplicate_conflict": 0.992,
+    "val_macro": 0.7087349397590361,
+    "per_seed_val_macro": [
+      0.7189759036144578,
+      0.7081325301204819,
+      0.7518072289156627,
+      0.6837349397590362,
+      0.6975903614457831
+    ],
+    "controls": {
+      "scene_majority_train_fit": {
+        "top1": 0.704,
+        "correct": 88,
+        "balanced_accuracy": 0.6994108606557377,
+        "mcnemar_vs_convlstm": {
+          "b": 14,
+          "c": 9,
+          "n_discordant": 23,
+          "p": 0.4048728942871094
+        }
+      },
+      "scene_majority_oracle": {
+        "top1": 0.728,
+        "correct": 91,
+        "balanced_accuracy": 0.7243852459016393,
+        "mcnemar_vs_convlstm": {
+          "b": 11,
+          "c": 9,
+          "n_discordant": 20,
+          "p": 0.8238029479980469
+        }
+      },
+      "constant_majority_class": {
+        "top1": 0.512,
+        "correct": 64,
+        "balanced_accuracy": 0.5,
+        "mcnemar_vs_convlstm": {
+          "b": 40,
+          "c": 11,
+          "n_discordant": 51,
+          "p": 5.703811637403078e-05
+        }
+      }
+    }
+  },
+  "binary_np64_slice": {
+    "n": 64,
+    "all_unsafe": true,
+    "unsafe_recall": 0.828125,
+    "correct": 53,
+    "note": "NOT a binary measurement: 0 safe clips, so specificity/BA/PR-AUC are undefined."
+  },
+  "G21_device_control": {
+    "delta_correct_cpu_minus_mps": -3,
+    "delta_paper_macro_pp": -5.4195804195804165,
+    "c1_unauthorint_sensitivity_mps": 0.18181818181818182,
+    "c1_unauthorint_sensitivity_cpu": 0.2727272727272727,
+    "prereg_rule": "reproduced iff top1 >= 54/64 AND mcnemar interval vs 57/64 includes p >= 0.05; refuted iff top1 <= 47/64 or macro within +-3pp of 75.64%"
+  }
+}

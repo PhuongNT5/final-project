@@ -1,0 +1,7 @@
+n=1100 clips, 151 groups
+  ESTA @ YOLO26-ft: balanced_acc=78.1%
+  ESTA @ YOLOv11s-ft: balanced_acc=75.9%
+  A - B = +2.2 pp
+  [cluster bootstrap over 151 groups, 5000/5000 valid draws] diff=+2.2 pp  95% CI [-3.5, +8.8]  includes 0
+  [clip-level bootstrap -- WRONG UNIT, disclosure only] 95% CI [-0.5, +5.1]
+  [McNemar exact] b=138 c=119 n_discordant=257 p=0.261 | N=1100, 257 discordant cells

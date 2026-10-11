@@ -1,0 +1,25 @@
+[dedupe:binary/drop_conflict] dropped 4 of 691 pooled clips (train=drop_conflict, test untouched)
+[LIMITATION] scene groups from sweep_results/zone_prior/clip_scene_map_691.json are a KMeans(8) background-descriptor proxy, not verified camera metadata (see run_lco_eval.py / tools/build_scene_grouping.py).
+[lco-691] arch=E3 d=- coord=T1 pooled 687 clips (unsafe 512) | folds=8 | params=18,044
+  held-out group 0: n= 22 unsafe=18 acc=100.0%
+  held-out group 1: n=187 unsafe=152 acc= 38.5%
+  held-out group 2: n= 58 unsafe=36 acc=100.0%
+  held-out group 3: n=170 unsafe=139 acc= 81.8%
+  held-out group 4: n=121 unsafe=46 acc= 43.0%
+  held-out group 5: n=101 unsafe=101 acc= 97.0%
+  held-out group 6: n= 14 unsafe=12 acc=100.0%
+  held-out group 7: n= 14 unsafe=8 acc=100.0%
+
+=== LCO-691 (E3, 687/687 clips scored, 8 held-out groups) ===
+  balanced_acc=61.8% macro_f1=60.9% unsafe_recall=75.0% unsafe_precision=81.0% PR-AUC=0.856 ROC-AUC=0.699
+  per-sub-class recall (pooled OOF, folded back to source 0-7):
+    0:WalkwayViol    n=207 recall= 91.8%
+    1:UnauthorInt    n=107 recall= 92.5%
+    2:OpenedPanel    n=142 recall= 27.5%
+    3:CarryOverload  n= 56 recall=100.0%
+    4:SafeWalkway    n= 75 recall= 32.0%
+    5:AuthorInt      n= 38 recall= 76.3%
+    6:ClosedPanel    n= 32 recall=  6.2%
+    7:SafeCarrying   n= 30 recall=100.0%
+  [saved LCO per-clip OOF] sweep_results/relation_tokens/enc_v11ft_E3_lco-691_headline-drop_conflict_oof.json
+  [saved LCO OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_v11ft_binary_E3_drop_conflict.pt

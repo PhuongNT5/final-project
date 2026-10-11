@@ -1,0 +1,6 @@
+clip order identical : True
+labels identical     : True
+max |diff| wholeframe: 0.0
+detections v11ft/26ft: 13895 13108
+meta v11ft: {'detector': 'sweep_results/entity_detector/detector_best.pt', 'detector_nc': 8, 'class_map': 'identity', 'imgsz': 640, 'conf': 0.25, 'T': 16, 'n_max': 8, 'argv': 'build-isafetybench-clip-features.py --detector sweep_results/entity_detector/detector_best.pt --class_map identity --out_tag isbv11ft_'}
+meta 26ft : {'detector': 'sweep_results/entity_detector/yolo26_best.pt', 'detector_nc': 8, 'class_map': 'identity', 'imgsz': 640, 'conf': 0.25, 'T': 16, 'n_max': 8, 'argv': 'build-isafetybench-clip-features.py --detector sweep_results/entity_detector/yolo26_best.pt --class_map identity --out_tag isb26ft_'}

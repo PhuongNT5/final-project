@@ -1,0 +1,236 @@
+{
+  "gate": "G23 (mechanism only, val slice, no test touch)",
+  "preregistration": "tien-dang-ky-g21-g25.md",
+  "detector_gate_floor_G22": 0.85,
+  "baseline_raw_frame_convlstm_val_macro": {
+    "convlstm": 0.7638888888888888,
+    "convlstm_cpu": 0.7916666666666666
+  },
+  "mechanism": {
+    "ctx": {
+      "members": {
+        "mean": {
+          "val_macro": 0.8578173034694774,
+          "val_top1": 0.8192771084337349,
+          "map50": 0.80585,
+          "gate_status": "BELOW FLOOR - EXPLORATORY ONLY, never cite as a gated result"
+        },
+        "max": {
+          "val_macro": 0.8451910408432148,
+          "val_top1": 0.8192771084337349,
+          "map50": 0.80585,
+          "gate_status": "BELOW FLOOR - EXPLORATORY ONLY, never cite as a gated result"
+        },
+        "pair": {
+          "val_macro": 0.8482103645147123,
+          "val_top1": 0.8192771084337349,
+          "map50": 0.80585,
+          "gate_status": "BELOW FLOOR - EXPLORATORY ONLY, never cite as a gated result"
+        },
+        "gate25": {
+          "val_macro": 0.8515041721563461,
+          "val_top1": 0.8192771084337349,
+          "map50": 0.80585,
+          "gate_status": "BELOW FLOOR - EXPLORATORY ONLY, never cite as a gated result"
+        },
+        "gate50": {
+          "val_macro": 0.8590799297321037,
+          "val_top1": 0.8313253012048193,
+          "map50": 0.80585,
+          "gate_status": "BELOW FLOOR - EXPLORATORY ONLY, never cite as a gated result"
+        },
+        "gate75": {
+          "val_macro": 0.8515041721563461,
+          "val_top1": 0.8192771084337349,
+          "map50": 0.80585,
+          "gate_status": "BELOW FLOOR - EXPLORATORY ONLY, never cite as a gated result"
+        }
+      },
+      "best_gate": "gate50",
+      "best_plain": "mean",
+      "delta_val_macro_pp_gate_minus_plain": 0.12626262626262985,
+      "mcnemar_val_gate_vs_plain": {
+        "b": 2,
+        "c": 1,
+        "n_discordant": 3,
+        "p": 1.0
+      },
+      "paper_attributes_pp": 10.029999999999994
+    },
+    "ctx_sep06": {
+      "members": {
+        "mean": {
+          "val_macro": 0.8578173034694774,
+          "val_top1": 0.8192771084337349,
+          "map50": null,
+          "gate_status": null
+        },
+        "max": {
+          "val_macro": 0.8451910408432148,
+          "val_top1": 0.8192771084337349,
+          "map50": null,
+          "gate_status": null
+        },
+        "pair": {
+          "val_macro": 0.8482103645147123,
+          "val_top1": 0.8192771084337349,
+          "map50": null,
+          "gate_status": null
+        },
+        "gate25": {
+          "val_macro": 0.8515041721563461,
+          "val_top1": 0.8192771084337349,
+          "map50": null,
+          "gate_status": null
+        },
+        "gate50": {
+          "val_macro": 0.8590799297321037,
+          "val_top1": 0.8313253012048193,
+          "map50": null,
+          "gate_status": null
+        },
+        "gate75": {
+          "val_macro": 0.8515041721563461,
+          "val_top1": 0.8192771084337349,
+          "map50": null,
+          "gate_status": null
+        }
+      },
+      "best_gate": "gate50",
+      "best_plain": "mean",
+      "delta_val_macro_pp_gate_minus_plain": 0.12626262626262985,
+      "mcnemar_val_gate_vs_plain": {
+        "b": 2,
+        "c": 1,
+        "n_discordant": 3,
+        "p": 1.0
+      },
+      "paper_attributes_pp": 10.029999999999994
+    },
+    "tight_sep06": {
+      "members": {
+        "mean": {
+          "val_macro": 0.8729688186209925,
+          "val_top1": 0.8433734939759037,
+          "map50": null,
+          "gate_status": null
+        },
+        "max": {
+          "val_macro": 0.8805445761967501,
+          "val_top1": 0.8554216867469879,
+          "map50": null,
+          "gate_status": null
+        },
+        "pair": {
+          "val_macro": 0.8759881422924901,
+          "val_top1": 0.8433734939759037,
+          "map50": null,
+          "gate_status": null
+        },
+        "gate25": {
+          "val_macro": 0.8502415458937198,
+          "val_top1": 0.8072289156626506,
+          "map50": null,
+          "gate_status": null
+        },
+        "gate50": {
+          "val_macro": 0.8578173034694774,
+          "val_top1": 0.8192771084337349,
+          "map50": null,
+          "gate_status": null
+        },
+        "gate75": {
+          "val_macro": 0.8792819499341238,
+          "val_top1": 0.8433734939759037,
+          "map50": null,
+          "gate_status": null
+        }
+      },
+      "best_gate": "gate75",
+      "best_plain": "max",
+      "delta_val_macro_pp_gate_minus_plain": -0.12626262626262985,
+      "mcnemar_val_gate_vs_plain": {
+        "b": 1,
+        "c": 2,
+        "n_discordant": 3,
+        "p": 1.0
+      },
+      "paper_attributes_pp": 10.029999999999994
+    }
+  },
+  "fusion_val_only": {
+    "detctx-*": {
+      "pattern": "detctx-*",
+      "picked_val_selected": {
+        "detctx-gate50": 0.156,
+        "detctx-gate75": 0.072,
+        "detctx-max": 0.175,
+        "detctx-mean": 0.288,
+        "detctx-pair": 0.309
+      },
+      "val_macro": 0.865393061045235,
+      "val_top1": 0.8313253012048193,
+      "n_members_offered": 6,
+      "test_scored": false,
+      "note": "test posteriors saved, deliberately NOT scored: that needs the 1 remaining pre-registered test touch and a decision rule written before it is spent."
+    },
+    "detT-*": {
+      "pattern": "detT-*",
+      "picked_val_selected": {
+        "detT-gate25": 0.062,
+        "detT-gate75": 0.132,
+        "detT-max": 0.446,
+        "detT-mean": 0.025,
+        "detT-pair": 0.335
+      },
+      "val_macro": 0.8729688186209925,
+      "val_top1": 0.8433734939759037,
+      "n_members_offered": 6,
+      "test_scored": false,
+      "note": "test posteriors saved, deliberately NOT scored: that needs the 1 remaining pre-registered test touch and a decision rule written before it is spent."
+    },
+    "convlstm_cpu+detT": {
+      "members_offered": [
+        "convlstm_cpu",
+        "detT-mean",
+        "detT-max",
+        "detT-pair",
+        "detT-gate25",
+        "detT-gate50",
+        "detT-gate75"
+      ],
+      "picked_val_selected": {
+        "convlstm_cpu": 0.149,
+        "detT-max": 0.336,
+        "detT-pair": 0.18,
+        "detT-gate25": 0.022,
+        "detT-gate75": 0.312
+      },
+      "val_macro": 0.8805445761967501,
+      "val_top1": 0.8554216867469879,
+      "test_scored": false
+    },
+    "convlstm_cpu+detctx": {
+      "members_offered": [
+        "convlstm_cpu",
+        "detctx-mean",
+        "detctx-max",
+        "detctx-pair",
+        "detctx-gate25",
+        "detctx-gate50",
+        "detctx-gate75"
+      ],
+      "picked_val_selected": {
+        "convlstm_cpu": 0.246,
+        "detctx-mean": 0.217,
+        "detctx-pair": 0.178,
+        "detctx-gate25": 0.12,
+        "detctx-gate50": 0.21,
+        "detctx-gate75": 0.028
+      },
+      "val_macro": 0.8515041721563461,
+      "val_top1": 0.8192771084337349,
+      "test_scored": false
+    }
+  }
+}

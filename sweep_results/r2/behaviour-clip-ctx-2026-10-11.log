@@ -1,0 +1,14 @@
+  [train] 100/566
+  [train] 200/566
+  [train] 300/566
+  [train] 400/566
+  [train] 500/566
+[behaviour_clip] train: (566, 32, 8)
+  [test] 100/125
+[behaviour_clip] test: (125, 32, 8)
+[detctx-mean] val macro=85.8 top1=81.9
+[detctx-max] val macro=84.5 top1=81.9
+[detctx-pair] val macro=84.8 top1=81.9
+[detctx-gate25] val macro=85.2 top1=81.9
+[detctx-gate50] val macro=85.9 top1=83.1
+[detctx-gate75] val macro=85.2 top1=81.9

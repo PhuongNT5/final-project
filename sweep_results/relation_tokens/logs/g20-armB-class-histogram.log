@@ -1,0 +1,28 @@
+--- YOLOv11s-ft  (isbv11ft)  total detections = 13895
+    meta = {'detector': 'sweep_results/entity_detector/detector_best.pt', 'detector_nc': 8, 'class_map': 'identity', 'imgsz': 640, 'conf': 0.25, 'T': 16, 'n_max': 8, 'argv': 'build-isafetybench-clip-features.py --detector sweep_results/entity_detector/detector_best.pt --class_map identity --out_tag isbv11ft_'}
+    0:Person_Authorized           1322    9.5%
+    1:Person_Unauthorized        10745   77.3%
+    2:Safe_Walkway                   0    0.0%
+    3:Restricted_Zone                0    0.0%
+    4:Panel_Closed                   0    0.0%
+    5:Panel_Opened                   0    0.0%
+    6:Forklift_Safe_Load           911    6.6%
+    7:Forklift_Overload            917    6.6%
+    nonzero classes = [0, 1, 6, 7]
+    mean conf (valid) = 0.5556
+    frames with >=1 det = 8117 of 17600
+
+--- YOLO26-ft  (isb26ft)  total detections = 13108
+    meta = {'detector': 'sweep_results/entity_detector/yolo26_best.pt', 'detector_nc': 8, 'class_map': 'identity', 'imgsz': 640, 'conf': 0.25, 'T': 16, 'n_max': 8, 'argv': 'build-isafetybench-clip-features.py --detector sweep_results/entity_detector/yolo26_best.pt --class_map identity --out_tag isb26ft_'}
+    0:Person_Authorized            391    3.0%
+    1:Person_Unauthorized        11886   90.7%
+    2:Safe_Walkway                   0    0.0%
+    3:Restricted_Zone                0    0.0%
+    4:Panel_Closed                   2    0.0%
+    5:Panel_Opened                   1    0.0%
+    6:Forklift_Safe_Load           166    1.3%
+    7:Forklift_Overload            662    5.1%
+    nonzero classes = [0, 1, 4, 5, 6, 7]
+    mean conf (valid) = 0.6187
+    frames with >=1 det = 8518 of 17600
+

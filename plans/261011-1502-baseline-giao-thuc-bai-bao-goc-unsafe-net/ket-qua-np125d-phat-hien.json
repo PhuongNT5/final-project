@@ -1,0 +1,645 @@
+{
+ "preregistration": "tien-dang-ky-np125d-phat-hien-nhi-phan.md",
+ "relation_to_G25": "RE-EXPRESSION, NON-ADJUDICATING. Cannot overturn or soften G25.",
+ "new_test_touches": 0,
+ "positive_class": "unsafe",
+ "artifact": "sweep_results/r2/temporal_convlstm_binary.pt",
+ "n": 125,
+ "n_unsafe": 64,
+ "n_safe": 61,
+ "scene_groups_covering_test": 8,
+ "threshold_free": {
+  "pr_auc_unsafe": 0.876131863739062,
+  "roc_auc": 0.8484887295081968
+ },
+ "within_scene_discrimination": {
+  "within_scene_auc": 0.6426356589147287,
+  "n_within_scene_pairs": 645,
+  "n_mixed_scenes": 6,
+  "ci_group_resample": [
+   0.49233716475095785,
+   0.8443345451953232
+  ],
+  "ci_group_resample_n_valid_draws": 5000,
+  "ci_clip_resample_WRONG_UNIT": [
+   0.5106100326781446,
+   0.7680153914422185
+  ],
+  "per_scene": {
+   "0": {
+    "auc": 1.0,
+    "n_pairs": 2
+   },
+   "1": {
+    "auc": 0.4772727272727273,
+    "n_pairs": 132
+   },
+   "2": {
+    "auc": 1.0,
+    "n_pairs": 20
+   },
+   "3": {
+    "auc": 0.8074074074074075,
+    "n_pairs": 270
+   },
+   "4": {
+    "auc": 0.49539170506912444,
+    "n_pairs": 217
+   },
+   "7": {
+    "auc": 1.0,
+    "n_pairs": 4
+   }
+  }
+ },
+ "scene_alarm_profile_at_OP0": {
+  "per_scene": {
+   "0": {
+    "n": 3,
+    "n_unsafe": 2,
+    "n_safe": 1,
+    "recall": 1.0,
+    "false_alarm_rate": 1.0,
+    "true_unsafe_rate": 0.6666666666666666,
+    "alarm_rate": 1.0
+   },
+   "1": {
+    "n": 23,
+    "n_unsafe": 12,
+    "n_safe": 11,
+    "recall": 0.5,
+    "false_alarm_rate": 0.6363636363636364,
+    "true_unsafe_rate": 0.5217391304347826,
+    "alarm_rate": 0.5652173913043478
+   },
+   "2": {
+    "n": 9,
+    "n_unsafe": 5,
+    "n_safe": 4,
+    "recall": 1.0,
+    "false_alarm_rate": 0.0,
+    "true_unsafe_rate": 0.5555555555555556,
+    "alarm_rate": 0.5555555555555556
+   },
+   "3": {
+    "n": 37,
+    "n_unsafe": 27,
+    "n_safe": 10,
+    "recall": 1.0,
+    "false_alarm_rate": 1.0,
+    "true_unsafe_rate": 0.7297297297297297,
+    "alarm_rate": 1.0
+   },
+   "4": {
+    "n": 38,
+    "n_unsafe": 7,
+    "n_safe": 31,
+    "recall": 0.2857142857142857,
+    "false_alarm_rate": 0.0967741935483871,
+    "true_unsafe_rate": 0.18421052631578946,
+    "alarm_rate": 0.13157894736842105
+   },
+   "5": {
+    "n": 8,
+    "n_unsafe": 8,
+    "n_safe": 0,
+    "recall": 1.0,
+    "false_alarm_rate": null,
+    "true_unsafe_rate": 1.0,
+    "alarm_rate": 1.0
+   },
+   "6": {
+    "n": 2,
+    "n_unsafe": 2,
+    "n_safe": 0,
+    "recall": 1.0,
+    "false_alarm_rate": null,
+    "true_unsafe_rate": 1.0,
+    "alarm_rate": 1.0
+   },
+   "7": {
+    "n": 5,
+    "n_unsafe": 1,
+    "n_safe": 4,
+    "recall": 1.0,
+    "false_alarm_rate": 0.0,
+    "true_unsafe_rate": 0.2,
+    "alarm_rate": 0.2
+   }
+  },
+  "pearson_alarm_vs_true_rate": 0.9265611244615511,
+  "within_scene_youden_j": {
+   "0": 0.0,
+   "1": -0.13636363636363635,
+   "2": 1.0,
+   "3": 0.0,
+   "4": 0.1889400921658986,
+   "7": 1.0
+  }
+ },
+ "operating_points": {
+  "OP0_argmax": {
+   "tau_from_val": 0.5,
+   "val": {
+    "tp": 72,
+    "fp": 9,
+    "fn": 11,
+    "tn": 11,
+    "recall_unsafe": 0.8674698795180723,
+    "false_alarm_rate": 0.45,
+    "specificity": 0.55,
+    "miss_rate": 0.1325301204819277,
+    "precision_unsafe": 0.8888888888888888,
+    "f1_unsafe": 0.8780487804878048,
+    "youden_j": 0.4174698795180723
+   },
+   "test": {
+    "tp": 53,
+    "fp": 21,
+    "fn": 11,
+    "tn": 40,
+    "recall_unsafe": 0.828125,
+    "false_alarm_rate": 0.3442622950819672,
+    "specificity": 0.6557377049180328,
+    "miss_rate": 0.171875,
+    "precision_unsafe": 0.7162162162162162,
+    "f1_unsafe": 0.7681159420289855,
+    "youden_j": 0.4838627049180328
+   },
+   "per_unsafe_class_recall": {
+    "WalkwayViolation": {
+     "n": 32,
+     "detected": 29,
+     "recall": 0.90625
+    },
+    "UnauthorisedIntrusion": {
+     "n": 11,
+     "detected": 10,
+     "recall": 0.9090909090909091
+    },
+    "OpenedPanel": {
+     "n": 13,
+     "detected": 6,
+     "recall": 0.46153846153846156
+    },
+    "CarryOverload": {
+     "n": 8,
+     "detected": 8,
+     "recall": 1.0
+    }
+   },
+   "label_induced_false_alarms": {
+    "n_safe_test_clips": 61,
+    "n_forced_candidates": 4,
+    "n_actually_false_alarmed": 0,
+    "label_induced_fpr_floor": 0.0,
+    "perfect_detection_possible": false,
+    "detail": [
+     {
+      "safe_test_clip": "4_te4.mp4",
+      "unsafe_twin": [
+       "0_tr123.mp4",
+       "1_tr55.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": false
+     },
+     {
+      "safe_test_clip": "5_te13.mp4",
+      "unsafe_twin": [
+       "0_tr136.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": false
+     },
+     {
+      "safe_test_clip": "4_te7.mp4",
+      "unsafe_twin": [
+       "0_tr138.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": false
+     },
+     {
+      "safe_test_clip": "4_te9.mp4",
+      "unsafe_twin": [
+       "0_te23.mp4"
+      ],
+      "twin_in_test": true,
+      "alarm_raised": false
+     }
+    ]
+   },
+   "recall_ci_cluster_8_scene_groups": [
+    0.5416666666666666,
+    1.0
+   ],
+   "recall_ci_n_valid_draws": 5000,
+   "false_alarm_ci_cluster_8_scene_groups": [
+    0.08571428571428572,
+    0.8181818181818182
+   ],
+   "false_alarm_ci_n_valid_draws": 5000,
+   "recall_ci_CLIP_UNIT_wrong_unit": [
+    0.7178678837734179,
+    0.9012225769875536
+   ],
+   "mcnemar_unsafe_decision_vs_scene_only": {
+    "b": 14,
+    "c": 9,
+    "n_discordant": 23,
+    "p": 0.4048728942871094
+   }
+  },
+  "OP1_val_max_f1": {
+   "tau_from_val": 0.4130968153476715,
+   "val": {
+    "tp": 82,
+    "fp": 12,
+    "fn": 1,
+    "tn": 8,
+    "recall_unsafe": 0.9879518072289156,
+    "false_alarm_rate": 0.6,
+    "specificity": 0.4,
+    "miss_rate": 0.012048192771084376,
+    "precision_unsafe": 0.8723404255319149,
+    "f1_unsafe": 0.9265536723163843,
+    "youden_j": 0.38795180722891565
+   },
+   "test": {
+    "tp": 59,
+    "fp": 34,
+    "fn": 5,
+    "tn": 27,
+    "recall_unsafe": 0.921875,
+    "false_alarm_rate": 0.5573770491803278,
+    "specificity": 0.4426229508196722,
+    "miss_rate": 0.078125,
+    "precision_unsafe": 0.6344086021505376,
+    "f1_unsafe": 0.7515923566878981,
+    "youden_j": 0.3644979508196722
+   },
+   "per_unsafe_class_recall": {
+    "WalkwayViolation": {
+     "n": 32,
+     "detected": 30,
+     "recall": 0.9375
+    },
+    "UnauthorisedIntrusion": {
+     "n": 11,
+     "detected": 10,
+     "recall": 0.9090909090909091
+    },
+    "OpenedPanel": {
+     "n": 13,
+     "detected": 11,
+     "recall": 0.8461538461538461
+    },
+    "CarryOverload": {
+     "n": 8,
+     "detected": 8,
+     "recall": 1.0
+    }
+   },
+   "label_induced_false_alarms": {
+    "n_safe_test_clips": 61,
+    "n_forced_candidates": 4,
+    "n_actually_false_alarmed": 3,
+    "label_induced_fpr_floor": 0.04918032786885246,
+    "perfect_detection_possible": false,
+    "detail": [
+     {
+      "safe_test_clip": "4_te4.mp4",
+      "unsafe_twin": [
+       "0_tr123.mp4",
+       "1_tr55.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": true
+     },
+     {
+      "safe_test_clip": "5_te13.mp4",
+      "unsafe_twin": [
+       "0_tr136.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": true
+     },
+     {
+      "safe_test_clip": "4_te7.mp4",
+      "unsafe_twin": [
+       "0_tr138.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": true
+     },
+     {
+      "safe_test_clip": "4_te9.mp4",
+      "unsafe_twin": [
+       "0_te23.mp4"
+      ],
+      "twin_in_test": true,
+      "alarm_raised": false
+     }
+    ]
+   },
+   "recall_ci_cluster_8_scene_groups": [
+    0.717391304347826,
+    1.0
+   ],
+   "recall_ci_n_valid_draws": 5000,
+   "false_alarm_ci_cluster_8_scene_groups": [
+    0.2916666666666667,
+    0.8947368421052632
+   ],
+   "false_alarm_ci_n_valid_draws": 5000,
+   "recall_ci_CLIP_UNIT_wrong_unit": [
+    0.8298046264583709,
+    0.9661688230914495
+   ],
+   "mcnemar_unsafe_decision_vs_scene_only": {
+    "b": 12,
+    "c": 14,
+    "n_discordant": 26,
+    "p": 0.8450189828872681
+   }
+  },
+  "OP2_val_fpr_le_10pct": {
+   "tau_from_val": 0.7275523543357849,
+   "val": {
+    "tp": 41,
+    "fp": 2,
+    "fn": 42,
+    "tn": 18,
+    "recall_unsafe": 0.4939759036144578,
+    "false_alarm_rate": 0.1,
+    "specificity": 0.9,
+    "miss_rate": 0.5060240963855422,
+    "precision_unsafe": 0.9534883720930233,
+    "f1_unsafe": 0.6507936507936507,
+    "youden_j": 0.3939759036144578
+   },
+   "test": {
+    "tp": 37,
+    "fp": 2,
+    "fn": 27,
+    "tn": 59,
+    "recall_unsafe": 0.578125,
+    "false_alarm_rate": 0.03278688524590164,
+    "specificity": 0.9672131147540983,
+    "miss_rate": 0.421875,
+    "precision_unsafe": 0.9487179487179487,
+    "f1_unsafe": 0.7184466019417476,
+    "youden_j": 0.5453381147540983
+   },
+   "per_unsafe_class_recall": {
+    "WalkwayViolation": {
+     "n": 32,
+     "detected": 23,
+     "recall": 0.71875
+    },
+    "UnauthorisedIntrusion": {
+     "n": 11,
+     "detected": 8,
+     "recall": 0.7272727272727273
+    },
+    "OpenedPanel": {
+     "n": 13,
+     "detected": 0,
+     "recall": 0.0
+    },
+    "CarryOverload": {
+     "n": 8,
+     "detected": 6,
+     "recall": 0.75
+    }
+   },
+   "label_induced_false_alarms": {
+    "n_safe_test_clips": 61,
+    "n_forced_candidates": 4,
+    "n_actually_false_alarmed": 0,
+    "label_induced_fpr_floor": 0.0,
+    "perfect_detection_possible": false,
+    "detail": [
+     {
+      "safe_test_clip": "4_te4.mp4",
+      "unsafe_twin": [
+       "0_tr123.mp4",
+       "1_tr55.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": false
+     },
+     {
+      "safe_test_clip": "5_te13.mp4",
+      "unsafe_twin": [
+       "0_tr136.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": false
+     },
+     {
+      "safe_test_clip": "4_te7.mp4",
+      "unsafe_twin": [
+       "0_tr138.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": false
+     },
+     {
+      "safe_test_clip": "4_te9.mp4",
+      "unsafe_twin": [
+       "0_te23.mp4"
+      ],
+      "twin_in_test": true,
+      "alarm_raised": false
+     }
+    ]
+   },
+   "recall_ci_cluster_8_scene_groups": [
+    0.18603820598006646,
+    0.8518518518518519
+   ],
+   "recall_ci_n_valid_draws": 5000,
+   "false_alarm_ci_cluster_8_scene_groups": [
+    0.0,
+    0.14285714285714285
+   ],
+   "false_alarm_ci_n_valid_draws": 5000,
+   "recall_ci_CLIP_UNIT_wrong_unit": [
+    0.456100315400829,
+    0.6913021752565451
+   ],
+   "mcnemar_unsafe_decision_vs_scene_only": {
+    "b": 28,
+    "c": 20,
+    "n_discordant": 48,
+    "p": 0.31232680747326935
+   }
+  },
+  "OP3_val_alarm_matched_to_scene": {
+   "tau_from_val": 0.31242626905441284,
+   "val": {
+    "tp": 82,
+    "fp": 14,
+    "fn": 1,
+    "tn": 6,
+    "recall_unsafe": 0.9879518072289156,
+    "false_alarm_rate": 0.7,
+    "specificity": 0.30000000000000004,
+    "miss_rate": 0.012048192771084376,
+    "precision_unsafe": 0.8541666666666666,
+    "f1_unsafe": 0.9162011173184358,
+    "youden_j": 0.28795180722891567
+   },
+   "test": {
+    "tp": 61,
+    "fp": 44,
+    "fn": 3,
+    "tn": 17,
+    "recall_unsafe": 0.953125,
+    "false_alarm_rate": 0.7213114754098361,
+    "specificity": 0.2786885245901639,
+    "miss_rate": 0.046875,
+    "precision_unsafe": 0.580952380952381,
+    "f1_unsafe": 0.7218934911242604,
+    "youden_j": 0.2318135245901639
+   },
+   "per_unsafe_class_recall": {
+    "WalkwayViolation": {
+     "n": 32,
+     "detected": 30,
+     "recall": 0.9375
+    },
+    "UnauthorisedIntrusion": {
+     "n": 11,
+     "detected": 11,
+     "recall": 1.0
+    },
+    "OpenedPanel": {
+     "n": 13,
+     "detected": 12,
+     "recall": 0.9230769230769231
+    },
+    "CarryOverload": {
+     "n": 8,
+     "detected": 8,
+     "recall": 1.0
+    }
+   },
+   "label_induced_false_alarms": {
+    "n_safe_test_clips": 61,
+    "n_forced_candidates": 4,
+    "n_actually_false_alarmed": 3,
+    "label_induced_fpr_floor": 0.04918032786885246,
+    "perfect_detection_possible": false,
+    "detail": [
+     {
+      "safe_test_clip": "4_te4.mp4",
+      "unsafe_twin": [
+       "0_tr123.mp4",
+       "1_tr55.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": true
+     },
+     {
+      "safe_test_clip": "5_te13.mp4",
+      "unsafe_twin": [
+       "0_tr136.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": true
+     },
+     {
+      "safe_test_clip": "4_te7.mp4",
+      "unsafe_twin": [
+       "0_tr138.mp4"
+      ],
+      "twin_in_test": false,
+      "alarm_raised": true
+     },
+     {
+      "safe_test_clip": "4_te9.mp4",
+      "unsafe_twin": [
+       "0_te23.mp4"
+      ],
+      "twin_in_test": true,
+      "alarm_raised": false
+     }
+    ]
+   },
+   "recall_ci_cluster_8_scene_groups": [
+    0.7931034482758621,
+    1.0
+   ],
+   "recall_ci_n_valid_draws": 5000,
+   "false_alarm_ci_cluster_8_scene_groups": [
+    0.375,
+    0.9298245614035088
+   ],
+   "false_alarm_ci_n_valid_draws": 5000,
+   "recall_ci_CLIP_UNIT_wrong_unit": [
+    0.8710034625990631,
+    0.983930983213707
+   ],
+   "mcnemar_unsafe_decision_vs_scene_only": {
+    "b": 12,
+    "c": 22,
+    "n_discordant": 34,
+    "p": 0.12144948495551944
+   }
+  }
+ },
+ "controls_in_detection_terms": {
+  "scene_majority_train_fit": {
+   "tp": 57,
+   "fp": 30,
+   "fn": 7,
+   "tn": 31,
+   "recall_unsafe": 0.890625,
+   "false_alarm_rate": 0.4918032786885246,
+   "specificity": 0.5081967213114754,
+   "miss_rate": 0.109375,
+   "precision_unsafe": 0.6551724137931034,
+   "f1_unsafe": 0.7549668874172185,
+   "youden_j": 0.3988217213114754
+  },
+  "scene_majority_oracle": {
+   "tp": 56,
+   "fp": 26,
+   "fn": 8,
+   "tn": 35,
+   "recall_unsafe": 0.875,
+   "false_alarm_rate": 0.4262295081967213,
+   "specificity": 0.5737704918032787,
+   "miss_rate": 0.125,
+   "precision_unsafe": 0.6829268292682927,
+   "f1_unsafe": 0.767123287671233,
+   "youden_j": 0.4487704918032787
+  },
+  "constant_majority_class": {
+   "tp": 64,
+   "fp": 61,
+   "fn": 0,
+   "tn": 0,
+   "recall_unsafe": 1.0,
+   "false_alarm_rate": 1.0,
+   "specificity": 0.0,
+   "miss_rate": 0.0,
+   "precision_unsafe": 0.512,
+   "f1_unsafe": 0.6772486772486772,
+   "youden_j": 0.0
+  }
+ },
+ "np64_slice": {
+  "note": "unsafe-only: only recall is defined, nothing else is printed",
+  "recall_unsafe_at_OP0": 0.828125
+ },
+ "prereg_rule": "has content iff at OP3 recall margin over scene-only >= 5 pp AND McNemar on the unsafe decision p < 0.05",
+ "verdict": {
+  "recall_margin_pp_at_OP3": 6.25,
+  "mcnemar_p_at_OP3": 0.12144948495551944,
+  "has_content": false
+ }
+}

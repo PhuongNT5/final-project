@@ -1,0 +1,5 @@
+
+=== LSO-1100 (ESTA, 1100/1100 clips scored, 10 held-out folds, merged from 4 shards) ===
+  balanced_acc=78.1% macro_f1=75.9% unsafe_recall=86.7% unsafe_precision=63.7% PR-AUC=0.642 ROC-AUC=0.825
+  [saved per-clip OOF] sweep_results/relation_tokens/enc_isbclip_ESTA_26ft_lso-1100_headline-none_oof.json
+  [saved OOF tensor] sweep_results/relation_tokens/lco_oof_softmax_isbclip_binary_ESTA_26ft_none.pt

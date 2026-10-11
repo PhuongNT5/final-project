@@ -1,0 +1,7 @@
+n=687 clips, 8 groups
+  E3 @ YOLO26-ft: balanced_acc=69.6%
+  E3 @ YOLOv11s-ft: balanced_acc=61.8%
+  A - B = +7.8 pp
+  [cluster bootstrap over 8 groups, 5000/5000 valid draws] diff=+7.8 pp  95% CI [-1.5, +15.2]  includes 0
+  [clip-level bootstrap -- WRONG UNIT, disclosure only] 95% CI [+4.3, +11.4]
+  [McNemar exact] b=98 c=28 n_discordant=126 p=2.69e-10 | N=687, 126 discordant cells
