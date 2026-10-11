@@ -1,48 +1,22 @@
 """The paper's actual temporal model: a ConvLSTM over raw frames.
 
-Every temporal head we built so far (mean / BiLSTM / Transformer over entity-geometry and CNN
-streams) departs from Onal & Dandil, who classify raw frame sequences with a ConvLSTM.  Without this
-module we cannot claim to have reproduced their *baseline* (Table 5: 57/64 = 89.06 % top-1, 85.78 %
-macro without frame reduction), which is the anchor every other comparison hangs on.
-
-Members are written in the same format as the rest of the pipeline so fusion/eval consume them
-unchanged.
+Onal & Dandil classify raw frame sequences with a ConvLSTM; every other temporal head here departs
+from that.  Without this module we cannot claim to have reproduced their *baseline* (Table 5:
+57/64 = 89.06 % top-1, 85.78 % macro without frame reduction).  Members are written in the common
+format so fusion/eval consume them unchanged.
 """
 from __future__ import annotations
 import argparse
 import os
 
-import cv2
 import numpy as np
 import torch
 import torch.nn as nn
 
 from . import config as C
 from .data_index import load_clips, blind_split
-from .frame_cache import frame_paths
-
-CACHE = os.path.join(C.CACHE_DIR, 'raw_{}_{}px_t{}.npy')
-
-
-def clip_tensor(subsets=('train', 'test'), px=112, t=16):
-    """Cache uint8 (N,T,px,px,3) raw frames - the ConvLSTM's input."""
-    for sp in subsets:
-        out = CACHE.format(sp, px, t)
-        if os.path.exists(out):
-            continue
-        clips = load_clips([sp])
-        X = np.zeros((len(clips), t, px, px, 3), np.uint8)
-        idx = np.linspace(0, C.T - 1, t).round().astype(int)
-        for i, c in enumerate(clips):
-            paths = frame_paths(c)
-            for j, k in enumerate(idx):
-                im = cv2.imread(paths[k])
-                X[i, j] = cv2.resize(im, (px, px), interpolation=cv2.INTER_AREA)[:, :, ::-1]
-            if (i + 1) % 150 == 0:
-                print(f'  [{sp}] {i+1}/{len(clips)}', flush=True)
-        np.save(out, X)
-        print(f'[convlstm] cached {sp}: {X.shape}', flush=True)
-
+from .frame_cache import CACHE, clip_tensor
+from . import dedupe
 
 class ConvLSTMCell(nn.Module):
     def __init__(self, cin, ch, k=3):
@@ -137,30 +111,63 @@ def _run_seed(Xtr, ytr, Xva, yva, Xte, n_cls, seed, epochs, bs, lr, device):
     return best, torch.softmax(Pv, -1), torch.softmax(Pt, -1)
 
 
-def run(px=112, t=16, seeds=5, epochs=18, bs=8, lr=3e-4, device='mps', n_cls=4, name='convlstm'):
-    clip_tensor(px=px, t=t)
-    Xtr_all = torch.from_numpy(np.load(CACHE.format('train', px, t)))
-    Xte_all = torch.from_numpy(np.load(CACHE.format('test', px, t)))
-    tr, te = load_clips(['train']), load_clips(['test'])
-    ytr_all = np.array([c.label for c in tr]); yte_all = np.array([c.label for c in te])
-    keep_te = np.where(yte_all < 4)[0]
-    unsafe = np.where(ytr_all < 4)[0]
+def _task_split(tr, te, task, policy, n_cls):
+    """Fit/val/test indices and labels for one task.
+
+    `unsafe4`/`8`: the paper's 4-class unsafe subset, 64 test clips, all unsafe.  `binary`: the
+    Safe/Unsafe framing on the frozen 125-clip test set (64 unsafe / 61 safe) - the only split on
+    which a Safe/Unsafe decision is measurable.  Duplicate policy is explicit because 4 groups
+    disagree on the binary label, one entirely inside test, capping any classifier at 124/125.
+    """
+    ytr = np.array([c.label for c in tr])
+    yte = np.array([c.label for c in te])
+    if task == 'binary':
+        tr_pol, te_pol = {'none': ('none', 'keep'),
+                          'drop_conflict': ('drop_conflict', 'keep'),
+                          'drop_conflict_test': ('drop_conflict', 'drop_conflict')}[policy]
+        pool = np.where(dedupe.keep_mask([c.name for c in tr], 'train', tr_pol, task='binary'))[0]
+        keep_te = np.where(dedupe.keep_mask([c.name for c in te], 'test', te_pol, task='binary'))[0]
+        fit_i, val_i = blind_split([tr[i] for i in pool], seed=0)   # stratified on the 8-class
+        return pool[fit_i], pool[val_i], keep_te, (ytr < 4).astype(int), (yte < 4).astype(int), 2
+    keep_te = np.where(yte < 4)[0]
+    unsafe = np.where(ytr < 4)[0]
     fit_i, val_i = blind_split([c for c in tr if c.is_unsafe], seed=0)
     g_val = unsafe[val_i]                                 # val is always unsafe-only (the task)
     g_fit = (np.array(sorted(set(range(len(tr))) - set(g_val.tolist())))
              if n_cls == 8 else unsafe[fit_i])            # safe clips only ever join the fit split
+    return g_fit, g_val, keep_te, ytr, yte, n_cls
+
+
+def run(px=112, t=16, seeds=5, epochs=18, bs=8, lr=3e-4, device='cpu', n_cls=4,
+        name='convlstm', task='unsafe4', policy='none'):
+    """device defaults to cpu: macOS 14 MPS silently corrupts AdamW's addcmul_ (thesis S3)."""
+    clip_tensor(px=px, t=t)
+    Xtr_all = torch.from_numpy(np.load(CACHE.format('train', px, t)))
+    Xte_all = torch.from_numpy(np.load(CACHE.format('test', px, t)))
+    tr, te = load_clips(['train']), load_clips(['test'])
+    g_fit, g_val, keep_te, ytr_all, yte_all, n_cls = _task_split(tr, te, task, policy, n_cls)
     Xf, yf = Xtr_all[g_fit], ytr_all[g_fit]
     Xv, yv = Xtr_all[g_val], ytr_all[g_val]
     Xt, yt = Xte_all[keep_te], yte_all[keep_te]
-    print(f'[convlstm] fit={len(Xf)} val={len(Xv)} test={len(Xt)} n_cls={n_cls}', flush=True)
+    print(f'[convlstm] task={task} policy={policy} device={device} fit={len(Xf)} '
+          f'val={len(Xv)} test={len(Xt)} n_cls={n_cls}', flush=True)
     Pvs, Pts, per = [], [], []
     for s in range(seeds):
         m, Pv, Pt = _run_seed(Xf, yf, Xv, yv, Xt, n_cls, s, epochs, bs, lr, device)
         per.append(m); Pvs.append(Pv); Pts.append(Pt)
         print(f'  [{name}] seed{s} val_macro={m*100:.1f}', flush=True)
-    Pv, Pt = torch.stack(Pvs).mean(0)[:, :4], torch.stack(Pts).mean(0)[:, :4]
-    res = {'name': name, 'kind': 'convlstm', 'use': ['raw'], 'seeds': seeds,
-           'val_macro': _macro(yv, Pv.argmax(1).numpy()), 'val_top1': float((Pv.argmax(1).numpy() == yv).mean()),
+    # task='8' trains an 8-way softmax but is read on the 4 unsafe classes, so the slice drops
+    # probability mass (a different amount per clip).  Renormalise: slicing alone leaves rows that
+    # are not row-stochastic, which is the documented precondition of `metrics.report` - argmax
+    # survives truncation but Brier/ECE/NLL and every per-class ROC/PR ranking do not.  For
+    # task='unsafe4'/'binary' the slice is a no-op and the division by 1.0 changes nothing.
+    k = 2 if task == 'binary' else 4
+    Pv, Pt = (torch.stack(Ps).mean(0)[:, :k] for Ps in (Pvs, Pts))
+    Pv, Pt = Pv / Pv.sum(1, keepdim=True), Pt / Pt.sum(1, keepdim=True)
+    res = {'name': name, 'kind': 'convlstm', 'use': ['raw'], 'seeds': seeds, 'task': task,
+           'policy': policy, 'n_cls': n_cls, 'device': device, 'epochs': epochs, 'lr': lr,
+           'val_macro': _macro(yv, Pv.argmax(1).numpy(), k),
+           'val_top1': float((Pv.argmax(1).numpy() == yv).mean()),
            'Pv': Pv, 'yv': yv, 'Pt': Pt, 'yt': yt,
            'test_names': [te[i].name for i in keep_te], 'val_names': [tr[i].name for i in g_val],
            'per_seed': per}
@@ -175,8 +182,11 @@ if __name__ == '__main__':
     a.add_argument('--px', type=int, default=112); a.add_argument('--t', type=int, default=16)
     a.add_argument('--seeds', type=int, default=5); a.add_argument('--epochs', type=int, default=18)
     a.add_argument('--bs', type=int, default=8); a.add_argument('--lr', type=float, default=3e-4)
-    a.add_argument('--device', default='mps'); a.add_argument('--n-cls', type=int, default=4)
+    a.add_argument('--device', default='cpu'); a.add_argument('--n-cls', type=int, default=4)
     a.add_argument('--name', default='convlstm')
+    a.add_argument('--task', default='unsafe4', choices=['unsafe4', '8', 'binary'])
+    a.add_argument('--policy', default='none',
+                   choices=['none', 'drop_conflict', 'drop_conflict_test'])
     v = a.parse_args()
-    run(px=v.px, t=v.t, seeds=v.seeds, epochs=v.epochs, bs=v.bs, lr=v.lr,
-        device=v.device, n_cls=v.n_cls, name=v.name)
+    run(px=v.px, t=v.t, seeds=v.seeds, epochs=v.epochs, bs=v.bs, lr=v.lr, device=v.device,
+        n_cls=(8 if v.task == '8' else v.n_cls), name=v.name, task=v.task, policy=v.policy)

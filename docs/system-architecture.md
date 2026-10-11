@@ -84,13 +84,16 @@ numbers.
 ## P2 — paper-faithful rewrite
 
 **Code:** `unsafenet/` package (`config.py`, `behaviour_dataset.py`, `train_frame.py`,
-`train_temporal.py`, `convlstm.py`, `frame_cache.py`, `fusion.py`, `evaluate.py`, `metrics.py`).
-Driven by `run_unsafenet_r2.py` at the root.
+`train_temporal.py`, `convlstm.py`, `frame_cache.py`, `fusion.py`, `evaluate.py`, `metrics.py`,
+`behaviour_clip.py`). Driven by `run_unsafenet_r2.py` at the root.
 
 **Data flow:**
 ```
 raw clip -> T=32 frame cache (691 clips, ~2.8 GB, cache_r2/)
   -> entity detection (sweep_results/entity_detector/detector_best.pt)
+  -> behaviour detector, nc=8 (default runs/detect/sweep_results/r2/beh_ctx/weights/best.pt)
+     └─ detector_gate_status(): peak mAP50(B) read from that run's own results.csv, stamped
+        into every member artifact alongside gate_status
   -> ORB/RANSAC-registered zone geometry + person-motion streams
   -> 2 per-frame behaviour CNNs trained on all 8 classes (train_frame.py)
   -> 12 training-free aggregation members (incl. the paper's frame-reduction gate)
@@ -102,9 +105,25 @@ This is the pipeline that actually attempts the paper's core mechanism (a behavi
 detector feeding a temporal classifier), evaluated under a frozen val protocol with a single test
 touch.
 
-**Measured:** 50/64 = 78.12% top-1, 80.81% macro, blind (95% CI [66.0, 87.5] top-1 /
-[70.6, 90.2] macro, per `PROGRESS.md`); 55/64 test-selected. Weaker than P1/P3 but the most
-methodologically honest of the three (frozen protocol, disclosed test touch).
+**Detector quality gate (G22):** `behaviour_clip.detector_gate_status()` reads peak mAP50(B) from
+detector run's `results.csv` and compares against floor 0.85 / gate threshold 0.90. Every saved
+`temporal_det*.pt` artifact is stamped with `detector_weights`, `detector_map50_peak`, and
+`gate_status` fields so downstream tables cannot present below-floor detector results as gated
+measurements. The figure is read from the run's own `results.csv`, never hand-entered; the measured
+values for each trained detector live in the plan folder, not here.
+
+**Measured:** read from `sweep_results/r2/report_fusion.json` (the fused P2 headline), blind 64-clip
+test: **51/64 = 79.69% top-1, 81.59% macro**, 95% CI [68.8, 89.1] top-1 / [71.6, 90.9] macro;
+55/64 test-selected. Weaker than P1/P3 but the most methodologically honest of the three (frozen
+protocol, disclosed test touch).
+
+> `PROGRESS.md:128` and earlier revisions of this line report 50/64 = 78.12% / 80.81% macro with CI
+> [66.0, 87.5] / [70.6, 90.2] for this same row, citing this same artifact. The artifact on disk
+> (untracked, unmodified since 2026-09-05) carries exactly one test block and it is the one quoted
+> above; none of that other quadruple appears in it. Do not re-propagate the 50/64 figures for P2
+> fusion without re-deriving them. Note 50/64 **is** correct for the bare ConvLSTM member
+> (`temporal_convlstm.pt`, macro 75.64%) — a different system that coincidentally shares the top-1,
+> which is the likely origin of the mix-up. The frozen thesis text does not contain either figure.
 
 ## P3 — YOLO entity detector + spatial-relation Transformer (current accuracy headline)
 

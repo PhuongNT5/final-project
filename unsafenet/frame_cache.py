@@ -73,3 +73,26 @@ def build(subsets=('train', 'test'), t: int = C.T, force: bool = False) -> None:
 
 if __name__ == '__main__':
     build(force='--force' in sys.argv)
+
+
+CACHE = os.path.join(C.CACHE_DIR, 'raw_{}_{}px_t{}.npy')
+
+
+def clip_tensor(subsets=('train', 'test'), px=112, t=16):
+    """Cache uint8 (N,T,px,px,3) raw frames - the ConvLSTM's input."""
+    for sp in subsets:
+        out = CACHE.format(sp, px, t)
+        if os.path.exists(out):
+            continue
+        clips = load_clips([sp])
+        X = np.zeros((len(clips), t, px, px, 3), np.uint8)
+        idx = np.linspace(0, C.T - 1, t).round().astype(int)
+        for i, c in enumerate(clips):
+            paths = frame_paths(c)
+            for j, k in enumerate(idx):
+                im = cv2.imread(paths[k])
+                X[i, j] = cv2.resize(im, (px, px), interpolation=cv2.INTER_AREA)[:, :, ::-1]
+            if (i + 1) % 150 == 0:
+                print(f'  [{sp}] {i+1}/{len(clips)}', flush=True)
+        np.save(out, X)
+        print(f'[frame_cache] cached raw {sp}: {X.shape}', flush=True)

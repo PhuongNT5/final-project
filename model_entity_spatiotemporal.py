@@ -19,7 +19,10 @@ import torch
 import torch.nn as nn
 
 CLIP_DIM = 512
-N_ENTITY = 8          # coarse COCO groups, matches build_isafetybench_tokens.GROUP_NAMES
+N_ENTITY = 8          # 8 entity rows; cls_emb is relearned per run, so the row meaning
+                      # follows the token build: coarse COCO groups
+                      # (build_isafetybench_tokens.GROUP_NAMES), or the 8 fine-tuned
+                      # factory classes when built with --class_map identity
 N_BOX = 5             # xc, yc, w, h, conf
 
 

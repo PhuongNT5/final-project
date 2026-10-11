@@ -34,7 +34,7 @@ FRAMES = 16
 # (stem, batch, params, note) -- stem resolves to <stem>-fp32.onnx or <stem>-<mode>.engine.
 TOWER = ('r48-clip-vit-b32-vision', FRAMES, 87_849_216, 'frozen, shared by every R48 model')
 HEAD = ('r48-b1-clip-temporal-3seed', 1, 603_270, '3-seed ensemble, the headline classifier')
-DETECTOR = ('p3-detector', 1, None, 'YOLOv11s localisation, not in the B1 class decision')
+DETECTOR = ('p3-detector', 1, None, 'YOLO26s localisation, not in the B1 class decision')
 LEGACY = ('p3-appearance', FRAMES, 2_542_856, 'the representation this lane replaced')
 
 

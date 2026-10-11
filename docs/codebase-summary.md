@@ -42,6 +42,13 @@ newest, current headline). P2 lives entirely in `unsafenet/`, invoked via `run_u
 | `train_behaviour_detector.py` | Trains the paper's YOLO-v4-equivalent stage: a per-frame behaviour detector (nc=8) on `annotation_guide/dataset_behaviour_{tight,ctx}`. Defaults to `--device cpu --amp False` — MPS detection training does not converge in this stack (see Unresolved). |
 | `run_train_entity_detector.py` | Trains the entity/zone detector consumed by P3's `build_relation_tokens.py` |
 
+### Paper-baseline replication (G21 and G25 pre-registered scoring)
+
+| Script | Produces |
+|---|---|
+| `run_convlstm_paper_baseline.py` | Scores the paper-protocol ConvLSTM baseline on two non-overlapping tasks: G21 (4-class unsafe subset, 64 test clips) and G25 (binary Safe/Unsafe, 125-clip frozen test set). Reads artifacts only, trains nothing. Writes `ket-qua-g21-g25.json` to plan folder. Derives test-policy bounds (`np_bounds()`) from actual test labels and duplicate-audit groups rather than hardcoding. |
+| `run_g23_framegate_val.py` | Validation-only scorer for the frame-reduction mechanism question ([17]'s +10 pp claim). Answers whether frame reduction adds value over plain detector aggregation using the 83-clip val slice, with no test touch. Saves fused test posteriors without scoring them, allowing downstream tests to decide how to use them. |
+
 ### Other
 
 | Script | Produces |
@@ -60,7 +67,8 @@ newest, current headline). P2 lives entirely in `unsafenet/`, invoked via `run_u
 | `frame_cache.py` | T=32 frame extraction/caching (`cache_r2/`, gitignored) |
 | `entities.py`, `geometry.py` | Entity detection + ORB/RANSAC zone-registration geometry |
 | `behaviour_dataset.py`, `train_frame.py` | Per-frame behaviour-CNN dataset + training |
-| `convlstm.py`, `temporal.py`, `train_temporal.py` | ConvLSTM / temporal head training (22 variants: mean, BiLSTM, Transformer) |
+| `behaviour_clip.py` | Clip decision from the behaviour detector (the paper's detector -> temporal path): `det-mean`/`-max`/`-pair` aggregation plus `det-gateQ`, the frame-reduction step. `detector_gate_status()` stamps each member with its detector's peak mAP50 and its standing against gate G22 |
+| `convlstm.py`, `temporal.py`, `train_temporal.py` | ConvLSTM / temporal head training (22 variants: mean, BiLSTM, Transformer). `convlstm.py` renormalizes the ensemble posterior by its row sums after slicing, so `--task 8` (an 8-way softmax read on 4 classes) still satisfies the row-stochasticity precondition of `metrics.report()`. |
 | `aggregate.py`, `fusion.py` | Training-free aggregation members + bagged Caruana fusion |
 | `streams.py`, `clip_stream.py`, `scene_confound.py` | Motion/appearance stream construction, scene-confound diagnostics |
 | `metrics.py`, `metrics_stats.py` | P2's own metrics implementation — overlaps with `eval_utils/` (see Unresolved) |

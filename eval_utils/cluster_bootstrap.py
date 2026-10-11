@@ -47,3 +47,30 @@ def paired_metric_cluster_bootstrap(y_true, pred_a, pred_b, groups, metric=balan
         return float(diff), float('nan'), float('nan'), 0
     lo, hi = np.percentile(boots, [100 * alpha / 2, 100 * (1 - alpha / 2)])
     return float(diff), float(lo), float(hi), len(boots)
+
+
+def metric_cluster_bootstrap(y_true, pred, groups, metric, n_boot=5000, seed=0, alpha=0.05):
+    """Percentile CI for a SINGLE metric, resampling whole groups (same unit as the paired form).
+
+    `metric(y_true, pred) -> float` in native units; the interval is returned in the same units.
+    Draws where the metric is undefined (nan, e.g. a resample that lost the positive class) are
+    discarded and the surviving count is returned for disclosure.
+
+    -> (point, lo, hi, n_valid_draws)
+    """
+    y_true = np.asarray(y_true); pred = np.asarray(pred); groups = np.asarray(groups)
+    uniq = np.unique(groups)
+    idx_by_group = [np.where(groups == g)[0] for g in uniq]
+    point = float(metric(y_true, pred))
+    rng = np.random.default_rng(seed)
+    boots = []
+    for _ in range(n_boot):
+        pick = rng.integers(0, len(uniq), len(uniq))
+        idx = np.concatenate([idx_by_group[p] for p in pick])
+        v = float(metric(y_true[idx], pred[idx]))
+        if not np.isnan(v):
+            boots.append(v)
+    if not boots:
+        return point, float('nan'), float('nan'), 0
+    lo, hi = np.percentile(boots, [100 * alpha / 2, 100 * (1 - alpha / 2)])
+    return point, float(lo), float(hi), len(boots)
