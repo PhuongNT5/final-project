@@ -720,9 +720,11 @@ nên nó bị đối xử như một con số sai cho đến khi được đo l�
       duy nhất còn lại là của một phiên chạy trên MPS với AdamW — đúng cấu hình mà mục 4.5.5
       tuyên bố làm hỏng âm thầm cập nhật Adam — và trong nhật ký đó **mọi dòng kiểm định sau
       epoch 1 đều ghi mAP@50 = 0**. Phiên đó vì vậy không thể là phiên sinh ra trọng số 0.9695.
-      Bản ghi của tác giả quy trọng số cho một phiên chạy lại trên runtime GPU của Kaggle; **không
-      có nhật ký phía Kaggle trong kho mã**, nên đó là một lời tự khai. Luận văn công bố nguyên
-      trạng: con số kiểm chứng được, nguồn gốc trọng số thì không.
+      Bản ghi của tác giả quy trọng số cho một phiên chạy lại trên runtime GPU đám mây mà kho mã
+      **không có nhật ký huấn luyện của nó**. Hai điểm trong câu vừa rồi được **hiệu chỉnh ngày
+      10/10/2026**: nền tảng là **Google Colab**, không phải Kaggle, và "lời tự khai" là quá nặng
+      — xem hạng mục không-chữ-cái thứ hai ở cuối mục này. Luận văn công bố nguyên trạng: con số
+      kiểm chứng được, diễn biến huấn luyện thì không.
 
   (b) **Bảy chỉ số của bảng điểm làn bốn lớp.** Chín giá trị được tính lại ngày 2026-10-02 từ
       `blind_pred`, `blind_softmax` và `labels` trong `sweep_results/relation_tokens/
@@ -739,6 +741,39 @@ nên nó bị đối xử như một con số sai cho đến khi được đo l�
       Ba mô hình chạy phân mảnh (ESTA, ESTA@YOLO26s, TSF) **không có bảng gộp trong nhật ký**, nên
       với ba mô hình đó bản tính lại **chính là trích dẫn gốc** và tệp dự đoán ngoài-fold là bằng
       chứng. Điều này được nói rõ ở mỗi chỗ ba mô hình đó xuất hiện.
+
+Một hạng mục nữa thuộc nhóm này, phát hiện và đóng ngày **10/10/2026 — sau mốc đóng băng số**, nên
+được ghi kèm ngày và không được chèn vào dãy chữ cái ở trên. **Token tiêu đề của làn bốn lớp
+(`tokens_yolo26app_*`) không có nhật ký dựng trong kho mã.** Bốn lần dựng token khác đều có nhật ký
+ghi dòng `detector=...` ở dòng 1; lần dựng này thì không, nên cách nó được dựng chỉ có một chỗ khai:
+báo cáo MT3 ngày 29/08/2026. Xử lý: **đếm lại từ chính tensor.** `mask.sum()` cho **26,438** phát
+hiện ở tập huấn luyện và **3,390** ở tập kiểm tra, shape (452,16,8,74) và (64,16,8,74), số clip
+452/64 — cả ba khớp khai báo của MT3 đến từng chữ số; và nhánh đối chứng `tokens_yoloapp_*` cho
+**3,267**, đúng dòng cuối `sweep_results/relation_tokens/build_yoloapp.log`. Như mọi hạng mục trong
+mục này, phép đếm lại bảo lãnh **các con số**, không bảo lãnh **cờ dựng**: việc hai lần dựng chỉ
+khác nhau ở trọng số bộ phát hiện vẫn là một lời tự khai của MT3.
+
+Một hạng mục thứ hai, cũng đóng ngày **10/10/2026 — sau mốc đóng băng số**, và nó sửa chính mục (a)
+ở trên. **Cả hai tệp trọng số bộ phát hiện đều mang cấu hình huấn luyện do ultralytics tự ghi vào
+tệp `.pt` lúc lưu**, và kho mã có hai sổ tay khớp với cấu hình ấy. Ba hệ quả.
+
+  (1) **Nền tảng bị quy sai.** `train_args.project` của `detector_best.pt` là `/content/runs`, tức
+      **Google Colab**, không phải Kaggle; chỉ `yolo26_best.pt` mới là `/kaggle/working/runs26`.
+      Mục (a) ở trên và mục 4.5.5 trước ngày 10/10 quy **cả hai** trọng số cho Kaggle.
+  (2) **"Lời tự khai, không phải bằng chứng" là quá bi quan.** Cấu hình và nền tảng được hai tạo
+      tác độc lập chứng thực: siêu dữ liệu nhúng, và hai sổ tay **đã vào git**
+      (`colab/train_detector_colab.ipynb`, `colab/train_yolo26_detector_kaggle.ipynb`) khớp với
+      siêu dữ liệu ấy đến từng trường, kể cả tên hai giai đoạn `stage1_frozen` →
+      `stage2_finetune`.
+  (3) **Khai báo "đổi đúng một thứ" của MT3 nay kiểm chứng được từ tạo tác.** Hai trọng số trùng
+      nhau ở `optimizer` SGD, `lr0` 0.001, `imgsz` 800, `epochs` 100, `seed` 0, `device` 0,
+      `batch` 16, `patience` 30 và `freeze` 0; cả hai đều là giai đoạn 2 tinh chỉnh từ một giai
+      đoạn 1 đóng băng.
+
+Bảng đối chiếu đầy đủ ở mục 4.5.5. Hạng mục này **vẫn** nằm trong danh sách xuất xứ, vì hai điều
+chưa đóng: không nền tảng nào để lại nhật ký **theo epoch** trong kho mã, nên đường hội tụ vẫn
+không tái dựng được; và hai tệp `.pt` **chưa vào git**, nên siêu dữ liệu vừa dẫn hiện chỉ kiểm được
+trên máy của tác giả, không kiểm được từ kho mã như đang có.
 
 7.7.2. Các trường hợp CHƯA giải quyết
 

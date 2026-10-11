@@ -1,5 +1,5 @@
 TRẠNG THÁI BIÊN SOẠN LUẬN VĂN TIẾNG VIỆT
-Cập nhật: 04/10/2026 (lần trước: 03/10/2026)
+Cập nhật: 11/10/2026 (lần trước: 10/10/2026)
 Quyết định ràng buộc: toàn bộ báo cáo bằng tiếng Việt, văn phong báo cáo nghiên cứu khoa học
 (tác giả chốt 20/09/2026). Chương mới soạn TRỰC TIẾP bằng tiếng Việt, không viết tiếng Anh rồi dịch.
 Định dạng: .txt, tác giả tự đưa vào mẫu của trường.
@@ -10,30 +10,74 @@ Quy ước số trong toàn bộ bản tiếng Việt: dấu chấm thập phân
 MỐC THỜI GIAN: bảo vệ GIỮA THÁNG 10/2026. ĐÓNG BĂNG SỐ 05/10/2026. ĐÓNG GÓI 10/10/2026.
 Sau 05/10 không thêm số đo mới vào báo cáo; chỉ sửa câu chữ.
 
+NGOẠI LỆ ĐÃ GHI NHẬN, 10/10/2026: tác giả quyết định chạy đối chứng G20 (hai nhánh, thế hệ
+bộ phát hiện khi cả hai đều tinh chỉnh) SAU mốc đóng băng, để trả lời một câu hỏi phản biện.
+Mốc đóng băng vì vậy bị phá theo quyết định của tác giả. Điều khoản đăng ký của G20 giữ nguyên
+mọi con số tiêu đề và mọi phán quyết cổng bất kể kết quả, nên bảng cổng vẫn là "hai đạt, sáu
+trượt" và số cổng vẫn là tám; G20 được báo riêng ở mục 6.14 như một đối chứng không phán quyết.
+
+NGOẠI LỆ THỨ HAI ĐÃ GHI NHẬN, 11/10/2026: tác giả quyết định chạy **tái lập giao thức và phép đo
+của công trình gốc** (G21 đối chứng thiết bị, G25 nhị phân NP-125, G23 cơ chế giảm khung) SAU mốc
+đóng băng, để trả lời phản biện "đã thử chạy lại chưa". Lý do ghi nhận riêng: mục 6.12.5 của bản
+đóng băng phát biểu rằng con số 95.81% "chưa bao giờ được chạy lại" — sau 11/10 phát biểu đó
+không còn đúng và phải sửa. Điều khoản đăng ký của cả ba cổng giữ nguyên mọi con số tiêu đề và
+mọi phán quyết cổng bất kể kết quả, nên bảng cổng vẫn là "hai đạt, sáu trượt" và số cổng vẫn là
+tám; G21/G25/G23 được báo riêng ở mục 6.15 như một tái lập không phán quyết. Ngân sách chạm tập
+kiểm thử: tiêu **đúng một lần gộp** cho G21 và G25; G23 tiêu **không lần nào** (đo trên val).
+Số thô: plans/261011-1502-baseline-giao-thuc-bai-bao-goc-unsafe-net/.
+
+NGOẠI LỆ THỨ BA ĐÃ GHI NHẬN, 11/10/2026: tác giả yêu cầu lấy **mục tiêu phát hiện không an toàn**
+làm kết quả nhị phân, thay cho cách trình bày theo bài toán phân loại lớp. Hệ quả là phép đo lại
+NP-125-D ở mục 6.15.4: **cùng một lượt chạy, cùng hậu nghiệm đã lưu**, đọc với lớp dương là Không
+an toàn trên bốn điểm hoạt động đều chốt trên validation trước khi đọc tập kiểm thử. Ngân sách
+chạm tập kiểm thử: tiêu **không lần nào** — không huấn luyện lại, không suy luận lại, chỉ đọc lại
+`Pt` của lần chạm đã tiêu ở G25; ngân sách vẫn còn **một lần**. NP-125-D **không phải một cổng**:
+nó không đảo, không nới, không làm mềm G25, nên bảng cổng vẫn là "hai đạt, sáu trượt" và số cổng
+vẫn là tám. Phần tóm tắt và mục 6.15.5 được sửa chữ để phát biểu kết quả nhị phân theo recall và
+mức báo động giả, kèm con số điều kiện hoá theo bối cảnh (AUC 0.8485 → 0.6426). Khoảng tin cậy của
+con số điều kiện hoá được công bố ở **đúng đơn vị độc lập** — bootstrap lại cả nhóm bối cảnh:
+[0.4923, 0.8443], **chứa 0.50**, nên không loại trừ được khả năng toàn bộ phần phân biệt biểu kiến
+là bối cảnh. Khoảng mức clip [0.5106, 0.7680] coi các clip cùng một nền là bằng chứng độc lập nên
+chỉ in kèm nhãn `WRONG_UNIT` và không dùng để kết luận. Tiền đăng ký viết
+trước khi có số: plans/261011-1502-.../tien-dang-ky-np125d-phat-hien-nhi-phan.md; số thô:
+.../ket-qua-np125d-phat-hien.json; phán quyết: .../reports/phan-quyet-2026-10-11-np125d-phat-hien-nhi-phan.md.
+
+HAI QUYẾT ĐỊNH CỦA TÁC GIẢ, 11/10/2026, đi kèm ngoại lệ thứ ba:
+  (1) Mục 6.14 và mục 6.15 **nằm trong thân Chương 6**, không chuyển xuống phụ lục hậu đóng băng.
+      Ghi thành quy ước (5) ở mục 6.1.5; Chương 6 vì vậy có **kết luận thứ năm** ở mục 6.16 và
+      điều **(e)** trong danh sách "không chứng nhận". Vị trí trong thân chương KHÔNG đổi bảng
+      cổng: vẫn tám cổng, hai đạt, sáu trượt, và NP-125-D vẫn không phải một cổng.
+  (2) **GIỮ** độ chính xác cân bằng làm đại lượng tiêu đề của tác vụ nhị phân; KHÔNG đổi sang
+      recall-ở-ngân-sách-báo-động. Đổi đại lượng tiêu đề sau khi đã thấy số là chọn đại lượng
+      theo kết quả. Ghi ở mục 8.3.9; câu hỏi 4 trong báo cáo phán quyết NP-125-D vì vậy ĐÃ ĐÓNG.
+
 ======================================================================
 BẢNG TIẾN ĐỘ
 ======================================================================
 
   TOÀN BỘ 11 TỆP NỘP ĐÃ VIẾT XONG (04/10/2026). Khung 8 chương theo yêu cầu của tác giả.
+  Phụ lục C (danh mục hình, 11/10/2026) là BỔ SUNG SAU, không nằm trong 11 tệp nộp.
 
   Chương                            | Tệp                                 | Dòng |   Từ  | T.thái
   ----------------------------------+-------------------------------------+------+-------+-------
-  Tóm tắt (abstract)                | 00-tom-tat.txt                      |  147 | 2,388 | XONG
-  Ch1. Mở đầu                       | chuong-01-mo-dau.txt                |  397 | 5,014 | XONG
-  Ch2. Tổng quan                    | chuong-02-tong-quan.txt             |  504 | 5,779 | XONG
-  Ch3. Phương pháp                  | chuong-03-phuong-phap.txt           |  947 |11,408 | XONG
-  Ch4. Chi tiết thực nghiệm         | chuong-04-chi-tiet-thuc-nghiem.txt  |  841 | 9,130 | XONG
-  Ch5. Triển khai biên              | chuong-05-trien-khai-bien.txt       | 1255 |16,522 | XONG
-  Ch6. Đánh giá                     | chuong-06-danh-gia.txt              | 1310 |15,362 | XONG
-  Ch7. Phân tích thất bại           | chuong-07-phan-tich-that-bai.txt    |  940 |11,429 | XONG
-  Ch8. Kết luận                     | chuong-08-ket-luan.txt              |  412 | 5,487 | XONG
-  Phụ lục A. Bảng nhật ký           | phu-luc-a-bang-nhat-ky.txt          |  506 | 4,931 | XONG
-  Phụ lục B. Cấu hình fold          | phu-luc-b-cau-hinh-fold.txt         |  436 | 3,182 | XONG
+  Tóm tắt (abstract)                | 00-tom-tat.txt                      |  224 | 3,874 | XONG
+  Ch1. Mở đầu                       | chuong-01-mo-dau.txt                |  440 | 5,779 | XONG
+  Ch2. Tổng quan                    | chuong-02-tong-quan.txt             |  523 | 6,065 | XONG
+  Ch3. Phương pháp                  | chuong-03-phuong-phap.txt           |  958 |11,621 | XONG
+  Ch4. Chi tiết thực nghiệm         | chuong-04-chi-tiet-thuc-nghiem.txt  |  974 |10,924 | XONG
+  Ch5. Triển khai biên              | chuong-05-trien-khai-bien.txt       | 1339 |17,868 | XONG
+  Ch6. Đánh giá                     | chuong-06-danh-gia.txt              | 2481 |30,377 | XONG
+  Ch7. Phân tích thất bại           | chuong-07-phan-tich-that-bai.txt    |  996 |12,272 | XONG
+  Ch8. Kết luận                     | chuong-08-ket-luan.txt              |  507 | 7,129 | XONG
+  Phụ lục A. Bảng nhật ký           | phu-luc-a-bang-nhat-ky.txt          |  529 | 5,166 | XONG
+  Phụ lục B. Cấu hình fold          | phu-luc-b-cau-hinh-fold.txt         |  435 | 3,182 | XONG
   ----------------------------------+-------------------------------------+------+-------+-------
-  Tổng                              | 11 tệp                              | 7695 |90,632 |
+  Tổng                              | 11 tệp                              | 9406 |114,257|
+  ----------------------------------+-------------------------------------+------+-------+-------
+  Phụ lục C. Danh mục hình          | phu-luc-c-danh-muc-hinh.txt         |  169 | 1,512 | NỘP SAU
 
-  Tóm tắt gồm hai phần trong cùng một tệp: TÓM TẮT (620 từ, một trang, dùng cho phần đầu luận
-  văn) và TÓM TẮT MỞ RỘNG (1,590 từ, dùng cho bản tóm tắt luận văn nộp riêng). Cả hai mở đầu
+  Tóm tắt gồm hai phần trong cùng một tệp: TÓM TẮT (984 từ, một trang, dùng cho phần đầu luận
+  văn) và TÓM TẮT MỞ RỘNG (2,880 từ, dùng cho bản tóm tắt luận văn nộp riêng). Cả hai mở đầu
   bằng phát hiện về GIAO THỨC, không mở đầu bằng một con số độ chính xác (ràng buộc 9).
 
   PHIÊN JETSON ĐÃ XONG: thiết bị đã trả về trạng thái nền đã lưu, không còn phép đo nào cần
@@ -44,6 +88,19 @@ BẢNG TIẾN ĐỘ
     - chuong-05-trien-khai-bien-ghim-xung-nhip.txt .... CHỈ LƯU HỒ SƠ, KHÔNG NỘP
   Không trộn hai tệp. Không nộp tệp ghim xung nhịp. Tệp ghim xung nhịp CỐ Ý không được rà lại
   theo quy ước trình bày bên dưới (nó còn 6 dòng bắt đầu bằng token dạng số); nó là hồ sơ.
+
+  BỘ HÌNH (11/10/2026). 12 hình PNG 300 dpi ở `figures/luan-van/`, sinh bằng ba script
+  `tools/ve-hinh-{du-lieu,trien-khai-va-demo,ket-qua}-luan-van.py` dùng chung kiểu trình bày ở
+  `tools/hinh_luan_van_style.py`. Hình KHÔNG phải tệp nộp dạng văn bản; chúng là tài sản đi kèm,
+  và Phụ lục C là danh mục của chúng. Phụ lục C NỘP SAU cùng bộ hình, không gộp vào 11 tệp.
+    - KHÔNG hình nào là phép đo mới. Mọi con số được vẽ đều có trước mốc đóng băng 05/10/2026.
+    - Hai script hình Chương 5 và Chương 6 TỰ SO giá trị tính lại với giá trị đã công bố và in
+      `OK`/`!!` cho từng con số: 11 phép so ở Ch5 và 24 phép so ở Ch6, hiện đều `OK`.
+    - Hình 5.3 và Hình 5.4 là minh hoạ định tính trên hai clip demo, KHÔNG phải số chất lượng;
+      hạng mục (15) ở mục 5.9 còn nguyên hiệu lực.
+    - Hình 6.4 vẽ làn A và làn B thành HAI bảng riêng, không chung trục, theo mục 6.2.7 điều (2).
+    - Thân bài được chèn 10 khối trỏ hình (Ch4 hai khối, Ch5 ba khối, Ch6 năm khối). Các khối chỉ
+      trỏ và diễn giải cách đọc; chúng không thêm con số nào.
 
 ======================================================================
 QUY ƯỚC TRÌNH BÀY (đã kiểm lần cuối 04/10/2026)
@@ -59,11 +116,13 @@ QUY ƯỚC TRÌNH BÀY (đã kiểm lần cuối 04/10/2026)
       KHÔNG thuộc dạng bị cấm và được giữ nguyên.
 
   Trạng thái sau lần kiểm cuối: 0 dòng vi phạm (2) trên cả 11 tệp nộp. Về (1):
-    - Ch6 còn 49 hàng bảng ASCII rộng 101–125 ký tự (Bảng 6.2, 6.4, 6.5 và bảng phán quyết
-      cổng ở mục 6.13). Thuộc miễn trừ; để tác giả dàn lại theo mẫu của trường.
+    - Ch6 còn 53 hàng bảng ASCII rộng 101–125 ký tự (Bảng 6.2, 6.4, 6.5, bảng phán quyết
+      cổng ở mục 6.13, và các bảng ở mục 6.15). Thuộc miễn trừ; để tác giả dàn lại theo mẫu
+      của trường.
     - Ch4 còn 2 dòng 101 và 110 ký tự: một đường dẫn tệp đo và một cặp tên trường JSON.
       Thuộc miễn trừ, không ngắt được.
     - 9 tệp còn lại: 0 dòng quá 100 ký tự.
+    - Phụ lục C (bổ sung sau) cũng đã rà theo đúng hai quy ước này: 0 dòng vi phạm.
 
 ======================================================================
 SỬA CHÉO CHƯƠNG — PHIÊN 03–04/10/2026
@@ -234,3 +293,11 @@ VIỆC CÒN LẠI TRƯỚC ĐÓNG BĂNG 05/10 (việc đóng gói, không phải
   5. Quyết định về `cache_r2/frames/` (2.8 GB, đã gitignore, sinh lại được) và các đồ thị ONNX
      của P3 (42 MB, chưa theo dõi): giữ ngoài git hay đưa vào, tác giả quyết.
   6. KHÔNG tệp nào trong 11 tệp nộp cần thêm số đo. Chỉ còn dàn trang theo mẫu của trường.
+  7. MỚI 10/10/2026 — lỗ hổng truy xuất đối xứng với việc 1, tác giả quyết. Phủ định
+     `.gitignore` chỉ nhận `*_oof.json`; các tensor đồng hành `*oof_softmax*.pt` (61 tệp, tổng
+     8.8 MB) vẫn bị bỏ qua, nên không có bản phục hồi nếu một lượt chạy lại ghi đè chúng. Hôm
+     nay điều đó đã xảy ra thật: lượt chấm lại đối chứng G20 ghi đè
+     `lco_oof_softmax_bin8_binary_E3_drop_conflict.pt`. Hậu quả bằng không và đã chứng minh —
+     bản JSON 19/09 còn nguyên, đối chiếu từng clip cho sai khác tuyệt đối lớn nhất của
+     `prob_unsafe` bằng 0.0 và 0/687 nhãn dự đoán lệch, nên tạo tác sinh lại trùng nội dung bản
+     bị thay. Nhưng lần sau có thể không may như vậy. Chi phí đưa vào kho là 8.8 MB.

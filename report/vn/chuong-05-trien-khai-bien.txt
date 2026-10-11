@@ -132,7 +132,8 @@ TRẠNG THÁI CẬP NHẬT NỘI DUNG (phiên bản DVFS, tệp này): thân ch�
       (3) cùng đoạn tổng kết của mục 5.10.
   (b) NHỊP B1 SAU KHI SỬA TIỀN XỬ LÝ, theo khối cảnh báo thứ nhất: bảng hợp đồng của mục 5.4.4
       (hai cột biên), Bảng 5.2 chuyển thành bảng A/B trước-sau, đoạn nhịp tiêu đề, bảng ngân sách
-      chi phí (hai cột phần trăm, thêm ý (2) về nút cổ chai chuyển sang tháp CLIP), phần nguồn 1080p của mục 5.4.4, biên ở p95 của mục 5.4.5, mục 5.9 ý (1), và kết quả (3) của mục 5.10.
+      chi phí (hai cột phần trăm, thêm ý (2) về nút cổ chai chuyển sang tháp CLIP), phần nguồn
+      1080p của mục 5.4.4, biên ở p95 của mục 5.4.5, mục 5.9 ý (1), và kết quả (3) của mục 5.10.
   (c) CẢNH BÁO XUẤT XỨ ở Bảng 5.2 đã được DỠ: cả chín tạo tác nhịp tổ hợp của B1 đã đồng bộ về
       kho mã và người đọc kiểm chứng lại được.
 
@@ -335,7 +336,7 @@ hình khác. Nếu luận văn muốn đặt 84.4% cạnh một số đo trên t
 tương đương một engine B1w; việc đó **chưa được làm**.
 
 Một đặc điểm kiến trúc quyết định cách đọc mọi bảng dưới đây: **không có bộ phát hiện nào trong
-quyết định phân lớp của B1.** YOLOv11s giữ vai trò **định vị** — hệ thống phải chỉ ra hiểm hoạ ở
+quyết định phân lớp của B1.** YOLO26s giữ vai trò **định vị** — hệ thống phải chỉ ra hiểm hoạ ở
 đâu — và được đo **riêng**, không bao giờ được cộng vào chi phí của quyết định phân lớp. Ba cổng
 phủ định hội tụ ở Chương 6 và Chương 7 (phân rã theo thực thể so với toàn khung; thế hệ bộ phát
 hiện; hợp nhất hai luồng) là lý do đồ thị quyết định không tiêu thụ hộp giới hạn.
@@ -357,6 +358,10 @@ biết trước: một cửa sổ hẹp hơn có thể dễ hơn (ít nhiễu th
 chứa hiểm hoạ nếu hiểm hoạ chỉ xuất hiện ở đoạn khác của clip), và luận văn không có phép đo nào
 để chọn giữa hai khả năng đó. Mọi số trong mục 5.4 vì thế là số **chi phí**, không phải số **chất
 lượng**, của vòng lặp triển khai.
+
+Hình 5.3 và Hình 5.4 minh hoạ chính vòng lặp cửa sổ trượt này trên hai clip demo: đường xác
+suất theo thời gian và khung đã chú giải. Hai hình là **minh hoạ định tính trên hai clip**,
+không phải một phép đo độ chính xác; hạng mục (15) ở mục 5.9 vẫn còn nguyên hiệu lực.
 
 5.4.2. Chi phí các giai đoạn khi đo liên tiếp
 
@@ -398,9 +403,18 @@ phát hiện một-ảnh-một-lần ở 800 px không có. Hai mốc so sánh �
 
   Mốc so sánh                                               | lô | p50 (ms)
   ----------------------------------------------------------+----+-------------------------
-  YOLOv11s @ 800 px (định vị, đo riêng, KHÔNG cộng vào      |  1 | 12.636 / 13.001 / 12.741
+  YOLO26s @ 800 px (định vị, đo riêng, KHÔNG cộng vào       |  1 | 12.636 / 13.001 / 12.741
   quyết định)                                               |    |
   MobileNetV3-small @ 224²                                  | 16 |  7.336 /  7.710 /  7.645
+
+  Nguồn của hàng bộ phát hiện, và một nhãn sai được sửa ở đây: engine được đo là
+  `p3-detector-fp16.engine`, dựng từ `deployment/export/p3-detector-fp32.onnx`
+  (`jetson-build-trt-engine.py:178`), và siêu dữ liệu nhúng trong chính tệp ONNX ghi
+  `Ultralytics YOLO26s`, `end2end = True`, `imgsz [800, 800]` cùng tám tên lớp nhà máy. Bản thảo
+  trước ghi hàng này là "YOLOv11s" ở ba chỗ của chương: nhãn đó **sai về thế hệ** và đã được sửa.
+  Con số 12.636 ms không đổi — nó luôn là phép đo của chính đồ thị này, chỉ cái nhãn là sai. Đầu
+  end-to-end không-NMS cũng là một phần lý do nó rẻ: đồ thị không chứa node `NonMaxSuppression`
+  nào, và tệp ONNX được xuất từ `yolo26_best.pt` (`export-p3-graphs.py:39`).
 
 Tháp CLIP đắt hơn MobileNetV3-small **3.06 lần** ở cùng lô 16. Đó là giá phải trả cho 84.2%, và
 nó là một con số nhỏ chứ không phải một rào cản triển khai.
@@ -432,14 +446,14 @@ Cột **sau sửa là cột có hiệu lực**; cột trước sửa được gi
 A/B trong Bảng 5.2 và vì nó cho thấy kết luận hợp đồng **không** phụ thuộc vào bản sửa: ngay với
 nhịp của bản mã cũ, đường B1 đã vượt hợp đồng tại mọi điểm của phân bố.
 
-**Xuất xứ của hợp đồng, nói rõ để không bị đọc quá mức.** Con số 1.249 quyết định/giây — và cả
-1.427 và 2.500 — được dẫn ra từ **phân bố tần số khung của chính kho dữ liệu**, cụ thể là từ
-*f*/24 với *f* đọc trong siêu dữ liệu của 1,100 clip. Nó **không** được dẫn ra từ bất kỳ tiêu
-chuẩn an toàn lao động nào: luận văn **không** viện dẫn OSHA, ISO 45001, IEC 61508 hay một quy
-chuẩn kỹ thuật Việt Nam nào, và **không** có cơ sở nào để nói "1.249 quyết định/giây là mức mà an
-toàn lao động đòi hỏi". Yêu cầu thời gian phản ứng thật của một ứng dụng an toàn phụ thuộc vào
-hiểm hoạ cụ thể — một xe nâng đang di chuyển và một tấm panel bị mở ra có hằng số thời gian khác
-nhau hàng bậc độ lớn — và việc xác lập ngưỡng đó là một công việc **ngoài phạm vi** chương này.
+**Xuất xứ của hợp đồng, nói rõ để không bị đọc quá mức.** Con số 1.249 quyết định/giây — và cả 1.427
+và 2.500 — được dẫn ra từ **phân bố tần số khung của chính kho dữ liệu**, cụ thể là từ *f*/24 với
+*f* đọc trong siêu dữ liệu của 1,100 clip. Nó **không** được dẫn ra từ bất kỳ tiêu chuẩn an toàn lao
+động nào: luận văn **không** viện dẫn OSHA, ISO 45001, IEC 61508 hay một quy chuẩn kỹ thuật Việt Nam
+nào, và **không** có cơ sở nào để nói "1.249 quyết định/giây là mức mà an toàn lao động đòi hỏi".
+Yêu cầu thời gian phản ứng thật của một ứng dụng an toàn phụ thuộc vào hiểm hoạ cụ thể — một xe nâng
+đang di chuyển và một tấm panel bị mở ra có hằng số thời gian khác nhau hàng bậc độ lớn — và việc
+xác lập ngưỡng đó là một công việc **ngoài phạm vi** chương này.
 
 Vì vậy mọi phát biểu dạng "vượt hợp đồng 4.79 lần" phải được đọc đúng nghĩa hẹp của nó: **đường
 B1 giữ kịp tốc độ khung của nguồn, với biên 4.79 lần ở clip trung vị và 2.39 lần ở clip 60
@@ -489,6 +503,9 @@ rút ngắn khoảng quyết định **1.732 lần** (giảm 42.2 % thời gian 
 giảm đến từ một hạng mục: tiền xử lý 160.765 → 50.867 ms, tức **−68.4 %**. Hệ số hoạt động giảm
 từ 76.1 % xuống **63.1 %** — giảm là *đúng chiều*, vì nó nói rằng phần tính toán chiếm ít hơn
 trong khoảng quyết định sau khi hạng mục đắt nhất được cắt.
+
+Hình 5.2 đặt ba nhịp của B1 — trước khi sửa, đã triển khai, và nhịp trên nguồn 1920x1080 đo
+riêng ở mục 5.4.4 — cạnh hai mức hợp đồng 1.249 và 2.500 quyết định/giây.
 
 Vòng lặp là **đơn luồng**: một triển khai thực tế sẽ gối giải mã lên suy luận, nên 5.978 quyết
 định/giây là **chặn dưới** của thông lượng và 63.1 % là **chặn trên** của hệ số hoạt động. Tạo tác
@@ -739,6 +756,9 @@ nhãn. **Đây là bảng phán quyết hợp đồng của P3; Bảng 5.4 thì 
   trung vị     | **3.479**                 | **1.441**
 
   Nguồn: p3-composed-cadence-fp16-{pinned,dvfs}-free-{1_te10,3_te1,4_te10}-20261003T17*.json.
+
+Hình 5.1 vẽ lại đúng sáu ô của bảng này cùng đường hợp đồng 3.0 quyết định/giây, nên hai nhánh
+rời nhau nhìn thấy được ngay.
 
 **Kết quả tiêu đề: dưới điều kiện xung nhịp mặc định, P3 KHÔNG đạt hợp đồng 3 quyết định/giây
 trên BẤT KỲ đoạn nào trong ba đoạn test — trượt 1.99 đến 2.63 lần.** Đây là phát biểu mà phép đo
@@ -1066,7 +1086,7 @@ quyết định của đường B1 đã triển khai là CHƯA ĐO.**
   Tổng kích thước tệp engine (số xác định)                   | **24.46 MB**  | **197.4 MB**
     chi tiết                                                 | phát hiện     | CLIP 174.022
                                                              | 21.543;       | + đầu B1 1.874
-                                                             | ngoại hình    | + YOLOv11s
+                                                             | ngoại hình    | + YOLO26s
                                                              | 2.727;        | 21.543
                                                              | đầu E3 0.190  |
   Độ hụt bộ nhớ trống toàn hệ thống khi engine thường trú    | 38.05 MB      | 90.01 MB

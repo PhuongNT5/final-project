@@ -145,9 +145,22 @@ góp chính. Ba cổng độc lập hỏi đúng câu hỏi đó, ở ba cấu h
 Ba cổng này dùng **hai** xương sống, **ba** kiến trúc đầu và **một** cơ chế hợp nhất học được. Việc
 cả ba trượt là lý do kết luận phủ định không quy được về một lựa chọn cài đặt đơn lẻ.
 
-Phán quyết đầy đủ của tám cổng cùng hai đối chứng nằm ở mục 6.13: **hai đạt** (G10, G12), **sáu
-trượt** (G11, G13, G14, G15, G16, G18), **hai đối chứng không phán quyết** (G17 về thế hệ bộ phát
-hiện; G19 về hình học fold, không đăng ký trước — mục 6.6.3). Hai điều phải nói thẳng về bảng đó:
+Phản biện trực tiếp nhất với ba phán quyết trượt đó là: phân rã thực thể thua vì **bộ phát hiện
+sinh token** quá cũ, không vì ý tưởng sai. Phản biện này đã được tiền đăng ký thành đối chứng
+**G17** ngày 29/09/2026 — trước khi đặc trưng YOLO26 tồn tại — kèm điều khoản ràng buộc rằng bộ
+phát hiện tiêu đề **vẫn là YOLOv11s bất kể kết quả**, vì lấy bộ phát hiện nào cho điểm cao hơn
+chính là chọn lọc trên kiểm định chéo. Số liệu loại phản biện: ESTA @ YOLOv11s 83.8% so với ESTA
+@ YOLO26s 81.6%, tức **−2.2 pp — thế hệ mới hơn cho kết quả thấp hơn** (McNemar b = 75, c = 43, p
+= 0.00412). Cơ chế quy được: YOLO26s bảo thủ hơn, sinh 45,512 phát hiện so với 52,997 ở cùng
+ngưỡng tin cậy 0.25 (ít hơn 14.1%), nên nhánh token thực thể nhận ít thực thể hơn (mục 6.2.4).
+Thêm nữa, **hệ thống được triển khai B1 không chứa bộ phát hiện nào**, nên nâng thế hệ bộ phát
+hiện không thể dịch chuyển con số tiêu đề 84.2% theo bất kỳ chiều nào.
+
+Phán quyết đầy đủ của tám cổng cùng ba đối chứng nằm ở mục 6.13: **hai đạt** (G10, G12), **sáu
+trượt** (G11, G13, G14, G15, G16, G18), **ba đối chứng không phán quyết** (G17 về thế hệ bộ phát
+hiện khi cả hai đều tiền huấn luyện COCO; G19 về hình học fold, không đăng ký trước — mục 6.6.3; G20
+về thế hệ bộ phát hiện khi **cả hai đều được tinh chỉnh**, chạy sau mốc đóng băng số, **hai nhánh
+trên hai làn và cả hai đều không phân biệt được** — mục 6.14). Hai điều phải nói thẳng về bảng đó:
 
   (a) **Cả hai phán quyết đạt đều là phán quyết phương pháp, không phải phán quyết kiến trúc.**
       G10 xác nhận kho dữ liệu không giải được bằng một quy tắc đếm; G12 là phép đo lạm phát giao
@@ -178,7 +191,7 @@ kết luận thay vì ở phần phụ lục vì nó là một phần của kế
   (2) Một hệ thống quyết định **chạy trên thiết bị biên 249–499 USD**, đo bằng quyết định/giây,
       dưới **hai** điều kiện xung nhịp, với **bốn điều kiện trích dẫn** áp dụng hồi tố cho mọi
       tạo tác và một **danh sách những gì chưa được đo** (mục 5.2, 5.9).
-  (3) **Giao thức đánh giá tiền đăng ký** gồm tám cổng và một đối chứng, kèm **hệ quả đã nhận
+  (3) **Giao thức đánh giá tiền đăng ký** gồm tám cổng và ba đối chứng, kèm **hệ quả đã nhận
       trước** cho từng phán quyết trượt, và **sáu phán quyết trượt được công bố ở mức chi tiết
       ngang hai phán quyết đạt** (mục 3.8, 6.13).
   (4) **Phân tích kết quả phủ định có quy nguyên nhân**, gồm cơ chế của việc phân rã thực thể không
@@ -200,6 +213,13 @@ kết luận thay vì ở phần phụ lục vì nó là một phần của kế
   (9) **Tinh chỉnh ở quy mô bài báo gốc trên chú giải hộp theo từng khung**: không thực hiện được
       vì các chú giải không được công bố. Thí nghiệm thử ở quy mô 400 khung được báo cáo như một
       **kết quả phủ định** (mục 1.6).
+      *Hiệu đính 11/10/2026:* hạng mục này đã **thu hẹp**, không còn là một việc "không thực hiện
+      được" toàn phần. Luận văn đã chú giải **bộ hộp của riêng nó** và huấn luyện bộ phát hiện
+      hành vi tám lớp trên đó, rồi chạy trọn đường bộ-phát-hiện → quyết định theo clip (mục 6.15).
+      Phần **vẫn** không thực hiện được chỉ còn là tinh chỉnh trên **2,262 hộp của chính tác giả
+      gốc**. Phần đã làm đạt mAP50 **0.806** và **0.791**, tức **dưới sàn 0.85** của cổng G22, nên
+      mọi con số theo clip dựng trên nó mang nhãn "bộ phát hiện dưới sàn" và không được trích như
+      kết quả đã qua cổng.
   (10) **Các phát biểu đã rút lại**, mỗi phát biểu kèm lý do: một tập hợp chọn theo tập kiểm thử
       và một phép hiệu chuẩn dò trên chính tập kiểm thử của giai đoạn P1; hai biên **+60.3** và
       **+58.7 pp** so với một bộ phân loại hằng số; một hằng số đường cơ sở sai trong mã khiến
@@ -209,6 +229,12 @@ kết luận thay vì ở phần phụ lục vì nó là một phần của kế
   (11) **Con số 95.81% của bài báo gốc trên Unsafe-Net**: luận văn **không đạt và không tuyên bố
       đạt**. Định vị của luận văn so với công trình đó không phải khoảng cách độ chính xác mà là
       phép đo **bao nhiêu phần của một con số như vậy do giao thức sinh ra** (mục 2.6, 6.12.5).
+      *Hiệu đính 11/10/2026:* phát biểu này **giữ nguyên**, nhưng căn cứ của nó đã đổi từ sự
+      thiếu vắng phép đo thành một phép đo. Giao thức của bài báo gốc đã được chạy lại (mục 6.15):
+      chân thứ nhất của khoảng cách **rộng ra** khi loại giả thuyết thiết bị (G21 **bác bỏ**,
+      47/64), và cơ chế mà họ gán công cho chân thứ hai được đo là **vô hiệu** (±0.13 pp,
+      McNemar p = 1.000, ba lần đo độc lập, so với +10.03 pp họ gán). Cả hai đều là **kết quả bất
+      lợi cho giả thuyết của luận văn về nguyên nhân khoảng cách** và được công bố như vậy.
 
 Hai phát biểu về bảng này. Thứ nhất, **cột thứ hai không phải một lời xin lỗi mà là một phần kết
 quả**: nếu một đề cương nêu một giả thuyết và số liệu phản chứng nó, thì việc công bố phản chứng ở
@@ -370,6 +396,53 @@ yêu cầu người đọc tin hơn mức đó. Cách sửa là **cho lần sau*
 có dấu thời gian của bên thứ ba, hoặc một commit đã ký được đẩy lên **trước** khi phép đo chạy.
 Viết lại nhật ký để tạo mốc thời gian thuận lợi là việc luận văn này từ chối làm, vì một dấu thời
 gian dựng lại sau sự việc còn kém hơn việc không có dấu thời gian nào.
+
+8.3.8. Cổng G22 gác sai đại lượng — hạng mục mở ra từ lần tái lập 11/10/2026
+
+Cổng G22 chọn bộ phát hiện hành vi theo **mAP50 ở mức hộp**, với sàn 0.85. Lần tái lập ở mục 6.15
+cho thấy đại lượng đó **không đơn điệu** với đại lượng mà luận văn thực sự cần: `beh_tight` kém
+hơn ở mức hộp (mAP50 0.791 so với 0.806) nhưng **tốt hơn** ở mức clip (macro 88.05% so với
+85.91%). Một cổng gác một đại lượng không dự báo được đại lượng đích thì không làm đúng việc của
+nó, dù sàn có được tôn trọng.
+
+Hạng mục phát triển vì vậy **không** phải là nâng mAP50 cho vượt sàn. Nó là **thay tiêu chí của
+cổng**: đăng ký trước một cổng theo **macro ở mức clip dưới leave-context-out** (hoặc theo hậu
+nghiệm out-of-fold), rồi mới huấn luyện bộ phát hiện. Hai ràng buộc phải giữ khi làm: tiêu chí mới
+phải được viết **trước** khi thấy số, và nó không được dùng val slice 83 clip, vì chính G21 đã
+chứng minh val slice đó mù với tập kiểm thử (mục 6.15.1). Đây cũng là lý do mọi con số ở mục 6.15
+mang nhãn "bộ phát hiện dưới sàn": chúng được giữ nguyên nhãn đó **kể cả khi** tiêu chí cổng sau
+này đổi, vì nhãn ghi điều kiện lúc đo, không ghi điều kiện lúc đọc.
+
+8.3.9. Đại lượng tiêu đề của tác vụ nhị phân — hạng mục mở ra từ phép đo NP-125-D 11/10/2026
+
+Tác vụ nhị phân của luận văn là một **mục tiêu phát hiện**: lớp dương là Không an toàn, một clip bỏ
+sót là một tai nạn, một báo động giả là chi phí vận hành. Hai chi phí **không** bằng nhau. Nhưng đại
+lượng tiêu đề đang dùng — độ chính xác cân bằng — lại **đối xứng**: nó định giá một clip KAT bỏ sót
+đúng bằng một báo động giả trên clip an toàn. Mục 6.15.4 đã đo lại cùng một lượt chạy theo mục tiêu
+phát hiện (recall 82.81% tại mức báo động giả 34.43%, PR-AUC 0.876) và **phán quyết không đổi**:
+không điểm hoạt động nào tách được khỏi đối chứng theo bối cảnh.
+
+Câu hỏi mở ra **không** phải là phán quyết — nó là lựa chọn đại lượng tiêu đề: giữ BA, hay thay
+bằng **recall tại một ngân sách báo động giả đã khai báo trước**? Tác giả chốt ngày 11/10/2026:
+**giữ BA**, bản này không đổi đại lượng tiêu đề. Lý do là lý do phương pháp chứ không phải lý do
+tiện lợi — đổi đại lượng tiêu đề sau khi đã thấy số là chọn đại lượng theo kết quả, và NP-125-D
+vừa cho thấy đại lượng mới sẽ **trông** đẹp hơn (PR-AUC 0.876; precision 94.87% ở ngân sách báo
+động giả 3.28%) trong khi **phán quyết không đổi**. Hạng mục còn lại vì vậy thuộc các lượt sau,
+kèm ba ràng buộc rút ra từ chính NP-125-D:
+
+  (a) Ngân sách báo động phải viết **trước** khi đo, và ngưỡng phải chốt trên val trước khi đọc tập
+      kiểm thử — đọc lại cùng một hậu nghiệm ở nhiều ngưỡng **là** một kênh dò tập kiểm thử.
+  (b) Ngân sách báo động phải đi kèm **sàn recall theo từng loại KAT**. Tại ngưỡng FPR ≤ 0.10, độ
+      chính xác dương tính lên 94.87% nhưng mô hình **bỏ trắng một trong bốn loại** (OpenedPanel
+      0/13): mức tăng tổng hợp mua được bằng việc từ bỏ cả một loại hành vi, và một đại lượng tổng
+      hợp đơn lẻ không nhìn thấy điều đó.
+  (c) Đại lượng đáng mang sang lượt sau là **AUC điều kiện trong cùng bối cảnh**, không phải AUC
+      gộp: gộp 0.8485 so với trong cùng bối cảnh 0.6426 (mục 6.15.4). Đây là đại lượng duy nhất đã
+      đo trực tiếp phần phân biệt **không** đến từ nền, nên nó là ứng viên tiêu chí cổng tốt hơn cả
+      BA lẫn recall. Nhưng phải khai báo kèm lực thống kê: khoảng tin cậy ở đúng đơn vị độc lập —
+      bootstrap lại **cả nhóm bối cảnh** — là [0.4923, 0.8443] và **chứa 0.50**, vì chỉ có 6 nhóm
+      trộn nhãn. Một cổng dựng trên đại lượng này chỉ có nghĩa khi số nhóm bối cảnh trộn nhãn tăng
+      lên; ở quy mô hiện tại nó chỉ dùng để **bác**, không dùng để **chuẩn thuận**.
 
 ----------------------------------------------------------------------
 8.4. PHÁT BIỂU KẾT LUẬN

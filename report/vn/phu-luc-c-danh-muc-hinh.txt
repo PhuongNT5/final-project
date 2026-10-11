@@ -1,0 +1,169 @@
+======================================================================
+PHỤ LỤC C. DANH MỤC HÌNH VÀ TẠO TÁC NGUỒN
+======================================================================
+
+Phụ lục này liệt kê mười hai hình của luận văn. Với mỗi hình: chú thích, chỗ được dẫn trong thân
+bài, tạo tác nguồn, và script sinh ra nó. Mục đích là để một phản biện mở được đúng tệp đã sinh ra
+từng nét vẽ mà không phải dò.
+
+Ba điều khoản ràng buộc toàn bộ phụ lục này:
+
+  (1) **Không hình nào là một phép đo mới.** Mọi con số được vẽ đều đã có trong thân bài trước mốc
+      đóng băng số 05/10/2026. Hình chỉ là cách trình bày khác của cùng con số đó.
+
+  (2) **Mọi con số được vẽ đều được tính lại từ tạo tác, không gõ lại từ bảng.** Hai script sinh
+      hình kết quả tự so giá trị tính lại với giá trị đã công bố và in `OK` hoặc `!!` cho từng con
+      số; chúng chạy sạch với 24 phép so ở Chương 6 và 11 phép so ở Chương 5.
+
+  (3) **Hai hình demo không phải số chất lượng.** Hình 5.3 và Hình 5.4 là minh hoạ định tính trên
+      hai clip. Chúng không đo độ chính xác, và hạng mục (15) ở mục 5.9 vẫn còn nguyên hiệu lực.
+
+Tệp hình nằm ở `figures/luan-van/`, PNG 300 dpi, phông DejaVu Sans. Kiểu trình bày dùng chung đặt ở
+`tools/hinh_luan_van_style.py` để mười hai hình là một bộ chứ không phải mười hai hình rời.
+
+----------------------------------------------------------------------
+C.1. HÌNH CHƯƠNG 4 — DỮ LIỆU
+----------------------------------------------------------------------
+
+Script: `tools/ve-hinh-du-lieu-luan-van.py`. Khung ảnh trích trực tiếp từ tệp `.mp4` trên đĩa, lấy
+khung giữa clip để tránh khung đầu bị đen. Số clip được **đếm từ đĩa**, không chép từ bảng.
+
+Hình 4.1 — Khung mẫu từ iSafetyBench: hàng trên năm clip nhãn hiểm hoạ, hàng dưới năm clip nhãn
+           bình thường.
+  Dẫn ở    mục 4.2.1, ngay sau khối thống kê nguồn.
+  Nguồn    `data/isafetybench/{hazard,normal}/*.mp4` (420 + 680 = 1,100 clip).
+  Tệp      `hinh-4-1-mau-clip-isafetybench.png`
+
+Hình 4.2 — Khung mẫu Unsafe-Net, một ô cho mỗi lớp trong tám lớp, bốn lớp vi phạm ở hàng trên và
+           bốn lớp an toàn ở hàng dưới.
+  Dẫn ở    mục 4.2.2, ngay sau đoạn về nhóm bối cảnh. Hình là bằng chứng nhìn được cho đúng hạn
+           chế nêu ở đó: tám ô gần như trùng khung nhìn, lớp và bối cảnh không tách rời nhau.
+  Nguồn    `data/train/{0_safe_walkway_violation, ..., 7_safe_carrying}/*.mp4`
+  Tệp      `hinh-4-2-mau-clip-unsafe-net-8-lop.png`
+
+Hình 4.3 — Thành phần hai bộ dữ liệu: (a) iSafetyBench theo nhãn, (b) Unsafe-Net theo phần chia
+           huấn luyện/kiểm thử.
+  Dẫn ở    mục 4.2.1 và mục 4.2.2.
+  Nguồn    đếm tệp `.mp4` dưới `data/isafetybench/`, `data/train/`, `data/test/`.
+           iSafetyBench: hiểm hoạ 420, bình thường 680, tổng 1,100.
+           Unsafe-Net: huấn luyện 566, kiểm thử 125.
+  Tệp      `hinh-4-3-thanh-phan-hai-bo-du-lieu.png`
+
+----------------------------------------------------------------------
+C.2. HÌNH CHƯƠNG 5 — TRIỂN KHAI BIÊN VÀ DEMO
+----------------------------------------------------------------------
+
+Script: `tools/ve-hinh-trien-khai-va-demo.py`. Mười một phép so giá trị tính lại với giá trị công
+bố đều trả `OK`.
+
+Hình 5.1 — Nhịp tổ hợp P3 theo trạng thái xung nhịp: sáu ô của Bảng 5.4b vẽ lại thành cột, kèm
+           đường hợp đồng 3.0 quyết định/giây.
+  Dẫn ở    mục 5.4.4, ngay sau Bảng 5.4b.
+  Nguồn    `deployment/artifacts/jetson-measurements/`
+           `p3-composed-cadence-fp16-{pinned,dvfs}-free-*.json`
+           trường `configs[0].worst_stream_decisions_per_sec`; ghim 3.479 / 3.965 / 2.493,
+           DVFS 1.441 / 1.511 / 1.141. Script khẳng định hợp đồng trong tệp đúng bằng 3.0 và cả
+           hai cờ `quiet`, `clock_state_stable` đều bật.
+  Đọc sao  hai nhánh **rời nhau**: DVFS cao nhất 1.511 vẫn thấp hơn ghim thấp nhất 2.493. Đây là
+           bảng phán quyết nhịp; tổng theo chặng của Bảng 5.4 **không bao giờ** được trích như một
+           phán quyết nhịp.
+  Tệp      `hinh-5-1-nhip-to-hop-p3-theo-trang-thai-xung-nhip.png`
+
+Hình 5.2 — Ba nhịp của B1 đặt cạnh hai mức hợp đồng 1.249 và 2.500 quyết định/giây.
+  Dẫn ở    mục 5.4.4, sau đoạn về hệ số làm việc.
+  Nguồn    `deployment/artifacts/jetson-measurements/r48-composed-cadence-fp16-*.json`, trường
+           `steady_state_ms_per_decision.p50`, lấy **trung vị của ba lần chạy** đúng như Bảng 5.2:
+           trước khi sửa tiền xử lý 289.672 ms (3.452 dec/s); đã triển khai 167.291 ms
+           (5.978 dec/s, p95 198.224 ms); nguồn 1920x1080 đo riêng 227.214 ms (4.401 dec/s).
+  Tệp      `hinh-5-2-nhip-b1-da-trien-khai-va-bien-hop-dong.png`
+
+Hình 5.3 — Đường xác suất theo thời gian của hai clip demo, kèm ngưỡng quyết định 0.5. Râu đứng là
+           khoảng min–max của ba hạt giống trong cùng một cửa sổ.
+  Dẫn ở    mục 5.4.1, cuối đoạn về vòng lặp cửa sổ trượt.
+  Nguồn    `demo/out/-0zRCAh9_N4_trim_0-timeline.json` (clip hiểm hoạ, p ≈ 0.949–0.954) và
+           `demo/out/0E-P6HrYYQI_trim_0-timeline.json` (clip bình thường, p ≈ 0.013–0.037).
+           Mô hình B1, ngưỡng 0.5, cửa sổ 48 khung, bước 24 khung, 6 cửa sổ mỗi clip phủ khoảng
+           0–4.1 giây, 3 hạt giống mỗi cửa sổ. Trọng số
+           `sweep_results/relation_tokens/deploy/b1-deploy-3seed.pt`. Script khẳng định trường
+           `model` đúng bằng `B1` và `threshold` đúng bằng 0.5 trước khi vẽ.
+  Cảnh báo **minh hoạ định tính trên hai clip, không phải một phép đo độ chính xác.**
+  Tệp      `hinh-5-3-demo-duong-quyet-dinh-theo-thoi-gian.png`
+
+Hình 5.4 — Dải khung đã chú giải, 2 hàng x 4 cột: hàng trên clip hiểm hoạ, hàng dưới clip bình
+           thường. Viền ô theo phán quyết của cửa sổ chứa khung đó.
+  Dẫn ở    mục 5.4.1, cùng chỗ với Hình 5.3.
+  Nguồn    `demo/out/*-annotated.mp4`, khung lấy ở `start_frame + window // 2` của từng cửa sổ
+           trong tệp timeline tương ứng.
+  Cảnh báo giống Hình 5.3.
+  Tệp      `hinh-5-4-demo-khung-co-chu-giai.png`
+
+----------------------------------------------------------------------
+C.3. HÌNH CHƯƠNG 6 — KẾT QUẢ
+----------------------------------------------------------------------
+
+Script: `tools/ve-hinh-ket-qua-luan-van.py`. Hai mươi bốn phép so giá trị tính lại với giá trị công
+bố đều trả `OK`. Mọi hình trong mục này đọc thẳng các tệp dự đoán out-of-fold
+`sweep_results/relation_tokens/enc_*_oof.json`, mỗi tệp 1,100 dòng gồm `clip_id`, `y_true`,
+`prob_unsafe`, `y_pred`. Bản đồ fold lấy từ chính bộ chia của driver qua `fold_map()` trong
+`tools/analyse-backbone-ladder.py`, không gõ tay.
+
+Hình 6.1 — Độ chính xác cân bằng từng fold của B1 trên mười fold giữ lại, kèm đường tiêu đề 84.2%
+           và đường sàn quy tắc đếm 63.3%.
+  Dẫn ở    mục 6.2.1, ngay sau dãy BA theo fold.
+  Nguồn    `enc_isbclip_B1_lso-1100_headline-none_oof.json`; dãy 85.8, 88.4, 74.7, 79.1, 83.6,
+           67.5, 97.2, 96.9, 81.0, 86.2.
+  Đọc sao  dải rộng 29.7 pp là đặc trưng của leave-source-out trên một kho mà mỗi nguồn chỉ mang
+           một nhãn. BA theo fold **không kèm khoảng tin cậy**; đây là số mô tả.
+  Tệp      `hinh-6-1-ba-theo-fold-cua-b1.png`
+
+Hình 6.2 — Ma trận nhầm lẫn của B1 dưới hai giao thức, cùng một thang màu.
+  Dẫn ở    mục 6.2.8, sau hai bảng ma trận.
+  Nguồn    `enc_isbclip_B1_{lso,rand}-1100_headline-none_oof.json`, đếm trực tiếp.
+           Leave-source-out: TN 570, FP 110, FN 65, TP 355. Chia ngẫu nhiên: TN 665, FP 15,
+           FN 10, TP 410.
+  Tệp      `hinh-6-2-ma-tran-nham-lan-b1-hai-giao-thuc.png`
+
+Hình 6.3 — (a) Đường ROC của B1 dưới hai giao thức; (b) biểu đồ độ tin cậy của cùng hai giao thức.
+  Dẫn ở    mục 6.2, sau khối nguồn của Bảng 6.1.
+  Nguồn    cùng hai tệp `*_oof.json` của Hình 6.2, khoá `prob_unsafe`.
+           ROC-AUC 0.897 (leave-source-out) so với 0.996 (chia ngẫu nhiên).
+  Tệp      `hinh-6-3-roc-va-do-tin-cay-b1.png`
+
+Hình 6.4 — Lạm phát giao thức: cùng mô hình, cùng clip, chỉ đổi phép chia. Hai bảng dốc vẽ RIÊNG,
+           (a) làn A và (b) làn B.
+  Dẫn ở    mục 6.2.7, sau khối nguồn.
+  Nguồn    làn A, `enc_isbclip_B1_{lso,rand}-1100_*_oof.json`: 84.2 lên 97.7, tức +13.5 pp, CI
+           theo cụm [+8.0, +20.0], McNemar exact p = 1.39e-41.
+           Làn B, `enc_isb_{E3,E1_d64,E1_d96,E0}_{lso,rand}-1100_*_oof.json`: E3 75.2 lên 90.6
+           (+15.4 pp, CI [+10.6, +21.5], p = 3.58e-45); E1 d=64 78.1 lên 91.3; E1 d=96 77.0 lên
+           91.9; E0 80.3 lên 90.7.
+  Đọc sao  hai bảng nằm trong một khung hình nhưng **không chung trục và không chung thang**. Theo
+           mục 6.2.7 điều (2), hai con số +13.5 pp và +15.4 pp không được lấy trung bình, không
+           chứng thực cho nhau, và không được đặt cạnh nhau như hai lần đo của một đại lượng.
+           Chúng là hai phép đo độc lập của cùng một *hiện tượng* trên hai biểu diễn khác nhau.
+           Chú thích dưới hình nhắc lại đúng điều khoản này.
+  Tệp      `hinh-6-4-lam-phat-giao-thuc.png`
+
+Hình 6.5 — Biểu đồ rừng của tám cổng phán quyết tiền đăng ký: chấm là Δ, thanh ngang là khoảng tin
+           cậy bootstrap theo cụm trên 151 nguồn, vạch dọc ở 0 là tiêu chí đạt.
+  Dẫn ở    mục 6.13, sau Bảng 6.8.
+  Nguồn    Bảng 6.8, dựng lại từ `tools/adjudicate-r48-gates.py` và `tools/compare-oof-runs.py`.
+           G10 +8.0 [+1.9, +13.5] ĐẠT; G11 +1.1 [−4.8, +6.9]; G12 +15.4 [+10.6, +21.5] ĐẠT;
+           G13 −1.1 không có CI; G14 −0.5 [−5.5, +5.0]; G15 +3.5 [−2.3, +10.0];
+           G16 +2.3 [−2.3, +7.5]; G18 −0.3 [−3.7, +2.5].
+  Đọc sao  hình chỉ vẽ **tám cổng phán quyết**. Ba đối chứng G17, G19, G20 không có mặt vì chúng
+           không phán quyết; G19 lại còn dùng đơn vị biến thiên khác (seed giả dược) và G20 dùng
+           đơn vị cụm khác (8 nhóm bối cảnh), nên đặt chung một trục là sai.
+  Tệp      `hinh-6-5-phan-quyet-tam-cong-tien-dang-ky.png`
+
+----------------------------------------------------------------------
+C.4. CÁCH SINH LẠI TOÀN BỘ
+----------------------------------------------------------------------
+
+  PYTHONPATH=tools .venv/bin/python3 tools/ve-hinh-du-lieu-luan-van.py
+  PYTHONPATH=tools .venv/bin/python3 tools/ve-hinh-trien-khai-va-demo.py
+  PYTHONPATH=tools .venv/bin/python3 tools/ve-hinh-ket-qua-luan-van.py
+
+Hai script sau in một dòng `OK` hoặc `!!` cho mỗi con số được vẽ. Nếu một dòng `!!` xuất hiện,
+nghĩa là tạo tác đã đổi so với thân bài và **hình sai chứ không phải thân bài sai** — phải dừng và
+đối chiếu, không được sửa số trong thân bài cho khớp hình.

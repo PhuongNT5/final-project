@@ -6,25 +6,27 @@ Quy ước số: dấu chấm là dấu thập phân, dấu phẩy là dấu ph�
 tóm tắt KHÔNG là nguồn trích dẫn cho bất kỳ con số nào. Mỗi con số nêu ở đây được dẫn lại đầy đủ,
 kèm tệp nhật ký đã sinh ra nó, ở chương tương ứng và ở Phụ lục A.
 
-Nhận dạng tự động hành vi không an toàn của người lao động từ video giám sát là một bài toán cốt
-lõi của an toàn lao động công nghiệp. Luận văn này không lấy một con số độ chính xác làm kết luận
-chính. Kết luận chính là một phép đo về **giao thức đánh giá**: khi phép chia dữ liệu không ràng
-buộc nguồn gốc của clip, độ chính xác báo cáo tăng lên tới hai chữ số điểm phần trăm, và phần tăng
-đó là việc mô hình nhận ra nguồn video chứ không phải nhận ra hành vi.
+Nhận dạng tự động hành vi không an toàn của người lao động từ video giám sát là một bài toán cốt lõi
+của an toàn lao động công nghiệp. Bài toán mà luận văn giải là **nhị phân: An toàn / Không an toàn**
+ở mức cửa sổ thời gian; phân loại chi tiết loại tình huống không an toàn không phải đầu ra của hệ
+thống được triển khai (mục 1.2.1 và 1.4.2). Luận văn này không lấy một con số độ chính xác làm kết
+luận chính. Kết luận chính là một phép đo về **giao thức đánh giá**: khi phép chia dữ liệu không
+ràng buộc nguồn gốc của clip, độ chính xác báo cáo tăng lên tới hai chữ số điểm phần trăm, và phần
+tăng đó là việc mô hình nhận ra nguồn video chứ không phải nhận ra hành vi.
 
-Phép đo được thực hiện trên hai kho dữ liệu độc lập, giữ nguyên mô hình, đặc trưng và công thức
-huấn luyện, chỉ đổi cách dựng fold. Trên iSafetyBench (1,100 clip, 151 nguồn video), độ chính xác
-cân bằng của một bộ mã hoá quan hệ đi từ 75.2% dưới leave-source-out lên 90.6% dưới fold ngẫu
-nhiên, tức **+15.4 điểm phần trăm**, khoảng tin cậy bootstrap theo cụm **[+10.6, +21.5]** loại trừ
-0, McNemar chính xác p = 3.58e-45. Một đối chứng giả dược trên 20 seed — định danh nguồn giả, khớp
-số nhóm, khớp đa tập kích thước nhóm trong từng lớp và khớp tính thuần lớp, chỉ phá xuất xứ — tách
-+15.4 điểm phần trăm đó thành **+1.6 điểm phần trăm do hình học fold** và **+13.8 điểm phần trăm do
-danh tính nguồn** (p hoán vị = 0.0476). Trên Unsafe-Net (687 clip, 8 nhóm bối cảnh), năm kiến trúc trải
-từ 18,044 đến 298,892 tham số đều bị lạm phát, biên độ **+13.0 đến +21.8 điểm phần trăm**. Hai hệ
-quả quan trọng hơn bản thân độ lớn: giao thức rò rỉ **nén khả năng phân biệt kiến trúc** (khoảng
-cách giữa bộ mã hoá tốt nhất và kém nhất co từ 5.1 xuống 1.4 điểm phần trăm trên iSafetyBench, và
-từ 7.3 xuống 2.1 điểm phần trăm trên Unsafe-Net), và nó **đảo thứ tự xếp hạng**, tức có thể dẫn
-tới chọn sai mô hình.
+Phép đo được thực hiện trên hai kho dữ liệu độc lập, giữ nguyên mô hình, đặc trưng và công thức huấn
+luyện, chỉ đổi cách dựng fold. Trên iSafetyBench (1,100 clip, 151 nguồn video), độ chính xác cân
+bằng của một bộ mã hoá quan hệ đi từ 75.2% dưới leave-source-out lên 90.6% dưới fold ngẫu nhiên, tức
+**+15.4 điểm phần trăm**, khoảng tin cậy bootstrap theo cụm **[+10.6, +21.5]** loại trừ 0, McNemar
+chính xác p = 3.58e-45. Một đối chứng giả dược trên 20 seed — định danh nguồn giả, khớp số nhóm,
+khớp đa tập kích thước nhóm trong từng lớp và khớp tính thuần lớp, chỉ phá xuất xứ — tách +15.4 điểm
+phần trăm đó thành **+1.6 điểm phần trăm do hình học fold** và **+13.8 điểm phần trăm do danh tính
+nguồn** (p hoán vị = 0.0476). Trên Unsafe-Net (687 clip, 8 nhóm bối cảnh), năm kiến trúc trải từ
+18,044 đến 298,892 tham số đều bị lạm phát, biên độ **+13.0 đến +21.8 điểm phần trăm**. Hai hệ quả
+quan trọng hơn bản thân độ lớn: giao thức rò rỉ **nén khả năng phân biệt kiến trúc** (khoảng cách
+giữa bộ mã hoá tốt nhất và kém nhất co từ 5.1 xuống 1.4 điểm phần trăm trên iSafetyBench, và từ 7.3
+xuống 2.1 điểm phần trăm trên Unsafe-Net), và nó **đảo thứ tự xếp hạng**, tức có thể dẫn tới chọn
+sai mô hình.
 
 Luận văn đồng thời xây dựng và đo một hệ thống quyết định an toàn chạy trên thiết bị biên. Đường
 quyết định được triển khai gồm một tháp thị giác CLIP ViT-B/32 đóng băng áp trên toàn khung và một
@@ -65,9 +67,11 @@ Mục này triển khai từng kết luận nêu trên kèm con số, điều ki
 cho người đọc cần kiểm tra từng phát biểu; mọi con số đều được dẫn lại đầy đủ, kèm tệp nhật ký đã
 sinh ra nó, ở chương tương ứng và ở Phụ lục A.
 
-Nhận dạng tự động hành vi không an toàn của người lao động từ video giám sát là một bài toán cốt
-lõi của an toàn lao động công nghiệp. Luận văn này không lấy một con số độ chính xác làm kết luận
-chính. Kết luận chính là một phép đo về **giao thức đánh giá**: trên lớp bài toán này, một phép
+Nhận dạng tự động hành vi không an toàn của người lao động từ video giám sát là một bài toán cốt lõi
+của an toàn lao động công nghiệp. Bài toán mà luận văn giải là **nhị phân: An toàn / Không an toàn**
+ở mức cửa sổ thời gian; phân loại chi tiết loại tình huống không an toàn không phải đầu ra của hệ
+thống được triển khai (mục 1.2.1 và 1.4.2). Luận văn này không lấy một con số độ chính xác làm kết
+luận chính. Kết luận chính là một phép đo về **giao thức đánh giá**: trên lớp bài toán này, một phép
 chia dữ liệu không ràng buộc nguồn gốc của clip làm độ chính xác báo cáo tăng lên tới hai chữ số
 điểm phần trăm, và phần tăng đó không phải một mô hình tốt hơn — nó là việc mô hình nhận ra nguồn
 video, không phải nhận ra hành vi.
@@ -138,24 +142,35 @@ phục một khiếm khuyết tiền xử lý (cải thiện nhịp 1.732 lần)
 chính mô hình**, nên mọi cải thiện nhịp tiếp theo phải đến từ bộ mã hoá. Kiến trúc triển khai
 chỉ gửi **siêu dữ liệu** ra khỏi biên; khung hình không bao giờ rời thiết bị.
 
-**Tám cổng tiền đăng ký, hai đạt và sáu trượt.** Tám cổng phán quyết cùng hai phép đối chứng
-không phán quyết. Tám cổng phán quyết được viết ra —
-gồm giả thuyết, mô hình được nêu tên, biên tối thiểu và hệ quả nếu trượt — **trước** khi con số
-tồn tại. Cổng trung tâm, kiểm tra giả thuyết rằng phân rã theo thực thể làm tăng độ chính xác so
-với một đường cơ sở toàn khung **khớp dung lượng trên cùng tháp đóng băng**, đã **trượt**: −0.5
-điểm phần trăm, khoảng tin cậy theo cụm [−5.5, +5.0] chứa 0, McNemar p = 0.683. Cổng tương ứng ở
-làn trước đó cũng trượt: bộ mã hoá quan hệ thực thể không tách khỏi một đầu dò toàn khung dùng
-đúng biểu diễn ngoại hình 64 chiều (+1.1 điểm phần trăm, khoảng tin cậy [−4.8, +6.9] chứa 0,
-McNemar p = 0.625). Một mô hình hợp nhất hai luồng cũng không vượt đường cơ sở toàn khung (−0.3
-điểm phần trăm, p = 0.401), và chứng cứ cơ chế cho thấy nó hội tụ về luồng toàn khung thay vì kết
-hợp hai góc nhìn. Hai cổng đạt đều là cổng **phương pháp luận**, không phải cổng kiến trúc. Vì vậy
-cấu hình được triển khai là nhánh toàn khung: quyết định triển khai đi theo bằng chứng, không theo
-đề cương. Sáu phán quyết trượt được công bố với biên, khoảng tin cậy và p ở đúng mức chi tiết như
-hai phán quyết đạt.
+**Tám cổng tiền đăng ký, hai đạt và sáu trượt.** Tám cổng phán quyết cùng hai phép đối chứng không
+phán quyết. Tám cổng phán quyết được viết ra — gồm giả thuyết, mô hình được nêu tên, biên tối thiểu
+và hệ quả nếu trượt — **trước** khi con số tồn tại. Cổng trung tâm, kiểm tra giả thuyết rằng phân rã
+theo thực thể làm tăng độ chính xác so với một đường cơ sở toàn khung **khớp dung lượng trên cùng
+tháp đóng băng**, đã **trượt**: −0.5 điểm phần trăm, khoảng tin cậy theo cụm [−5.5, +5.0] chứa 0,
+McNemar p = 0.683. Cổng tương ứng ở làn trước đó cũng trượt: bộ mã hoá quan hệ thực thể không tách
+khỏi một đầu dò toàn khung dùng đúng biểu diễn ngoại hình 64 chiều (+1.1 điểm phần trăm, khoảng tin
+cậy [−4.8, +6.9] chứa 0, McNemar p = 0.625). Phản biện rằng phân rã thực thể thua vì bộ phát hiện
+sinh token quá cũ đã được tiền đăng ký thành một đối chứng riêng và bị số liệu loại: thay sang thế
+hệ mới hơn YOLO26s làm kết quả **giảm** 2.2 điểm phần trăm (83.8% xuống 81.6%, McNemar p = 0.00412),
+vì bộ phát hiện mới bảo thủ hơn và sinh ít hơn 14.1% phát hiện ở cùng ngưỡng tin cậy. Phản biện tiếp
+theo — rằng đối chứng ấy chỉ đổi hai bộ phát hiện **tiền huấn luyện COCO** — được trả lời bằng một
+đối chứng thứ hai chạy sau mốc đóng băng số, với **cả hai bộ phát hiện đều đã tinh chỉnh trên dữ
+liệu nhà máy**: biên +7.8 điểm phần trăm nghiêng về YOLO26s nhưng khoảng tin cậy theo cụm [−1.5,
++15.2] chứa 0, và toàn bộ biên tập trung ở **một** nhóm bối cảnh trong tám, nên kết luận được ghi là
+**không phân biệt được** và mọi con số tiêu đề giữ nguyên. Nhánh thứ hai của đối chứng ấy, trên làn
+iSafetyBench với **151 nguồn** làm đơn vị cụm thay vì tám nhóm bối cảnh, cho cùng kết luận ở độ phân
+giải cụm cao hơn nhiều: +2.2 điểm phần trăm, khoảng tin cậy [−3.5, +8.8] chứa 0, McNemar p = 0.261
+(mục 6.14). Một mô hình hợp nhất hai luồng cũng không vượt đường cơ sở toàn khung (−0.3 điểm phần
+trăm, p = 0.401), và chứng cứ cơ chế cho thấy nó hội tụ về luồng toàn khung thay vì kết hợp hai góc
+nhìn. Hai cổng đạt đều là cổng **phương pháp luận**, không phải cổng kiến trúc. Vì vậy cấu hình được
+triển khai là nhánh toàn khung: quyết định triển khai đi theo bằng chứng, không theo đề cương. Sáu
+phán quyết trượt được công bố với biên, khoảng tin cậy và p ở đúng mức chi tiết như hai phán quyết
+đạt.
 
 **Làn thứ hai.** Trên kho bốn lớp mà công việc khởi đầu từ đó, luận văn tái hiện lại pipeline đã
-công bố với hai hiện đại hoá — bộ mã hoá không gian YOLOv11s thay YOLO v4, và một Transformer quan
-hệ trên token hộp thay ConvLSTM — nhưng theo một triết lý giám sát khác: thay vì gán nhãn hành vi
+công bố với hai hiện đại hoá — bộ mã hoá không gian YOLO26s tinh chỉnh thay YOLO v4, và một
+Transformer quan hệ trên token hộp thay ConvLSTM — nhưng theo một triết lý giám sát khác: thay vì
+gán nhãn hành vi
 trực tiếp, luận văn chú giải một bản thể tám lớp đa thực thể và để Transformer suy ra hành vi từ
 quan hệ không gian giữa các thực thể được phát hiện. Dưới giao thức leave-context-out, mô hình
 quan hệ thực thể giữ được biên **+16.9 điểm phần trăm** macro so với một đường cơ sở ngoại hình
@@ -165,7 +180,30 @@ lấy mẫu này là **sai** và khoảng này **không** được dùng làm c�
 thể được đánh giá lại độc lập đạt **mAP@50 = 0.9695** trên 343 ảnh giữ riêng. Luận văn **không**
 đạt con số 95.81% của bài báo gốc và **không tuyên bố đạt**; phát biểu của luận văn nhắm vào
 **thước đo**, không nhắm vào hệ thống của tác giả khác, vì trọng số và dự đoán theo clip của hệ
-thống đó không được công bố nên không thể chạy lại dưới giao thức này.
+thống đó không được công bố nên **hệ thống** của họ không thể chạy lại. **Giao thức** của họ thì
+chạy lại được, và sau mốc đóng băng đã được chạy (ngoại lệ ghi nhận 11/10/2026, mục 6.15): dưới
+cùng cách chia 452/64 và cùng định nghĩa macro của họ, hiện thực độc lập của luận văn đạt
+**47/64 = 73.44% top-1, 70.22% macro**, nên khoảng cách tới đường sàn không-bbox 85.78% của họ
+**rộng ra** chứ không hẹp lại khi giả thuyết thiết bị bị loại (G21 **bác bỏ**). Quan trọng hơn con
+số: **cơ chế mà bài báo gốc gán công** cho phần lớn khoảng cách — tầng giảm khung — được đo là
+**vô hiệu**, **±0.13 điểm phần trăm** trên ba lần đo độc lập với McNemar p = 1.000, so với
+**+10.03 pp** mà họ gán; khoảng cách cùng cỡ trên validation lại đến từ việc **thay biểu diễn đầu
+vào** (khung thô sang hậu nghiệm bộ phát hiện, +8.88 pp). Phép đo cơ chế này tiêu **không lần chạm
+tập kiểm thử nào**. Về **mục tiêu phát hiện không an toàn** — tác vụ nhị phân trên 125 clip test,
+đo với lớp dương là Không an toàn — hệ đạt **recall 82.81% ở mức báo động giả 34.43%**, precision
+71.62%, PR-AUC 0.876 tại điểm argmax, và độ chính xác cân bằng **74.19%**. Con số ấy **không phân
+biệt được** với đường cơ sở chỉ đoán theo nhóm bối cảnh của clip (**p = 0.4049**), nên cổng G25
+**trượt**; và kết luận đó **không phụ thuộc đại lượng đo hay điểm hoạt động**: qua bốn điểm hoạt
+động đều chốt trên validation trước khi đọc tập kiểm thử, không điểm nào tách được khỏi đường cơ sở
+ấy (p = 0.4049 / 0.8450 / 0.3123 / 0.1214), và chính đường cơ sở bối cảnh còn **đạt recall cao
+hơn** (89.06%). Phép đo trực tiếp phần nhiễu: **điều kiện hoá theo nhóm bối cảnh hạ AUC từ 0.8485
+xuống 0.6426**; khoảng tin cậy lấy **nhóm bối cảnh** làm đơn vị độc lập là [0.4923, 0.8443] và
+**chứa 0.50**, nên dữ liệu **không loại trừ được** khả năng toàn bộ phần phân biệt biểu kiến là
+bối cảnh. Trị số điểm đặt **59% năng lực phân biệt là bối cảnh chứ không phải nội dung clip**, với
+54% số cặp so sánh trong-nhóm nằm ở hai nhóm mà mô hình xếp hạng ở mức ngẫu nhiên. Điểm hoạt động
+chính-xác-cao (báo động giả 3.28%, precision 94.87%) mua phần lợi ấy bằng cách **bỏ trắng trọn một
+trong bốn loại không an toàn** (OpenedPanel 0/13), điều mà mọi số gộp đều che. Toàn bộ phép đo
+phát hiện này tiêu **không lần chạm tập kiểm thử nào** (mục 6.15.4).
 
 **Giới hạn được nêu cùng với kết quả.** Trên iSafetyBench, **0 trong 151 nguồn** mang cả hai nhãn,
 nên nhãn và định danh nguồn bị trộn lẫn về mặt cấu trúc; hệ quả là khoảng tin cậy theo cụm rất

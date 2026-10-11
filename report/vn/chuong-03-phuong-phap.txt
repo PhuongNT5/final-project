@@ -57,10 +57,18 @@ Hai ràng buộc, cả hai đã nêu ở Chương 2 mục 2.3, định hình ph�
 
 Thứ nhất, **chú giải hộp theo từng khung của bài báo gốc không được công bố** [17]. Bộ phát hiện
 trong công trình đó được huấn luyện để phát hiện *hành vi* như hạng mục đối tượng; không có chú
-giải ấy thì không thể tái lập giai đoạn một của họ. Luận văn vì vậy làm việc với các bộ phát hiện
-**tiền huấn luyện trên COCO** và huấn luyện một bộ phát hiện thực thể riêng trên phần dữ liệu có
-chú giải tự làm (Chương 4, mục 4.2.3). Đây là lý do nguyên tắc 1 là ràng buộc trước khi là lựa
-chọn.
+giải ấy thì không thể tái lập giai đoạn một của họ **trên dữ liệu của họ**. Luận văn vì vậy làm
+việc với các bộ phát hiện **tiền huấn luyện trên COCO** và huấn luyện một bộ phát hiện thực thể
+riêng trên phần dữ liệu có chú giải tự làm (Chương 4, mục 4.2.3). Đây là lý do nguyên tắc 1 là
+ràng buộc trước khi là lựa chọn.
+
+  *Hiệu đính 11/10/2026.* Câu trên nói quá nếu đọc là "giai đoạn một không tái lập được dưới bất
+  kỳ hình thức nào". Luận văn **đã** chú giải một bộ hộp hành vi tám lớp của riêng nó và huấn
+  luyện bộ phát hiện giai đoạn một trên đó, rồi chạy trọn đường bộ-phát-hiện → quyết định theo
+  clip (mục 6.15). Phần **vẫn** đúng là: không tái lập được giai đoạn một *của họ*, trên *2,262
+  hộp của họ*, nên mọi so sánh ở mức hộp giữa hai bên là không khả thi và không được đưa ra. Bộ
+  phát hiện của luận văn đạt mAP50 **0.806** và **0.791**, **dưới sàn 0.85** của cổng G22; đó là
+  một giới hạn về cường độ của giai đoạn một, không phải sự thiếu vắng của nó.
 
 Thứ hai, **kích thước dữ liệu**. Bài toán nhị phân trên iSafetyBench có 1,100 clip và 151 nguồn;
 làn Unsafe-Net bốn lớp có 516 clip và 8 nhóm bối cảnh. Ở cỡ này, một mô hình vài triệu tham số
@@ -919,6 +927,10 @@ Năm điểm cần mang sang các chương sau.
   (5) **Tám cổng cùng một đối chứng được đăng ký trước, kèm hệ quả đã nhận trước cho từng phán
       quyết trượt** (Bảng 3.4), trong đó ba cổng hỏi cùng một câu hỏi ở ba cấu hình khác nhau.
       Chương 6 mục 6.13 tổng hợp phán quyết; chương này cố ý không nêu phán quyết nào.
+      Con số "một đối chứng" ở đây là **trạng thái tại mốc đóng băng số 05/10/2026**. Về sau có
+      thêm hai đối chứng — G19 (không đăng ký trước — mục 6.6.3) và G20 (đăng ký trước khi chạy,
+      nhưng sau mốc đóng băng — mục 6.14) — nên Bảng 6.8 liệt kê ba. Mục này vì vậy **không** được
+      đọc như tuyên bố rằng cả ba đối chứng đều thuộc giao thức gốc.
 
 ----------------------------------------------------------------------
 TÀI LIỆU THAM KHẢO

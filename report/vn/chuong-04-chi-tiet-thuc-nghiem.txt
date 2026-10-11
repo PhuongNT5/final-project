@@ -49,6 +49,9 @@ nhau, và không bao giờ được so sánh trực tiếp** (lý do ở mục 4
   Số nguồn video phân biệt (source id)       151
   Số nguồn mang CẢ HAI nhãn                    0   trên 151
 
+Hình 4.1 lấy mẫu khung từ chính các tệp video của kho, mỗi hàng một nhãn; Hình 4.3(a) vẽ
+thành phần nhãn của bảng trên. Danh mục hình và tạo tác nguồn: Phụ lục C (bổ sung sau).
+
 Dòng cuối là một tính chất cấu trúc của kho, không phải một lựa chọn thiết kế, và nó là giới hạn
 quan trọng nhất của toàn bộ làn này. **Nhãn gắn với nguồn, không gắn với tình huống trong nguồn**:
 mỗi video nguồn đóng góp các clip mang cùng một nhãn. Hệ quả được phân tích ở mục 7.9.2(a) — khi
@@ -93,6 +96,10 @@ ghi hạn chế này ở dòng thứ hai, nhãn `[LIMITATION]`. Ba trong tám nh
 Vì vậy toàn luận văn viết "nhóm bối cảnh", không viết "camera"; và tám đơn vị là **quá ít** để một
 khoảng tin cậy ở mức nhóm có độ phân giải hữu ích (mục 7.9.2(b)).
 
+Hình 4.2 lấy một khung đại diện cho mỗi lớp trong tám lớp. Tám ô gần như trùng khung nhìn, nên
+hình đó là bằng chứng nhìn được cho đúng hạn chế vừa nêu: lớp và bối cảnh không tách rời nhau.
+Hình 4.3(b) vẽ phần chia huấn luyện/kiểm thử của kho này.
+
 4.2.3. Tập huấn luyện và kiểm định bộ phát hiện thực thể
 
 Bộ phát hiện Stage-A được huấn luyện riêng, trên một tập ảnh có hộp chân lý. Phần kiểm định được
@@ -132,15 +139,51 @@ cần được nêu thẳng: nhật ký huấn luyện gốc (`train_run.log`) *
 công bố. Phép đo lại từ trọng số đã lưu, trên đúng tập kiểm định cũ, tái lập được mọi giá trị đã
 công bố. Diễn biến này được ghi ở mục 7.7.1(a); nó là một trong bảy hạng mục xuất xứ của luận văn.
 
-Phép đo lại đóng câu hỏi "con số có đúng không" nhưng **không** đóng câu hỏi "trọng số này được
-huấn luyện ở đâu". Nhật ký còn lại không chỉ bị cắt: nó là nhật ký của một phiên chạy trên MPS đã
-**sụp về mAP@50 = 0 ở mọi epoch sau epoch 1**, nên nó không thể là phiên sinh ra trọng số này. Mục
-4.5.5 trình bày đầy đủ việc này cùng lời tự khai về phiên chạy lại trên runtime GPU của Kaggle và
-việc không có nhật ký phía Kaggle trong kho mã. Bảng 4.1 vì vậy được đọc đúng như nó là: **một phép
-đo lại kiểm chứng được trên một trọng số có nguồn gốc huấn luyện chỉ ở mức tự khai.**
+Một hiệu chỉnh phải nêu ngay tại đây, vì nó làm nhẹ câu vừa viết: *nhật ký* thì không có, nhưng
+chính tệp trọng số có mang khoá `train_metrics` do thư viện tự ghi lúc lưu, và Precision/Recall ở
+đó trùng phép đo lại **đến bốn chữ số thập phân** (0.9340/0.9674 so với 0.9339/0.9673 — mục 4.5.5).
+Vậy điều thiếu ở thời điểm công bố là **diễn biến huấn luyện**, không phải mọi dấu vết của phép
+kiểm định; và con số nhúng ấy là 0.9670, không phải 0.9695, nên nó chứng thực chứ không thay thế
+Bảng 4.1.
+
+Phép đo lại đóng câu hỏi "con số có đúng không" nhưng **không** đóng câu hỏi "trọng số này được huấn
+luyện ở đâu". Nhật ký còn lại không chỉ bị cắt: nó là nhật ký của một phiên chạy trên MPS đã **sụp
+về mAP@50 = 0 ở mọi epoch sau epoch 1**, nên nó không thể là phiên sinh ra trọng số này. Mục 4.5.5
+trình bày đầy đủ việc này cùng lời tự khai về phiên chạy lại trên runtime GPU của Kaggle và việc
+không có nhật ký phía Kaggle trong kho mã. Bảng 4.1 vì vậy được đọc đúng như nó là: **một phép đo
+lại kiểm chứng được trên một trọng số có nguồn gốc huấn luyện chỉ ở mức tự khai.**
 
 Lưu ý trích dẫn: con số đúng là **0.9695**. Phát biểu "mAP 95.7%" từng xuất hiện trong một bản thảo
 và **đã bị rút** (Bảng 7.2, nhóm C); nó không được phục hồi dưới bất kỳ hình thức nào.
+
+Một điều nữa phải nói ngay dưới Bảng 4.1, vì nếu không nói thì bảng sẽ bị đọc rộng hơn phạm vi
+của nó: **Bảng 4.1 đo đúng một trọng số, và trọng số đó không phải trọng số của mọi làn.** Kho mã
+chứa hai bộ phát hiện tinh chỉnh cùng công thức, và nhật ký dựng token cho biết mỗi bộ sinh ra
+làn nào:
+
+  Trọng số             | Ngày  | Token sinh ra        | Làn đọc token đó           | Bảng 4.1 đo?
+  ---------------------+-------+----------------------+----------------------------+-------------
+  `detector_best.pt`   | 09/08 | `tokens_app_*`       | làn P1 64 clip;            |   **có**
+  (YOLOv11s)           |       | `tokens_yoloapp_*`   | đối chứng của làn C        |
+  `yolo26_best.pt`     | 28/08 | `tokens_bin8_*`      | làn Unsafe-Net nhị phân    | **không**
+  (YOLO26s)            |       | `tokens_yolo26app_*` | (E3); tiêu đề của làn C    |
+
+  Nguồn: sweep_results/relation_tokens/build_app.log dòng 1;
+         sweep_results/relation_tokens/build_yoloapp.log dòng 1;
+         sweep_results/relation_tokens/build_bin8_2026-09-16.log dòng 1.
+         Hàng `tokens_yolo26app_*` **không có nhật ký dựng** trong kho mã; xuất xứ của nó được
+         kiểm bằng phép đếm lại từ chính tensor (mục 7.7.1, đoạn cuối).
+
+Hệ quả cần nêu thẳng: **mAP 0.9695 ở Bảng 4.1 không phải mAP của bộ phát hiện đứng sau con số E3
+69.6% ở Chương 6.** Bộ phát hiện ấy là `yolo26_best.pt`. Phép đo duy nhất của trọng số ấy trên
+tập kiểm định này là phép đo ngày 29/08/2026 trong báo cáo MT3
+(`plans/2026-07-09-spatial-relation-yolo26-3month/reports/mt3-yolo26-results.md`): mAP@50
+**0.962**, mAP@50-95 **0.872**, `Person_Unauthorized` 0.906. Hai giá trị ấy được trích nguyên
+trạng vì báo cáo MT3 có **trước** mốc đóng băng số 05/10/2026, và vì khai báo "cùng tập kiểm định"
+của nó kiểm chứng được ở cột đối chiếu: cột YOLOv11s của chính báo cáo ấy ghi 0.969 / 0.894, trùng
+Bảng 4.1 đến chữ số. Nhưng hai phép đo **không cùng một lượt chạy** — Bảng 4.1 là phép đo lại trên
+CPU ngày 02/10/2026, còn các giá trị YOLO26 đến từ một phiên trên T4 không có nhật ký trong kho mã
+— nên luận văn **không gộp chúng vào một bảng**.
 
 4.2.4. Chất lượng nhãn: trần trên của mọi con số
 
@@ -220,6 +263,10 @@ nhật ký của nó ghi ở dòng đầu:
 
 Hai giá trị 800 và 640 đều đúng, mỗi giá trị thuộc một làn. Đọc hằng số trong mã mà không đọc nhật
 ký của lần chạy là cách sinh ra một con số sai không thể phát hiện bằng cách đọc lại mã.
+
+Cùng cách đọc ấy áp cho **trọng số** bộ phát hiện, và ở đây nó cũng không có mặc định đúng cho cả
+hai làn: lần dựng token Unsafe-Net ngày 16/09/2026 dùng `yolo26_best.pt`, còn lần dựng làn bốn lớp
+dùng `detector_best.pt`. Bảng xuất xứ ở mục 4.2.3 ghi trọng số nào sinh ra token nào.
 
 4.3.2. Hai nhánh CLIP từ MỘT lần giải mã — phép đối chứng công bằng của cổng G14
 
@@ -624,13 +671,61 @@ nói là hỏng âm thầm. Và kết quả đúng như vậy: trong nhật ký 
 thử một lần trong chính kho mã này và đã sụp về 0, nên quy tắc "đầu phân loại huấn luyện trên CPU"
 có một bằng chứng thực nghiệm chứ không chỉ có một trích dẫn docstring.
 
-Vậy trọng số bộ phát hiện đang dùng (`detector_best.pt`, đạt mAP@50 0.9695 khi đo lại — Bảng 4.1)
-đến từ đâu? **Không từ phiên nào có nhật ký trong kho mã.** Bản ghi của tác giả (bản thảo tiếng Anh
-Chương 3 mục 3.4.2 và Chương 4) quy nó cho **một phiên chạy lại trên runtime GPU của Kaggle**,
-trọng số được tải về và từ đó trở đi chỉ được dùng ở dạng đóng băng trên máy chủ. Luận văn ghi
-nguyên trạng rằng đây là **một lời tự khai, không phải bằng chứng**: không có nhật ký phía Kaggle
-trong kho mã. Điều kiểm chứng được là phép đo lại trên CPU của chính trọng số đó, trên đúng 343 ảnh
-giữ riêng (mục 7.7.1(a)) — nó bảo lãnh **các con số**, không bảo lãnh **đường huấn luyện**.
+Vậy trọng số của Bảng 4.1 (`detector_best.pt`, đạt mAP@50 0.9695 khi đo lại) đến từ đâu? **Không
+từ phiên nào có nhật ký huấn luyện trong kho mã** — nhưng câu đó, vốn là toàn bộ điều bản thảo
+trước nói được, **không còn là toàn bộ sự thật**. Thư viện ultralytics ghi cấu hình của phiên sinh
+ra trọng số vào chính tệp `.pt` lúc lưu, và kho mã có hai sổ tay khớp với cấu hình ấy. Hai nguồn
+này được đọc lại ngày 10/10/2026:
+
+  Trường (ultralytics tự ghi vào .pt) | `detector_best.pt`        | `yolo26_best.pt`
+  ------------------------------------+---------------------------+-------------------------
+  `date`                              | 2026-08-09T07:23:09Z      | 2026-08-24T16:13:29Z
+  `version` (ultralytics)             | 8.4.116                   | 8.4.127
+  `train_args.project`                | **/content**/runs         | **/kaggle/working**/runs26
+  `train_args.data`                   | /content/ds/data.yaml     | /kaggle/working/data.yaml
+  `train_args.model` (khởi tạo từ)    | stage1_frozen/…/best.pt   | runs26/s1/…/best.pt
+  `train_args.name`                   | stage2_finetune           | s2
+  `optimizer` / `lr0` / `imgsz`       | SGD / 0.001 / 800         | SGD / 0.001 / 800
+  `epochs` / `seed` / `device`        | 100 / 0 / 0               | 100 / 0 / 0
+  `batch` / `patience` / `freeze`     | 16 / 30 / 0               | 16 / 30 / 0
+  `train_metrics` mAP@50 / @50-95     | 0.9670 / 0.8811           | 0.9622 / 0.8780
+  `train_metrics` P / R               | 0.9340 / 0.9674           | 0.9435 / 0.9244
+
+  Nguồn: đọc trực tiếp hai tệp trọng số (các khoá `date`, `version`, `train_args`,
+         `train_metrics`). Sổ tay khớp, **đã vào git**: `colab/train_detector_colab.ipynb`
+         (`/content/drive/…`, `yolo11s`, `stage1_frozen` → `stage2_finetune`) và
+         `colab/train_yolo26_detector_kaggle.ipynb` (`/kaggle/input`, `/kaggle/working/data.yaml`,
+         `runs26`, `yolo26s`) — cả hai khai đúng bộ siêu tham số ở bảng trên.
+
+Bảng này buộc sửa hai điều, cho phép xác nhận một điều, và vẫn để hở một điều.
+
+  (1) **Nền tảng bị quy sai.** Bản ghi trước quy **cả hai** trọng số cho Kaggle. Đường dẫn nhúng
+      trong `detector_best.pt` là `/content/...`, tức **Google Colab**; chỉ `yolo26_best.pt` mới
+      là Kaggle. Hai sổ tay trong `colab/` tương ứng đúng với hai nền tảng ấy.
+  (2) **"Lời tự khai, không phải bằng chứng" là quá bi quan.** Cấu hình và nền tảng huấn luyện
+      được **hai tạo tác độc lập** chứng thực: siêu dữ liệu do thư viện tự ghi vào tệp trọng số,
+      và một sổ tay đã vào git khớp với siêu dữ liệu ấy đến từng trường, kể cả cách đặt tên hai
+      giai đoạn. Điều còn thiếu không phải là cấu hình mà là **diễn biến theo epoch**.
+  (3) **Khai báo "đổi đúng một thứ" của báo cáo MT3 nay kiểm chứng được từ tạo tác.** Hai trọng số
+      trùng nhau ở `optimizer`, `lr0`, `imgsz`, `epochs`, `seed`, `device`, `batch`, `patience` và
+      `freeze`; cả hai đều là giai đoạn 2 tinh chỉnh từ một giai đoạn 1 đóng băng. Khác biệt còn
+      lại đúng là kiến trúc — và nền tảng.
+  (4) `train_metrics` nhúng **không phải** phép đo ở Bảng 4.1, và chỗ chúng khớp đáng chú ý hơn
+      chỗ chúng lệch. Precision/Recall của `detector_best.pt` trùng đến bốn chữ số thập phân
+      (nhúng 0.9340/0.9674 so với đo lại 0.9339/0.9673), nên hai phép đo gần như chắc chắn chạy
+      trên cùng tập ảnh ở cùng ngưỡng; mAP thì lệch (0.9670 so với 0.9695, và 0.8811 so với
+      0.8939). Cùng kiểu lệch ấy xuất hiện ở trọng số thứ hai: mAP@50 nhúng 0.9622 trùng đúng giá
+      trị MT3 công bố (0.962), còn mAP@50-95 nhúng 0.8780 lệch khỏi 0.872 của MT3. Luận văn vì vậy
+      **không gộp hai cột vào một bảng**; Bảng 4.1 vẫn là con số được công bố, và phép lấy tích
+      phân AP ở hai phiên bản thư viện khác nhau (8.4.116 lúc huấn luyện, 8.4.27 lúc đo lại) được
+      ghi là một khả năng, không phải một kết luận.
+
+Hai điều **vẫn chưa** đóng, ghi nguyên trạng ở mục 7.7.1: không nền tảng nào để lại nhật ký **theo
+epoch** trong kho mã, nên đường hội tụ vẫn không tái dựng được; và hai tệp `.pt` **chưa vào git**,
+nên siêu dữ liệu nhúng ở bảng trên hiện chỉ kiểm được trên máy của tác giả — một thành viên hội
+đồng không mở ra xem được từ kho mã như đang có. Riêng `yolo26_best.pt` còn nặng hơn một bậc, vì
+nó là trọng số đã dựng token cho làn Unsafe-Net nhị phân, tức cho bộ mã hoá tiêu đề E3, mà **chưa**
+có phép đo lại trên CPU tương đương Bảng 4.1.
 
 ----------------------------------------------------------------------
 4.6. PHẦN CỨNG VÀ MÔI TRƯỜNG
@@ -659,11 +754,11 @@ bằng ký ức**: dòng banner mà ultralytics tự in ra ở đầu mỗi phi�
 sai, và 49 vị trí đã được sửa về M3.
 
 **Không một con số nào thay đổi vì phép sửa nhãn này**, và lý do thì mạnh hơn một lời cam đoan:
-mọi đầu phân loại huấn luyện trên **CPU** (mục 4.5.5), MPS chỉ được dùng ở bước trích đặc trưng và
-ở phiên huấn luyện YOLO đã thất bại, và mọi con số độ trễ/nhịp/năng lượng được trích dẫn trong
-luận văn đều đo trên **Jetson Orin Nano**, không trên máy chủ. Nhãn máy chủ vì vậy chỉ là một phát
-biểu quy thuộc phần cứng, không phải một tham số của bất kỳ phép đo nào. Hạng mục tương ứng ở mục
-7.7.2(i) nay đã đóng.
+mọi đầu phân loại huấn luyện trên **CPU** (mục 4.5.5), MPS chỉ được dùng ở bước trích đặc trưng
+và ở phiên huấn luyện YOLO đã thất bại, và mọi con số độ trễ/nhịp/năng lượng được trích dẫn trong
+luận văn đều đo trên **Jetson Orin Nano**, không trên máy chủ. Nhãn máy chủ vì vậy chỉ là một
+phát biểu quy thuộc phần cứng, không phải một tham số của bất kỳ phép đo nào. Hạng mục tương ứng
+ở mục 7.7.2(i) nay đã đóng.
 
 4.6.2. Môi trường triển khai (thiết bị biên)
 

@@ -338,7 +338,7 @@ hình khác. Nếu luận văn muốn đặt 84.4% cạnh một số đo trên t
 tương đương một engine B1w; việc đó **chưa được làm**.
 
 Một đặc điểm kiến trúc quyết định cách đọc mọi bảng dưới đây: **không có bộ phát hiện nào trong
-quyết định phân lớp của B1.** YOLOv11s giữ vai trò **định vị** — hệ thống phải chỉ ra hiểm hoạ ở
+quyết định phân lớp của B1.** YOLO26s giữ vai trò **định vị** — hệ thống phải chỉ ra hiểm hoạ ở
 đâu — và được đo **riêng**, không bao giờ được cộng vào chi phí của quyết định phân lớp. Ba cổng
 phủ định hội tụ ở Chương 6 và Chương 7 (phân rã theo thực thể so với toàn khung; thế hệ bộ phát
 hiện; hợp nhất hai luồng) là lý do đồ thị quyết định không tiêu thụ hộp giới hạn.
@@ -383,9 +383,18 @@ phát hiện một-ảnh-một-lần ở 800 px không có. Hai mốc so sánh �
 
   Mốc so sánh                                               | lô | p50 (ms)
   ----------------------------------------------------------+----+-------------------------
-  YOLOv11s @ 800 px (định vị, đo riêng, KHÔNG cộng vào      |  1 | 12.636 / 13.001 / 12.741
+  YOLO26s @ 800 px (định vị, đo riêng, KHÔNG cộng vào       |  1 | 12.636 / 13.001 / 12.741
   quyết định)                                               |    |
   MobileNetV3-small @ 224²                                  | 16 |  7.336 /  7.710 /  7.645
+
+  Nguồn của hàng bộ phát hiện, và một nhãn sai được sửa ở đây: engine được đo là
+  `p3-detector-fp16.engine`, dựng từ `deployment/export/p3-detector-fp32.onnx`
+  (`jetson-build-trt-engine.py:178`), và siêu dữ liệu nhúng trong chính tệp ONNX ghi
+  `Ultralytics YOLO26s`, `end2end = True`, `imgsz [800, 800]` cùng tám tên lớp nhà máy. Bản thảo
+  trước ghi hàng này là "YOLOv11s" ở ba chỗ của chương: nhãn đó **sai về thế hệ** và đã được sửa.
+  Con số 12.636 ms không đổi — nó luôn là phép đo của chính đồ thị này, chỉ cái nhãn là sai. Đầu
+  end-to-end không-NMS cũng là một phần lý do nó rẻ: đồ thị không chứa node `NonMaxSuppression`
+  nào, và tệp ONNX được xuất từ `yolo26_best.pt` (`export-p3-graphs.py:39`).
 
 Tháp CLIP đắt hơn MobileNetV3-small **3.06 lần** ở cùng lô 16. Đó là giá phải trả cho 84.2%, và
 nó là một con số nhỏ chứ không phải một rào cản triển khai.
@@ -925,7 +934,7 @@ quyết định của đường B1 đã triển khai là CHƯA ĐO.**
   Tổng kích thước tệp engine (số xác định)                   | **24.46 MB**  | **197.4 MB**
     chi tiết                                                 | phát hiện     | CLIP 174.022
                                                              | 21.543;       | + đầu B1 1.874
-                                                             | ngoại hình    | + YOLOv11s
+                                                             | ngoại hình    | + YOLO26s
                                                              | 2.727;        | 21.543
                                                              | đầu E3 0.190  |
   Độ hụt bộ nhớ trống toàn hệ thống khi engine thường trú    | 38.05 MB      | 90.01 MB

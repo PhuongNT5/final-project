@@ -154,6 +154,13 @@ cậy — **trước** khi con số tương ứng tồn tại. Quy ước phán 
   (4) Phán quyết trượt được công bố đầy đủ, với biên và khoảng tin cậy, ngang mức chi tiết như
       phán quyết đạt. Tổng hợp ở mục 6.13: trong tám cổng phán quyết, **hai đạt và sáu trượt**.
 
+  (5) Các mục **hậu đóng băng** — mục 6.14 và mục 6.15 — nằm trong **thân chương**, không chuyển
+      xuống phụ lục; tác giả chốt ngày 11/10/2026. Lý do: một kết quả bất lợi chạy sau mốc phải
+      được đọc ở cùng chỗ với các kết quả thuận. Cái giá của vị trí ấy là ba ràng buộc đi kèm:
+      các mục đó **không phán quyết** cổng nào trong bảng ở mục 6.13, **không** đổi số cổng (vẫn
+      tám) và **không** đổi bảng cổng (vẫn hai đạt, sáu trượt); số của chúng thuộc làn C và
+      **không** vào năm con số tiêu đề của chương.
+
 ----------------------------------------------------------------------
 6.2. LÀN TIÊU ĐỀ: THÁP CLIP ĐÓNG BĂNG TOÀN KHUNG VÀ ĐẦU TRANSFORMER THỜI GIAN
 ----------------------------------------------------------------------
@@ -205,6 +212,9 @@ Bảng 6.1 — Làn tiêu đề trên iSafetyBench, giao thức leave-source-out
          sweep_results/relation_tokens/logs/g18-{tsf-shard0..3,b1xl}.log
          ghép phân đoạn: tools/merge-esta-shards.py
 
+Hình 6.3 vẽ hai cột cuối của bảng này cho B1 thành đường cong: (a) ROC của cả hai giao thức và
+(b) biểu đồ độ tin cậy. Cả hai vẽ lại từ chính các tệp `*_oof.json` nói ở Lưu ý phương pháp 1.
+
   Lưu ý phương pháp 1. Toàn bộ bảng được **tính lại** từ các tệp dự đoán out-of-fold đã lưu
   (`sweep_results/relation_tokens/enc_isbclip_*_lso-1100_headline-none_oof.json`, mỗi tệp 1,100
   dòng gồm `clip_id`, `y_true`, `prob_unsafe`, `y_pred`), chứ không phải sao chép từ nhật ký. Với
@@ -241,6 +251,9 @@ Phân bố theo fold của B1 (độ chính xác cân bằng từng fold giữ l
 
   Nguồn: tools/analyse-isb-fold-failures.py
          sweep_results/relation_tokens/enc_isbclip_B1_lso-1100_headline-none_oof.json
+
+Hình 6.1 vẽ lại đúng mười con số của dãy trên, kèm hai đường tham chiếu: mức tiêu đề 84.2% và
+đường sàn quy tắc đếm 63.3%. Cột tô đỏ là fold rơi xuống dưới mức tiêu đề.
 
 Dải từ 67.5% đến 97.2% — rộng 29.7 pp — là đặc trưng của giao thức leave-source-out trên một bộ
 dữ liệu mà mỗi nguồn chỉ mang một nhãn: mỗi fold là một tập nguồn khác, và độ khó giữa các tập
@@ -468,6 +481,9 @@ có con số cao, đo được, và chọn không báo cáo nó.
          sweep_results/relation_tokens/enc_isbclip_B1_lso-1100_headline-none_oof.json
          lệnh: run-esta-lso.py --model B1 --split random --folds 10 --seeds 3 --epochs 60
 
+Hình 6.4 vẽ lạm phát giao thức thành hai bảng dốc RIÊNG: bảng (a) làn A, bảng (b) làn B. Hai
+bảng nằm trong một khung hình nhưng không chung trục và không chung thang, đúng điều (2) trên.
+
 6.2.8. Ma trận nhầm lẫn của cấu hình tiêu đề, cả hai giao thức
 
 Hai bảng dưới đây là **ma trận nhầm lẫn đầy đủ** của chính đồ thị được triển khai, đếm trực tiếp
@@ -511,6 +527,9 @@ Bảng 6.2b — **Cùng mô hình, cùng 1,100 clip đó**, chỉ đổi phép c
   sai 75 clip trở thành một hệ thống sai 25 clip chỉ bằng cách đổi cách chia dữ liệu.
 
   Nguồn: đếm trực tiếp từ hai tệp `*_oof.json` dẫn ở trên (đã vào git, xem mục 6.1.2).
+
+  Hình 6.2 vẽ hai bảng trên cạnh nhau cùng một thang màu, nên hai ô sai của giao thức rò rỉ nhỏ
+  hẳn đi so với hai ô sai của giao thức công bố.
 
 ----------------------------------------------------------------------
 6.3. CÂU HỎI PHƯƠNG PHÁP LUẬN: CÁI GIÁ CỦA CÁCH CHIA DỮ LIỆU
@@ -859,8 +878,8 @@ nhiều lần, một vài giá trị p nhỏ xuất hiện do ngẫu nhiên.
 
 Quy mô, đếm được chứ không phỏng đoán: **31 giá trị p phân biệt** xuất hiện trong các chương kết
 quả của luận văn (Chương 6, 7, 8), trên **10 mã cổng** cùng các ablation đặc trưng, ablation dung
-lượng và các so sánh xương sống. Ngưỡng Bonferroni tương ứng ở α = 0.05 là **α' = 0.05/31 =
-1.61e-03**.
+lượng và các so sánh xương sống. Ngưỡng Bonferroni tương ứng ở α = 0.05 là **α' = 0.05/31
+= 1.61e-03**.
 
 Đối chiếu từng kết quả có vai trò chứng nhận với ngưỡng đó:
 
@@ -1505,9 +1524,20 @@ làn C: không mô hình nào có thể được chứng nhận vượt quá đ�
 6.12.5. So với công trình gốc — thiếu hụt có ý nghĩa ở mọi cách chia khả thi
 
 Công trình gốc trên bộ dữ liệu này công bố **95.81% macro** với bộ phát hiện huấn luyện trên 2,262
-hộp giới hạn. Con số đó **không phải phép đo của luận văn**: nó chưa bao giờ được chạy lại, và
-chưa bao giờ được so sánh cùng giao thức. Nó được trích như một tham chiếu tài liệu, không như
-một đường sàn.
+hộp giới hạn. Con số đó **không phải phép đo của luận văn**: hệ thống của tác giả khác không thể
+chạy lại vì trọng số và dự đoán theo clip của họ không được công bố. Nó được trích như một tham
+chiếu tài liệu, không như một đường sàn.
+
+  HIỆU ĐÍNH 11/10/2026. Bản đóng băng viết tiếp ở chỗ này rằng con số đó "chưa bao giờ được chạy
+  lại, và chưa bao giờ được so sánh cùng giao thức". Sau 11/10/2026 phát biểu đó **không còn
+  đúng** và đã được bỏ: **giao thức và phép đo** của công trình gốc đã được tái lập bằng một hiện
+  thực độc lập của luận văn (cùng cách chia 452/64, cùng định nghĩa macro là trung bình độ nhạy
+  theo lớp), báo ở **mục 6.15**. Phân biệt phải giữ: *hệ thống* của họ vẫn không chạy lại được —
+  đó là lý do nêu ở đoạn trên và nó không đổi — còn *giao thức* của họ thì chạy lại được, và đã
+  chạy. Kết luận của mục này không đảo chiều: luận văn vẫn **không đạt** 95.81% và vẫn **không
+  tuyên bố** đạt. Điều thay đổi là khoảng cách ấy giờ **đã được đo** dưới chính giao thức của họ
+  thay vì chỉ được suy ra từ bảng của họ, và cơ chế mà họ gán công cho phần lớn khoảng cách đã
+  được **đo là vô hiệu** (mục 6.15.2).
 
 Phép so sánh có nghĩa duy nhất là so với **đường sàn không-bbox** mà công trình gốc công bố, vì
 đó là cấu hình có thể tái dựng từ các bảng của họ: **57/64**, macro 85.78%. Giá trị này từng bị
@@ -1574,8 +1604,9 @@ Bảng 6.8 tập hợp toàn bộ phán quyết của chương ở một chỗ. 
 đầy đủ ở các mục trước; bảng này không đưa thêm con số mới, nó chỉ để một phản biện kiểm tra được
 tổng số mà không phải lật lại chương.
 
-Bảng 6.8 — Mười mã cổng: tám cổng phán quyết tiền đăng ký và hai đối chứng. Khoảng tin cậy là
-            bootstrap theo cụm (151 nguồn ở làn A và B). Tiêu chí đạt theo mục 6.1.5(1).
+Bảng 6.8 — Mười một mã cổng: tám cổng phán quyết tiền đăng ký và ba đối chứng. Khoảng tin cậy là
+            bootstrap theo cụm (151 nguồn ở làn A và B; 8 nhóm bối cảnh ở G20 — xem †). Tiêu chí
+            đạt theo mục 6.1.5(1).
 
   Cổng | Giả thuyết tiền đăng ký               | Mô hình được nêu tên |   Δ      | CI theo cụm       | McNemar p | Phán quyết
   -----+---------------------------------------+----------------------+----------+-------------------+-----------+-----------
@@ -1593,13 +1624,26 @@ Bảng 6.8 — Mười mã cổng: tám cổng phán quyết tiền đăng ký v
        |   toàn khung đơn lẻ                   |                      |          |                   |           |
   G19  | *(đối chứng, không phán quyết,        | E3 giả dược so       | +13.8 pp | —                 | 0.0476 ‡  | đối chứng
        |   KHÔNG đăng ký trước)*               |   E3 nguồn thật      |          |                   |           |
+  G20  | *(đối chứng, không phán quyết, SAU    | E3 @ 26s-ft so       | +7.8 pp  | [−1.5, +15.2] ⊃0  | 2.69e-10 †| đối chứng
+       |   mốc đóng băng số)*                  |   E3 @ v11s-ft       |          |                   |           |
 
   Ký hiệu ⊃0 nghĩa là khoảng tin cậy chứa 0, tức phán quyết trượt theo mục 6.1.5(1) bất kể McNemar.
   ‡ Giá trị p của G19 là **p hoán vị** trên 20 seed giả dược, (0+1)/(20+1), **không phải** McNemar;
     nó không so sánh được với các giá trị p khác trong cột. G19 không có CI theo cụm vì đơn vị
     biến thiên của nó là seed giả dược, không phải nguồn. Chi tiết ở mục 6.6.3.
+  † Giá trị p của G20 là McNemar exact, nhưng **đơn vị cụm của G20 là 8 nhóm bối cảnh Unsafe-Net**,
+    không phải 151 nguồn iSafetyBench, nên CI của nó **không so sánh được** với CI của G17. G20
+    chạy **ngày 10/10/2026, tức sau mốc đóng băng số 05/10/2026**, và được đăng ký trước khi chạy
+    kèm điều khoản giữ nguyên mọi con số tiêu đề. Nhánh thứ hai của G20, trên làn iSafetyBench
+    (LSO-1100, bộ mã hoá ESTA), báo riêng ở mục 6.14; nhánh đó trả về **+2.2 pp** với CI
+    **[−3.5, +8.8] ⊃0** gộp cụm theo 151 nguồn và McNemar exact **p = 0.261** — cũng là "không
+    phân biệt được", nhưng ở độ phân giải cụm cao hơn nhiều.
 
   Tổng: **tám cổng phán quyết, hai đạt (G10, G12) và sáu trượt (G11, G13, G14, G15, G16, G18).**
+
+  Hình 6.5 vẽ tám cổng đó thành một biểu đồ rừng: chấm là Δ, thanh ngang là CI theo cụm, vạch
+  dọc ở 0 là tiêu chí đạt của mục 6.1.5(1). Hai cổng đạt nằm trọn bên phải vạch; sáu cổng trượt
+  thì hoặc có CI cắt vạch, hoặc có Δ âm.
 
 Ba điều cần đọc ra khỏi bảng này.
 
@@ -1624,10 +1668,747 @@ dữ liệu mà không biên 3–4 pp nào chứng nhận được. Đây là gi
 các mô hình, và nó được nêu ở đây lần cuối để không bị đọc như một kết luận về kiến trúc.
 
 ----------------------------------------------------------------------
-6.14. KẾT LUẬN CHƯƠNG
+6.14. ĐỐI CHỨNG HẬU ĐÓNG BĂNG: THẾ HỆ BỘ PHÁT HIỆN KHI CẢ HAI ĐỀU ĐƯỢC TINH CHỈNH (G20)
 ----------------------------------------------------------------------
 
-Chương này đo bốn thứ và trả về bốn kết luận, xếp theo độ chắc chắn của bằng chứng.
+G17 ở mục 6.2.4 đã đổi thế hệ bộ phát hiện, nhưng cả hai nhánh của nó đều là trọng số **tiền huấn
+luyện trên COCO**. Câu hỏi còn lại là câu hỏi khác: khi cả hai bộ phát hiện đều được **tinh
+chỉnh** trên 2,262 khung ảnh nhà máy với cùng một công thức, thế hệ mới hơn có thắng không.
+
+Phải nói trước ba điều về địa vị của mục này.
+
+  (1) **Nó được chạy sau mốc đóng băng số 05/10/2026**, theo quyết định của tác giả, và được tiền
+      đăng ký ngày 10/10/2026 trong `reports/test-touch-log.md` **trước khi tồn tại bất kỳ con số
+      nào** của nó, kèm điều khoản ràng buộc: bộ phát hiện tiêu đề, bộ mã hoá tiêu đề, mọi con số
+      tiêu đề và mọi phán quyết cổng đã công bố **giữ nguyên bất kể mục này trả về gì**. Đặt lại
+      tên mô hình sau khi đã thấy kết quả kiểm định chéo là chọn lọc trên dữ liệu đánh giá; mục
+      này vì vậy là **đối chứng không phán quyết**, như G17 và G19.
+
+  (2) **Nó tiêu thụ không lần chạm tập kiểm tra nào.** Cả hai nhánh dùng giao thức sàng lọc
+      out-of-fold gộp (LCO-691 và LSO-1100), đúng giao thức mà các mục 6.5 và 6.6 đã dùng; hai lần
+      chạm được tiền đăng ký vẫn còn nguyên cả hai.
+
+  (3) **Một sự thật về xuất xứ đã định hình lại câu hỏi.** Nhật ký
+      `sweep_results/relation_tokens/build_bin8_2026-09-16.log` dòng 1 ghi
+      `detector=sweep_results/entity_detector/yolo26_best.pt`: toàn bộ làn Unsafe-Net / bộ mã hoá
+      tiêu đề E3 — tức phép đo lạm phát giao thức, các cổng G10–G13, G15 và G16 — **đã chạy trên
+      YOLO26 tinh chỉnh từ 16/09/2026**. Trên làn đó, nhánh còn thiếu không phải YOLO26 mà là
+      **YOLOv11s tinh chỉnh**. Nhánh A dưới đây bổ sung đúng nhánh thiếu ấy.
+
+Một tiền lệ trong chính luận văn này phải nêu ngay, vì nó quyết định cách đọc cả mục. Mục 6.12.2
+**đã** công bố đúng phép so sánh ấy, trên làn C: kết quả tiêu đề của làn chạy trên token dựng
+bằng YOLO26 tinh chỉnh (`tokens_yolo26app_*`), và ngay cạnh nó là một đối chứng cùng giao thức
+dựng bằng YOLOv11s tinh chỉnh (`tokens_yoloapp_*`):
+
+  Làn C, k-fold 5x10 trên 516 clip gộp | YOLO26-ft (tiêu đề) | YOLOv11s-ft (đối chứng)
+  -------------------------------------+---------------------+------------------------
+  trung bình theo fold, top-1          |     80.8% ± 4.0     |      80.7% ± 3.6
+  gộp, số clip đúng                    |       421/516       |    421/516 — trùng khít
+  macro                                |        84.2%        |          85.1%
+  biên so với đường sàn của chính nó   | +3.7 pp, p = 0.0600 |  +3.6 pp, p = 0.0574
+
+  Nguồn: sweep_results/relation_tokens/canonical/kfold_repeats10_yolo26app_HEADLINE.log:53-57
+         sweep_results/relation_tokens/canonical/kfold_repeats10_yoloapp_YOLO11.log:53-57
+
+Trên làn C, hai thế hệ bộ phát hiện cho kết quả **gần như trùng nhau**, và hai giá trị p rơi về
+cùng một phía của mức 0.05. Vậy mục này **không phải lần đầu luận văn so hai bộ phát hiện tinh
+chỉnh với nhau**; nó là lần thứ hai, trên một làn khác (687 clip nhị phân gộp thay cho 516 clip
+bốn lớp), dưới một giao thức khác (LCO-691 sàng lọc out-of-fold thay cho k-fold), và với **khoảng
+tin cậy theo cụm mà cặp làn C chưa từng có**.
+
+6.14.1. Nhánh A — trong miền: Unsafe-Net, LCO-691, bộ mã hoá E3
+
+Trước khi so sánh được, phải loại một nhiễu. Tạo tác out-of-fold của baseline được ghi ngày
+19/09/2026, còn commit `9515ee1` ngày 29/09/2026 đã viết lại đường gộp, chống trùng và thẻ điểm
+của trình chạy LCO. Ghép tạo tác cũ với một nhánh chấm bằng code hôm nay sẽ lẫn "đổi bộ phát hiện"
+với "đổi code", và sau đó không tách ra được nữa. Vì vậy cả hai nhánh đều được chấm lại bằng cây
+mã hiện tại, và lượt chấm lại baseline **tái lập đúng từng con số đã công bố**:
+`balanced_acc=69.6% macro_f1=70.4% unsafe_recall=87.7% unsafe_precision=84.1% PR-AUC=0.856
+ROC-AUC=0.742`, cả tám độ chính xác theo nhóm giữ lại và mọi recall theo lớp con trùng khít nhật
+ký `tier3_lco_logs/E3.log`. Commit đó **trung tính về hành vi** trên đường này, nên biên độ dưới
+đây quy được cho bộ phát hiện chứ không cho lần refactor.
+
+Token của hai nhánh dựng bằng cùng công thức (`appearance=True backbone=yolo corrupt=None
+classes=[0..7]`, `feat=74` ở cả hai), khác duy nhất ở trọng số bộ phát hiện:
+
+  Lát dữ liệu            | YOLOv11s tinh chỉnh | YOLO26 tinh chỉnh (đang dùng) | tỷ lệ
+  huấn luyện, 566 clip   |      30,781 phát hiện |         31,873               | 0.966
+  kiểm tra, 125 clip     |       6,307 phát hiện |          6,774               | 0.931
+
+Cả hai tỷ lệ nằm sâu trong dải 0.5–2.0 đã đăng ký trước, nên nhánh này là phép so sánh
+một-biến-đổi sạch. Và chiều của nó **lặp lại ở làn C**, nên nó là một cơ chế chứ không phải một
+quan sát lẻ:
+
+  Làn                                  | đơn vị        | YOLOv11s-ft | YOLO26-ft |  tỷ lệ
+  -------------------------------------+---------------+-------------+-----------+--------
+  Unsafe-Net nhị phân                  | 566 clip h.l. |      30,781 |    31,873 |  1.035
+  Unsafe-Net nhị phân                  | 125 clip k.t. |       6,307 |     6,774 |  1.074
+  Làn C bốn lớp                        | 452 clip h.l. |      25,891 |    26,438 |  1.021
+  Làn C bốn lớp                        |  64 clip k.t. |       3,267 |     3,390 |  1.038
+  iSafetyBench, tiền huấn luyện COCO   |    1,100 clip |      52,997 |    45,512 |  0.859
+
+  Nguồn: bốn hàng đầu đếm trực tiếp từ `mask.sum()` của các tensor token tương ứng; hàng cuối
+         lấy từ mục 6.2.4 (cổng G17) và là cặp **tiền huấn luyện**, không phải cặp tinh chỉnh.
+
+**Trong miền, khi cả hai bộ phát hiện đều được tinh chỉnh trên tám lớp nhà máy, thế hệ mới là bên
+sinh nhiều phát hiện hơn — ở cả hai làn. Ngoài miền, khi cả hai đều là trọng số COCO, nó là bên
+sinh ít hơn.** Một làn có thể là nhiễu; hai làn cùng chiều, đặt cạnh một cặp tiền huấn luyện ngược
+chiều, là một cơ chế.
+
+Một ghi chú xuất xứ bắt buộc cho hai hàng làn C: **token `tokens_yolo26app_*` không có nhật ký
+dựng trong kho mã.** Điều kiểm chứng được là phép đếm lại từ chính tensor — shape (452,16,8,74) và
+(64,16,8,74), số clip 452/64, số phát hiện 26,438/3,390 — và cả ba khớp khai báo của báo cáo MT3
+đến từng chữ số; con số 3,267 của nhánh YOLOv11s còn khớp dòng cuối
+`sweep_results/relation_tokens/build_yoloapp.log`. Phép đếm bảo lãnh **các con số**, không bảo
+lãnh **cờ dựng**: việc hai lần dựng chỉ khác nhau ở trọng số bộ phát hiện vẫn là lời tự khai của
+MT3 (mục 7.7.1).
+
+  E3 @ YOLO26-ft 69.6% − E3 @ YOLOv11s-ft 61.8% = **+7.8 pp, nghiêng về bộ phát hiện ĐANG DÙNG**;
+  CI 95% theo cụm trên 8 nhóm bối cảnh **[−1.5, +15.2] chứa 0**; McNemar chính xác b = 98, c = 28,
+  126 ô bất đồng, p = 2.69e-10. Bootstrap theo clip cho [+4.3, +11.4] nhưng **đó là đơn vị sai**
+  và chỉ được khai ra, không được đọc thành phán quyết (mục 3.7.4, 6.1.3).
+
+  Nguồn: sweep_results/relation_tokens/logs/g20-build-v11ft-2026-10-10.log
+         sweep_results/relation_tokens/logs/g20-score-v11ft-2026-10-10.log
+         sweep_results/relation_tokens/logs/g20-compare-armA-2026-10-10.log
+
+**Kết luận ghi nhận theo quy tắc 4 đã đăng ký trước: "không phân biệt được" ở cấp nhóm.** Điểm ước
+lượng nghiêng về bộ phát hiện đang dùng và McNemar ở cấp clip là áp đảo, nhưng đơn vị phán quyết
+được tiền đăng ký là nhóm bối cảnh, chỉ có tám nhóm, và khoảng tin cậy ở đơn vị ấy cắt qua 0. Quy
+tắc 3 vì vậy không được thoả theo chiều nào, và nhánh A **không cho phép tuyên bố "nâng cấp"** dù
+theo chiều nào.
+
+Và khoảng tin cậy rộng ở đây **có cơ chế**, không chỉ là hệ quả của tám nhóm. Tách theo nhóm giữ
+lại cho thấy gần như toàn bộ biên độ nằm ở một nhóm duy nhất:
+
+  Nhóm giữ lại | n   | YOLO26-ft | YOLOv11s-ft | chênh
+  -------------+-----+-----------+-------------+---------------
+  0            |  22 |    77.3%  |    100.0%   | YOLOv11s +22.7
+  1            | 187 |    75.4%  |     38.5%   | YOLO26   +36.9
+  2            |  58 |   100.0%  |    100.0%   | bằng nhau
+  3            | 170 |    81.8%  |     81.8%   | bằng nhau
+  4            | 121 |    51.2%  |     43.0%   | YOLO26    +8.3
+  5            | 101 |    93.1%  |     97.0%   | YOLOv11s  +4.0 ‡
+  6            |  14 |   100.0%  |    100.0%   | bằng nhau
+  7            |  14 |   100.0%  |    100.0%   | bằng nhau
+  -------------+-----+-----------+-------------+---------------
+  Gộp 687 clip |     |    78.5%  |     68.3%   | YOLO26   +10.2
+
+  Cột là **độ chính xác thô theo nhóm**, không phải độ chính xác cân bằng: nhóm 5 chỉ chứa một lớp
+  (‡ cả 101 clip đều nhãn unsafe), nên độ chính xác cân bằng không xác định được ở đó. Dòng gộp
+  (78.5% so với 68.3%) vì vậy **không** là cặp số tiêu đề của mục này; cặp tiêu đề là độ chính xác
+  cân bằng **69.6% so với 61.8%** trên cùng 687 clip ấy, và hai cặp số không thay thế nhau. Chênh
+  lệch ở cột cuối là chênh lệch của giá trị chính xác, không phải hiệu của hai số đã làm tròn.
+  Nguồn: `enc_bin8_E3_lco-691_headline-drop_conflict_oof.json` và
+         `enc_v11ft_E3_lco-691_headline-drop_conflict_oof.json` — cùng 687 `clip_id`, cùng nhãn,
+         cùng `fold_id`, xác nhận trùng khớp từng dòng.
+
+**Bốn** nhóm cho kết quả **giống hệt nhau** (2, 3, 6, 7), **hai** nghiêng về YOLOv11s tinh chỉnh
+(nhóm 0 với +22.7 và nhóm 5 với +4.0), và **hai** nghiêng về YOLO26 tinh chỉnh — trong đó nhóm 1,
+cũng là nhóm lớn nhất với 187 clip, nghiêng tới 36.9 điểm phần trăm và một mình mang gần như toàn
+bộ biên gộp. Tính theo số clip: biên gộp là **+70 clip** trên 687, trong đó nhóm 1 đóng góp
+**+69**, nhóm 4 đóng góp +10, còn nhóm 0 và nhóm 5 trừ đi 5 và 4. Tức **98.6% biên gộp đến từ
+một nhóm bối cảnh**.
+Bootstrap theo cụm lấy mẫu lại ở cấp nhóm, nên những lần rút không chứa nhóm 1 cho biên gần 0; đó
+là lý do khoảng tin cậy cắt qua 0 trong khi McNemar theo clip lại áp đảo. Nói cách khác, **lợi thế
+trong miền của YOLO26 tinh chỉnh tập trung ở một bối cảnh, không trải đều**, và một phán quyết
+"nâng cấp" dựa trên nó sẽ là phán quyết về một bối cảnh được phát biểu như thể về cả kho dữ liệu.
+Đây đúng là tình huống mà mục 6.1.3 đã báo trước khi chọn đơn vị lấy mẫu là nhóm chứ không là
+clip.
+
+Hai hệ quả vẫn đứng được, và không hệ quả nào cần tới khoảng tin cậy.
+
+  (a) **"Nâng cấp luận văn lên YOLO26" không phải một hành động còn để làm trên làn này — nó là
+      trạng thái sẵn có của làn.** Mọi con số E3, phép đo lạm phát giao thức, và các cổng G10–G13,
+      G15, G16 đã chạy trên YOLO26 tinh chỉnh từ 16/09/2026.
+
+  (b) **Nhánh thực sự còn thiếu thì thua.** Thay sang YOLOv11s tinh chỉnh làm mất 7.8 pp điểm ước
+      lượng, và recall theo lớp con chỉ ra chỗ mất: `2:OpenedPanel` tụt còn 27.5% và
+      `6:ClosedPanel` còn 6.2%, tức phần phân biệt trạng thái tủ điện suy giảm mạnh nhất.
+
+6.14.2. Nhánh B — ngoài miền: iSafetyBench, LSO-1100, bộ mã hoá ESTA
+
+Bộ phát hiện tinh chỉnh có tám lớp nhà máy (`Person_Authorized, Person_Unauthorized, Safe_Walkway,
+Restricted_Zone, Panel_Closed, Panel_Opened, Forklift_Safe_Load, Forklift_Overload`), không phải
+tám nhóm COCO thô mà trình trích đặc trưng iSafetyBench vẫn ánh xạ sang. Dùng bảng tra COCO cho
+chúng sẽ gán sai 7 trong 8 lớp, nên cả hai nhánh B dùng **ánh xạ identity**: id lớp 0..7 đi qua
+không đổi. Điều kiện an toàn của phép này được kiểm trước khi chạy:
+`model_entity_spatiotemporal.py` dòng 22 đặt `N_ENTITY = 8`, dòng 64 cấp bảng
+`nn.Embedding(N_ENTITY, d)` và dòng 70 kẹp id vào `[0, 7]`, nên tám lớp nhà máy khớp một-một
+vào bảng embedding và phép kẹp không bao giờ kích hoạt. Chú thích ở dòng 22 vẫn ghi "coarse
+COCO groups" — bảng đúng **kích thước** nhưng chú thích mô tả một ngữ nghĩa khác; vì embedding
+được học lại từ đầu trong mỗi lần chạy, ngữ nghĩa mỗi hàng là do dữ liệu huấn luyện quy định,
+nên phép dùng lại là hợp lệ. Chú thích ấy nên được sửa.
+
+Độ lệch miền được **đo trước khi thiết kế nhánh B**, chứ không nêu ra sau như lời bào chữa. Trên
+mẫu 24 clip iSafetyBench, 384 khung, imgsz 640, conf 0.25:
+
+  Bộ phát hiện        | nc | số phát hiện | số khung có >=1 phát hiện | conf trung bình
+  yolo11s.pt          | 80 |        1,415 |            370  (96.4%)   |  0.611
+  yolo26s.pt          | 80 |        1,245 |            357  (93.0%)   |  0.632
+  detector_best.pt    |  8 |          332 |            178  (46.4%)   |  0.574
+  yolo26_best.pt      |  8 |          311 |            210  (54.7%)   |  0.616
+
+Trên mẫu thăm dò này hai bộ tinh chỉnh sinh khoảng **23–25%** lượng phát hiện của hai bộ tiền
+huấn luyện. Đây là chế độ **đói phát hiện**, và nó là điều kiện đã biết trước của nhánh B — không
+phải một phát hiện hậu nghiệm.
+
+Phép đo ở quy mô toàn kho xác nhận mẫu thăm dò, và nó cho phép dùng lại **đúng đại lượng đã công
+bố ở mục 4.3.3** cho cặp tiền huấn luyện: tỷ lệ khung có ít nhất một phát hiện, tính từ trường
+`mask` của cùng bốn tệp đặc trưng, trên cùng 1,100 clip và 17,600 khung.
+
+  Lần trích                          | không gian lớp | phát hiện | khung có >=1 | ô nào kích hoạt
+  -----------------------------------+----------------+-----------+--------------+-----------------
+  YOLOv11s tiền huấn luyện COCO      | 8 nhóm COCO    |    52,997 | 15,874 90.2% |  8 / 8
+  YOLO26s tiền huấn luyện COCO       | 8 nhóm COCO    |    45,512 | 15,465 87.9% |  8 / 8
+  YOLOv11s **đã tinh chỉnh**         | 8 lớp nhà máy  |    13,895 |  8,117 46.1% |  4 / 8
+  YOLO26 **đã tinh chỉnh**           | 8 lớp nhà máy  |    13,108 |  8,518 48.4% |  4 / 8 ‡
+
+  Nguồn: `feats_{isbclip,isbclip26,isbv11ft,isb26ft}_all.pt`, trường `mask` và `geom[...,0]`.
+  Hai hàng đầu tái lập đúng hai con số 90.2% và 87.9% đã in ở mục 4.3.3.
+  ‡ Nhánh 26-ft có chạm thêm hai ô (`Panel_Closed` 2 phát hiện, `Panel_Opened` 1), tổng **ba**
+    trên 13,108 — 0.02%. Nói nghiêm ngặt là sáu ô được chạm, nhưng bốn ô mang 99.98%.
+
+Trước khi đọc hai nhánh, phép đối chứng "đổi đúng một thứ" được kiểm lại y như cách mục 4.3.3 kiểm
+cho G17, và nó **đạt**:
+
+  thứ tự clip giống nhau   : True
+  nhãn giống nhau          : True
+  max|hiệu| nhánh toàn khung: **0.0**  (trùng khớp từng byte)
+  siêu dữ liệu hai lần trích: imgsz 640, conf 0.25, T 16, n_max 8, class_map identity, nc 8
+                              — trùng nhau ở mọi trường trừ đường dẫn bộ phát hiện
+
+  Nguồn: `logs/g20-armB-wholeframe-control.log`, đọc từ khoá `meta` của chính hai tệp đặc trưng.
+
+Nhánh toàn khung không đi qua bộ phát hiện nên nó phải trùng từng byte, và nó trùng. Vậy biến duy
+nhất khác giữa hai nhánh B đúng là thế hệ bộ phát hiện.
+
+Hai cột cuối là nội dung cơ chế của mục này. Tỷ lệ khung có phát hiện **giảm còn khoảng một nửa**
+khi đổi sang bộ tinh chỉnh — 90.2% và 87.9% xuống 46.1% và 48.4% — nghĩa là hơn một nửa số khung
+ngoài miền không sinh nổi một ô thực thể nào. Và trong khi hai bộ tiền huấn luyện phủ **cả tám** ô
+của bảng embedding, ở bộ tinh chỉnh chỉ **bốn** ô mang khối lượng thực. Đây không phải một bộ phát
+hiện chạy kém hơn một chút; đây là một bộ phát hiện phần lớn thời gian **không trả về gì**, trên
+một không gian lớp thực tế bị thu hẹp một nửa.
+
+Phép đối chiếu với chính miền huấn luyện của nó cho thấy đây là hiệu ứng miền, không phải lỗi dựng:
+
+  Chế độ                                   | khung  | khung đầy 8 ô | khung rỗng (0 phát hiện)
+  -----------------------------------------+--------+---------------+--------------------------
+  Trong miền, Unsafe-Net, YOLOv11s-ft      | 11,056 |    221 (2.0%) |              36  (0.33%)
+  Trong miền, Unsafe-Net, YOLO26-ft        | 11,056 |    277 (2.5%) |              53  (0.48%)
+  Ngoài miền, iSafetyBench, YOLOv11s-ft    | 17,600 |     28 (0.2%) |           9,483 (53.9%)
+
+  Nguồn: `tokens_{v11ft,bin8}_{train,test}.pt` và `feats_isbv11ft_all.pt`, trường `mask`.
+
+Cùng một bộ trọng số, cùng ngưỡng conf 0.25: tỷ lệ khung rỗng đi từ một phần ba của một phần trăm
+lên 53.9%, chênh khoảng 165 lần. Bảng này cũng **loại trừ cách giải thích bằng cắt ngọn**: trình
+dựng chỉ giữ 8 ô tin cậy nhất mỗi khung (`build_relation_tokens.py` dòng 218), nhưng 97.5–98% khung
+trong miền còn chỗ trống dưới mức trần, nên một phát hiện vượt conf 0.25 lẽ ra đã được giữ.
+
+Một hiệu chỉnh phải nêu ở đây, vì câu "chỉ bốn trong tám lớp từng kích hoạt" sẽ bị đọc sai nếu
+thiếu mốc so sánh trong miền: mốc ấy là **sáu**, không phải tám.
+
+  Lớp bộ phát hiện      | TM v11ft       | TM 26-ft       | NM v11ft       | NM 26-ft
+  ----------------------+----------------+----------------+----------------+----------------
+  0 Person_Authorized   |   1,819   4.9% |   1,749   4.5% |   1,322   9.5% |     391   3.0%
+  1 Person_Unauthorized |  24,746  66.7% |  26,175  67.7% |  10,745  77.3% |  11,886  90.7%
+  2 Safe_Walkway        |       0   0.0% |       0   0.0% |       0   0.0% |       0   0.0%
+  3 Restricted_Zone     |       0   0.0% |       0   0.0% |       0   0.0% |       0   0.0%
+  4 Panel_Closed        |   5,981  16.1% |   6,170  16.0% |       0   0.0% |       2   0.0%
+  5 Panel_Opened        |   3,157   8.5% |   3,161   8.2% |       0   0.0% |       1   0.0%
+  6 Forklift_Safe_Load  |     464   1.3% |     494   1.3% |     911   6.6% |     166   1.3%
+  7 Forklift_Overload   |     921   2.5% |     898   2.3% |     917   6.6% |     662   5.1%
+  ----------------------+----------------+----------------+----------------+----------------
+  Tổng                  |  37,088        |  38,647        |  13,895        |  13,108
+
+  TM = trong miền (Unsafe-Net, 691 clip).  NM = ngoài miền (iSafetyBench, 1,100 clip).
+
+  Tên lớp đọc từ khoá `names` của chính hai tệp `.pt`; hai bộ trọng số mang **cùng tám tên theo
+  cùng thứ tự**, nên cột thứ ba so được với hai cột đầu.
+
+Hai lớp vùng (`Safe_Walkway`, `Restricted_Zone`) bằng không ở **cả hai miền và cả hai nhánh**. Kết
+hợp với phép đo độ bão hoà ở trên, điều này nghĩa là chúng **thực sự không vượt ngưỡng** ở đâu cả;
+tín hiệu vùng đi vào đầu quyết định từ **đa giác chú giải**, không từ bộ phát hiện:
+`build_relation_tokens.py` dòng 105–106 đọc `safe_walkway` / `restricted_zone`, và dòng 160–166
+biến chúng thành `iou_walkway`, `iou_restricted`, `foot_in_walkway`, `norm_dist`. Trên làn này bốn
+kênh đó là **do chú giải cấp, không do bộ phát hiện cấp** — phải nói thẳng, vì nó giới hạn nghĩa
+của chữ "tự động" ở mục 5.1.
+
+Điều ngoài miền làm mất thêm là hai lớp `Panel_Closed` / `Panel_Opened`, chiếm **24.6%** phát hiện
+trong miền ở nhánh v11ft và **24.1%** ở nhánh 26-ft. Đó đúng là hai lớp có mAP@50 cao nhất trong
+bảng MT3 (0.990 và 0.962), nên hai lớp đáng tin nhất của bộ phát hiện khi ở nhà máy đóng góp **đúng
+bằng không** khi ra khỏi nhà máy. Chênh lệch giữa hai nhánh ngoài miền, nếu có, do đó chỉ còn chỗ
+để phát sinh trên bốn lớp: hai lớp người và hai lớp xe nâng.
+
+Một kết quả phụ đáng ghi, vì nó hoàn thiện một luận điểm cơ chế mà luận văn trước đây chỉ nêu được
+một nửa. Chiều của hiệu ứng "bộ phát hiện mới hơn sinh nhiều hay ít phát hiện hơn" **do miền quyết
+định, không do chế độ huấn luyện**:
+
+  Miền                                  | cặp so sánh            | tỷ lệ 26 / v11
+  --------------------------------------+------------------------+----------------
+  Trong miền, Unsafe-Net, tinh chỉnh    | 38,647 so 37,088       | **1.042**
+  Ngoài miền, iSafetyBench, tinh chỉnh  | 13,108 so 13,895       | **0.943**
+  Ngoài miền, iSafetyBench, COCO        | 45,512 so 52,997       | **0.859**
+
+Ở trong miền bộ mới hơn **dày hơn**; ra ngoài miền nó **thưa hơn**, dù đã tinh chỉnh hay chưa. Nói
+cách khác, phát biểu cũ — "trong miền thì bộ mới dày hơn, ngoài miền và tiền huấn luyện thì thưa
+hơn" — nay bỏ được mệnh đề "tiền huấn luyện": ngoài miền nó thưa hơn ở **cả hai** chế độ.
+
+Một chi tiết đi ngược trực giác phải nêu kèm: ở ngoài miền nhánh 26-ft sinh **ít** phát hiện hơn
+(13,108 so 13,895) nhưng lại phủ **nhiều** khung hơn (48.4% so 46.1%) và có độ tin cậy trung bình
+cao hơn (0.619 so 0.556). Nó rải mỏng hơn trên diện rộng hơn. Phân bố lớp cũng dịch mạnh: tỷ trọng
+`Person_Unauthorized` lên 90.7% (từ 77.3%), còn `Person_Authorized` tụt xuống 3.0% (từ 9.5%) và
+`Forklift_Safe_Load` từ 911 xuống 166 phát hiện. Hai nhánh B vì vậy không chỉ khác về lượng, mà
+khác cả về thành phần — điều này cần nhớ khi đọc con số cuối cùng của nhánh B.
+
+Một ghi chú thuật ngữ, để chặn một cách đọc sai có thể xảy ra: chuỗi `classes=[0..7]` ở dòng đầu
+`build_bin8_2026-09-16.log` **không** phải bộ lọc lớp của bộ phát hiện, mà là danh sách **thư mục
+lớp hành vi nguồn** (`build_relation_tokens.py` dòng 44). Vòng lặp dựng ô thực thể không lọc lớp
+nào cả; nó tính hình học cho lớp 0 và 1 rồi điền 0 cho các lớp còn lại (dòng 226).
+
+Hai nhánh B được chấm bằng đúng giao thức LSO-1100 mà mục 6.2 đã dùng: 1,100 clip, 10 fold giữ
+ngoài, gộp out-of-fold, không tiêu thụ lần chạm tập kiểm tra nào.
+
+  Nhánh B, LSO-1100, bộ mã hoá ESTA   | YOLO26-ft | YOLOv11s-ft
+  ------------------------------------+-----------+-------------
+  độ chính xác cân bằng               |   78.1%   |    75.9%
+  macro-F1                            |   75.9%   |    74.0%
+  độ phủ lớp unsafe                   |   86.7%   |    82.4%
+  độ chính xác lớp unsafe             |   63.7%   |    62.5%
+  PR-AUC                              |   0.642   |    0.714
+  ROC-AUC                             |   0.825   |    0.837
+
+  Nguồn: sweep_results/relation_tokens/logs/g20-lso-ESTA-{26ft,v11ft}-merged.log
+
+Phép so sánh ghép cặp, `logs/g20-compare-armB-2026-10-10.log`:
+
+  ESTA @ YOLO26-ft 78.1%  −  ESTA @ YOLOv11s-ft 75.9%  =  +2.2 pp
+  [gộp cụm theo 151 nguồn, 5000/5000 lượt hợp lệ]   95% CI [−3.5, +8.8]   CHỨA 0
+  [McNemar chính xác] b=138 c=119 n_bất_đồng=257 p=0.261
+  [gộp cụm cấp clip — SAI ĐƠN VỊ, chỉ công bố minh bạch]   95% CI [−0.5, +5.1]   cũng chứa 0
+
+**Kết luận ghi nhận theo quy tắc 4 đã đăng ký trước: "không phân biệt được" ở cấp nguồn — và ở đây
+giả thuyết không đứng vững một cách mạnh, chứ không phải chỉ là chưa phân giải nổi.** Nhánh A có
+khoảng tin cậy chứa 0 với chỉ tám cụm, nên "thiếu lực thống kê" vẫn còn là một cách giải thích
+sống. Nhánh B có **151** cụm, 5000/5000 lượt bootstrap hợp lệ, mà giả thuyết không vẫn đứng:
+khoảng tin cậy cấp cụm chứa 0, McNemar chính xác cách rất xa ngưỡng ý nghĩa (p = 0.261 trên 257
+clip bất đồng, b = 138 so với c = 119), và khoảng tin cậy cấp clip — chính khoảng đã *loại trừ* 0 ở
+nhánh A — **cũng chứa 0** ở đây. Hai đơn vị đồng thuận. Không một phát biểu "nâng cấp" nào rút ra
+được từ nhánh B, và khác với nhánh A, ở đây không còn cách viện dẫn số cụm ít để giải thích đi kết
+quả.
+
+**Dấu của biên do hai nguồn gần như triệt tiêu nhau quyết định.** Biên gộp chỉ là **+19 clip trên
+1,100**. Tính theo nguồn: **32 nguồn nghiêng về YOLO26-ft, 35 nguồn nghiêng về YOLOv11s-ft, 84
+nguồn cho kết quả bằng nhau.** Số nguồn nghiêng về bộ **cũ** còn nhiều hơn, mà biên gộp vẫn dương,
+vì một nguồn duy nhất gánh toàn bộ phần dương ấy:
+
+  nguồn          | n clip | 26ft đúng | v11ft đúng | biên
+  ---------------+--------+-----------+------------+------
+  0zQ9fI30v1E    |   31   |     27    |     1      | +26
+  1tuWxs8fUOk    |  102   |     54    |     73     | -19
+  H4sC0QCkG7I    |   17   |     17    |     5      | +12
+  bxENbC-SPCw    |   14   |     14    |     7      |  +7
+  0a-WuC1Xdl4    |   9    |     2     |     8      |  -6
+
+Nguồn lớn nhất đóng góp +26 clip — tức **136.8% của toàn bộ biên gộp** — còn nguồn lớn thứ hai
+triệt tiêu gần hết phần đó với −19. Chỉ cần bỏ riêng nguồn `0zQ9fI30v1E` là biên **đổi dấu** thành
+−7. Gộp cụm theo 151 nguồn chính là phép đo phơi ra cấu trúc này, nên khoảng tin cậy của nó trải
+sang cả hai phía của 0. Hai nhánh trượt điều kiện khoảng tin cậy vì hai lý do **trái ngược nhau**:
+nhánh A vì biên dồn vào một trong tám cụm, nhánh B vì biên là một thế gần như hoà giữa hai trong
+151 nguồn.
+
+**Hai bộ phát hiện còn đổi thứ tự tuỳ theo đọc chỉ số nào.** YOLO26-ft thắng ở độ chính xác cân
+bằng (78.1% so với 75.9%) nhưng **thua ở cả hai chỉ số xếp hạng**: PR-AUC 0.642 so với 0.714, và
+ROC-AUC 0.825 so với 0.837. Đếm theo nguồn cũng nghiêng về YOLOv11s-ft, 35 so với 32. Ba trong năm
+cách đọc nghiêng về bộ cũ hơn. Điều này được ghi lại vì mọi cách tóm nhánh B bằng một con số duy
+nhất đều là một **lựa chọn chỉ số**, không phải một phát hiện.
+
+**Biên +2.2 pp ấy về mặt cấu trúc là gì.** Là 18 clip unsafe được cứu thêm với gần như không mất độ
+đặc hiệu: TP đi từ 346 lên 364, FN từ 74 xuống 56, còn TN chỉ nhích từ 472 lên 473 và FP từ 208
+xuống 207. Độ phủ lớp unsafe đi từ 82.4% lên 86.7% trong khi độ đặc hiệu đứng yên (69.4% so với
+69.6%); độ chính xác lớp unsafe ở cả hai nhánh đều quanh 63%. Nghĩa là ra ngoài miền, bộ phát hiện
+mới hơn **nhạy** hơn một chút, chứ không hiệu chuẩn tốt hơn và cũng không chính xác hơn. Trên bài
+toán an toàn thì đó là chiều có ích, nên nó được ghi lại — nhưng đó là 18 clip trên 1,100 và không
+có ý nghĩa thống kê ở bất kỳ đơn vị nào.
+
+**Con số của nhánh B không được so với 83.8% hay 81.6% của G17.** Không gian lớp khác, chế độ phát
+hiện khác. Chỉ hai nhánh của chính nhánh B được so với nhau.
+
+6.14.3. Đối chứng này cho phép kết luận gì, và không cho phép kết luận gì
+
+Hai nhánh trả lời hai câu hỏi khác nhau và phải đọc riêng. Nhánh A hỏi: trên chính làn mang con số
+tiêu đề của bộ mã hoá E3, nếu thay bộ phát hiện tinh chỉnh YOLO26 bằng YOLOv11s tinh chỉnh thì mất
+gì. Nhánh B hỏi: ra ngoài miền, nơi cả hai bộ tinh chỉnh đều thiếu lớp, thế hệ nào bền hơn. Không
+có phép gộp nào giữa hai nhánh, vì đơn vị phán quyết, không gian lớp và kho dữ liệu đều khác nhau.
+
+**Đối chứng này cho phép kết luận bốn điều.**
+
+  (1) **Tiền đề "kết quả thực nghiệm hiện tại chỉ báo cáo với YOLOv11" là không đúng với luận văn
+      này.** Làn Unsafe-Net / E3 — làn mang phép đo lạm phát giao thức và các cổng G10–G13, G15,
+      G16 — đã chạy trên YOLO26 **tinh chỉnh** từ 16/09/2026, chứng cứ là dòng 1 của
+      `build_bin8_2026-09-16.log`. Làn C thì đã công bố **cả hai** thế hệ cạnh nhau ở mục 6.12.2.
+      Nghĩa là phần "thực nghiệm và đánh giá YOLO26" đã có; phần "nâng cấp" thì không còn chỗ để
+      nâng, vì đó vốn đã là trạng thái của làn quyết định.
+
+  (2) **Trong miền, biên nghiêng về thế hệ mới nhưng không đủ để phán quyết.** Nhánh A cho +7.8 pp
+      điểm ước lượng nghiêng về YOLO26 tinh chỉnh, McNemar chính xác ở cấp clip rất mạnh
+      (p = 2.69e-10, 126 clip bất đồng), nhưng đơn vị phán quyết đã đăng ký trước là **nhóm bối
+      cảnh**, chỉ có tám nhóm, và khoảng tin cậy gộp cụm **chứa 0**. Theo quy tắc 4, kết luận ghi
+      nhận là **"không phân biệt được"** ở cấp nhóm — không phải "tương đương", cũng không phải
+      "nâng cấp".
+
+  (3) **Ngoài miền, kết luận cũng là "không phân biệt được", và lần này giả thuyết không
+      đứng vững một cách mạnh.** Nhánh B cho +2.2 pp nghiêng về YOLO26 tinh chỉnh trên 1,100 clip,
+      nhưng gộp cụm theo **151 nguồn** trả về khoảng [−3.5, +8.8], McNemar chính xác p = 0.261, và
+      cả khoảng cấp clip cũng chứa 0. Ở nhánh A còn có thể nói "tám cụm thì thiếu lực phân giải";
+      ở nhánh B thì không nói được như vậy, vì 151 cụm là độ phân giải cao hơn nhiều mà giả thuyết
+      không vẫn đứng. Thêm nữa, biên +2.2 pp chỉ tương đương **+19 clip trên 1,100**, và nó đổi dấu
+      nếu bỏ đi một nguồn duy nhất.
+
+  (4) **Một cơ chế mới, độc lập với việc nhánh nào thắng.** Chiều của hiệu ứng mật độ phát hiện do
+      **miền** quyết định, không do chế độ huấn luyện: trong miền bộ mới dày hơn (tỷ số 1.042), ra
+      ngoài miền nó thưa hơn ở **cả hai** chế độ (0.943 khi đã tinh chỉnh, 0.859 khi tiền huấn
+      luyện). Kèm theo đó là một phát hiện về khả năng chuyển miền: hai bộ tinh chỉnh **thiếu phát
+      hiện** nghiêm trọng ngoài miền — tỷ lệ khung có ít nhất một phát hiện tụt từ 90.2% / 87.9%
+      (tiền huấn luyện, mục 4.3.3) xuống 46.1% / 48.4% — và nguyên nhân là hai lớp bảng điện,
+      chiếm 24.6% / 24.1% số phát hiện trong miền với mAP 0.990 và 0.962, không có đối tượng tương
+      ứng nào trong cảnh của iSafetyBench. Đây là kết quả dùng được cho luận văn bất kể phán quyết
+      của hai nhánh.
+
+**Và không cho phép kết luận năm điều.**
+
+  (a) **Không được phát biểu "YOLO26 là một nâng cấp".** Quy tắc 3 đã đăng ký trước đòi biên dương
+      **và** khoảng tin cậy loại trừ 0; nhánh A không thoả điều kiện thứ hai.
+
+  (b) **Không được đọc biên +7.8 pp của nhánh A như một phát biểu về cả kho dữ liệu.** 98.6% biên
+      gộp đến từ **một** nhóm bối cảnh (nhóm 1, nơi YOLOv11s tinh chỉnh tụt xuống 38.5%). Phát biểu
+      đúng phạm vi là: lợi thế trong miền của YOLO26 tinh chỉnh **tập trung ở một bối cảnh**.
+
+  (c) **Không được dùng khoảng tin cậy ở cấp clip làm phán quyết.** Khoảng [+4.3, +11.4] loại trừ 0
+      nhưng sai đơn vị; mục 3.7.4 chỉ cho phép ghi nó như công bố minh bạch.
+
+  (d) **Không được đếm G20 vào số cổng.** Số cổng vẫn là **tám** (hai đạt, sáu trượt). G20, cùng
+      G17 và G19, là **đối chứng không phán quyết**: nó được chạy sau mốc đóng băng và điều khoản
+      đăng ký đã ràng buộc rằng không con số tiêu đề nào thay đổi theo kết quả của nó.
+
+  (e) **Không được so nhánh B với G17.** Đã nêu ở cuối mục 6.14.2: khác không gian lớp, khác chế độ
+      phát hiện, dù cùng kho clip và cùng giao thức.
+
+Điều kiện để mục này trở thành một phán quyết nâng cấp thật sự, nếu hội đồng muốn, có thể nói rõ
+ngay: cần **nhiều nhóm bối cảnh hơn tám** trên làn Unsafe-Net để khoảng tin cậy gộp cụm thu hẹp,
+hoặc một **lần chạm tập kiểm tra được tiền đăng ký** dành riêng cho câu hỏi thế hệ bộ phát hiện —
+hiện còn nguyên hai lần chưa dùng. Không có con đường thứ ba: đổi tên mô hình tiêu đề sau khi đã
+thấy kết quả sàng lọc chéo là chọn lọc trên dữ liệu đánh giá, và sẽ làm mất chính tính kỷ luật mà
+chương 3 đã dựng.
+
+Cuối cùng, điều đã đúng từ trước và không phụ thuộc kết quả mục này: **hệ thống được triển khai B1
+không chứa bộ phát hiện nào** (mục 5.1). Mọi phép nâng thế hệ bộ phát hiện, dù theo chiều nào,
+không thể dịch chuyển con số tiêu đề 84.2%.
+
+----------------------------------------------------------------------
+6.15. TÁI LẬP GIAO THỨC CÔNG TRÌNH GỐC SAU ĐÓNG BĂNG (G21, G25, G23, NP-125-D)
+----------------------------------------------------------------------
+
+Mục này được thêm sau mốc đóng băng theo ngoại lệ ghi nhận ngày 11/10/2026, cùng cơ chế đã dùng
+cho G20 ở mục 6.14: ba cổng tiền đăng ký cộng một phép đo lại không cổng (NP-125-D, mục 6.15.4),
+điều khoản giữ nguyên mọi con số tiêu đề và mọi phán quyết cổng, báo riêng như một **tái lập không
+phán quyết**. Bảng cổng của luận văn vẫn là hai đạt,
+sáu trượt, và vẫn là tám cổng. Mục này **chỉ** thuộc làn C; không trộn với làn A hay làn B
+(mục 6.1.1).
+
+Vị trí của mục này trong thân chương là một **quyết định** của tác giả ngày 11/10/2026, không phải
+mặc định biên soạn: phương án còn lại là chuyển cả mục xuống một phụ lục hậu đóng băng. Chọn thân
+chương vì một phép đo trả về phán quyết bất lợi phải đứng cùng chỗ với các phán quyết thuận, không
+bị đẩy ra lề. Đổi lại, mục phải tự mang theo giới hạn của nó: mỗi mục con dưới đây ghi rõ điều nó
+**không** cho phép kết luận, và mục 6.15.5 tổng hợp lại toàn bộ các giới hạn ấy.
+
+Lý do mục này tồn tại: bản đóng băng phát biểu ở mục 6.12.5 rằng con số 95.81% "chưa bao giờ được
+chạy lại". Phát biểu đó đúng vào ngày 05/10/2026 và **sai** sau ngày 11/10/2026. Mục này là bản
+ghi của việc chạy lại đó.
+
+Cần tách hai câu hỏi mà bản đóng băng gộp làm một:
+
+  - **Hệ thống của họ** — không chạy lại được, và điều này không đổi: trọng số, dự đoán theo clip
+    và chú giải hộp theo từng khung của công trình gốc đều không được công bố.
+  - **Giao thức và phép đo của họ** — chạy lại được: cùng cách chia 452 clip huấn luyện / 64 clip
+    kiểm thử, cùng không gian bốn lớp, cùng định nghĩa "Overall (%)" là **trung bình độ nhạy theo
+    lớp** (không phải macro-F1 của sklearn). Đây là phần đã chạy.
+
+Khoảng cách tới 95.81% vì vậy được phân tích thành **hai chân** rời nhau, và hai chân có chất
+lượng bằng chứng rất khác nhau:
+
+  Chân | Từ → tới                                    | Nguồn của con số đích
+  -----+---------------------------------------------+---------------------------------
+   1   | ConvLSTM của luận văn → ConvLSTM của họ     | 85.78%, đọc từ bảng của họ
+       | (đường sàn không-bbox)                      |
+   2   | ConvLSTM của họ → hệ hợp nhất của họ        | 95.81%, đọc từ bảng của họ
+
+6.15.1. G21 — đối chứng thiết bị trên chân 1: BỊ BÁC BỎ
+
+Giả thuyết được tiền đăng ký: khoảng cách ở chân 1 do lỗi huấn luyện trên MPS. Cơ sở của giả
+thuyết là một lỗi đã biết của macOS 14 làm hỏng âm thầm phép `addcmul_` của AdamW (mục 3.1.3,
+giới hạn đã nêu), và mã ConvLSTM của luận văn từng mặc định `device='mps'`. Phép thử đổi **đúng
+một biến** — thiết bị — giữ nguyên mọi siêu tham số và mọi cách chia.
+
+  Cấu hình                       | top-1        | macro (TB độ nhạy) | c1 UnauthorInt
+  -------------------------------+--------------+--------------------+----------------
+  MPS (06/09/2026)               | 50/64 78.12% |       75.64%       |  2/11  18.18%
+  CPU (11/10/2026)               | 47/64 73.44% |       70.22%       |  3/11  27.27%
+  Đường sàn không-bbox của họ    | 57/64 89.06% |       85.78%       |  9/11  81.82%
+
+  Nguồn: plans/261011-1502-baseline-giao-thuc-bai-bao-goc-unsafe-net/ket-qua-g21-g25.json
+
+Luật tiền đăng ký: **bác bỏ nếu top-1 ≤ 47/64**. Thực đo đúng 47/64 ⇒ **G21 bị bác bỏ**. Giả
+thuyết thiết bị **không** giải thích chân 1; sau khi sửa biến nghi can số một, khoảng cách
+**rộng ra** từ 10.14 pp thành 15.56 pp.
+
+Phát hiện ngoài dự kiến, quan trọng hơn chính G21: **val và test nghịch chiều.** Bản CPU **hơn**
+trên val +2.78 pp (76.39% → 79.17%) nhưng **mất 3 clip** trên test, và độ nhạy lớp c2 OpenedPanel
+rơi **30.77 pp** (13/13 → 9/13) khi *chỉ* đổi thiết bị. Ba hệ quả phải đọc cùng nhau:
+
+  (a) Val slice 83 clip **không dự báo được** 64 clip test. Mọi lựa chọn mô hình trên val slice
+      này là mù — đây là một khiếm khuyết của làn C, đo được, không suy đoán.
+  (b) **Hàng độ nhạy theo lớp của công trình gốc không so sánh được bằng một lần chạy.** Một biến
+      gây nhiễu thuần tuý dịch độ nhạy của một lớp tới 30.77 pp, lớn hơn mọi khoảng cách theo lớp
+      mà luận văn định giải thích. Mọi câu "lớp X của ta kém/hơn họ" dựa trên một lần chạy là
+      **không có nội dung**.
+  (c) Con số 50/64 của 06/09 **không tái lập được cả về hướng** và không được dùng làm số tiêu đề.
+
+6.15.2. G23 — cơ chế giảm khung, cơ chế mà họ gán công: TRƯỢT, và tiêu không lần chạm test nào
+
+Công trình gốc gán **+10.03 pp** macro (85.78% → 95.81%) cho việc hợp nhất bộ phát hiện hành vi,
+với **tầng giảm khung** — chỉ giữ những khung mang bằng chứng không an toàn — là cơ chế được nêu
+tên. Câu hỏi cơ chế này trả lời được **trọn vẹn trên val**, nên nó không tiêu lần chạm nào:
+so `det-gateQ` với tổng hợp phẳng `det-mean`/`-max`/`-pair` trên **cùng** posterior của **cùng**
+bộ phát hiện, cùng val slice.
+
+  Bộ phát hiện           | gate tốt nhất  | phẳng tốt nhất | Δ gate−phẳng | McNemar | Họ gán
+  -----------------------+----------------+----------------+--------------+---------+--------
+  beh_ctx  (mAP50 0.806) | gate50 85.91%  | mean  85.78%   |  **+0.13 pp**| p=1.000 | +10.03
+  beh_ctx  (lượt 06/09)  | gate50 85.91%  | mean  85.78%   |  **+0.13 pp**| p=1.000 | +10.03
+  beh_tight(mAP50 0.791) | gate75 87.93%  | max   88.05%   |  **−0.13 pp**| p=1.000 | +10.03
+
+  Nguồn: ket-qua-g23-val.json
+
+Ba lần đo độc lập, **hai hướng dấu**, không lần nào quá ±0.13 pp, McNemar p = 1.000 ở cả ba. Lượt
+06/09 trả về **đúng** cùng con số với lượt 11/10, nên đây là kết quả tất định, không phải nhiễu
+seed. **Tầng giảm khung của luận văn không tái dựng được cơ chế +10 pp của công trình gốc.**
+
+Vậy +8.88 pp đo được trên val đến từ đâu? Từ **việc dùng bộ phát hiện**, không từ việc giảm khung:
+
+  Hệ (cùng val slice 83 clip)                        | val macro | val top-1
+  ---------------------------------------------------+-----------+----------
+  ConvLSTM khung thô (cpu, G21)                      |  79.17%   |  75.90%
+  member đơn tốt nhất của đường bộ-phát-hiện         |  88.05%   |     —
+  hợp nhất Caruana, chỉ member bộ phát hiện          |  87.30%   |  84.34%
+  hợp nhất Caruana, ConvLSTM ∪ bộ phát hiện          |  88.05%   |  85.54%
+
+Hai điều đọc được, và cả hai đều bất lợi cho cách công trình gốc giải thích hệ của họ. Thứ nhất,
+**toàn bộ +8.88 pp đến từ việc thay khung thô bằng posterior bộ phát hiện** — xấp xỉ đúng cỡ
++10.03 pp mà họ công bố, nhưng **cơ chế họ nêu tên không phải nguyên nhân**. Thứ hai, **hợp nhất
+không thêm gì trên member đơn tốt nhất**: 88.05% bằng 88.05% tới hai chữ số thập phân; với bộ phát
+hiện còn lại hợp nhất còn **kém hơn** member đơn tốt nhất. Caruana chọn trọng số trên val, nó
+không tạo ra tín hiệu mới.
+
+Mọi con số ở mục này **dưới sàn theo kiến tạo**: cổng G22 đặt sàn mAP50 = 0.85 cho bộ phát hiện,
+còn hai bộ tốt nhất của luận văn đạt 0.806 và 0.791. Từ 11/10/2026 điều này không còn là một dòng
+chú thích mà là **dữ liệu**: hàm `behaviour_clip.detector_gate_status()` đọc đỉnh mAP50 từ chính
+`results.csv` của lượt huấn luyện và dập nhãn `gate_status` vào từng tạo tác member, nên một bảng
+ở hạ nguồn không thể trình bày số dưới sàn như một kết quả đã qua cổng.
+
+Một nghịch lý phải ghi vì nó đặt dấu hỏi lên chính cổng G22: `beh_tight` có **mAP50 thấp hơn**
+(0.791 < 0.806) nhưng cho **clip macro cao hơn** (88.05% > 85.91%). mAP50 ở mức hộp **không đơn
+điệu** với macro ở mức clip, nên chọn bộ phát hiện theo mAP50 — đúng việc cổng G22 làm — không bảo
+đảm chọn được bộ tốt cho tác vụ cuối. Đây là một câu hỏi mở về thiết kế cổng, nêu ở mục 8.3.
+
+Một bẫy trùng số, nêu để không ai nhầm: member `det-mean` của `beh_ctx` cho val macro **85.78%**,
+trùng từng chữ số với macro ConvLSTM mà công trình gốc công bố **trên test** (85.78%). Hoàn toàn
+trùng hợp — khác tập, khác tác vụ, khác giao thức. **Không được** đặt hai con số này cạnh nhau như
+một sự tái lập.
+
+6.15.3. G25 — nhị phân An toàn/Không an toàn: ĐẠT SÀN, TRƯỢT ĐỐI CHỨNG
+
+Yêu cầu "kết quả nhị phân trên 64 clip test" chứa một xung đột phải chốt trước khi đo: 64 clip
+test của công trình gốc **toàn bộ** thuộc bốn lớp không an toàn, nên bài toán nhị phân trên đúng
+64 clip ấy **suy biến** — không có clip An toàn nào thì độ đặc hiệu, độ chính xác cân bằng và
+PR-AUC đều không xác định. Hai phép đo được báo rời nhau, **không gộp**:
+
+  Ký hiệu | Tập                       | Thành phần    | Đại lượng chính | Sàn / trần
+  --------+---------------------------+---------------+-----------------+----------------
+  NP-125  | 125 clip test đóng băng    | 64 KAT/61 AT  | độ c.xác cân bằng| 51.20% / 99.20%
+  NP-64   | lát cắt 64 clip của họ     | 64 KAT/0 AT   | chỉ recall KAT  | —
+
+Trần 99.20% là **trần cứng**, không phải lựa chọn: hai clip `0_te23.mp4` và `4_te9.mp4` giống nhau
+**từng byte** nhưng mang nhãn nhị phân đối nghịch và **cả hai** nằm trong tập test, nên một bộ
+phân loại tất định buộc phải sai một trong hai.
+
+  Đại lượng                        | Giá trị
+  ---------------------------------+------------------------------------------
+  top-1                            | 93/125 = 74.40%, Wilson CI [66.10, 81.24]
+  **độ chính xác cân bằng**        | **74.19%**
+  recall KAT / AT                  | 82.81% (53/64) / 65.57% (40/61)
+  macro-F1 / MCC / κ               | 74.12% / 0.492 / 0.486
+  ROC-AUC / PR-AUC(KAT)            | 0.848 / 0.876
+  ECE / Brier                      | 0.098 / 0.338
+
+Đối chứng bắt buộc — đây là chỗ cổng trượt:
+
+  Đối chứng                                   | top-1          | BA     | McNemar
+  --------------------------------------------+----------------+--------+-------------
+  scene-only, nhãn đa số từ **train**         | 88/125 70.40%  | 69.94% | **p = 0.4049**
+  scene-only **oracle** (chặn trên)           | 91/125 72.80%  | 72.44% | p = 0.8238
+  hằng số lớp đa số                           | 64/125 51.20%  | 50.00% | p = 5.70e-05
+
+Luật tiền đăng ký: *chứng nhận nếu BA ≥ 66.2% **và** McNemar so với scene-only p < 0.05*. BA
+74.19% **đạt**; p = 0.4049 **không đạt** ⇒ **G25 trượt**. Nội dung của phán quyết: biên trên
+scene-only chỉ +4.25 pp BA trên 23 clip bất đồng. Bộ phân loại nhị phân **không phân biệt được với
+việc đoán nhãn đa số của bối cảnh clip**. Nó vượt rõ hằng số đa số (p = 5.70e-05) nên không vô
+nghĩa — nhưng **toàn bộ phần vượt đó giải thích được bằng bối cảnh**. Đây là nhiễu bối cảnh, đo
+trực tiếp.
+
+**NP-64** (lát cắt, *không phải* một phép đo nhị phân): chỉ recall KAT xác định, **53/64 = 82.81%**.
+Độ đặc hiệu, BA và PR-AUC không xác định ở đây và **không được in**.
+
+6.15.4. NP-125-D — cùng tác vụ nhị phân, đo theo MỤC TIÊU PHÁT HIỆN thay vì theo BA
+
+Mục tiêu đã nêu của hệ là **phát hiện được cái không an toàn**, không phải phân loại lớp. Độ chính
+xác cân bằng ở mục 6.15.3 là một đại lượng **đối xứng**: nó tính một lần bỏ sót clip Không an toàn
+ngang giá một lần báo động giả trên clip An toàn. Với một hệ cảnh báo, hai cái đó khác giá — bỏ sót
+là tai nạn, báo động giả là chi phí vận hành. Mục này đo lại **đúng cùng một lượt chạy**, cùng hậu
+nghiệm đã lưu, với **lớp dương = Không an toàn**, và **không tiêu thêm lần chạm test nào**: không
+huấn luyện lại, không suy luận lại, chỉ đọc lại `Pt` của lần chạm đã tiêu ở G25.
+
+Ngưỡng quyết định là biến mới, nên nó là một đường rò rỉ mới. Chặn bằng đúng một luật, viết trước:
+**mọi ngưỡng chốt trên val 103 clip rồi mới đọc test ở ngưỡng đó**; không ngưỡng nào chọn trên test,
+kể cả để minh hoạ. Bốn điểm hoạt động được đăng ký trước:
+
+  Điểm hoạt động            | τ (từ val) | recall KAT | báo động giả | precision | F1    | J
+  --------------------------+------------+------------+--------------+-----------+-------+-------
+  OP0 argmax                |   0.5000   |   82.81%   |    34.43%    |  71.62%   | 76.81%| 48.39
+  OP1 cực đại F1 trên val   |   0.4131   |   92.19%   |    55.74%    |  63.44%   | 75.16%| 36.45
+  OP2 ngân sách FPR ≤ 10%   |   0.7276   |   57.81%   |   **3.28%**  | **94.87%**| 71.84%| 54.53
+  OP3 đồng giá báo động     |   0.3124   |   95.31%   |    72.13%    |  58.10%   | 72.19%| 23.18
+
+Không phụ thuộc ngưỡng: PR-AUC(KAT) 0.876, ROC-AUC 0.848. CI bootstrap cụm với **đơn vị là nhóm bối
+cảnh** (8 nhóm) rộng đúng như rủi ro đã nêu trước ở mục 6.1.3 — recall ở OP0 là [54.2, 100.0], báo
+động giả [8.6, 81.8]; CI mức clip hẹp hơn nhiều ([71.79, 90.12]) nhưng mang nhãn WRONG UNIT và
+không được dùng để kết luận.
+
+Luật tiền đăng ký của bản này: *có nội dung nếu tại OP3 recall vượt scene-only ≥ 5 pp **và** McNemar
+trên quyết định KAT cho p < 0.05*. Thực đo: biên +6.25 pp **đạt**, nhưng p = 0.1214 **không đạt** ⇒
+**không có nội dung**. Và kết luận ấy **không phụ thuộc điểm hoạt động**: không điểm nào trong bốn
+điểm tách được khỏi scene-only — p lần lượt 0.4049 (OP0), 0.8450 (OP1), 0.3123 (OP2), 0.1214 (OP3).
+Dịch các đối chứng sang ngôn ngữ phát hiện cho thấy vì sao:
+
+  Đối chứng                               | recall KAT | báo động giả | precision | F1     | J
+  ----------------------------------------+------------+--------------+-----------+--------+------
+  scene-only, nhãn đa số từ **train**     | **89.06%** |    49.18%    |  65.52%   | 75.50% | 39.88
+  scene-only oracle (chặn trên)           |   87.50%   |    42.62%    |  68.29%   | 76.71% | 44.88
+  hằng số "luôn báo động"                 |  100.00%   |   100.00%    |  51.20%   | 67.72% |  0.00
+
+**Chỉ cần biết clip thuộc nhóm bối cảnh nào là đã đạt recall 89.06%, cao hơn ConvLSTM ở argmax
+(82.81%).** Đổi đại lượng tiêu đề không cứu được kết quả; nó làm nguyên nhân hiện ra rõ hơn.
+
+Phép đo quyết định của mục này tách thẳng phần phân biệt thật khỏi phần đoán theo bối cảnh. ROC-AUC
+gộp thưởng cho việc xếp một clip Không an toàn thuộc bối cảnh phần lớn không an toàn lên trên một
+clip An toàn thuộc bối cảnh phần lớn an toàn — đúng việc mà scene-only làm. Chặn kênh đó bằng cách
+**chỉ so các cặp nằm trong cùng một nhóm bối cảnh** (645 cặp, 6 nhóm trộn lẫn):
+
+  Đại lượng                                               | Giá trị
+  --------------------------------------------------------+----------------------------------
+  ROC-AUC **gộp**                                         | 0.8485
+  AUC **trong cùng nhóm bối cảnh**                        | **0.6426**
+  CI bootstrap cụm, đơn vị = nhóm bối cảnh                | **[0.4923, 0.8443]** — **chứa 0.50**
+  CI mức clip, nhóm cố định (`WRONG UNIT`, chỉ công bố)   | [0.5106, 0.7680]
+  phần khoảng cách trên mức ngẫu nhiên còn lại            | **41%** (điểm)
+
+Đọc đúng đơn vị độc lập thì kết luận **mạnh hơn, không yếu hơn**: trị số điểm nói **59% năng lực
+phân biệt biểu kiến là bối cảnh**, còn khoảng tin cậy lấy nhóm bối cảnh làm đơn vị **chứa 0.50**,
+nghĩa là dữ liệu **không loại trừ được** khả năng phần phân biệt trong cùng bối cảnh bằng **không**.
+Khoảng rộng vì chỉ có **6 nhóm trộn nhãn** — đúng rủi ro số 1 đã nêu trước khi có số. Khoảng hẹp hơn
+[0.5106, 0.7680] là khoảng **mức clip**, tính với nhóm cố định; nó coi các clip cùng một nền là bằng
+chứng độc lập nên in kèm nhãn `WRONG UNIT` và **không** dùng để kết luận.
+
+Theo từng nhóm, nơi tập trung phần lớn số cặp lại là nơi mô hình xếp hạng ở mức
+ngẫu nhiên: nhóm 4 cho AUC 0.4954 trên 217 cặp và nhóm 1 cho 0.4773 trên 132 cặp — tức **349 trên
+645 cặp (54%)** không có phân biệt, nhóm 1 còn dưới mức ngẫu nhiên (Youden J trong nhóm −13.64).
+Phân biệt thật chỉ tồn tại ở nhóm 3 (AUC 0.8074, 270 cặp) và ở ba nhóm quá nhỏ để kết luận (26 cặp
+cộng lại).
+
+Cơ chế thấy được tới từng clip, không phải suy đoán. Tỷ lệ báo động theo nhóm tương quan **r
+= 0.9266** với tỷ lệ Không an toàn thật của nhóm. Ở các nhóm 0, 3, 5 và 6 mô hình báo động **100%
+số clip bất kể nhãn** — nghĩa là ở nhóm 3, gồm 37 clip, **toàn bộ 10 clip An toàn đều là báo động
+giả**, và recall 100% ở đó không đến từ việc nhìn thấy hành vi. Ở nhóm 4, gồm 38 clip phần lớn An
+toàn, nó báo động 13.2% và recall rơi xuống 28.57%. Đây là scene-only, do một ConvLSTM thực hiện.
+Mục 6.15.3 cho thấy điều này bằng một trị số McNemar; mục này cho thấy nó bằng từng clip.
+
+Điểm OP2 cần đọc kỹ trước khi ai đó trích nó như một kết quả tốt. Precision 94.87% với **đúng hai
+báo động giả trên 61 clip An toàn** là con số hấp dẫn, nhưng recall theo **loại** không an toàn nói
+rõ phần lợi ấy mua bằng gì:
+
+  Loại không an toàn      | OP0 (τ = 0.5)    | OP2 (τ = 0.7276)
+  ------------------------+------------------+------------------
+  WalkwayViolation        | 29/32 = 90.62%   | 23/32 = 71.88%
+  UnauthorisedIntrusion   | 10/11 = 90.91%   |  8/11 = 72.73%
+  OpenedPanel             |  6/13 = 46.15%   | **0/13 =  0.00%**
+  CarryOverload           |   8/8 = 100.00%  |   6/8 = 75.00%
+
+**OP2 không phát hiện được một clip OpenedPanel nào.** Điểm hoạt động "chính xác cao" ấy mua
+precision bằng cách bỏ trắng một trong bốn loại, và mọi số gộp — BA, F1, Youden J, precision — đều
+che điều đó; chỉ recall theo loại in ra. Điều này khớp với G21: OpenedPanel là lớp bất định nhất,
+dịch 30.77 pp chỉ vì đổi thiết bị.
+
+Cuối cùng, trần cứng của mục 6.15.3 hiện ra đúng như kiến tạo đã dự báo. Hai clip trùng byte
+`0_te23.mp4` (Không an toàn) và `4_te9.mp4` (An toàn) nhận **cùng một điểm 0.2776**, trùng tới
+từng chữ số — điều mà một mô hình tất định trên đầu vào trùng byte buộc phải làm. Ở argmax cả hai
+bị gọi là An toàn, nên bản Không an toàn là **một trong 11 lần bỏ sót, không ngưỡng nào sửa
+được**: recall 100% và báo động giả 0% **không thể đồng thời đạt**, và recall trần khi không thêm
+báo động giả là 63/64 = 98.44%. Ngoài ra còn ba clip An toàn trong test trùng byte với clip Không
+an toàn **nằm trong train**; giả thuyết "báo động giả cao vì nhãn bẩn" đã được **kiểm và bác**: ở
+argmax **0 trong 21 báo động giả** là tạo tác nhãn. Nhưng cơ chế ấy có thật và chỉ chưa vượt vạch
+— ba clip đó đứng ở 0.4604, 0.4745 và **0.4977**, cái cuối cách ngưỡng **0.0023** — và ở OP1 cùng
+OP3 thì cả ba **đều** trở thành báo động giả.
+
+Mục này là một **tái diễn đạt không phán quyết**: nó không đảo, không nới và không làm mềm G25, và
+bảng cổng vẫn là tám cổng, hai đạt, sáu trượt. Nó cũng không kết luận gì trên NP-64, nơi chỉ recall
+xác định. Điều nó thêm vào là một phát biểu mạnh hơn phát biểu của G25: **thất bại của tác vụ nhị
+phân không phải là hệ quả của việc chọn đại lượng đo**. Đổi sang bốn điểm hoạt động và một họ đại
+lượng bất đối xứng cho ra cùng một kết luận, và cho thêm một con số định lượng trực tiếp phần nhiễu
+bối cảnh mà trước đây chỉ suy ra được từ một phép thử ghép cặp.
+
+6.15.5. Mục này cho phép kết luận gì, và không cho phép kết luận gì
+
+Được phép kết luận bốn điều. Thứ nhất, **giao thức của công trình gốc đã được chạy lại** và khoảng
+cách tới các con số của họ giờ là một phép đo của luận văn chứ không còn là một suy luận từ bảng
+của họ. Thứ hai, **chân 1 vẫn chưa có nguyên nhân** và đã rộng ra sau khi loại giả thuyết thiết
+bị. Thứ ba, **cơ chế mà công trình gốc gán công cho chân 2 là vô hiệu** trong hiện thực của luận
+văn, ±0.13 pp trên ba lần đo độc lập, trong khi khoảng cách cùng cỡ lại đến từ một thay đổi khác
+hẳn — thay biểu diễn đầu vào. Thứ tư, **tác vụ nhị phân trên kho này bị bối cảnh chi phối**, và
+phần nhiễu ấy giờ có một con số trực tiếp chứ không còn là suy luận từ một phép thử ghép cặp: điều
+kiện hoá theo nhóm bối cảnh hạ AUC từ 0.8485 xuống **0.6426**, nghĩa là **59% năng lực phân biệt
+biểu kiến là bối cảnh** (mục 6.15.4). Kết luận này **không phụ thuộc đại lượng đo** — nó giữ nguyên
+qua bốn điểm hoạt động và một họ đại lượng bất đối xứng lấy phát hiện không an toàn làm mục tiêu.
+
+Không được kết luận năm điều. **Không** kết luận gì về độ lớn của hệ hợp nhất trên tập test: hậu
+nghiệm `Pt` của mọi hệ hợp nhất đã được lưu nhưng **chưa chấm**, và việc chấm cần lần chạm còn
+lại cùng một luật quyết định viết trước khi tiêu. **Không** kết luận "cơ chế của công trình gốc vô
+dụng" — kết luận đúng hẹp hơn: *tầng giảm khung của luận văn, trên posterior của bộ phát hiện của
+luận văn, không có hiệu lực đo được*; hai khả năng còn mở là chẩn đoán ở mục 7.6 sai, hoặc hai
+tầng khác nhau ở chỗ chưa định vị được. **Không** so với con số "95.66% mAP" từng được nhắc ở một
+bản thảo: con số đó **không tồn tại** trong văn bản công trình gốc. **Không** đọc bất kỳ xếp hạng
+nào ở mục 6.15.2 như dự báo cho test — val slice 83 clip đã được chính G21 chứng minh là mù với
+test. **Không** coi bất kỳ con số nào ở mục này là đã qua cổng G22: tất cả đều dưới sàn 0.85.
+
+Cuối cùng, mục này **không** đảo chiều kết luận nào của mục 6.12.5. Luận văn vẫn không đạt 95.81%
+và vẫn không tuyên bố đạt. Điều mục này đổi là **chất** của phát biểu đó: từ một sự thiếu vắng
+phép đo thành một phép đo có tiền đăng ký, có đối chứng, và có phán quyết bất lợi được công bố ở
+đúng mức chi tiết như các phán quyết đạt.
+
+----------------------------------------------------------------------
+6.16. KẾT LUẬN CHƯƠNG
+----------------------------------------------------------------------
+
+Chương này đo năm thứ và trả về năm kết luận, xếp theo độ chắc chắn của bằng chứng.
 
 **(1) Lạm phát giao thức là kết quả chắc chắn nhất của luận văn, và nó tái lập trên hai bộ dữ liệu
 rời nhau.** Trên Unsafe-Net, chênh lệch giữa k-fold rò rỉ và leave-context-out nằm trong dải +13.0
@@ -1670,7 +2451,20 @@ cũng là lý do Chương 5 triển khai một tháp toàn khung chứ không ph
 triển khai đi theo bằng chứng, không đi theo đề cương. Phân tích nguyên nhân của từng phán quyết
 trượt — gồm fold 6, các claim đã rút, và vụ tổng-theo-giai-đoạn — là nội dung Chương 7.
 
-Ba điều chương này **không** chứng nhận, nêu lại để không bị suy diễn quá mức:
+**(5) Giao thức của công trình gốc đã được chạy lại, và tác vụ nhị phân trên kho ấy bị bối cảnh
+chi phối.** Kết luận này đặt cuối vì **điều kiện đo** của nó khác bốn kết luận trên: nó đến từ hai
+mục hậu đóng băng, chạy sau mốc 05/10/2026 theo ngoại lệ đã ghi nhận (mục 6.14, mục 6.15). Nội
+dung: với cùng cách chia 452/64 clip và cùng định nghĩa "Overall (%)" của công trình gốc, khoảng
+cách tới 95.81% giờ là một **phép đo** của luận văn chứ không còn là suy luận từ bảng của họ; giả
+thuyết thiết bị cho chân 1 **bị bác** (G21) và cơ chế giảm khung mà họ gán công là **vô hiệu**
+trong hiện thực của luận văn, ±0.13 pp trên ba lần đo (G23). Trên tác vụ nhị phân An toàn/Không an
+toàn, đo lại theo **mục tiêu phát hiện không an toàn** thay vì theo độ chính xác cân bằng **không
+đổi phán quyết**: cả bốn điểm hoạt động — ngưỡng đều chốt trên validation trước khi đọc tập kiểm
+thử — đều **không** tách được khỏi một đường cơ sở chỉ đoán theo nhóm bối cảnh của clip
+(mục 6.15.4). Phép đo trực tiếp phần nhiễu: điều kiện hoá theo nhóm bối cảnh hạ AUC từ 0.8485
+xuống **0.6426**, và khoảng tin cậy ở đúng đơn vị độc lập **chứa 0.50**.
+
+Năm điều chương này **không** chứng nhận, nêu lại để không bị suy diễn quá mức:
 
   (a) Không chứng nhận rằng biểu diễn toàn khung hơn biểu diễn thực thể. Mọi biên theo chiều đó
       có khoảng tin cậy theo cụm chứa 0. Điều chứng nhận được là chiều ngược lại **không** được
@@ -1679,3 +2473,9 @@ Ba điều chương này **không** chứng nhận, nêu lại để không bị
       quan hệ dung lượng–kết quả không đơn điệu.
   (c) Không chứng nhận bất kỳ con số nào ở độ phân giải nhóm trên làn Unsafe-Net, vì tám nhóm
       không đủ đơn vị cho một khoảng tin cậy hữu ích.
+  (d) Không chứng nhận một thứ hạng giữa hai **thế hệ bộ phát hiện** theo chiều nào. G17 và G20
+      là **đối chứng không phán quyết**: chúng đo, chúng không cấp phép một kết luận, và điều
+      khoản đăng ký của cả hai giữ nguyên bộ phát hiện tiêu đề bất kể con số trả về (mục 6.14).
+  (e) Không chứng nhận rằng bảng cổng đổi vì hai mục hậu đóng băng. Phán quyết của G20, G21, G23
+      và G25 là phán quyết **nội bộ** của mục đã chạy chúng, không vào bảng tám cổng ở mục 6.13;
+      NP-125-D **không phải một cổng**. Bảng cổng vẫn là tám cổng, hai đạt, sáu trượt.

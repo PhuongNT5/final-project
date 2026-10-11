@@ -37,8 +37,9 @@ Ba điều người đọc cần biết trước khi dùng bảng.
 A.2. NHẬT KÝ TRÍCH ĐẶC TRƯNG
 ----------------------------------------------------------------------
 
-Năm lần trích trên 1,100 clip của kho iSafetyBench. Các giá trị dưới đây là dòng cuối của mỗi nhật
-ký, lấy nguyên văn.
+Bảy lần trích trên 1,100 clip của kho iSafetyBench. Các giá trị dưới đây là dòng cuối của mỗi
+nhật ký, lấy nguyên văn. Hai lần cuối chạy ngày 10/10/2026 — **sau mốc đóng băng số** — cho
+đối chứng G20 nhánh B (mục 6.14.2); năm lần đầu thuộc giao thức gốc.
 
   `build-isb-tokens.log`
     cấu hình in ở dòng đầu   detector=yolo11s.pt device=mps imgsz=640 appearance=True T=16 N_MAX=8
@@ -73,11 +74,34 @@ ký, lấy nguyên văn.
     kết quả                  hazard=420 | sources=151
     thời gian chạy           không in
 
-Hai quan sát có giá trị kiểm tra. Thứ nhất, **số lượng phát hiện là bất biến giữa hai lần trích
+  `g20-build-isbv11ft-2026-10-10.log`
+    ghi chú đầu nhật ký      bộ phát hiện `detector_best.pt` tinh chỉnh, nc=8,
+                             `--class_map identity` (G20 nhánh B)
+    tạo tác                  `feats_isbv11ft_all.pt`
+    shape                    entity (1100, 16, 8, 512)  wholeframe (1100, 16, 512)
+    kết quả                  detections=13,895 | hazard=420 normal=680 | sources=151
+    thời gian chạy           1.64 s/clip | 30.2 phút
+
+  `g20-build-isb26ft-2026-10-10.log`
+    ghi chú đầu nhật ký      bộ phát hiện `yolo26_best.pt` tinh chỉnh, nc=8,
+                             `--class_map identity` (G20 nhánh B)
+    tạo tác                  `feats_isb26ft_all.pt`
+    shape                    entity (1100, 16, 8, 512)  wholeframe (1100, 16, 512)
+    kết quả                  detections=13,108 | hazard=420 normal=680 | sources=151
+    thời gian chạy           1.62 s/clip | 29.7 phút
+
+Ba quan sát có giá trị kiểm tra. Thứ nhất, **số lượng phát hiện là bất biến giữa hai lần trích
 dùng cùng bộ phát hiện**: `tokens_isb_all.pt` và `feats_isbclip_all.pt` đều ghi 52,997 phát hiện,
 đúng như mong đợi khi cả hai chạy YOLOv11s trên cùng 1,100 clip. Thứ hai, lần trích YOLO26s ghi
 45,512 phát hiện, **ít hơn 14.1 %**; đây là đại lượng mà cổng G17 đo tác động, và nó là khác biệt
 duy nhất giữa hai tập đặc trưng (mục 4.3.3).
+
+Thứ ba, hai lần trích bằng bộ phát hiện **đã tinh chỉnh** cho thấy thiếu hụt ấy vẫn cùng chiều nhưng
+nhỏ hơn nhiều: `feats_isbv11ft_all.pt` ghi 13,895 phát hiện và `feats_isb26ft_all.pt` ghi 13,108,
+tức bộ mới hơn thưa hơn 5.7% thay vì 14.1%. Đáng chú ý hơn là mức tuyệt đối: cả hai bộ tinh chỉnh
+chỉ sinh khoảng 26% lượng phát hiện của bộ tiền huấn luyện COCO trên đúng kho ảnh này, và tỷ lệ
+khung có phát hiện tụt từ 90.2% xuống 46.1% / 48.4%. Chi tiết cơ chế, kể cả việc chỉ bốn trong tám
+lớp nhà máy mang khối lượng thực khi ra ngoài miền, ở mục 6.14.2.
 
 ----------------------------------------------------------------------
 A.3. NHẬT KÝ HUẤN LUYỆN — KHO ISAFETYBENCH

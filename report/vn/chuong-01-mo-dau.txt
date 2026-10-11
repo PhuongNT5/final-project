@@ -52,9 +52,15 @@ Vấn đề đó được trình bày ở mục 1.3, và được nêu là đón
 số khung cố định: kho dữ liệu tiêu đề có trung vị **29.97** khung/giây, trung bình **34.25**, và
 p95 bằng đúng giá trị lớn nhất **60.0** khung/giây (Chương 5, mục 5.4.4).
 
-**Đầu ra.** Với mỗi cửa sổ trượt 48 khung, bước 24 khung, hệ thống phát một quyết định ở mức cửa
-sổ. Trong cửa sổ, hàm lấy mẫu chọn T = 16 khung cách đều — đúng quy tắc lấy mẫu mà phần đánh giá
-dùng, nên nhịp và độ chính xác nói về cùng một đối tượng.
+**Đầu ra.** Với mỗi cửa sổ trượt 48 khung, bước 24 khung, hệ thống phát một quyết định ở mức cửa sổ.
+Quyết định đó là **nhị phân: An toàn / Không an toàn** — đây là không gian nhãn của hệ thống được
+triển khai và của mọi con số tiêu đề trong luận văn. Hai kho dữ liệu gọi hai cực này bằng từ vựng
+riêng của chúng ("nguy hiểm / bình thường" trên iSafetyBench, "không an toàn / an toàn" trên
+Unsafe-Net), nhưng không gian nhãn là một. Phân loại **bốn lớp** tình huống không an toàn — bài toán
+mà đề cương đặt ra — **không** phải đầu ra của hệ thống được triển khai: nó được giữ như một làn
+lịch sử và không một con số nào của nó chống đỡ một kết luận nào của luận văn (mục 1.4.2; Chương 6,
+mục 6.12). Trong cửa sổ, hàm lấy mẫu chọn T = 16 khung cách đều — đúng quy tắc lấy mẫu mà phần đánh
+giá dùng, nên nhịp và độ chính xác nói về cùng một đối tượng.
 
 **Hợp đồng thời gian thực.** Bước cửa sổ, không phải tần số khung, quy định yêu cầu thời gian
 thực. Một nguồn ở *f* khung/giây và bước phát *s* khung buộc hệ thống phát *f*/*s* quyết định mỗi
@@ -230,12 +236,12 @@ khoảng tin cậy theo cụm **[+8.0, +20.0]**, McNemar chính xác **p = 1.39e
 con số chín mươi mấy phần trăm mà giao thức của tài liệu sinh ra **đã được luận văn đo**, trên chính
 mô hình mà luận văn triển khai; luận văn chọn công bố 84.2%.
 
-Một **đối chứng giả dược** trên 20 seed tách phần lạm phát khỏi phản biện cạnh tranh "fold nhóm chỉ
-khó hơn về cấu trúc": với định danh nguồn giả khớp số nhóm, khớp đa tập kích thước nhóm trong từng
-lớp và khớp tính thuần lớp — chỉ xuất xứ bị phá — bộ mã hoá đạt trung bình **89.0%** (độ lệch chuẩn
-0.47), không seed nào xuống tới 75.2% của nguồn thật, p hoán vị **0.0476**. Phân tách: **+1.6 điểm
-phần trăm do hình học fold** và **+13.8 điểm phần trăm do danh tính nguồn** (mục 6.6.3). Cả hai đối
-chứng này **không được đăng ký trước** và **không phán quyết** cổng nào.
+Một **đối chứng giả dược** trên 20 seed tách phần lạm phát khỏi phản biện cạnh tranh "fold nhóm
+chỉ khó hơn về cấu trúc": với định danh nguồn giả khớp số nhóm, khớp đa tập kích thước nhóm
+trong từng lớp và khớp tính thuần lớp — chỉ xuất xứ bị phá — bộ mã hoá đạt trung bình **89.0%**
+(độ lệch chuẩn 0.47), không seed nào xuống tới 75.2% của nguồn thật, p hoán vị **0.0476**. Phân
+tách: **+1.6 điểm phần trăm do hình học fold** và **+13.8 điểm phần trăm do danh tính nguồn**
+(mục 6.6.3). Cả hai đối chứng này **không được đăng ký trước** và **không phán quyết** cổng nào.
 
 Hai hệ quả mạnh hơn bản thân độ lớn:
 
@@ -263,19 +269,29 @@ hình không bao giờ rời thiết bị. Không một đường cơ sở đã 
 nhịp quyết định trên thiết bị, bảng ngân sách giai đoạn, hay năng lượng mỗi quyết định. (Chương
 5.)
 
-**(3) Bằng chứng rằng đầu phân loại không phải chỗ để tối ưu, kèm phán quyết của tám cổng tiền
-đăng ký.** Đầu Transformer — phần mà luận văn này thực sự thiết kế — chiếm **0.3% đến 1.7%** độ
-trễ của một quyết định; toàn bộ phần còn lại thuộc về các thành phần mà luận văn không thiết kế.
-Trên trục độ chính xác, kết luận tương ứng cũng là một kết luận phủ định: tám cổng được viết ra —
-gồm giả thuyết, mô hình được nêu tên và biên tối thiểu — **trước** khi con số tồn tại; kết quả là
-**hai cổng đạt và sáu cổng trượt**. Trong đó, cổng trung tâm của toàn bộ hướng nghiên cứu ban đầu
-— G14, giả thuyết rằng biểu diễn phân rã theo thực thể vượt một đường cơ sở toàn khung khớp dung
-lượng trên cùng tập clip và cùng công thức huấn luyện — đã **trượt** ở cả hai tiêu chí phán quyết:
-biên mang dấu âm (−0.5 điểm phần trăm) và khoảng tin cậy bootstrap theo cụm [−5.5, +5.0] chứa 0,
-với McNemar chính xác p = 0.683. Đúng câu hỏi đó, hỏi lại ở làn trước với một xương sống ngoại
-hình khác, cũng trượt (G11: +1.1 điểm phần trăm, khoảng tin cậy [−4.8, +6.9], p = 0.625). Sáu phán
-quyết trượt được công bố với biên và khoảng tin cậy ở đúng mức chi tiết như hai phán quyết đạt.
-(Chương 6, mục 6.2, 6.11 và 6.13; Chương 7, mục 7.2.)
+**(3) Bằng chứng rằng đầu phân loại không phải chỗ để tối ưu, kèm phán quyết của tám cổng tiền đăng
+ký.** Đầu Transformer — phần mà luận văn này thực sự thiết kế — chiếm **0.3% đến 1.7%** độ trễ của
+một quyết định; toàn bộ phần còn lại thuộc về các thành phần mà luận văn không thiết kế. Trên trục
+độ chính xác, kết luận tương ứng cũng là một kết luận phủ định: tám cổng được viết ra — gồm giả
+thuyết, mô hình được nêu tên và biên tối thiểu — **trước** khi con số tồn tại; kết quả là **hai cổng
+đạt và sáu cổng trượt**. Trong đó, cổng trung tâm của toàn bộ hướng nghiên cứu ban đầu — G14, giả
+thuyết rằng biểu diễn phân rã theo thực thể vượt một đường cơ sở toàn khung khớp dung lượng trên
+cùng tập clip và cùng công thức huấn luyện — đã **trượt** ở cả hai tiêu chí phán quyết: biên mang
+dấu âm (−0.5 điểm phần trăm) và khoảng tin cậy bootstrap theo cụm [−5.5, +5.0] chứa 0, với McNemar
+chính xác p = 0.683. Đúng câu hỏi đó, hỏi lại ở làn trước với một xương sống ngoại hình khác, cũng
+trượt (G11: +1.1 điểm phần trăm, khoảng tin cậy [−4.8, +6.9], p = 0.625). Phản biện hiển nhiên nhất
+với phán quyết đó — rằng phân rã thực thể thua vì bộ phát hiện sinh token quá cũ — đã được tiền đăng
+ký thành đối chứng G17 và bị số liệu loại: thay sang thế hệ mới hơn YOLO26s làm kết quả **giảm** 2.2
+điểm phần trăm, McNemar p = 0.00412. Phản biện kế tiếp — rằng G17 chỉ đổi hai bộ phát hiện **tiền
+huấn luyện COCO** và chưa bao giờ tinh chỉnh YOLO26 trên dữ liệu nhà máy — được trả lời bằng đối
+chứng **G20** (nhánh làn E3), chạy sau mốc đóng băng số: với cả hai bộ phát hiện **đều đã tinh
+chỉnh**, biên +7.8 điểm phần trăm nghiêng về YOLO26s nhưng khoảng tin cậy theo cụm [−1.5, +15.2]
+chứa 0 và toàn bộ biên nằm ở một nhóm bối cảnh trong tám, nên kết luận ghi là **không phân biệt
+được**, không phải một bản nâng cấp. Nhánh thứ hai của G20, trên làn iSafetyBench với **151 nguồn**
+làm đơn vị cụm thay vì tám nhóm bối cảnh, cho cùng kết luận ở độ phân giải cụm cao hơn nhiều: +2.2
+điểm phần trăm, khoảng tin cậy [−3.5, +8.8] chứa 0, McNemar p = 0.261. Sáu phán quyết trượt được
+công bố với biên và khoảng tin cậy ở đúng mức chi tiết như hai phán quyết đạt. (Chương 6,
+mục 6.2, 6.11, 6.13 và 6.14; Chương 7, mục 7.2.)
 
 **(4) Phân tích kết quả phủ định có quy nguyên nhân, và một sổ đăng ký các phát biểu đã bị rút.**
 Luận văn dành một chương cho những gì đã sai. Bốn hạng mục chính: (a) một phép **cộng các giai đoạn
