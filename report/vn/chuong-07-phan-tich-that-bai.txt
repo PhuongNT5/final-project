@@ -45,12 +45,22 @@ hơn một biểu diễn toàn khung trong bài toán phát hiện hành vi khô
 
 Ba cổng độc lập đã kiểm tra giả thuyết này và cả ba đều trượt (Chương 6, Bảng 6.8):
 
+Đại lượng của cả ba cổng là **hiệu hai độ chính xác cân bằng** (BA = trung bình độ nhạy theo hai
+lớp), tính bằng điểm phần trăm, giữa hai bộ dự đoán trên **cùng** tập đo leave-source-out 1,100
+clip / 151 nguồn. Mỗi cổng mang ngưỡng biên đăng ký trước riêng (Bảng 3.4, mục 3.8):
+
   G11 — xương sống MobileNetV3, encoder E3 so với đầu dò tuyến tính trên đặc trưng toàn khung:
-        **+1.1 pp**, CI theo cụm [−4.8, +6.9] chứa 0, McNemar p = 0.625.
+        E3 **75.2%** so với đường sàn toàn khung **74.1%** (tốt nhất trong ba đầu dò
+        MobileNetV3-small, luận văn đo) = **+1.1 pp**, so với ngưỡng đăng ký trước ~3 pp;
+        CI theo cụm [−4.8, +6.9] chứa 0, McNemar p = 0.625.
   G14 — xương sống CLIP ViT-B/32 ở điều kiện khớp nhau, ESTA so với B1w:
-        **−0.5 pp**, CI [−5.5, +5.0] chứa 0, McNemar p = 0.683.
-  G18 — mô hình hợp nhất hai luồng TSF so với luồng toàn khung đơn lẻ B1w:
-        **−0.3 pp**, CI [−3.7, +2.5] chứa 0, McNemar p = 0.401.
+        ESTA **83.8%** so với max(B1, B1w) = B1w **84.4%** (luận văn đo) = **−0.5 pp**, so với
+        ngưỡng đăng ký trước +3 pp; CI [−5.5, +5.0] chứa 0, McNemar p = 0.683.
+  G18 — mô hình hợp nhất hai luồng TSF so với luồng toàn khung đơn lẻ B1w **84.4%**:
+        **−0.3 pp**, so với hai bậc ngưỡng đăng ký trước G18a ≥ +3.0 pp và G18b ≥ +2.0 pp;
+        CI [−3.7, +2.5] chứa 0, McNemar p = 0.401.
+
+Cả ba biên đều âm hoặc dưới ngưỡng, nên không cổng nào cần đến tiêu chí khoảng tin cậy để trượt.
 
 Ba cổng này khác nhau về xương sống, về kiến trúc đầu, về việc có hay không cơ chế hợp nhất. Chúng
 không phải ba lần chạy lại của một thí nghiệm; chúng là ba thí nghiệm khác nhau cho cùng một kết
@@ -122,9 +132,12 @@ Hệ quả phải nói rõ theo hai chiều, và cả hai chiều đều quan tr
   vùng** không hơn biểu diễn toàn khung.
 
   **Chiều bất lợi cho phản biện:** làn Unsafe-Net bốn lớp **có** hình học vùng thật, và ở đó kết
-  quả cũng không ủng hộ dạng mạnh. Biên +16.9 pp tập trung vào **hai trong bốn lớp** và **hai
-  trong tám nhóm bối cảnh**; với hai lớp mà nhãn là thuộc tính ngoại hình cục bộ (tủ điện mở, xe
-  nâng quá tải) một bộ phân loại ngoại hình toàn khung làm **ngang bằng** (88.0% so với 88.7%, và
+  quả cũng không ủng hộ dạng mạnh. Biên +16.9 pp — đại lượng là hiệu hai **macro bốn lớp**, tức
+  81.2% của Transformer quan hệ so với đường sàn ngoại hình bối cảnh **64.4% macro** dưới
+  leave-context-out trên 516 clip gộp (mục 6.12.1), **không** phải biên lạm phát giao thức cùng
+  trị số ở Bảng 6.3 — tập trung vào **hai trong bốn lớp** và **hai trong tám nhóm bối cảnh**; với
+  hai lớp mà nhãn là thuộc tính ngoại hình cục bộ (tủ điện mở, xe nâng quá tải) một bộ phân loại
+  ngoại hình toàn khung làm **ngang bằng** (88.0% so với 88.7%, và
   100.0% so với 100.0%; mục 6.12). Tức là ngay cả khi có hình học vùng, lợi ích chỉ xuất hiện đúng
   ở các lớp mà nhãn **được định nghĩa** bằng quan hệ người–vùng, và không lan ra ngoài.
 
@@ -815,8 +828,9 @@ trên máy của tác giả, không kiểm được từ kho mã như đang có.
 ----------------------------------------------------------------------
 
 Luận văn có ba làn thí nghiệm, hai bộ dữ liệu, bốn giao thức đánh giá và ít nhất năm chỉ số. Hệ quả
-số học là các giá trị phần trăm trùng nhau mà không có quan hệ gì với nhau. Ba trùng số sau đã gây
-nhầm lẫn trong các bản thảo trước và phải được nhận dạng trước mọi buổi bảo vệ.
+số học là các giá trị phần trăm trùng nhau mà không có quan hệ gì với nhau. Năm trùng số sau — bốn
+trùng trị số và một trùng **tên đường cơ sở** — đã gây nhầm lẫn trong các bản thảo trước và phải
+được nhận dạng trước mọi buổi bảo vệ.
 
   Bảng 7.3. Các trùng số phải nhận dạng
 
@@ -828,6 +842,13 @@ nhầm lẫn trong các bản thảo trước và phải được nhận dạng 
            | khai** — iSafetyBench, LSO, N = 1,100  | lớp, 50 fold, 516 clip gộp
   81.2%    | top-1 của đường sàn chỉ-bối-cảnh,      | **macro** của Transformer quan hệ dưới
            | cùng phân phối, 52/64                  | LCO, 516 clip
+  +16.9 pp | biên **macro bốn lớp** dưới LCO:       | biên **lạm phát giao thức** của E0 trên
+           | 81.2% so với đường sàn ngoại hình      | làn Unsafe-Net **nhị phân**: 83.6% chia
+           | bối cảnh 64.4% (mục 6.12.1)            | ngẫu nhiên so với 66.7% LCO (Bảng 6.3)
+  "đường   | **63.3%** — bộ ba đếm người/khung,     | **67.2%** LSO (và 68.2% chia ngẫu nhiên)
+  sàn quy  | vật/khung và **tỷ lệ** của chúng, mẫu  | — người/khung, vật/khung và **độ tin cậy
+  tắc đếm" | thăm dò 300 clip cân bằng, LSO, làn A  | trung bình**, đủ 1,100 clip, làn B
+           | → biên tiêu đề +20.9 pp                | → biên G10 +8.0 pp. **Không trừ chéo.**
   ---------+----------------------------------------+---------------------------------------
   48/64    | **ba** cách đọc: bộ hợp lượng tử INT8; `bbox_avg` (trung bình 4 hạt giống, loại
            | s2024); hàng cascade tại T = 8 của bảng ngưỡng
@@ -846,6 +867,11 @@ thức, chỉ số và cỡ mẫu, nên nó trở thành một ký hiệu có th
   **Quy tắc trình bày.** Mọi giá trị độ chính xác trong luận văn mang theo bốn thuộc tính: bộ dữ
   liệu, giao thức đánh giá, chỉ số, cỡ mẫu. Ở dạng gọn trong câu văn, tối thiểu là chỉ số và cỡ
   mẫu; ở dạng bảng, cả bốn. Quy tắc này đã được áp dụng cho toàn bộ Bảng 6.1-6.8.
+
+  **Quy tắc bổ sung (mục 6.1.6).** Bốn thuộc tính trên định danh con số nhưng chưa định danh
+  **phép so sánh**. Vì vậy mỗi con số kết quả còn mang theo **đường cơ sở kèm trị số** và
+  **nguồn của đường cơ sở** — luận văn đo `[ĐO]`, đọc từ bảng của công trình gốc `[ĐỌC]`, hay
+  suy ra bằng số học `[SỐ HỌC]`. Khai báo đầy đủ cho từng con số tiêu đề: Bảng 6.1b.
 
 ----------------------------------------------------------------------
 7.9. GIỚI HẠN CÒN LẠI VÀ CÁC CÂU HỎI CHƯA TRẢ LỜI
@@ -907,7 +933,8 @@ là rõ ràng và khả thi: chú giải vùng trên một tập con, dựng l�
 G11, G14, G18 với cùng fold. Luận văn không thực hiện thí nghiệm này.
 
 Đối trọng đã nêu ở 7.2.3 vẫn giữ nguyên giá trị: trên Unsafe-Net, nơi hình học vùng **có thật**,
-biên +16.9 pp vẫn tập trung ở hai trong bốn lớp và hai trong tám nhóm bối cảnh, và làn toàn khung
+biên +16.9 pp macro (81.2% so với đường sàn ngoại hình bối cảnh 64.4%) vẫn tập trung ở hai trong
+bốn lớp và hai trong tám nhóm bối cảnh, và làn toàn khung
 sánh ngang làn quan hệ trên hai lớp. Đó là bằng chứng ngược chiều nhưng **không phải** bằng chứng
 thay thế: nó đến từ một kho khác, một số lớp khác và một giao thức khác.
 

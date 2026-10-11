@@ -14,27 +14,36 @@ như số đo.
    không được trộn thành một phép so sánh — kể cả hai con số lạm phát +13.5 và +15.4 pp,
    là hai phép đo **độc lập** của cùng một hiện tượng, không phải hai lần đo một đại lượng.
 
-   [làn A]  84.2% BA      Cấu hình được TRIỂN KHAI (B1, 201,090 tham số đầu),
+   [làn A]  84.2% BA      Đại lượng: độ chính xác cân bằng, tức trung bình độ nhạy theo
+                          lớp. Cấu hình được TRIỂN KHAI (B1, 201,090 tham số đầu),
                           leave-source-out, 1,100 clip / 151 nguồn chưa từng thấy.
+                          Đường cơ sở: sàn đếm tiền đăng ký 63.3%. (mục 6.2)
+
+   [làn A]  +20.9 pp      Biên BA của chính con số trên so với đường sàn tiền đăng ký
+                          63.3% — sàn do LUẬN VĂN ĐO, là bộ ba đặc trưng đếm trên mẫu
+                          thăm dò 300 clip cân bằng, không phải mức 50% ngẫu nhiên.
                           (mục 6.2)
 
-   [làn A]  +20.9 pp      Biên của chính con số trên so với đường sàn tiền đăng ký
-                          63.3%. Sàn là bộ ba đặc trưng đếm, không phải mức 50%
-                          ngẫu nhiên. (mục 6.2)
-
-   [làn A]  +13.5 pp      Lạm phát giao thức trên chính cấu hình được triển khai:
+   [làn A]  +13.5 pp      Hiệu của HAI con số BA, không phải biên so với một đường sàn:
+                          lạm phát giao thức trên chính cấu hình được triển khai —
                           cùng B1, cùng 1,100 clip, chỉ đổi phép chia — chia ngẫu
                           nhiên bỏ qua nguồn cho **97.7%** ở chỗ leave-source-out cho
                           84.2%. CI theo cụm [+8.0, +20.0], p = 1.39e-41. Luận văn có
                           con số 97.7% và chọn không công bố nó. (mục 6.2.7)
 
-   [đo PP]  +15.4 pp      Cùng hiện tượng, đo độc lập trên làn B với encoder E3:
-                          90.6% so với 75.2%. Đối chứng giả dược G19 (20 seed,
-                          p = 0.0476) tách biên này thành **13.8 pp rò rỉ danh tính
-                          nguồn** và 1.6 pp hình học fold. (mục 6.6, 6.6.3)
+   [đo PP]  +15.4 pp      Cùng hiện tượng, cùng dạng đại lượng — hiệu hai BA — đo độc
+                          lập trên làn B với encoder E3: 90.6% so với 75.2%. Đối chứng
+                          giả dược G19 (20 seed, p = 0.0476) tách biên này thành
+                          **13.8 pp rò rỉ danh tính nguồn** và 1.6 pp hình học fold.
+                          (mục 6.6, 6.6.3)
 
-   [đo PP]  2/8 cổng      Tám cổng phán quyết tiền đăng ký: hai đạt, sáu trượt. Cả
-                          sáu phán quyết trượt đều được công bố đầy đủ. (mục 6.13)
+   [đo PP]  2/8 cổng      Đại lượng là ĐẾM PHÁN QUYẾT, không phải một độ chính xác, và
+                          không có đường cơ sở: mỗi cổng mang biên tiền đăng ký riêng.
+                          Tám cổng phán quyết: hai đạt, sáu trượt. Cả sáu phán quyết
+                          trượt đều được công bố đầy đủ. (mục 6.13)
+
+   Khai báo đầy đủ bốn thứ — đại lượng, giao thức, đường cơ sở kèm trị số, và nguồn của
+   đường cơ sở — cho mọi con số kết quả của chương: Bảng 6.1b, mục 6.1.6.
 
    Đóng góp mà chương này mang ra hội đồng là **phép đo lạm phát**, không phải một con số độ
    chính xác cao. Luận văn **đo được** con số 9x% mà giao thức rò rỉ sinh ra trên chính mô
@@ -48,7 +57,7 @@ như số đo.
 ----------------------------------------------------------------------
 
 Chương này tập hợp toàn bộ kết quả độ chính xác của luận văn. Vì các kết quả đến từ nhiều bộ dữ
-liệu và nhiều giao thức khác nhau, mục 6.1 đặt trước năm quy ước đọc số. Năm quy ước này là điều
+liệu và nhiều giao thức khác nhau, mục 6.1 đặt trước sáu quy ước đọc số. Sáu quy ước này là điều
 kiện để các con số phía sau có nghĩa; bỏ qua chúng thì một phần đáng kể các con số trong chương
 sẽ bị diễn giải sai theo hướng có lợi cho luận văn.
 
@@ -119,8 +128,9 @@ số đó làm kết quả tiêu đề.
 
 6.1.4. Các trùng ký hiệu phải đọc trước
 
-Năm con số dưới đây xuất hiện nhiều lần trong luận văn với nghĩa khác nhau. Chúng không bao giờ
-được đặt cạnh nhau trong một câu, và không bao giờ được dùng để chứng thực cho nhau:
+Bảy trường hợp dưới đây xuất hiện nhiều lần trong luận văn với nghĩa khác nhau — năm con số, một
+biên và một **tên đường cơ sở**. Chúng không bao giờ được đặt cạnh nhau trong một câu, và không bao
+giờ được dùng để chứng thực cho nhau:
 
   - **84.4%**: (a) BA của B1w trên iSafetyBench LSO-1100, n = 1,100 clip; (b) top-1 của quy tắc
     mù trên Unsafe-Net, n = 64 clip.
@@ -133,6 +143,19 @@ Năm con số dưới đây xuất hiện nhiều lần trong luận văn với 
   - **55/64**: bốn cách đọc khác nhau, một trong số đó là **sai** (giá trị này từng bị dùng làm
     đường sàn không-bbox của công trình gốc do một hằng số bị gán cứng tại
     `run_ablation_significance.py:155` cho tới 03/10/2026; giá trị đúng là **57/64**).
+  - **+16.9 pp**: (a) biên lạm phát giao thức của E0 trên làn Unsafe-Net **nhị phân**, 83.6% dưới
+    k-fold ngẫu nhiên so với 66.7% dưới leave-context-out (Bảng 6.3); (b) biên trung thực của
+    Transformer quan hệ **bốn lớp** so với đường sàn ngoại hình bối cảnh, 81.2% − 64.4% macro
+    (mục 6.12.1). Hai đại lượng khác nhau trùng chuỗi ký tự; (a) là hiệu giữa hai giao thức,
+    (b) là hiệu giữa một mô hình và một đường sàn.
+  - **tên "đường sàn quy tắc đếm"**: tên này gọi **hai** đường sàn khác nhau, và trị số của chúng
+    khác nhau. (a) Sàn **tiền đăng ký 63.3%**: ba đặc trưng là số người/khung, số vật thể/khung
+    và **tỉ số giữa hai lượng đó**, chạy trên mẫu thăm dò **300 clip cân bằng** (mục 6.1.2); mọi
+    biên của làn A phát biểu so với sàn này. (b) Sàn **67.2%** dưới leave-source-out và **68.2%**
+    dưới chia ngẫu nhiên: ba đặc trưng là số người/khung, số vật thể/khung và **độ tin cậy trung
+    bình**, chạy trên **đủ 1,100 clip** và đúng bộ fold của encoder (mục 6.6.1, Bảng 6.5); mọi
+    biên của làn B phát biểu so với sàn này. **Không trừ chéo giữa hai sàn** — hiệu của chúng
+    không ước lượng cho đại lượng nào.
 
 6.1.5. Quy ước phán quyết cổng
 
@@ -160,6 +183,79 @@ cậy — **trước** khi con số tương ứng tồn tại. Quy ước phán 
       các mục đó **không phán quyết** cổng nào trong bảng ở mục 6.13, **không** đổi số cổng (vẫn
       tám) và **không** đổi bảng cổng (vẫn hai đạt, sáu trượt); số của chúng thuộc làn C và
       **không** vào năm con số tiêu đề của chương.
+
+6.1.6. Bốn thứ đi kèm mỗi con số: đại lượng, giao thức, đường cơ sở, nguồn của đường cơ sở
+
+Năm quy ước trên nói về làn, về chỉ số, về đơn vị lấy mẫu, về trùng ký hiệu và về cổng. Quy ước
+thứ sáu nói về chính cách phát biểu một con số kết quả. Trong chương này, **không con số kết quả
+nào được phát biểu một mình**; mỗi con số đi kèm bốn thứ:
+
+  (i)   **đại lượng**, nêu kèm định nghĩa chứ không chỉ nêu tên viết tắt;
+  (ii)  **giao thức và tập đo**, gồm cách dựng fold, số clip và số nhóm;
+  (iii) **đường cơ sở**, nêu kèm **trị số** của nó — không phát biểu biên mà không in trị số
+        của cái bị trừ;
+  (iv)  **nguồn của đường cơ sở**: do luận văn đo, đọc từ bảng của công trình gốc, hay suy ra
+        bằng số học từ tỉ lệ lớp.
+
+Định nghĩa của các đại lượng được dùng, viết một lần ở đây:
+
+  - **top-1** = số clip phân loại đúng chia tổng số clip.
+  - **BA** (độ chính xác cân bằng) = trung bình độ nhạy theo từng lớp, trên bài toán **hai lớp**.
+  - **macro** = trung bình độ nhạy theo từng lớp, trên bài toán **bốn lớp** của làn C. Cùng công
+    thức với BA, khác số lớp — nên một con số macro bốn lớp và một con số BA hai lớp **không**
+    đặt chung một phép so sánh được.
+  - **recall KAT** = TP/(TP+FN) với lớp dương là Không an toàn; **báo động giả** = FP/(FP+TN);
+    **precision** = TP/(TP+FP); **J** = recall + độ đặc hiệu − 1.
+  - **AUC trong cùng nhóm bối cảnh** = tỉ lệ cặp (một clip KAT, một clip AT) **cùng nhóm** được
+    xếp đúng thứ tự; mức ngẫu nhiên của đại lượng này là 0.50 theo kiến tạo.
+
+Ba loại vật so sánh, không được gọi lẫn nhau. **Đường sàn** đo mức mà một phép tắt tự đạt được
+(quy tắc đếm, chỉ-bối-cảnh, ngoại hình toàn khung). **Đối chứng** là một bộ dự đoán cụ thể chạy
+trên cùng tập đo để kiểm một giả thuyết cạnh tranh (scene-only ở mục 6.15). **Tham chiếu tài
+liệu** là con số đọc từ bài báo khác; nó **không** là đường cơ sở, vì không chạy lại được trên
+tập đo của luận văn — con số 95.81% macro của công trình gốc thuộc loại này (mục 6.12.5). Ngoài
+ra, ở các bảng lạm phát giao thức (Bảng 6.3, Bảng 6.4) vật so sánh **không** là một đường sàn mà
+là **cột giao thức còn lại**: cùng mô hình, cùng clip, chỉ đổi cách dựng fold.
+
+Bảng 6.1b — khai báo đại lượng và đường cơ sở cho mọi con số kết quả của chương.
+Nhãn nguồn: [ĐO] luận văn đo trên cùng tập đo — [ĐỌC] đọc từ bảng của công trình gốc, không chạy
+lại được — [SỐ HỌC] suy ra từ tỉ lệ lớp, không phải một mô hình.
+
+  Con số (mục)         | Đại lượng              | Giao thức / tập            | Đường cơ sở + trị số
+  ---------------------+------------------------+----------------------------+----------------------------------
+  84.2% (6.2)          | BA, 2 lớp              | LSO-1100, OOF gộp          | sàn đếm tiền đăng ký 63.3% [ĐO]
+                       |                        | 1,100 clip / 151 nguồn     | → biên +20.9 pp
+  97.7% (6.2.7)        | BA, 2 lớp              | chia ngẫu nhiên bỏ nguồn   | cột LSO-1100 của chính nó, 84.2%
+                       |                        | cùng 1,100 clip            | [ĐO] → lạm phát +13.5 pp
+  75.2%–80.3% (6.11)   | BA, 2 lớp              | LSO-1100, 4 encoder        | sàn đếm trên đủ 1,100 clip
+                       |                        |                            | 67.2% và sàn toàn khung 74.1% [ĐO]
+  +15.4 pp (6.6)       | hiệu hai BA, E3        | LSO-1100 so chia ngẫu nhiên| cột giao thức còn lại: 75.2% so
+                       |                        |                            | với 90.6% [ĐO]
+  +13.0…+21.8 pp (6.5) | hiệu hai BA, 5 encoder | LCO-691 so k-fold ngẫu     | cột giao thức còn lại [ĐO]; mức
+                       |                        | nhiên, 687 clip / 8 nhóm   | ngẫu nhiên BA = 50.0% [SỐ HỌC]
+  81.2% / +16.9 pp     | macro, 4 lớp           | LCO, 516 clip gộp, 8 nhóm, | sàn ngoại hình bối cảnh 64.4%
+  (6.12.1)             |                        | 5 seed                     | macro [ĐO]; hằng số 10.1% [SỐ HỌC]
+  54/64 = 84.4% top-1  | top-1 và macro, 4 lớp  | phép chia 452/64 của công  | sàn không-bbox 57/64 = 85.78%
+  / 88.4% macro        |                        | trình gốc                  | macro [ĐỌC]; 62/64 bbox đầy đủ
+  (6.12.5)             |                        |                            | [ĐỌC]; 95.81% là tham chiếu
+                       |                        |                            | tài liệu, **không** là sàn
+  74.19% (6.15.3)      | BA, 2 lớp              | NP-125: 125 clip test      | đối chứng scene-only 69.94% BA
+                       |                        | đóng băng, 64 KAT / 61 AT  | [ĐO]; hằng số 50.00% [SỐ HỌC];
+                       |                        |                            | trần cứng 99.20% [SỐ HỌC]
+  82.81% recall,       | recall KAT, báo động   | NP-125-D: cùng 125 clip,   | đối chứng scene-only recall
+  34.43% báo động giả  | giả, precision, F1, J  | ngưỡng chốt trên val 103   | 89.06% / báo động giả 49.18%
+  (6.15.4)             |                        | clip                       | [ĐO]; "luôn báo động" 100% /
+                       |                        |                            | 100% [SỐ HỌC]
+  AUC nhóm 0.6426      | AUC trong cùng nhóm    | 645 cặp trong-nhóm, 6 nhóm | mức ngẫu nhiên 0.50 [SỐ HỌC];
+  (6.15.4)             | bối cảnh               | trộn nhãn                  | AUC gộp của chính nó 0.8485 [ĐO]
+  2/8 cổng (6.13)      | **đếm phán quyết**,    | tám cổng tiền đăng ký      | không có đường cơ sở; mỗi cổng
+                       | không phải một độ c.xác|                            | mang biên tiền đăng ký riêng
+
+Hệ quả bắt buộc của bảng này: một con số của chương chỉ được trích ra ngoài **cùng với** dòng
+khai báo của nó. Trích "84.2%" mà bỏ "so với sàn 63.3% dưới LSO-1100" là trích sai, vì cùng mô
+hình đó dưới giao thức khác cho 97.7% (mục 6.2.7). Trích "+16.9 pp" mà không nói đó là biên macro
+bốn lớp so với sàn ngoại hình bối cảnh là trích sai, vì cùng chuỗi ký tự ấy còn là biên lạm phát
+giao thức của E0 ở Bảng 6.3 — hai đại lượng khác nhau, xem mục 6.1.4.
 
 ----------------------------------------------------------------------
 6.2. LÀN TIÊU ĐỀ: THÁP CLIP ĐÓNG BĂNG TOÀN KHUNG VÀ ĐẦU TRANSFORMER THỜI GIAN
@@ -605,7 +701,14 @@ huấn luyện; khác biệt duy nhất giữa hai vế là cách dựng fold.
 6.5. KẾT QUẢ TRÊN UNSAFE-NET: NĂM KIẾN TRÚC, KHÔNG KIẾN TRÚC NÀO THOÁT
 ----------------------------------------------------------------------
 
-Bảng 6.3 — Độ chính xác cân bằng dưới hai giao thức, Unsafe-Net, 687 clip.
+Bảng 6.3 — Độ chính xác cân bằng (BA, trung bình độ nhạy theo lớp, bài toán nhị phân An toàn /
+Không an toàn) dưới hai giao thức, Unsafe-Net, 687 clip / 8 nhóm bối cảnh.
+
+  Vật so sánh của bảng này **không** là một đường sàn mà là **cột giao thức còn lại**: mỗi dòng so
+  chính nó với chính nó, cùng mô hình và cùng clip, chỉ đổi cách dựng fold (quy ước mục 6.1.6).
+  Làn nhị phân của Unsafe-Net **không có đường sàn quy tắc đếm**; mức ngẫu nhiên của BA hai lớp là
+  **50.0% theo số học** (bộ dự đoán hằng số), nên cả mười ô đều trên mức ngẫu nhiên và đại lượng
+  mà bảng phán quyết là **cột Δ**, không phải trị số tuyệt đối của hai cột kia.
 
   Encoder                          | Tham số  | k-fold ngẫu nhiên | Leave-context-out|    Δ
   ---------------------------------+----------+-------------------+------------------+---------
@@ -662,7 +765,9 @@ Một kết quả đo trên một bộ dữ liệu duy nhất luôn để ngỏ 
 Để đóng khả năng này, phép đo được lặp lại trên iSafetyBench — bộ dữ liệu rời hoàn toàn, có định
 nghĩa nhóm khác hẳn (nguồn video YouTube thay vì cụm bối cảnh nền).
 
-Bảng 6.4 — Độ chính xác cân bằng dưới hai giao thức, iSafetyBench, 1,100 clip, 151 nguồn.
+Bảng 6.4 — Độ chính xác cân bằng (BA) dưới hai giao thức, iSafetyBench, 1,100 clip, 151 nguồn.
+Vật so sánh của mỗi dòng là **cột giao thức còn lại**, không phải một đường sàn; đường sàn của làn
+B nêu riêng ở mục 6.6.1 và **không** phải sàn tiền đăng ký 63.3% của làn A (mục 6.1.4).
 
   Encoder                  | Tham số | Leave-source-out | Chia ngẫu nhiên |    Δ
   -------------------------+---------+------------------+-----------------+---------
@@ -694,11 +799,17 @@ Kiểm định cặp cho Δ (bootstrap theo cụm trên 151 nguồn, 5,000 lần
   "WRONG UNIT". Khoảng này hẹp hơn khoảng đúng và không được dùng; nó có mặt để người đọc thấy
   chính xác cái giá của việc chọn sai đơn vị lấy mẫu.)
 
-6.6.1. Đường sàn quy tắc đếm
+6.6.1. Đường sàn quy tắc đếm của làn B — không phải sàn tiền đăng ký 63.3%
 
 Để bảo đảm con số của encoder không phải là sản phẩm của một lối tắt thống kê tầm thường, mọi
 cấu hình iSafetyBench đều chạy kèm một đường sàn: bộ phân loại chỉ dùng ba đại lượng đếm
 (số người/khung, số vật thể/khung, độ tin cậy trung bình), trên đúng bộ fold đó.
+
+Đường sàn của mục này là **một đối tượng khác** với đường sàn tiền đăng ký 63.3% dùng ở làn A: nó
+có đặc trưng thứ ba khác (độ tin cậy trung bình thay cho tỉ số người/vật thể) và chạy trên **đủ
+1,100 clip** thay vì mẫu thăm dò 300 clip cân bằng. Hai sàn cùng tên nhưng khác trị số, và theo
+mục 6.1.4 **không được trừ chéo** giữa chúng: biên của làn B phát biểu so với sàn dưới đây, biên
+của làn A phát biểu so với 63.3%.
 
   - Dưới chia ngẫu nhiên : sàn = 68.2%, encoder vượt sàn +22.4 pp.
   - Dưới leave-source-out: sàn = 67.2%, encoder vượt sàn  +8.0 pp.
@@ -1604,9 +1715,11 @@ Bảng 6.8 tập hợp toàn bộ phán quyết của chương ở một chỗ. 
 đầy đủ ở các mục trước; bảng này không đưa thêm con số mới, nó chỉ để một phản biện kiểm tra được
 tổng số mà không phải lật lại chương.
 
-Bảng 6.8 — Mười một mã cổng: tám cổng phán quyết tiền đăng ký và ba đối chứng. Khoảng tin cậy là
-            bootstrap theo cụm (151 nguồn ở làn A và B; 8 nhóm bối cảnh ở G20 — xem †). Tiêu chí
-            đạt theo mục 6.1.5(1).
+Bảng 6.8 — Mười một mã cổng: tám cổng phán quyết tiền đăng ký và ba đối chứng. Đại lượng của cột
+            Δ là **hiệu hai độ chính xác cân bằng**, tính bằng điểm phần trăm, giữa hai bộ dự đoán
+            nêu ở cột "Mô hình được nêu tên" trên **cùng** tập đo. Khoảng tin cậy là bootstrap
+            theo cụm (151 nguồn ở làn A và B; 8 nhóm bối cảnh ở G20 — xem †). Tiêu chí đạt theo
+            mục 6.1.5(1).
 
   Cổng | Giả thuyết tiền đăng ký               | Mô hình được nêu tên |   Δ      | CI theo cụm       | McNemar p | Phán quyết
   -----+---------------------------------------+----------------------+----------+-------------------+-----------+-----------
@@ -1638,6 +1751,25 @@ Bảng 6.8 — Mười một mã cổng: tám cổng phán quyết tiền đăng
     (LSO-1100, bộ mã hoá ESTA), báo riêng ở mục 6.14; nhánh đó trả về **+2.2 pp** với CI
     **[−3.5, +8.8] ⊃0** gộp cụm theo 151 nguồn và McNemar exact **p = 0.261** — cũng là "không
     phân biệt được", nhưng ở độ phân giải cụm cao hơn nhiều.
+
+  Biên tiền đăng ký của từng cổng — tức **ngưỡng mà cột Δ phải vượt**, cùng với vật bị trừ. Đọc
+  nguyên văn từ Bảng 3.4 ở mục 3.8; không ngưỡng nào trong số này được sửa sau khi con số tồn tại:
+
+    G10  ≥ ~3 pp, vật bị trừ là **đường sàn quy tắc đếm** tính lại trên cùng 1,100 clip và cùng
+         bộ fold (sàn 67.2%, mục 6.6.1 — **không** phải sàn tiền đăng ký 63.3% của làn A)
+    G11  ≥ ~3 pp, vật bị trừ là **đường sàn toàn khung tốt nhất trong ba đầu dò** MobileNetV3-small
+    G12  ≥ 5 pp cho **ít nhất một** encoder, vật bị trừ là **cột giao thức còn lại** của chính nó
+    G13  **không có ngưỡng pp**: cổng đòi BA **đơn điệu tăng theo dung lượng**, nên nó trượt vì
+         hình dạng của thang, không vì độ lớn của một biên
+    G14  ≥ +3 pp, vật bị trừ là max(B1, B1w) — đường cơ sở toàn khung **cùng xương sống**
+    G15  ≥ +3 pp, vật bị trừ là E0 @ 64 chiều
+    G16  **không có ngưỡng pp**: cổng đòi ESTA không bị B2 (VideoMAE-base tinh chỉnh trên
+         Kinetics) bắt kịp với khoảng tin cậy loại trừ 0
+    G18  hai bậc, vật bị trừ là B1w: G18a cần ≥ +3.0 pp, G18b cần ≥ +2.0 pp
+
+  Đối chiếu hai điều kiện của mục 6.1.5(1) cho thấy vì sao sáu cổng trượt không trượt cùng kiểu:
+  G15 vượt ngưỡng biên (+3.5 ≥ +3 pp) nhưng khoảng tin cậy chứa 0; G14 và G18 **không** vượt cả
+  ngưỡng biên (−0.5 pp và −0.3 pp, dấu âm); G13 và G16 không có ngưỡng biên để vượt.
 
   Tổng: **tám cổng phán quyết, hai đạt (G10, G12) và sáu trượt (G11, G13, G14, G15, G16, G18).**
 

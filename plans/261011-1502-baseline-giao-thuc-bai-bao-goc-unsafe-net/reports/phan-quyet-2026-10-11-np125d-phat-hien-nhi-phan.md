@@ -197,6 +197,25 @@ một điểm trên đầu vào trùng byte, và nó làm đúng thế:
 | `chuong-08-ket-luan.txt` (vòng 2) | §8.3.9 ghi quyết định **giữ BA** làm đại lượng tiêu đề | 504 → 507 dòng |
 | ba tệp trên | **sửa đơn vị khoảng tin cậy của AUC trong nhóm**: in [0.4923, 0.8443] (đơn vị nhóm, chứa 0.50) thay cho [0.5106, 0.7680]; khoảng mức clip giữ nhãn `WRONG_UNIT` | §6.15.4, tóm tắt, §8.3.9(c) |
 
+### 9b. Vòng 3 — khai báo đại lượng / đường cơ sở (11/10/2026, không số mới)
+
+Yêu cầu tác giả: "các số liệu kết quả chưa làm rõ metric, baseline cụ thể". Chỉ **sửa chữ**: mọi
+trị số đặt vào đều được chép từ một dòng đã có trong `report/vn/` (ch03 Bảng 3.4, ch05 Bảng 5.5,
+ch06, tóm tắt). Không phép đo mới, không chạm test (0 lần), ngân sách vẫn **2 / 1 tiêu / 1 còn**.
+
+| Tệp | Sửa | Kiểm |
+|---|---|---|
+| `chuong-06-danh-gia.txt` | **§6.1.6 mới + Bảng 6.1b**: 11 con số tiêu đề × 4 cột (đại lượng và định nghĩa / giao thức và tập đo / đường cơ sở kèm **trị số** / nguồn `[ĐO]` `[ĐỌC]` `[SỐ HỌC]`); §6.1 "năm → sáu quy ước"; §6.1.4 thêm hai trùng ký hiệu (**+16.9 pp**; tên "đường sàn quy tắc đếm" = 63.3% làn A so với 67.2% làn B, **không trừ chéo**); khối mở đầu gắn đại lượng + đường cơ sở cho cả 5 con số; chú thích Bảng 6.3, 6.4, 6.8 nêu đại lượng cột Δ và vật bị trừ; §6.6.1 đổi tên; §6.13 thêm khối ngưỡng đăng ký trước từng cổng | 2481 → 2613 dòng |
+| `00-tom-tat.txt` | tiêu đề quy ước thêm "bốn thứ đi kèm mỗi con số"; biên tiêu đề viết thành **81.2% so với 64.4% macro** ở cả tóm tắt ngắn và mở rộng | 224 → 229 dòng |
+| `chuong-08-ket-luan.txt` | §8.2 "+20.9 pp" thêm sàn **63.3%** và lời cấm trừ chéo với 67.2%; tách mẫu số đầu phân loại (**1.7%** tổng giai đoạn mô hình so với **0.3%** khoảng quyết định) ở hai chỗ, thay dải "0.3–1.7%"; giải mã **31.3% khoảng quyết định** (không phải "phần tính toán" — Bảng 5.5 in "—" ở cột đó); §8.3.9 thêm giao thức NP-125-D và đối chứng scene-only **recall 89.06% / báo động giả 49.18%**; 0.50 gắn nhãn mức ngẫu nhiên theo kiến tạo | 507 → 516 dòng |
+| `chuong-07-phan-tich-that-bai.txt` | §7.2 ba cổng in cả hai số bị trừ và ngưỡng đăng ký trước (G11 75.2% so với 74.1%, ~3 pp; G14 83.8% so với B1w 84.4%, +3 pp; G18 so với B1w 84.4%, G18a +3.0 / G18b +2.0); "+16.9 pp" nêu macro 4 lớp và 64.4% ở §7.2.3 và §7.3; **Bảng 7.3 thêm 2 hàng** (+16.9 pp; tên "đường sàn quy tắc đếm") → "ba trùng số" thành "năm"; "Quy tắc trình bày" ở §7.8 thêm hai thuộc tính đường cơ sở + nguồn, trỏ §6.1.6 | 996 → 1023 dòng |
+| `00-trang-thai-bien-soan.txt` | bảng tiến độ dựng lại từ đếm máy: 11 tệp = **9,579 dòng / 116,892 từ**; ghi chú miễn trừ Ch6 53 → **78 hàng bảng rộng**, thêm Bảng 6.1b | 12/12 hàng khớp |
+
+Kiểm quy ước sau mỗi lô: **(1) 0 dòng > 100 ký tự** ngoài hàng bảng dữ liệu rộng của Ch6 (78 hàng,
+101–125 ký tự, thuộc miễn trừ) và 2 dòng đường dẫn của Ch4; **(2) 0 dòng mở đầu bằng token
+`^[0-9]\.[0-9]` không phải tiêu đề mục** trên cả 11 tệp nộp. Đếm bằng ký tự Python, không bằng
+`awk length()`.
+
 Kiểm tự động sau khi sửa: **148 trị số trong §6.15.4 đối chiếu JSON thô** (132 khớp trực tiếp, 16
 còn lại là số mục hoặc trị số dẫn xuất — đã kiểm tay từng cái: val 103 clip, 349/645 = 54% cặp
 trong-nhóm ở hai nhóm mức ngẫu nhiên, điểm trùng byte 0.2776/0.4604/0.4745/0.4977, trần 63/64 =

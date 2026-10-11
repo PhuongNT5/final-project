@@ -67,7 +67,9 @@ con số như vậy (mục 2.3, mục 6.12.5).
 Đường **B1** — tháp **CLIP ViT-B/32 đóng băng** trên **toàn khung**, 87,849,216 tham số không cập
 nhật, cộng một đầu Transformer thời gian **201,090 tham số** — đạt **84.2%** độ chính xác cân bằng
 dưới leave-source-out trên 1,100 clip và 151 nguồn, tức **+20.9 pp** trên đường sàn quy tắc đếm đã
-đăng ký trước (mục 6.2.1). Đây là đồ thị được triển khai trên Jetson Orin Nano Super ở Chương 5,
+đăng ký trước, **63.3%** — đường sàn trên mẫu thăm dò 300 clip cân bằng, **không** phải đường sàn
+quy tắc đếm 67.2% của làn token quan hệ; hai sàn cùng tên khác trị số và không trừ chéo
+(xem mục 6.1.4 và mục 6.2.1). Đây là đồ thị được triển khai trên Jetson Orin Nano Super ở Chương 5,
 và nó được chọn **trước** khi bảng kết quả hoàn chỉnh, theo tiêu chí chi phí biên nhỏ nhất.
 
 Phần bất lợi đi liền với con số này và không được tách khỏi nó: **lợi ích là một khoản mua xương
@@ -89,9 +91,11 @@ lặp tổ hợp** chứ từ tổng các giai đoạn đo rời (mục 3.9, m�
       trải **tám** độ phân giải khác nhau.
   (2) **Nút cổ chai đã dịch chuyển, và đó là kết quả quan trọng hơn con số.** Trước khi sửa, hạng
       mục chi phối là tiền xử lý (73.4% phần tính toán) — một khiếm khuyết kỹ thuật sửa được. Sau
-      khi sửa, hạng mục chi phối là **chính tháp CLIP** (52.6%), và đầu phân loại chỉ chiếm
-      **0.3–1.7%** độ trễ quyết định. Mọi cải thiện nhịp tiếp theo vì vậy phải đến từ **bộ mã
-      hoá**, không đến từ mã xung quanh nó (mục 5.4.4, ghi chú 2) — đây là cơ sở định lượng cho
+      khi sửa, hạng mục chi phối là **chính tháp CLIP** (52.6% phần tính toán), và đầu phân loại
+      chỉ chiếm **1.7%** tổng các giai đoạn mô hình, tức **0.3%** khoảng quyết định — hai mẫu số
+      khác nhau, không phải một dải (Bảng 5.5, mục 5.4.2). Mọi cải thiện nhịp tiếp theo vì vậy
+      phải đến từ **bộ mã hoá**, không đến từ mã xung quanh nó (mục 5.4.4, ghi chú 2) — đây là
+      cơ sở định lượng cho
       hạng mục phát triển ở mục 8.3.2.
   (3) **Hợp đồng nhịp được suy ra từ ngữ liệu, không do tác giả chọn.** Phân bố tần số khung của
       1,100 clip (trung vị **29.97**, trung bình 34.25, p95 = cực đại 60.0) sinh ba mức hợp đồng
@@ -273,15 +277,16 @@ tại hiện trường không nhỏ, nên con số này là con số phải đo 
 Đây là hạng mục mà mục 5.4.4 ghi chú (2) chỉ tới. Sau bản sửa tiền xử lý, **cấu trúc chi phí đã
 thay đổi về bản chất**: hạng mục chi phối không còn là một khiếm khuyết kỹ thuật sửa được trong mã
 xung quanh mô hình, mà là **chính tháp CLIP** (52.6% phần tính toán), trong khi đầu phân loại chiếm
-**0.3–1.7%** độ trễ quyết định. Hệ quả: tối ưu hoá đầu phân loại **không còn giá trị thực tế**, và
-mọi cải thiện nhịp tiếp theo phải đến từ tháp.
+**1.7%** tổng các giai đoạn mô hình và **0.3%** khoảng quyết định — hai mẫu số khác nhau, theo
+Bảng 5.5. Hệ quả: tối ưu hoá đầu phân loại **không còn giá trị thực tế**, và mọi cải thiện nhịp tiếp
+theo phải đến từ tháp.
 
 Ba hướng cụ thể, xếp theo mức rủi ro đối với độ chính xác:
 
   (a) **Giải mã bằng phần cứng.** `cv2` trên thiết bị báo `GStreamer: NO`, nên **toàn bộ** giải mã
-      hiện chạy trên CPU, và NVDEC **chưa được đo**. Giải mã chiếm **31.3%** phần tính toán sau khi
-      sửa, nên đây là hạng mục có lợi ích lớn nhất **mà không chạm vào mô hình** — tức không rủi ro
-      cho độ chính xác.
+      hiện chạy trên CPU, và NVDEC **chưa được đo**. Giải mã chiếm **31.3% khoảng quyết định** sau
+      khi sửa — Bảng 5.5 không quy giải mã vào cột phần tính toán — nên đây là hạng mục có lợi
+      ích lớn nhất **mà không chạm vào mô hình**, tức không rủi ro cho độ chính xác.
   (b) **Thay tháp bằng một tháp nhỏ hơn hoặc chưng cất tri thức từ nó.** Có rủi ro cho độ chính
       xác, nên bất kỳ thay đổi nào ở đây phải được đánh giá lại dưới **đúng** giao thức
       leave-source-out và bộ fold của luận văn, không dưới một phép chia tiện lợi.
@@ -419,8 +424,11 @@ Tác vụ nhị phân của luận văn là một **mục tiêu phát hiện**: 
 sót là một tai nạn, một báo động giả là chi phí vận hành. Hai chi phí **không** bằng nhau. Nhưng đại
 lượng tiêu đề đang dùng — độ chính xác cân bằng — lại **đối xứng**: nó định giá một clip KAT bỏ sót
 đúng bằng một báo động giả trên clip an toàn. Mục 6.15.4 đã đo lại cùng một lượt chạy theo mục tiêu
-phát hiện (recall 82.81% tại mức báo động giả 34.43%, PR-AUC 0.876) và **phán quyết không đổi**:
-không điểm hoạt động nào tách được khỏi đối chứng theo bối cảnh.
+phát hiện — trên NP-125, tức 125 clip test đóng băng với 64 clip KAT và 61 clip AT, ngưỡng chốt
+trên val 103 clip: recall KAT = TP/(TP+FN) đạt 82.81% tại mức báo động giả FP/(FP+TN) = 34.43%,
+PR-AUC 0.876 — và **phán quyết không đổi**: không điểm hoạt động nào tách được khỏi đối chứng
+scene-only, bản thân đối chứng ấy đạt recall **89.06%** ở mức báo động giả **49.18%**
+(xem mục 6.15.4).
 
 Câu hỏi mở ra **không** phải là phán quyết — nó là lựa chọn đại lượng tiêu đề: giữ BA, hay thay
 bằng **recall tại một ngân sách báo động giả đã khai báo trước**? Tác giả chốt ngày 11/10/2026:
@@ -440,7 +448,8 @@ kèm ba ràng buộc rút ra từ chính NP-125-D:
       gộp: gộp 0.8485 so với trong cùng bối cảnh 0.6426 (mục 6.15.4). Đây là đại lượng duy nhất đã
       đo trực tiếp phần phân biệt **không** đến từ nền, nên nó là ứng viên tiêu chí cổng tốt hơn cả
       BA lẫn recall. Nhưng phải khai báo kèm lực thống kê: khoảng tin cậy ở đúng đơn vị độc lập —
-      bootstrap lại **cả nhóm bối cảnh** — là [0.4923, 0.8443] và **chứa 0.50**, vì chỉ có 6 nhóm
+      bootstrap lại **cả nhóm bối cảnh** — là [0.4923, 0.8443] và **chứa 0.50**, trong đó 0.50 là
+      mức ngẫu nhiên của đại lượng này **theo kiến tạo**, không phải một phép đo, vì chỉ có 6 nhóm
       trộn nhãn. Một cổng dựng trên đại lượng này chỉ có nghĩa khi số nhóm bối cảnh trộn nhãn tăng
       lên; ở quy mô hiện tại nó chỉ dùng để **bác**, không dùng để **chuẩn thuận**.
 

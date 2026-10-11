@@ -4,7 +4,10 @@ TÓM TẮT
 
 Quy ước số: dấu chấm là dấu thập phân, dấu phẩy là dấu phân cách hàng nghìn. Quy ước dẫn chứng:
 tóm tắt KHÔNG là nguồn trích dẫn cho bất kỳ con số nào. Mỗi con số nêu ở đây được dẫn lại đầy đủ,
-kèm tệp nhật ký đã sinh ra nó, ở chương tương ứng và ở Phụ lục A.
+kèm tệp nhật ký đã sinh ra nó, ở chương tương ứng và ở Phụ lục A. Quy ước đại lượng và đường cơ
+sở: mỗi con số kết quả đi kèm bốn thứ — đại lượng và định nghĩa của nó, giao thức cùng tập đo,
+đường cơ sở kèm **trị số**, và nguồn của đường cơ sở (luận văn đo / đọc từ bảng của công trình gốc
+/ suy ra bằng số học). Khai báo đầy đủ cho mọi con số kết quả: Bảng 6.1b, mục 6.1.6.
 
 Nhận dạng tự động hành vi không an toàn của người lao động từ video giám sát là một bài toán cốt lõi
 của an toàn lao động công nghiệp. Bài toán mà luận văn giải là **nhị phân: An toàn / Không an toàn**
@@ -49,10 +52,11 @@ của nó được cố định trước khi chạy). Kết quả tám cổng l�
 độ chính xác so với một đường cơ sở toàn khung khớp dung lượng — đã **trượt** (−0.5 điểm phần trăm,
 khoảng tin cậy theo cụm [−5.5, +5.0] chứa 0, p = 0.683), nên cấu hình được triển khai là nhánh toàn
 khung: quyết định triển khai đi theo bằng chứng, không theo đề cương. Trên kho bốn lớp mà công việc
-khởi đầu từ đó, mô hình quan hệ thực thể giữ được biên **+16.9 điểm phần trăm** macro dưới
-leave-context-out, khoảng tin cậy **[+12.5, +21.2]** — khoảng này bootstrap trên **đơn vị clip,
-không phải đơn vị nhóm bối cảnh**, nên theo chính mục 6.12(a) của luận văn nó **không** được dùng
-làm căn cứ chứng nhận. Luận văn không đạt con số 95.81% của bài báo gốc và không tuyên bố đạt; phát
+khởi đầu từ đó, mô hình quan hệ thực thể giữ được biên **+16.9 điểm phần trăm** macro — macro là
+trung bình độ nhạy theo bốn lớp — dưới leave-context-out, tức **81.2% so với đường cơ sở ngoại
+hình bối cảnh 64.4% macro**; khoảng tin cậy **[+12.5, +21.2]** bootstrap trên **đơn vị clip, không
+phải đơn vị nhóm bối cảnh**, nên theo chính mục 6.12(a) của luận văn nó **không** được dùng làm
+căn cứ chứng nhận. Luận văn không đạt con số 95.81% của bài báo gốc và không tuyên bố đạt; phát
 biểu của luận văn nhắm vào thước đo, không nhắm vào hệ thống của tác giả khác.
 
 Từ khoá: an toàn lao động công nghiệp; phát hiện hành vi không an toàn; đánh giá có ràng buộc
@@ -173,8 +177,9 @@ Transformer quan hệ trên token hộp thay ConvLSTM — nhưng theo một tri�
 gán nhãn hành vi
 trực tiếp, luận văn chú giải một bản thể tám lớp đa thực thể và để Transformer suy ra hành vi từ
 quan hệ không gian giữa các thực thể được phát hiện. Dưới giao thức leave-context-out, mô hình
-quan hệ thực thể giữ được biên **+16.9 điểm phần trăm** macro so với một đường cơ sở ngoại hình
-bối cảnh có thể chuyển giao, khoảng tin cậy bootstrap 95% **[+12.5, +21.2]** — bootstrap trên
+quan hệ thực thể giữ được biên **+16.9 điểm phần trăm** macro — trung bình độ nhạy theo bốn lớp —
+so với một đường cơ sở ngoại hình bối cảnh có thể chuyển giao, **81.2% so với 64.4% macro**, với
+khoảng tin cậy bootstrap 95% **[+12.5, +21.2]** — bootstrap trên
 **đơn vị clip chứ không phải đơn vị nhóm bối cảnh**, nên mục 6.12(a) của luận văn tự tuyên bố đơn vị
 lấy mẫu này là **sai** và khoảng này **không** được dùng làm căn cứ chứng nhận. Bộ phát hiện thực
 thể được đánh giá lại độc lập đạt **mAP@50 = 0.9695** trên 343 ảnh giữ riêng. Luận văn **không**
