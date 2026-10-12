@@ -248,8 +248,15 @@ lại được — [SỐ HỌC] suy ra từ tỉ lệ lớp, không phải một
                        |                        |                            | 100% [SỐ HỌC]
   AUC nhóm 0.6426      | AUC trong cùng nhóm    | 645 cặp trong-nhóm, 6 nhóm | mức ngẫu nhiên 0.50 [SỐ HỌC];
   (6.15.4)             | bối cảnh               | trộn nhãn                  | AUC gộp của chính nó 0.8485 [ĐO]
+  0.58 s so 0.14 s     | thời gian nhận dạng    | Bảng 8 của công trình gốc, | thông lượng của chính nó: 0.0751
+  (6.15.2)             | hành động trung bình   | hai GPU GTX 1080 + i9-9900 | so 0.0749 s mỗi s video [SỐ HỌC]
+                       | mỗi video              |                            | — [ĐỌC]; KHÔNG trừ chéo với số
+                       |                        |                            | độ trễ Jetson ở Chương 5
   2/8 cổng (6.13)      | **đếm phán quyết**,    | tám cổng tiền đăng ký      | không có đường cơ sở; mỗi cổng
-                       | không phải một độ c.xác|                            | mang biên tiền đăng ký riêng
+                       | không phải một độ c.xác|                            | mang biên tiền đăng ký riêng.
+                       |                        |                            | Tám cổng hỏi **ba** câu hỏi:
+                       |                        |                            | 2/2 phương pháp, 0/5 kiến trúc,
+                       |                        |                            | 0/1 dung lượng (mục 6.13)
 
 Hệ quả bắt buộc của bảng này: một con số của chương chỉ được trích ra ngoài **cùng với** dòng
 khai báo của nó. Trích "84.2%" mà bỏ "so với sàn 63.3% dưới LSO-1100" là trích sai, vì cùng mô
@@ -1773,6 +1780,28 @@ Bảng 6.8 — Mười một mã cổng: tám cổng phán quyết tiền đăng
 
   Tổng: **tám cổng phán quyết, hai đạt (G10, G12) và sáu trượt (G11, G13, G14, G15, G16, G18).**
 
+  Nhưng tỉ số "hai trên tám" **không phải một điểm thi**, và không được đọc như một điểm thi. Tám
+  cổng ấy không hỏi tám câu hỏi độc lập; chúng hỏi **ba** câu, và một trong ba câu bị hỏi lặp năm
+  lần ở năm chỗ khác nhau:
+
+    Câu hỏi mà cổng thực sự hỏi             | Cổng                    | Kết quả
+    ----------------------------------------+-------------------------+---------
+    **phương pháp** — encoder có phải một   | G10, G12                | 2/2 ĐẠT
+      bộ đếm trá hình, và giao thức rò rỉ   |                         |
+      có thổi phồng kết quả, hay không      |                         |
+    **kiến trúc** — token theo thực thể có  | G11, G14, G15, G16, G18 | 0/5
+      hơn biểu diễn toàn khung hay không |                         |
+    **dung lượng** — BA có đơn điệu tăng    | G13                     | 0/1
+      theo chiều ẩn hay không               |                         |
+
+  Đọc theo câu hỏi, bảng nói một điều khác hẳn so với đọc theo đầu phiếu. **Cả hai câu hỏi về
+  phương pháp đều được chứng nhận**, và **một** giả thuyết kiến trúc bị bác bỏ **năm lần** trên hai
+  xương sống (MobileNetV3 và CLIP ViT-B/32), hai kiến trúc đầu, và một cơ chế hợp nhất. Năm lần
+  trượt nhất quán của cùng một giả thuyết là một **kết quả âm đã tái lập**; về bằng chứng, nó mạnh
+  hơn — không yếu hơn — một bảng thắng-thua lẫn lộn, vì một kết quả âm tái lập được năm lần thì khó
+  giải thích bằng nhiễu. Luận văn giữ nguyên cả tám phán quyết, không gộp và không bỏ cổng nào;
+  cách nhóm ở đây chỉ nói tám phán quyết ấy trả lời bao nhiêu câu hỏi, không sửa một phán quyết nào.
+
   Hình 6.5 vẽ tám cổng đó thành một biểu đồ rừng: chấm là Δ, thanh ngang là CI theo cụm, vạch
   dọc ở 0 là tiêu chí đạt của mục 6.1.5(1). Hai cổng đạt nằm trọn bên phải vạch; sáu cổng trượt
   thì hoặc có CI cắt vạch, hoặc có Δ âm.
@@ -2358,6 +2387,66 @@ trùng từng chữ số với macro ConvLSTM mà công trình gốc công bố 
 trùng hợp — khác tập, khác tác vụ, khác giao thức. **Không được** đặt hai con số này cạnh nhau như
 một sự tái lập.
 
+
+**Cùng tầng ấy, nay đọc theo phía tốc độ: Bảng 8 của công trình gốc.** Công trình gốc gán cho tầng
+giảm khung một công trạng thứ hai, lần này về tốc độ: Bảng 8 của họ đặt ConvLSTM cạnh Unsafe-Net
+theo thời lượng video trung bình và thời gian nhận dạng hành động trung bình. Mục này không đo lại
+gì; hai cột cuối dưới đây là số học trên hai cột họ đã in.
+
+  Hệ         | Thời lượng TB (s) | Thời gian nhận dạng TB (s) | s xử lý / s video | Nhanh hơn thực
+  -----------+-------------------+----------------------------+-------------------+---------------
+  ConvLSTM   | 7.72              | 0.58                       | 0.07513           | 13.31×
+  Unsafe-Net | 1.87              | 0.14                       | 0.07487           | 13.36×
+
+  Hai cột đầu [ĐỌC] từ Bảng 8 của công trình gốc; hai cột sau [SỐ HỌC].
+
+Tỉ lệ thời lượng là 4.128; tỉ lệ thời gian là 4.143. Hai tỉ lệ bằng nhau, và thông lượng trên mỗi
+giây video lệch **0.35%**. Nghĩa là Unsafe-Net **không nhanh hơn trên mỗi khung**: nó xử lý ít
+hơn 4.13 lần lượng video nên tốn ít hơn 4.14 lần thời gian. "Tăng tốc 4.14 lần" đọc được từ
+Bảng 8 là hệ quả của độ dài đầu vào, không phải của kiến trúc.
+
+Hai hàng của Bảng 8 còn **đo trên hai đầu vào khác nhau** — chính cột thời lượng của chúng khác
+nhau — nên bảng không phải một phép so sánh có đối chứng theo nghĩa mục 6.1.6 đòi; nó là cùng một
+bộ phân loại trước và sau khi cắt đầu vào. Đại lượng duy nhất so được qua hai hàng là thông lượng,
+và thông lượng thì bằng nhau.
+
+Thêm nữa, Bảng 8 **không tính chi phí của tầng YOLO v4** — đúng tầng duy nhất mà Unsafe-Net thêm
+vào. Để quyết định giữ khung nào, bộ phát hiện phải chạy qua **toàn bộ** clip gốc. Theo chính ví dụ
+trong bài của họ (3.5 s ứng với 105 khung, tức 30 fps), thời lượng 7.72 s ứng với khoảng 232 khung
+còn 1.87 s ứng với khoảng 56 khung. Vậy phép so sánh đầy đủ là một tầng tốn 0.58 s, đối lại hai
+tầng tốn (YOLO v4 trên 232 khung) + 0.14 s. Bảng 8 bỏ hẳn số hạng thứ nhất.
+
+Cách đọc có lợi cho họ phải nêu, vì nó đúng: trong triển khai hai camera IP chạy liên tục của họ,
+bộ phát hiện **dù sao cũng đã trả tiền** như một phần của luồng, nên chi phí **biên** cho mỗi sự
+kiện đúng là 0.14 s. Đó là một lợi ích triển khai thật. Nhưng kể cả dưới cách đọc ấy, Bảng 8 vẫn
+không phải "ConvLSTM so Unsafe-Net": nó là "bộ phân loại trên clip đầy đủ so bộ phân loại trên
+clip đã cắt", và chi phí mỗi giây video vẫn bằng nhau.
+
+Hai chỗ không khớp bên trong chính các bảng của họ, ghi lại vì chúng ràng buộc cách trích dẫn
+Bảng 8. Thứ nhất, trung bình có trọng số tính từ Bảng 2 của họ cho **8.64 s** trên đúng 64 clip
+test mà ConvLSTM được chấm — và cho 8.24 s trên 125 clip test, 8.43 s trên 516 clip không an
+toàn, 8.29 s trên cả 691 clip — trong khi Bảng 8 ghi 7.72 s, **thấp hơn 10.7%** so với tập mà
+nó chấm.
+Thứ hai, Bảng 8 hàm ý giữ **24.2%** video (tỉ số 1.87 trên 7.72), còn ví dụ trong chính bài của họ
+giữ **38.1%** (40 trên 105 khung) — và ví dụ ấy rồi **tách** clip 40 khung thành **ba đoạn**, mỗi
+đoạn một hành động. Nếu một video nguồn sinh ra k đoạn thì thời gian 0.14 s là thời gian **mỗi
+đoạn**, và độ trễ mỗi video nguồn là k lần 0.14 s. Họ không báo k, nên con số mỗi-video **không
+suy ra được** từ Bảng 8.
+
+Một ràng buộc so sánh, vì Bảng 8 là số thời gian. Bảng 8 đo trên hai GPU GTX 1080 và một i9-9900
+theo phần cấu hình của họ. Nó là **tham chiếu tài liệu** theo phân loại mục 6.1.6: không chạy lại
+được trên tập đo của luận văn, nên **không** là đường cơ sở. Nó **không được** trừ chéo với các con
+số độ trễ trên Jetson Orin Nano Super ở Chương 5 — khác thiết bị, khác đường dẫn suy luận, khác
+tác vụ, khác cả đơn vị quyết định.
+
+Phát biểu mà mục này cho phép, viết hẹp: **Bảng 8 như đã công bố không chứng minh tầng giảm khung
+làm hệ nhanh hơn trên một đơn vị đầu vào; nó cho thấy đầu vào ngắn hơn thì tốn ít thời gian hơn,
+và chi phí của tầng được thêm vào bị để ngoài bảng.** Luận văn **không** kết luận hệ của họ chạy
+không thực-thời, và không kết luận gì về tính trung thực của phép đo. Nhưng đặt cạnh kết quả
+±0.13 pp ở đầu mục này, **cả hai** công trạng mà công trình gốc gán cho tầng giảm khung — độ chính
+xác và tốc độ — đều không trụ được dưới chính số liệu họ in. Chi phí của hai kết luận ấy: **không
+phép đo mới, không lần chạm tập kiểm thử nào.**
+
 6.15.3. G25 — nhị phân An toàn/Không an toàn: ĐẠT SÀN, TRƯỢT ĐỐI CHỨNG
 
 Yêu cầu "kết quả nhị phân trên 64 clip test" chứa một xung đột phải chốt trước khi đo: 64 clip
@@ -2539,6 +2628,80 @@ phép đo thành một phép đo có tiền đăng ký, có đối chứng, và 
 ----------------------------------------------------------------------
 6.16. KẾT LUẬN CHƯƠNG
 ----------------------------------------------------------------------
+
+Bảng 6.9 — tổng hợp một chỗ: mọi phép so sánh kết quả / đường cơ sở của chương, kèm biên,
+            ngưỡng đăng ký trước, khoảng tin cậy và phán quyết. Nhãn nguồn như Bảng 6.1b:
+            [ĐO] luận văn đo — [ĐỌC] đọc từ bảng công trình gốc — [SỐ HỌC] suy ra bằng số học.
+            Bảng này KHÔNG thêm con số mới; mọi ô được sao từ Bảng 6.1–6.8 và các mục 6.12, 6.15.
+
+  Phép so sánh (mục)   | Kết quả      | Đường cơ sở + trị số        | Biên / ngưỡng    | Phán quyết (CI theo cụm, p)
+  ---------------------+--------------+-----------------------------+------------------+-----------------------------------
+  iSafetyBench — LSO-1100 (1,100 clip / 151 nguồn), đại lượng: BA hai lớp. Làn A và làn B
+  dùng cùng clip và cùng bộ fold, nên trừ chéo TRONG khối này là hợp lệ.
+  ---------------------+--------------+-----------------------------+------------------+-----------------------------------
+  B1 triển khai        | 84.2%        | sàn đếm đăng ký trước 63.3% | +20.9 pp         | phép đo, không thuộc cổng nào
+  (6.2.1)              |              | [ĐO]                        |                  |
+  lạm phát B1 (6.2.7)  | 97.7%        | cột LSO của chính nó 84.2%  | +13.5 pp         | phép đo, không thuộc cổng nào
+                       |              | [ĐO]                        |                  |
+  G10 (6.6.1)          | E3 75.2%     | sàn đếm trên đủ 1,100 clip  | +8.0 pp / ≥~3    | ĐẠT — [+1.9, +13.5]; p 1.02e-05
+                       |              | 67.2% [ĐO]                  |                  |
+  G11 (6.11)           | E3 75.2%     | sàn toàn khung 74.1% [ĐO]   | +1.1 pp / ≥~3    | TRƯỢT — [−4.8, +6.9] ⊃0; p 0.625
+  G12 (6.6)            | E3 LSO 75.2% | chia ngẫu nhiên của chính   | +15.4 pp / ≥5    | ĐẠT — [+10.6, +21.5]; p 3.58e-45
+                       |              | nó 90.6% [ĐO]               |                  |
+  G13 (6.11)           | E1 d=96      | E1 d=64 [ĐO]                | −1.1 pp / đơn    | TRƯỢT — hình dạng thang, không có
+                       |              |                             | điệu             | ngưỡng pp
+  G14 (6.3)            | ESTA 83.8%   | B1w toàn khung 84.4% [ĐO]   | −0.5 pp / ≥+3.0  | TRƯỢT — [−5.5, +5.0] ⊃0; p 0.683
+  G15 (6.3)            | ESTA 83.8%   | E0 @ 64 chiều 80.3% [ĐO]    | +3.5 pp / ≥+3.0  | TRƯỢT — [−2.3, +10.0] ⊃0; p
+                       |              |                             |                  | 1.48e-03
+  G16 (6.3)            | ESTA 83.8%   | B2 VideoMAE-base 81.5% [ĐO] | +2.3 pp / hình   | TRƯỢT — [−2.3, +7.5] ⊃0; p 0.0828
+                       |              |                             | dạng             |
+  G18 (6.3)            | TSF 84.1%    | B1w toàn khung 84.4% [ĐO]   | −0.3 pp / ≥+3.0  | TRƯỢT — [−3.7, +2.5] ⊃0; p 0.401
+  ---------------------+--------------+-----------------------------+------------------+-----------------------------------
+  Unsafe-Net — làn C, một nhà máy. KHÔNG trừ chéo với khối trên: khác kho, khác số lớp,
+  khác định nghĩa nhóm và khác n (mục 6.1.1).
+  ---------------------+--------------+-----------------------------+------------------+-----------------------------------
+  nhị phân, 5 encoder  | LCO          | k-fold ngẫu nhiên của chính | +13.0…+21.8 pp   | phép đo; không có sàn đếm; ngẫu
+  (6.5)                | 62.3–69.6%   | chúng 82.5–84.6% [ĐO]       |                  | nhiên 50.0% [SỐ HỌC]
+  4 lớp, LCO (6.12.1)  | 81.2% macro  | sàn ngoại hình bối cảnh     | +16.9 pp         | phép đo; CI [+12.5, +21.2] ở ĐƠN
+                       |              | 64.4% macro [ĐO]            |                  | VỊ CLIP, không phải đơn vị nhóm
+  4 lớp, k-fold        | 84.2% macro  | sàn đa số theo view 77.1%   | +3.7 pp          | KHÔNG có ý nghĩa — t 1.93; p
+  (6.12.2)             |              | [ĐO]                        |                  | 0.0600
+  giao thức gốc        | 54/64 =      | sàn không-bbox 57/64 =      | không trừ        | KHÔNG phân biệt được — McNemar
+  (6.12.5)             | 84.4% top-1  | 85.78% macro [ĐỌC]          |                  | biên dưới [0.250, 0.629]
+                       | / 88.4%      |                             |                  |
+                       | macro        |                             |                  |
+  giao thức gốc        | cùng cấu     | bbox đầy đủ 62/64 [ĐỌC]     | không trừ        | THIẾU HỤT có ý nghĩa — [0.008,
+  (6.12.5)             | hình 54/64   |                             |                  | 0.039]; công bố như kết luận bất
+                       |              |                             |                  | lợi
+  tham chiếu tài liệu  | —            | 95.81% macro [ĐỌC]          | —                | KHÔNG phải đường cơ sở: hệ thống
+  (6.12.5)             |              |                             |                  | của họ không chạy lại được
+  tốc độ, Bảng 8 của   | 0.14 s mỗi   | ConvLSTM 0.58 s mỗi video   | không trừ        | KHÔNG phải đường cơ sở: thông lượng
+  công trình gốc       | video [ĐỌC]  | dài 7.72 s [ĐỌC]            |                  | bằng nhau (lệch 0.35%); chi phí
+  (6.15.2)             |              |                             |                  | YOLO v4 không được tính vào bảng
+  ---------------------+--------------+-----------------------------+------------------+-----------------------------------
+  NP-125 — hậu đóng băng 05/10/2026, 125 clip test đóng băng (64 KAT / 61 AT), ngưỡng chốt
+  trên val 103 clip trước khi đọc tập kiểm thử.
+  ---------------------+--------------+-----------------------------+------------------+-----------------------------------
+  G25 (6.15.3)         | 74.19% BA    | đối chứng scene-only 69.94% | +4.25 pp / tách  | ĐẠT sàn 51.20%, TRƯỢT đối chứng —
+                       |              | BA [ĐO]                     | đối chứng        | p 0.4049
+  NP-125-D (6.15.4)    | recall KAT   | scene-only 89.06% @ 49.18%  | không tách được  | TRƯỢT — phán quyết của G25 không
+                       | 82.81% @ báo | [ĐO]                        |                  | đổi khi đo theo mục tiêu phát hiện
+                       | động giả     |                             |                  |
+                       | 34.43%       |                             |                  |
+  AUC trong nhóm       | 0.6426       | mức ngẫu nhiên 0.50 theo số | —                | KHÔNG phân biệt được — CI [0.4923,
+  (6.15.4)             |              | học                         |                  | 0.8443] ⊃ 0.50
+
+Đọc dọc cột cuối. Hai phán quyết ĐẠT trong toàn bảng — G10 và G12 — đều là phán quyết về
+**phương pháp**, không về kiến trúc. Không một biên **kiến trúc** nào trong bảng có khoảng tin
+cậy ở đơn vị cụm đúng loại trừ 0. Và ba dòng cuối cho thấy phán quyết của làn C không đổi khi
+đổi đại lượng từ độ chính xác cân bằng sang mục tiêu phát hiện.
+
+Hai điều về cách đếm bảng này. Thứ nhất, tỉ số "hai trên tám" ở cột phán quyết **không phải một
+điểm thi**: nhóm theo câu hỏi mà cổng thực sự hỏi, tám cổng cho **2/2 về phương pháp, 0/5 về kiến
+trúc và 0/1 về dung lượng** — nghĩa là một giả thuyết kiến trúc bị bác bỏ năm lần, không năm giả
+thuyết khác nhau cùng trượt (mục 6.13). Thứ hai, hai dòng tham chiếu tài liệu — 95.81% macro và
+Bảng 8 về tốc độ — **không** là đường cơ sở và không có biên: chúng vào bảng để ghi rằng luận văn
+không so với chúng, chứ không để so.
 
 Chương này đo năm thứ và trả về năm kết luận, xếp theo độ chắc chắn của bằng chứng.
 

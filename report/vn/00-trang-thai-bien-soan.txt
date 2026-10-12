@@ -66,13 +66,13 @@ BẢNG TIẾN ĐỘ
   Ch3. Phương pháp                  | chuong-03-phuong-phap.txt           |  958 |11,621 | XONG
   Ch4. Chi tiết thực nghiệm         | chuong-04-chi-tiet-thuc-nghiem.txt  |  974 |10,924 | XONG
   Ch5. Triển khai biên              | chuong-05-trien-khai-bien.txt       | 1339 |17,868 | XONG
-  Ch6. Đánh giá                     | chuong-06-danh-gia.txt              | 2613 |32,338 | XONG
+  Ch6. Đánh giá                     | chuong-06-danh-gia.txt              | 2776 |34,656 | XONG
   Ch7. Phân tích thất bại           | chuong-07-phan-tich-that-bai.txt    | 1023 |12,681 | XONG
   Ch8. Kết luận                     | chuong-08-ket-luan.txt              |  516 | 7,285 | XONG
   Phụ lục A. Bảng nhật ký           | phu-luc-a-bang-nhat-ky.txt          |  529 | 5,166 | XONG
   Phụ lục B. Cấu hình fold          | phu-luc-b-cau-hinh-fold.txt         |  435 | 3,182 | XONG
   ----------------------------------+-------------------------------------+------+-------+-------
-  Tổng                              | 11 tệp                              | 9579 |116,892|
+  Tổng                              | 11 tệp                              | 9742 |119,210|
   ----------------------------------+-------------------------------------+------+-------+-------
   Phụ lục C. Danh mục hình          | phu-luc-c-danh-muc-hinh.txt         |  169 | 1,512 | NỘP SAU
 
@@ -116,9 +116,9 @@ QUY ƯỚC TRÌNH BÀY (đã kiểm lần cuối 04/10/2026)
       KHÔNG thuộc dạng bị cấm và được giữ nguyên.
 
   Trạng thái sau lần kiểm cuối: 0 dòng vi phạm (2) trên cả 11 tệp nộp. Về (1):
-    - Ch6 còn 78 hàng bảng ASCII rộng 101–125 ký tự (Bảng 6.1b ở mục 6.1.6, Bảng 6.2, 6.4,
-      6.5, bảng phán quyết cổng ở mục 6.13, và các bảng ở mục 6.15). Thuộc miễn trừ; để tác
-      giả dàn lại theo mẫu của trường.
+    - Ch6 còn 121 hàng bảng ASCII rộng 101–125 ký tự (Bảng 6.1b ở mục 6.1.6, Bảng 6.2, 6.4,
+      6.5, bảng phán quyết cổng ở mục 6.13, Bảng 6.9 ở mục 6.16, và các bảng ở mục 6.15).
+      Thuộc miễn trừ; để tác giả dàn lại theo mẫu của trường.
     - Ch4 còn 2 dòng 101 và 110 ký tự: một đường dẫn tệp đo và một cặp tên trường JSON.
       Thuộc miễn trừ, không ngắt được.
     - 9 tệp còn lại: 0 dòng quá 100 ký tự.

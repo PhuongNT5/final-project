@@ -241,3 +241,104 @@ Chạy lại bộ đếm **hai lần** từ cùng `Pt` đã lưu, so JSON dàn p
 lần thứ hai cho **0 mục khác biệt**. Ngân sách chạm tập kiểm thử vẫn **2 đăng ký / 1 tiêu / 1 còn**.
 Kết luận đi theo hướng **bất lợi hơn**: khoảng đúng đơn vị **chứa 0.50**, nên không loại trừ được
 khả năng phần phân biệt trong cùng bối cảnh bằng không. Đó là bản đã đưa vào `report/vn/`.
+
+## 11. Vòng 4 — bảng tổng hợp so đường cơ sở (12/10/2026, không số mới)
+
+Phản hồi của tác giả: báo cáo có đủ bảng so sánh *cục bộ* nhưng **không có một bảng tổng hợp** nào
+cho phép đọc "kết quả của chúng ta so đường cơ sở nào, biên bao nhiêu, ngưỡng đăng ký trước bao
+nhiêu, phán quyết gì" ở một chỗ. Đã bổ sung.
+
+| Tệp | Sửa |
+|---|---|
+| `report/vn/chuong-06-danh-gia.txt` §6.16 | thêm **Bảng 6.9** — 19 hàng so sánh, ba khối (iSafetyBench LSO-1100; Unsafe-Net làn C; NP-125 hậu đóng băng), 5 cột: phép so sánh (mục) / kết quả / đường cơ sở + trị số + nhãn nguồn / biên và ngưỡng đăng ký trước / phán quyết kèm CI và p |
+| `report/vn/00-trang-thai-bien-soan.txt` | Ch6 2613→**2677** dòng, 32,338→**33,221** từ; Tổng 9579→**9643** dòng, 116,892→**117,775** từ; ghi chú miễn trừ hàng bảng rộng 78→**111** hàng, nêu tên Bảng 6.9 |
+
+Chân zero-touch: **mọi ô của Bảng 6.9 được sao từ Bảng 6.1–6.8 và các mục 6.12, 6.15 của chính
+chương**. Hai ô duy nhất là phép trừ hai trị số đã công bố cùng giao thức (E0 80.3% = 83.8 − 3.5 của
+G15; +4.25 pp = 74.19 − 69.94 của G25). Không phép đo mới, không chạm tập kiểm thử — ngân sách vẫn
+**2 đăng ký / 1 tiêu / 1 còn**.
+
+Kiểm quy ước sau khi thêm: 0 dòng > 125 ký tự trong Ch6 (đếm ký tự bằng Python, không bằng
+`awk length()`); 0 dòng mới bắt đầu bằng `^[0-9]\.[0-9]` (mọi hàng bảng mở đầu bằng hai dấu cách).
+
+Điều Bảng 6.9 làm lộ rõ, và đó là mục đích của nó: đọc dọc cột phán quyết, **hai** mã ĐẠT trong
+toàn chương là G10 và G12 — cả hai là phán quyết về **phương pháp**. Không một biên **kiến trúc**
+nào có khoảng tin cậy ở đơn vị cụm đúng loại trừ 0.
+
+Câu hỏi còn mở sau vòng này:
+
+1. Có nên nhân bản Bảng 6.9 (dạng rút gọn, chỉ cột biên và phán quyết) vào §8.1 để chương kết
+   luận tự đứng được không, hay để một tham chiếu chéo là đủ.
+2. Hai sửa văn bản đã đề xuất **vẫn chờ tác giả cho phép**: hiệu đính Ch1 §1.6 dòng 325–327 và
+   Ch2 §2.2 dòng 161–165 về 2,262 hộp / "bị giới hạn vào xương sống đóng băng"; và mục **§6.1.7**
+   phát biểu quan hệ ba làn ở một chỗ.
+
+## 12. Vòng 5 — Bảng 8 công trình gốc (tốc độ) + nhóm cổng theo câu hỏi (13/10/2026, không số mới)
+
+Bằng chứng mới do tác giả cung cấp: **Bảng 8** của công trình gốc — ConvLSTM 7.72 s / 0.58 s;
+Unsafe-Net 1.87 s / 0.14 s. Ba trị số 7.72 / 0.58 / 7.72 **không có trong `paper/paper.txt`** đã
+trích (grep `7.72` = 0 hit); chỉ `1.87` (dòng 37) và `0.14` (dòng 34) có. Hàng ConvLSTM là tư liệu
+mới.
+
+Số học trên hai cột họ in:
+
+| Hệ | Thời lượng TB (s) | Thời gian NDHĐ (s) | s xử lý / s video | Nhanh hơn thực |
+|---|---|---|---|---|
+| ConvLSTM | 7.72 | 0.58 | 0.075130 | 13.31× |
+| Unsafe-Net | 1.87 | 0.14 | 0.074866 | 13.36× |
+
+Tỉ lệ thời lượng 4.128 ≈ tỉ lệ thời gian 4.143; thông lượng lệch **0.35%**. ⇒ **toàn bộ "tăng tốc
+4.14×" là hệ quả độ dài đầu vào, không phải kiến trúc.** Đây là cặp song sinh của G23: cùng tầng
+giảm khung, công trạng **độ chính xác** đo được ±0.13 pp (p = 1.000), công trạng **tốc độ** là
+phép chia cho độ dài.
+
+Bốn hệ quả ghi vào §6.15.2:
+
+1. Hai hàng đo trên **hai đầu vào khác nhau** ⇒ không phải so sánh có đối chứng theo §6.1.6; đại
+   lượng duy nhất so được qua hai hàng là thông lượng, và nó bằng nhau.
+2. Bảng 8 **không tính chi phí tầng YOLO v4** — tầng duy nhất Unsafe-Net thêm vào — tầng phải quét
+   **toàn bộ** ~232 khung (7.72 s @ 30 fps, suy từ ví dụ 3.5 s = 105 khung của họ). So sánh đầy đủ:
+   0.58 s một tầng ↔ (YOLO v4 trên 232 khung) + 0.14 s hai tầng.
+   Cách đọc có lợi cho họ, đã nêu trong báo cáo vì nó đúng: với hai camera IP chạy liên tục, bộ
+   phát hiện **dù sao cũng đã trả tiền**, nên 0.14 s là chi phí **biên** mỗi sự kiện — lợi ích
+   triển khai thật. Nhưng dưới cách đọc ấy Bảng 8 vẫn không phải "ConvLSTM so Unsafe-Net".
+3. Hai chỗ không khớp nội bộ: (a) TB có trọng số từ Bảng 2 của họ = **8.64 s** trên đúng 64 clip
+   test mà ConvLSTM được chấm (8.24 s / 125 clip; 8.43 s / 516 clip KAT; 8.29 s / 691 clip), còn
+   Bảng 8 ghi 7.72 s — **thấp hơn 10.7%**; (b) Bảng 8 hàm ý giữ **24.2%** khung, ví dụ của họ giữ
+   **38.1%** (40/105), và ví dụ ấy còn **tách thành 3 đoạn** ⇒ 0.14 s là **mỗi đoạn**, độ trễ mỗi
+   video nguồn = k × 0.14 s với k không được báo ⇒ con số mỗi-video **không suy ra được**.
+4. Hai GPU GTX 1080 + i9-9900 ⇒ **tham chiếu tài liệu** (§6.1.6), **không** đường cơ sở, và
+   **cấm trừ chéo** với số độ trễ Jetson Orin Nano Super ở Chương 5.
+
+Phát biểu được phép, viết hẹp: *Bảng 8 như đã công bố không chứng minh tầng giảm khung làm hệ nhanh
+hơn trên một đơn vị đầu vào.* Luận văn **không** kết luận hệ của họ không thực-thời, và không kết
+luận gì về tính trung thực phép đo.
+
+### Thay đổi tệp
+
+| Tệp | Thay đổi |
+|---|---|
+| `report/vn/chuong-06-danh-gia.txt` §6.15.2 | thêm khối **Bảng 8** cuối mục: bảng 4 hàng (2 cột [ĐỌC] + 2 cột [SỐ HỌC]) + 7 đoạn phân tích, kèm cách đọc có lợi cho họ và điều cấm so với Chương 5 |
+| `report/vn/chuong-06-danh-gia.txt` §6.13 | sau dòng "Tổng: tám cổng…" thêm **bảng nhóm cổng theo câu hỏi**: phương pháp (G10, G12) 2/2 ĐẠT — kiến trúc (G11, G14, G15, G16, G18) 0/5 — dung lượng (G13) 0/1, kèm đoạn "kết quả âm đã tái lập" |
+| `report/vn/chuong-06-danh-gia.txt` Bảng 6.1b | thêm hàng `0.58 s so 0.14 s (6.15.2)`; mở rộng hàng `2/8 cổng (6.13)` bằng ba câu hỏi 2/2 · 0/5 · 0/1 |
+| `report/vn/chuong-06-danh-gia.txt` Bảng 6.9 | thêm hàng `tốc độ, Bảng 8 (6.15.2)` dưới hàng 95.81%; thêm đoạn đóng "hai điều về cách đếm bảng này" |
+| `report/vn/00-trang-thai-bien-soan.txt` | Ch6 2677→**2776** dòng, 33,221→**34,656** từ; Tổng 9643→**9742** dòng, 117,775→**119,210** từ; hàng bảng rộng 111→**121** |
+
+Chân zero-touch: hai cột dẫn xuất của bảng Bảng 8 là **phép chia hai trị số họ in**; số khung 232
+và 56 là **7.72 × 30** và **1.87 × 30** với 30 fps suy từ chính ví dụ của họ; TB Bảng 2 là **trung
+bình có trọng số trên bảng đếm lớp của họ**. Không phép đo mới, không chạm tập kiểm thử — ngân sách
+vẫn **2 đăng ký / 1 tiêu / 1 còn**.
+
+Kiểm quy ước sau khi thêm: max 125 ký tự trong Ch6 (không dòng nào > 125); hai dòng mới từng bắt
+đầu bằng `4.13` và `8.29` đã được ngắt lại ⇒ **0** dòng vi phạm `^[0-9]\.[0-9]`.
+
+Tác giả **từ chối** đề xuất in nhãn `(ĐƯỜNG SÀN — thấp là tốt)` vào từng ô sàn (vòng 4, mục 3);
+ghi chú hai chiều ở đầu Bảng 6.1 giữ nguyên làm cơ chế duy nhất.
+
+Câu hỏi còn mở sau vòng này:
+
+1. (giữ từ vòng 4) Có nên nhân bản Bảng 6.9 rút gọn vào §8.1 hay để tham chiếu chéo.
+2. Hiệu đính Ch1 §1.6 dòng 325–327 và Ch2 §2.2 dòng 161–165 về 2,262 hộp **vẫn chờ tác giả cho
+   phép**; mục **§6.1.7** quan hệ ba làn đang được giải thích cho tác giả trước khi viết.
+3. Có nên nêu Bảng 8 ở Chương 2 (chỗ mô tả 95.81% / 0.14 s của công trình gốc) hay chỉ ở §6.15.2.
+   Hiện chỉ ở §6.15.2.
