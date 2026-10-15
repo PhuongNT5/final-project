@@ -142,3 +142,10 @@ yolo26s.pt
 deployment/export/jetson/
 deployment/export/jetson-*/
 *.engine
+
+# Post-hoc sensitivity analysis outputs. The `sweep_results/**/*.json` rule above would swallow
+# these two, but they are not per-clip prediction dumps -- they are the summary tables that the
+# section 4.5.7 write-up cites directly (margins against the 4-thread control with their
+# source-unit bootstrap CIs, and the asymmetric-measure table). Keep them.
+!sweep_results/posthoc_sensitivity/paired_vs_control.json
+!sweep_results/posthoc_sensitivity/asymmetric_measures.json
