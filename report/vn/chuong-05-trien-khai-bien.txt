@@ -1,145 +1,3 @@
-================================================================================
-!! CẢNH BÁO SỐ LIỆU — 03/10/2026. ĐỌC TRƯỚC KHI NỘP BẤT KỲ PHẦN NÀO CỦA CHƯƠNG NÀY.
-================================================================================
-Nhịp tiêu đề của chương này (**289.672 ms/quyết định = 3.452 qđ/giây**, biên 2.76x/1.38x,
-hệ số hoạt động 76.1 %, tiền xử lý 55.5 % khoảng quyết định) ĐÃ BỊ THAY THẾ.
-
-Một khiếm khuyết trong mã tiền xử lý đã được tìm ra, sửa, và ĐO LẠI TRÊN THIẾT BỊ ngày
-03/10/2026 trên một phép so sánh A/B có giao thức trùng khớp từng tham số:
-
-    nhịp đã triển khai   167.291 ms/quyết định = 5.978 qđ/giây   (+73.2 %)
-    p95                  198.224 ms
-    hệ số hoạt động      63.1 %   (trước: 76.1 %)
-    tiền xử lý           50.867 ms = 30.4 % khoảng quyết định  (trước: 160.765 ms = 55.5 %)
-    biên vs 1.249 qđ/giây  4.79x   (trước: 2.76x)
-    biên vs 2.500 qđ/giây  2.39x   (trước: 1.38x)
-    1080p (lần đầu đo)   227.214 ms = 4.401 qđ/giây, biên 3.52x vs 1.249 qđ/giây (1.76x vs 2.500)
-
-Con số 3.452 KHÔNG bị rút lại và KHÔNG sai — nó là phép đo đúng của mã ở thời điểm đó, và là
-nhánh trước-khi-sửa của phép so sánh A/B. Nhưng nó KHÔNG CÒN LÀ NHỊP ĐÃ TRIỂN KHAI.
-
-Thay đổi cấu trúc quan trọng: sau khi sửa, hạng mục chi phối KHÔNG còn là tiền xử lý.
-Trên kho 720p, tháp CLIP là hạng mục lớn nhất của phần tính toán (53.2 %); ở 1080p,
-GIẢI MÃ là hạng mục chi phối khoảng quyết định (46.8 %). Mọi lập luận về "đòn bẩy tối ưu
-lớn nhất là tiền xử lý" trong chương này phải được viết lại.
-
-Nguồn đã cập nhật đúng: report/chapter-05-edge-deployment.md, Bảng 5.5Q và Bảng 5.5R.
-Phân xử đầy đủ (gồm 2/4 dự đoán đăng ký trước bị bác bỏ):
-  plans/2026-09-19-thesis-recovery-architecture/reports/
-    finding-2026-10-03-preprocessing-fix-adjudicated-on-device.md
-
-QUYẾT ĐỊNH ĐÃ CHỐT (03/10/2026): PHIÊN BẢN "DVFS MẶC ĐỊNH" ĐƯỢC CHỌN.
-CĂN CỨ ĐÃ ĐƯỢC VIẾT LẠI TRÊN BẰNG CHỨNG ĐO (03/10/2026, muộn hơn trong ngày). Căn cứ ban đầu —
-"tiêu đề của phiên bản ghim xung nhịp chính là phát biểu P3 đạt hợp đồng, và phát biểu đó đã bị
-rút lại" — KHÔNG còn mô tả đúng tình trạng bằng chứng. Phép đo nhịp TỔ HỢP cùng ngày cho thấy khi
-ghim nhịp, P3 ĐẠT hợp đồng 3.0 qđ/giây trên 2 trong 3 đoạn test (3.479 và 3.965 qđ/giây). Nghĩa
-là tiêu đề của phiên bản ghim xung nhịp không sai — nó PHỤ THUỘC ĐOẠN VIDEO, và một phát biểu
-tiêu đề phụ thuộc đoạn video thì không dùng được làm phát biểu tiêu đề.
-Căn cứ đúng cho lựa chọn này: tiêu đề của phiên bản DVFS — P3 TRƯỢT hợp đồng dưới DVFS mặc định —
-là phát biểu DUY NHẤT mà phép đo tổ hợp xác nhận VÔ ĐIỀU KIỆN: trượt trên 3 trong 3 đoạn, cách
-hợp đồng 1.99x–2.63x, và cách biệt so với nhánh ghim nhịp là RỜI NHAU (max DVFS 1.511 < min ghim
-nhịp 2.493). Lựa chọn phiên bản KHÔNG đổi; lý do thì đã đổi, và lý do mới mạnh hơn lý do cũ.
-Tệp `...-ghim-xung-nhip.txt` được giữ lại làm hồ sơ, KHÔNG nộp.
-================================================================================
-!! CẢNH BÁO SỐ LIỆU THỨ HAI — 03/10/2026. NHỊP P3 (KHÁC VỚI NHỊP B1 Ở TRÊN).
-================================================================================
-Mọi con số "mỗi quyết định" của P3 trong chương này — 310.00 ms = 3.226 qđ/giây khi ghim nhịp,
-365.88 ms = 2.733 qđ/giây dưới DVFS, cùng các hàng p95/p99/trần — KHÔNG phải phép đo một vòng lặp
-tổ hợp. Chúng là TỔNG CỦA CÁC GIAI ĐOẠN ĐƯỢC ĐO RỜI:
-
-    16 × det_p50 + post_p50 + crop_p50 + app_p50 + head_p50
-
-mỗi số hạng được đo khi CHỈ giai đoạn đó chạy, trên tensor tổng hợp. Sáu chi phí bị bỏ ra ngoài,
-ba trong số đó là trọn một giai đoạn — đáng kể nhất là TIỀN XỬ LÝ ĐẦU VÀO BỘ PHÁT HIỆN, hoàn toàn
-vắng mặt (không một lần xuất hiện nào của `resize` trong tệp đo).
-
-    BIÊN +7.5% BỊ RÚT LẠI — VÀ PHÉP TÍNH ĐÃ THAY THẾ NÓ CŨNG BỊ RÚT LẠI.
-    Lập luận trung gian (sáng 03/10) là: phần dư so với hợp đồng là 23.33 ms, giá trị đã đo gần
-    nhất của riêng giai đoạn bị thiếu lớn nhất là 50.867 ms = 2.18 lần phần dư đó, nên sau hiệu
-    chỉnh ghim nhịp >= 360.87 ms = <= 2.771 qđ/giây, "=> P3 TRƯỢT Ở CẢ HAI ĐIỀU KIỆN XUNG NHỊP".
-    PHÁT BIỂU ĐÓ SAI. Chiều 03/10 vòng lặp đã được ĐO TỔ HỢP và khi ghim nhịp P3 ĐẠT hợp đồng
-    trên 2 trong 3 đoạn test. Rút lại biên +7.5% là đúng; thay nó bằng một PHÉP TÍNH thay vì một
-    PHÉP ĐO thì không. Phép đo là cần thiết, không chỉ là chặt chẽ hơn.
-
-PHÉP ĐO THAY THẾ (03/10/2026, 17:33–17:47). `jetson-p3-multi-stream.py` chạy toàn bộ vòng lặp
-dưới MỘT đồng hồ treo tường: giải mã tệp -> tiền xử lý letterbox 800x800 -> bộ phát hiện -> chọn
-đối tượng + hình học vùng -> crop ngữ cảnh 224^2 -> bộ mã hoá ngoại hình -> dựng token quan hệ
-74 chiều -> đầu E3 nhị phân. CẢ SÁU chi phí bị bỏ đều được đóng lại. Hai nhánh đều có cổng nhiệt
-(tj vào <= 56 °C, tải <= 0.60, sau 180 giây ổn định), N=1, 480 khung, 3 đoạn test, FP16,
-MAXN_SUPER, không đọc nhãn (không tiêu một lần chạm tập test).
-
-    đoạn (góc)        GHIM NHỊP qđ/giây      ms/khung   DVFS qđ/giây   ms/khung
-    1_te10 (3)        3.479  ĐẠT                35.32    1.441 TRƯỢT     85.32
-    3_te1  (7)        3.965  ĐẠT                31.01    1.511 TRƯỢT     81.37
-    4_te10 (1)        2.493  TRƯỢT (1.20x)      49.31    1.141 TRƯỢT    107.76
-    trung vị          3.479                              1.441
-
-    Ghim nhịp ĐẠT trên 2/3 đoạn; DVFS TRƯỢT trên 3/3 (cách 1.99x–2.63x).
-    Hai nhánh RỜI NHAU: max DVFS 1.511 < min ghim nhịp 2.493.
-    => Nhịp của P3 do TRẠNG THÁI XUNG NHỊP và do CHÍNH ĐOẠN VIDEO quyết định.
-
-CÒN ĐỨNG VỮNG, VÀ MẠNH HƠN TRƯỚC: phát biểu "nhịp của P3 do trạng thái xung nhịp của thiết bị
-quyết định". Trên nhịp tổ hợp, ghim nhịp đáng +141.4% (2.41 lần), so với chỉ +26.4% (1.26 lần)
-trên tổng giai đoạn — vì phần việc bị bỏ ra ngoài chính là phần nhạy nhất với xung nhịp. Cơ chế
-được GHI TRỰC TIẾP trong tạo tác: dưới `schedutil`, `policy4` (lõi 4-5) nằm ở mức sàn
-115,200 kHz trong MỌI mẫu DVFS, trước và sau mọi lần chạy, còn `policy0` dao động
-192,000–1,728,000; khi ghim nhịp cả hai cụm đọc `cur = min = 1,728,000` và GPU
-`cur = min = max = 1020 MHz`. Vòng lặp tổ hợp bị CPU chặn ở tiền xử lý — đúng phần mà tổng giai
-đoạn bỏ qua.
-
-KHÔNG CÒN ĐỨNG VỮNG: mọi kết luận tuyệt đối về hợp đồng rút ra TỪ TỔNG GIAI ĐOẠN, theo BẤT KỲ
-chiều nào. Sai số của tổng giai đoạn KHÔNG cùng một dấu:
-
-    nhánh        tổng giai đoạn đã công bố   dựng lại đúng bước nhảy   ĐO TỔ HỢP      công bố/đo
-    ghim nhịp    310.37 ms = 3.222 qđ/giây   174.24 ms = 5.739         287.44 = 3.479  +7.98% CAO
-    DVFS         421.52 ms = 2.372 qđ/giây   230.82 ms = 4.332         694.00 = 1.441  −39.3% THẤP
-
-Nhánh ghim nhịp: việc tính trùng bộ phát hiện (+136.13 ms, vì tổng nhân det_p50 với T_FRAMES=16
-trong khi vòng lặp phát quyết định mỗi DECISION_EMIT_EVERY=8 khung) gần như triệt tiêu các chi
-phí bị bỏ (−113.20 ms). Nhánh DVFS: các chi phí bị bỏ áp đảo, lạc quan 272.48 ms. Vì DẤU của sai
-số ĐỔI theo trạng thái xung nhịp, KHÔNG có hệ số hiệu chỉnh nào cứu được cấu trúc này — nó phải
-bị THAY THẾ, không phải điều chỉnh.
-
-BA QUY TẮC ĐỌC TẠO TÁC NHỊP TỔ HỢP (tìm ra trước khi chúng vào bất kỳ báo cáo nào):
-  1. `--fps F` là một BỘ ĐIỀU NHỊP CỘNG THÊM, không phải một thời hạn — một KHIẾM KHUYẾT thật.
-     `stream-pipeline-utils.py:84` ngủ `period` SAU toàn bộ phần việc mỗi khung, nên khoảng giữa
-     hai khung là `work + 1/F` và tốc độ đạt được là `1/(1/F + work) < F`. Các hàng `--fps 24`
-     KHÔNG phải một phán quyết hợp đồng; chỉ các hàng `--fps 1000` mới là.
-  2. `drop_rate = 0` KHÔNG là bằng chứng chạy thời gian thực khi N <= 2. Bộ đọc là một coroutine
-     trên cùng vòng lặp sự kiện với bộ tiêu thụ và `preprocess_fn` chạy nội tuyến, nên nó bị ép
-     vào trạng thái KHOÁ BƯỚC chứ không rơi khung: `read_fps == aggregate_fps` chính xác đến hai
-     chữ số thập phân trong cả 5 cấu hình N <= 2, kể cả lần chạy yêu cầu 1000 fps và đạt 11.72.
-     Hãy trích `read_fps` so với `target_fps`, tuyệt đối không trích `drop_rate`.
-  3. `clock_state_stable` nghĩa là CHẾ ĐỘ ghim và mức tranh chấp không đổi, KHÔNG phải tần số đã
-     giữ nguyên. Nó so sánh `clocks_pinned` và `quiet` trước/sau
-     (`stream-pipeline-utils.py:140`), nên nó đọc `true` cho mọi lần chạy DVFS trong khi
-     `policy0 cur_khz` đi từ 1,574,400 xuống 192,000 NGAY TRONG một lần chạy. Mã khớp với
-     docstring của nó — chỗ nguy hiểm là TÊN TRƯỜNG.
-
-Đây là trường hợp thứ hai của chính phát hiện tiêu đề của luận văn ("tổng giai đoạn không phải
-một nhịp"), trên một đồ thị khác — và là trường hợp mà việc hiểu sai làm ĐẢO kết luận, HAI LẦN.
-
-Nguồn: report/chapter-05-edge-deployment.md, mục 5.6.8.1 "Phép đo nhịp tổ hợp của P3".
-Tạo tác: deployment/artifacts/jetson-measurements/
-           p3-composed-cadence-fp16-{pinned,dvfs}-free-{1_te10,3_te1,4_te10}-20261003T17*.json
-Phân xử: plans/2026-09-19-thesis-recovery-architecture/reports/
-           finding-2026-10-03-p3-decision-latency-is-a-stage-sum.md (mục 11)
-
-TRẠNG THÁI CẬP NHẬT NỘI DUNG (phiên bản DVFS, tệp này): thân chương ĐÃ được cập nhật ĐẦY ĐỦ.
-
-  (a) Các PHÁN QUYẾT HỢP ĐỒNG của P3 theo phép đo tổ hợp: mục 5.2.2, Bảng 5.4 và Bảng 5.4b mới,
-      các mục 5.5.2 / 5.5.3 / 5.5.5, hạn chế của mục 5.7.3, mục 5.9 các ý (4)(7)(8), và kết quả
-      (3) cùng đoạn tổng kết của mục 5.10.
-  (b) NHỊP B1 SAU KHI SỬA TIỀN XỬ LÝ, theo khối cảnh báo thứ nhất: bảng hợp đồng của mục 5.4.4
-      (hai cột biên), Bảng 5.2 chuyển thành bảng A/B trước-sau, đoạn nhịp tiêu đề, bảng ngân sách
-      chi phí (hai cột phần trăm, thêm ý (2) về nút cổ chai chuyển sang tháp CLIP), phần nguồn
-      1080p của mục 5.4.4, biên ở p95 của mục 5.4.5, mục 5.9 ý (1), và kết quả (3) của mục 5.10.
-  (c) CẢNH BÁO XUẤT XỨ ở Bảng 5.2 đã được DỠ: cả chín tạo tác nhịp tổ hợp của B1 đã đồng bộ về
-      kho mã và người đọc kiểm chứng lại được.
-
-Phiên bản `...-ghim-xung-nhip.txt` không được cập nhật nội dung và KHÔNG nộp.
-================================================================================
-
 CHƯƠNG 5. TRIỂN KHAI BIÊN: CHI PHÍ TÍNH TOÁN CỦA MỘT QUYẾT ĐỊNH AN TOÀN
              TRÊN JETSON ORIN NANO SUPER
 
@@ -153,6 +11,9 @@ Quy ước số: dấu chấm là dấu thập phân, dấu phẩy là dấu ph�
 Quy ước dẫn chứng: mỗi con số trong chương đều kèm tên tạo tác JSON đã sinh ra nó. Tạo tác nào
 chưa được đồng bộ từ thiết bị về kho mã đều được đánh dấu rõ ở chỗ nó được trích dẫn.
 Mọi ô chưa đo được ghi "chưa đo"; chương này không chứa số ước lượng nào được trình bày như số đo.
+Nhật ký biên soạn ngày 03/10/2026 — gồm các con số đã bị thay thế và ba quy tắc đọc tạo tác nhịp —
+đặt ở **phụ chú biên soạn cuối tệp**, ngoài thân chương, để nó kiểm chứng được mà không chen vào
+mạch đọc.
 
 ----------------------------------------------------------------------
 5.1. CÂU HỎI CỦA CHƯƠNG, VÀ BA PIPELINE KHÔNG ĐƯỢC TRỘN SỐ
@@ -1337,3 +1198,156 @@ quyết định/giây trên nguồn 1080p 60 khung/giây, hoặc cho thấy đ�
 độ trễ hay năng lượng của một quyết định trong một vòng lặp đã tổ hợp và có chứng thực trạng thái,
 thì kết luận trung tâm của chương này sai và phải được viết lại. Hai ngưỡng đó được nêu trước, để
 chương có thể bị kiểm chứng chứ không chỉ được đọc.
+
+
+
+================================================================================
+PHỤ CHÚ BIÊN SOẠN — KHÔNG THUỘC THÂN CHƯƠNG
+================================================================================
+Hai khối dưới đây là nhật ký biên soạn ngày 03/10/2026: chúng ghi những con số đã bị thay thế,
+lý do thay thế, và ba quy tắc đọc tạo tác nhịp. Chúng được giữ nguyên văn để một phản biện kiểm
+tra được rằng con số nào đã bị rút và vì sao. Chúng **không** là nội dung của chương: mọi phát
+biểu còn hiệu lực đều nằm trong thân chương ở trên, và mọi con số còn hiệu lực đều kèm tạo tác ở
+chỗ nó được trích dẫn.
+
+================================================================================
+!! CẢNH BÁO SỐ LIỆU — 03/10/2026. ĐỌC TRƯỚC KHI NỘP BẤT KỲ PHẦN NÀO CỦA CHƯƠNG NÀY.
+================================================================================
+Nhịp tiêu đề của chương này (**289.672 ms/quyết định = 3.452 qđ/giây**, biên 2.76x/1.38x,
+hệ số hoạt động 76.1 %, tiền xử lý 55.5 % khoảng quyết định) ĐÃ BỊ THAY THẾ.
+
+Một khiếm khuyết trong mã tiền xử lý đã được tìm ra, sửa, và ĐO LẠI TRÊN THIẾT BỊ ngày
+03/10/2026 trên một phép so sánh A/B có giao thức trùng khớp từng tham số:
+
+    nhịp đã triển khai   167.291 ms/quyết định = 5.978 qđ/giây   (+73.2 %)
+    p95                  198.224 ms
+    hệ số hoạt động      63.1 %   (trước: 76.1 %)
+    tiền xử lý           50.867 ms = 30.4 % khoảng quyết định  (trước: 160.765 ms = 55.5 %)
+    biên vs 1.249 qđ/giây  4.79x   (trước: 2.76x)
+    biên vs 2.500 qđ/giây  2.39x   (trước: 1.38x)
+    1080p (lần đầu đo)   227.214 ms = 4.401 qđ/giây, biên 3.52x vs 1.249 qđ/giây (1.76x vs 2.500)
+
+Con số 3.452 KHÔNG bị rút lại và KHÔNG sai — nó là phép đo đúng của mã ở thời điểm đó, và là
+nhánh trước-khi-sửa của phép so sánh A/B. Nhưng nó KHÔNG CÒN LÀ NHỊP ĐÃ TRIỂN KHAI.
+
+Thay đổi cấu trúc quan trọng: sau khi sửa, hạng mục chi phối KHÔNG còn là tiền xử lý.
+Trên kho 720p, tháp CLIP là hạng mục lớn nhất của phần tính toán (53.2 %); ở 1080p,
+GIẢI MÃ là hạng mục chi phối khoảng quyết định (46.8 %). Mọi lập luận về "đòn bẩy tối ưu
+lớn nhất là tiền xử lý" trong chương này phải được viết lại.
+
+Nguồn đã cập nhật đúng: report/chapter-05-edge-deployment.md, Bảng 5.5Q và Bảng 5.5R.
+Phân xử đầy đủ (gồm 2/4 dự đoán đăng ký trước bị bác bỏ):
+  plans/2026-09-19-thesis-recovery-architecture/reports/
+    finding-2026-10-03-preprocessing-fix-adjudicated-on-device.md
+
+QUYẾT ĐỊNH ĐÃ CHỐT (03/10/2026): PHIÊN BẢN "DVFS MẶC ĐỊNH" ĐƯỢC CHỌN.
+CĂN CỨ ĐÃ ĐƯỢC VIẾT LẠI TRÊN BẰNG CHỨNG ĐO (03/10/2026, muộn hơn trong ngày). Căn cứ ban đầu —
+"tiêu đề của phiên bản ghim xung nhịp chính là phát biểu P3 đạt hợp đồng, và phát biểu đó đã bị
+rút lại" — KHÔNG còn mô tả đúng tình trạng bằng chứng. Phép đo nhịp TỔ HỢP cùng ngày cho thấy khi
+ghim nhịp, P3 ĐẠT hợp đồng 3.0 qđ/giây trên 2 trong 3 đoạn test (3.479 và 3.965 qđ/giây). Nghĩa
+là tiêu đề của phiên bản ghim xung nhịp không sai — nó PHỤ THUỘC ĐOẠN VIDEO, và một phát biểu
+tiêu đề phụ thuộc đoạn video thì không dùng được làm phát biểu tiêu đề.
+Căn cứ đúng cho lựa chọn này: tiêu đề của phiên bản DVFS — P3 TRƯỢT hợp đồng dưới DVFS mặc định —
+là phát biểu DUY NHẤT mà phép đo tổ hợp xác nhận VÔ ĐIỀU KIỆN: trượt trên 3 trong 3 đoạn, cách
+hợp đồng 1.99x–2.63x, và cách biệt so với nhánh ghim nhịp là RỜI NHAU (max DVFS 1.511 < min ghim
+nhịp 2.493). Lựa chọn phiên bản KHÔNG đổi; lý do thì đã đổi, và lý do mới mạnh hơn lý do cũ.
+Tệp `...-ghim-xung-nhip.txt` được giữ lại làm hồ sơ, KHÔNG nộp.
+================================================================================
+!! CẢNH BÁO SỐ LIỆU THỨ HAI — 03/10/2026. NHỊP P3 (KHÁC VỚI NHỊP B1 Ở TRÊN).
+================================================================================
+Mọi con số "mỗi quyết định" của P3 trong chương này — 310.00 ms = 3.226 qđ/giây khi ghim nhịp,
+365.88 ms = 2.733 qđ/giây dưới DVFS, cùng các hàng p95/p99/trần — KHÔNG phải phép đo một vòng lặp
+tổ hợp. Chúng là TỔNG CỦA CÁC GIAI ĐOẠN ĐƯỢC ĐO RỜI:
+
+    16 × det_p50 + post_p50 + crop_p50 + app_p50 + head_p50
+
+mỗi số hạng được đo khi CHỈ giai đoạn đó chạy, trên tensor tổng hợp. Sáu chi phí bị bỏ ra ngoài,
+ba trong số đó là trọn một giai đoạn — đáng kể nhất là TIỀN XỬ LÝ ĐẦU VÀO BỘ PHÁT HIỆN, hoàn toàn
+vắng mặt (không một lần xuất hiện nào của `resize` trong tệp đo).
+
+    BIÊN +7.5% BỊ RÚT LẠI — VÀ PHÉP TÍNH ĐÃ THAY THẾ NÓ CŨNG BỊ RÚT LẠI.
+    Lập luận trung gian (sáng 03/10) là: phần dư so với hợp đồng là 23.33 ms, giá trị đã đo gần
+    nhất của riêng giai đoạn bị thiếu lớn nhất là 50.867 ms = 2.18 lần phần dư đó, nên sau hiệu
+    chỉnh ghim nhịp >= 360.87 ms = <= 2.771 qđ/giây, "=> P3 TRƯỢT Ở CẢ HAI ĐIỀU KIỆN XUNG NHỊP".
+    PHÁT BIỂU ĐÓ SAI. Chiều 03/10 vòng lặp đã được ĐO TỔ HỢP và khi ghim nhịp P3 ĐẠT hợp đồng
+    trên 2 trong 3 đoạn test. Rút lại biên +7.5% là đúng; thay nó bằng một PHÉP TÍNH thay vì một
+    PHÉP ĐO thì không. Phép đo là cần thiết, không chỉ là chặt chẽ hơn.
+
+PHÉP ĐO THAY THẾ (03/10/2026, 17:33–17:47). `jetson-p3-multi-stream.py` chạy toàn bộ vòng lặp
+dưới MỘT đồng hồ treo tường: giải mã tệp -> tiền xử lý letterbox 800x800 -> bộ phát hiện -> chọn
+đối tượng + hình học vùng -> crop ngữ cảnh 224^2 -> bộ mã hoá ngoại hình -> dựng token quan hệ
+74 chiều -> đầu E3 nhị phân. CẢ SÁU chi phí bị bỏ đều được đóng lại. Hai nhánh đều có cổng nhiệt
+(tj vào <= 56 °C, tải <= 0.60, sau 180 giây ổn định), N=1, 480 khung, 3 đoạn test, FP16,
+MAXN_SUPER, không đọc nhãn (không tiêu một lần chạm tập test).
+
+    đoạn (góc)        GHIM NHỊP qđ/giây      ms/khung   DVFS qđ/giây   ms/khung
+    1_te10 (3)        3.479  ĐẠT                35.32    1.441 TRƯỢT     85.32
+    3_te1  (7)        3.965  ĐẠT                31.01    1.511 TRƯỢT     81.37
+    4_te10 (1)        2.493  TRƯỢT (1.20x)      49.31    1.141 TRƯỢT    107.76
+    trung vị          3.479                              1.441
+
+    Ghim nhịp ĐẠT trên 2/3 đoạn; DVFS TRƯỢT trên 3/3 (cách 1.99x–2.63x).
+    Hai nhánh RỜI NHAU: max DVFS 1.511 < min ghim nhịp 2.493.
+    => Nhịp của P3 do TRẠNG THÁI XUNG NHỊP và do CHÍNH ĐOẠN VIDEO quyết định.
+
+CÒN ĐỨNG VỮNG, VÀ MẠNH HƠN TRƯỚC: phát biểu "nhịp của P3 do trạng thái xung nhịp của thiết bị
+quyết định". Trên nhịp tổ hợp, ghim nhịp đáng +141.4% (2.41 lần), so với chỉ +26.4% (1.26 lần)
+trên tổng giai đoạn — vì phần việc bị bỏ ra ngoài chính là phần nhạy nhất với xung nhịp. Cơ chế
+được GHI TRỰC TIẾP trong tạo tác: dưới `schedutil`, `policy4` (lõi 4-5) nằm ở mức sàn
+115,200 kHz trong MỌI mẫu DVFS, trước và sau mọi lần chạy, còn `policy0` dao động
+192,000–1,728,000; khi ghim nhịp cả hai cụm đọc `cur = min = 1,728,000` và GPU
+`cur = min = max = 1020 MHz`. Vòng lặp tổ hợp bị CPU chặn ở tiền xử lý — đúng phần mà tổng giai
+đoạn bỏ qua.
+
+KHÔNG CÒN ĐỨNG VỮNG: mọi kết luận tuyệt đối về hợp đồng rút ra TỪ TỔNG GIAI ĐOẠN, theo BẤT KỲ
+chiều nào. Sai số của tổng giai đoạn KHÔNG cùng một dấu:
+
+    nhánh        tổng giai đoạn đã công bố   dựng lại đúng bước nhảy   ĐO TỔ HỢP      công bố/đo
+    ghim nhịp    310.37 ms = 3.222 qđ/giây   174.24 ms = 5.739         287.44 = 3.479  +7.98% CAO
+    DVFS         421.52 ms = 2.372 qđ/giây   230.82 ms = 4.332         694.00 = 1.441  −39.3% THẤP
+
+Nhánh ghim nhịp: việc tính trùng bộ phát hiện (+136.13 ms, vì tổng nhân det_p50 với T_FRAMES=16
+trong khi vòng lặp phát quyết định mỗi DECISION_EMIT_EVERY=8 khung) gần như triệt tiêu các chi
+phí bị bỏ (−113.20 ms). Nhánh DVFS: các chi phí bị bỏ áp đảo, lạc quan 272.48 ms. Vì DẤU của sai
+số ĐỔI theo trạng thái xung nhịp, KHÔNG có hệ số hiệu chỉnh nào cứu được cấu trúc này — nó phải
+bị THAY THẾ, không phải điều chỉnh.
+
+BA QUY TẮC ĐỌC TẠO TÁC NHỊP TỔ HỢP (tìm ra trước khi chúng vào bất kỳ báo cáo nào):
+  1. `--fps F` là một BỘ ĐIỀU NHỊP CỘNG THÊM, không phải một thời hạn — một KHIẾM KHUYẾT thật.
+     `stream-pipeline-utils.py:84` ngủ `period` SAU toàn bộ phần việc mỗi khung, nên khoảng giữa
+     hai khung là `work + 1/F` và tốc độ đạt được là `1/(1/F + work) < F`. Các hàng `--fps 24`
+     KHÔNG phải một phán quyết hợp đồng; chỉ các hàng `--fps 1000` mới là.
+  2. `drop_rate = 0` KHÔNG là bằng chứng chạy thời gian thực khi N <= 2. Bộ đọc là một coroutine
+     trên cùng vòng lặp sự kiện với bộ tiêu thụ và `preprocess_fn` chạy nội tuyến, nên nó bị ép
+     vào trạng thái KHOÁ BƯỚC chứ không rơi khung: `read_fps == aggregate_fps` chính xác đến hai
+     chữ số thập phân trong cả 5 cấu hình N <= 2, kể cả lần chạy yêu cầu 1000 fps và đạt 11.72.
+     Hãy trích `read_fps` so với `target_fps`, tuyệt đối không trích `drop_rate`.
+  3. `clock_state_stable` nghĩa là CHẾ ĐỘ ghim và mức tranh chấp không đổi, KHÔNG phải tần số đã
+     giữ nguyên. Nó so sánh `clocks_pinned` và `quiet` trước/sau
+     (`stream-pipeline-utils.py:140`), nên nó đọc `true` cho mọi lần chạy DVFS trong khi
+     `policy0 cur_khz` đi từ 1,574,400 xuống 192,000 NGAY TRONG một lần chạy. Mã khớp với
+     docstring của nó — chỗ nguy hiểm là TÊN TRƯỜNG.
+
+Đây là trường hợp thứ hai của chính phát hiện tiêu đề của luận văn ("tổng giai đoạn không phải
+một nhịp"), trên một đồ thị khác — và là trường hợp mà việc hiểu sai làm ĐẢO kết luận, HAI LẦN.
+
+Nguồn: report/chapter-05-edge-deployment.md, mục 5.6.8.1 "Phép đo nhịp tổ hợp của P3".
+Tạo tác: deployment/artifacts/jetson-measurements/
+           p3-composed-cadence-fp16-{pinned,dvfs}-free-{1_te10,3_te1,4_te10}-20261003T17*.json
+Phân xử: plans/2026-09-19-thesis-recovery-architecture/reports/
+           finding-2026-10-03-p3-decision-latency-is-a-stage-sum.md (mục 11)
+
+TRẠNG THÁI CẬP NHẬT NỘI DUNG (phiên bản DVFS, tệp này): thân chương ĐÃ được cập nhật ĐẦY ĐỦ.
+
+  (a) Các PHÁN QUYẾT HỢP ĐỒNG của P3 theo phép đo tổ hợp: mục 5.2.2, Bảng 5.4 và Bảng 5.4b mới,
+      các mục 5.5.2 / 5.5.3 / 5.5.5, hạn chế của mục 5.7.3, mục 5.9 các ý (4)(7)(8), và kết quả
+      (3) cùng đoạn tổng kết của mục 5.10.
+  (b) NHỊP B1 SAU KHI SỬA TIỀN XỬ LÝ, theo khối cảnh báo thứ nhất: bảng hợp đồng của mục 5.4.4
+      (hai cột biên), Bảng 5.2 chuyển thành bảng A/B trước-sau, đoạn nhịp tiêu đề, bảng ngân sách
+      chi phí (hai cột phần trăm, thêm ý (2) về nút cổ chai chuyển sang tháp CLIP), phần nguồn
+      1080p của mục 5.4.4, biên ở p95 của mục 5.4.5, mục 5.9 ý (1), và kết quả (3) của mục 5.10.
+  (c) CẢNH BÁO XUẤT XỨ ở Bảng 5.2 đã được DỠ: cả chín tạo tác nhịp tổ hợp của B1 đã đồng bộ về
+      kho mã và người đọc kiểm chứng lại được.
+
+Phiên bản `...-ghim-xung-nhip.txt` không được cập nhật nội dung và KHÔNG nộp.
+================================================================================

@@ -1401,7 +1401,13 @@ Bảng 6.7 — Bốn lớp, Unsafe-Net, leave-context-out, 516 clip gộp, 8 nh�
       được công bố vì nó là khoảng đã được tính và đã được trích trong các bản thảo trước, nhưng
       nó hẹp hơn khoảng ở độ phân giải nhóm, và nó **không** được dùng làm căn cứ chứng nhận.
       Với 8 nhóm, bootstrap theo cụm không có đủ đơn vị để cho một khoảng hữu ích — đây là đúng
-      giới hạn đã nêu ở mục 6.5(3) cho làn nhị phân của cùng bộ dữ liệu.
+      giới hạn đã nêu ở mục 6.5(3) cho làn nhị phân của cùng bộ dữ liệu. Hai khoảng ấy không
+      khác nhau vì chọn tham số khác: cả hai dùng cùng B = 5000, cùng `seed = 0`, cùng α = 0.05
+      và cùng phương pháp phân vị; chúng chỉ khác **thứ được rút có hoàn lại** — nhóm hay clip.
+      Công thức của cả hai dạng, cùng dòng mã của mỗi dạng
+      (`eval_utils/cluster_bootstrap.py` dòng 23 và 52 cho đơn vị nhóm;
+      `eval_utils/paired_tests.py` dòng 62 cho đơn vị clip, tức dạng sinh ra nhãn `WRONG UNIT`),
+      được viết ở mục 3.7.4.
 
   (b) Biên **+58.7 pp / +60.3 pp** từng xuất hiện trong các bản thảo trước — đó là hiệu số so với
       đường sàn hằng số tầm thường (16.5% / 10.1%). Cách trình bày đó **đã bị rút**: một bộ dự
@@ -1624,6 +1630,11 @@ Bảy chỉ số của bộ dự đoán được chọn bằng tập validation 
   Nguồn: tính lại 02/10/2026 bằng scikit-learn từ các khoá `blind_pred`, `blind_softmax`,
          `labels` của sweep_results/relation_tokens/logits_yolo26.pt. Cả bảy giá trị tái lập đúng
          con số đã công bố.
+
+  Công thức của bảy đại lượng này được viết đúng như mã tính chúng ở mục 3.7.3 (BA, macro-F1) và
+  mục 3.7.5 (κ, MCC, ROC-AUC và PR-AUC một-so-với-còn-lại, ECE 15 bin), kèm dòng mã của từng hàm.
+  Mục 3.7.5 cũng nói vì sao bảy giá trị này **không** được đặt cạnh các giá trị PR-AUC/ROC-AUC của
+  Bảng 6.1: hai bảng đi qua hai cài đặt khác nhau, cùng định nghĩa nhưng không cùng đoạn mã.
 
 Bảy chỉ số này đã **sai hai lần** trước đó — lần đầu tính trên artifact sai, lần sau tính trên bộ
 dự đoán sai (tập hợp 5 seed, 52/64, vì softmax của seed được chọn chưa được lưu) — và trong cả hai

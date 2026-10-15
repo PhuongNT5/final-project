@@ -243,9 +243,11 @@ kết luận thay vì ở phần phụ lục vì nó là một phần của kế
 Hai phát biểu về bảng này. Thứ nhất, **cột thứ hai không phải một lời xin lỗi mà là một phần kết
 quả**: nếu một đề cương nêu một giả thuyết và số liệu phản chứng nó, thì việc công bố phản chứng ở
 mức chi tiết đầy đủ là đóng góp, không phải thất bại — và đó chính là lý do mục 3.8 tồn tại dưới
-dạng đã đăng ký. Thứ hai, **quyết định triển khai đi theo bằng chứng chứ không theo đề cương**: lý
-do Chương 5 triển khai một tháp toàn khung mà không triển khai đường thực thể nằm ở hàng (7) của
-bảng này.
+dạng đã đăng ký. Các giả thuyết bị phán quyết ở bảng này là đúng ba giả thuyết đã phát biểu ở
+mục 1.4.3, và giả thuyết sinh ra đề cương (H2 — phân rã theo thực thể làm tăng độ chính xác) là
+giả thuyết trượt **cả năm** lần nó được hỏi. Thứ hai, **quyết định triển khai đi theo bằng chứng
+chứ không theo đề cương**: lý do Chương 5 triển khai một tháp toàn khung mà không triển khai đường
+thực thể nằm ở hàng (7) của bảng này.
 
 ----------------------------------------------------------------------
 8.3. HƯỚNG PHÁT TRIỂN THEO THỨ TỰ ƯU TIÊN

@@ -94,6 +94,34 @@ văn **tổ hợp các khối xây dựng có sẵn** (bộ phát hiện đóng 
 Transformer tiêu chuẩn, DeepSets, chú ý phân rã), không đề xuất một cơ chế kiến trúc mới. Giá trị
 nằm ở giao thức đánh giá (mục 3.7, 3.8) và ở phép đo trên thiết bị (mục 3.9).
 
+3.1.4. Quy ước khai xuất xứ: mỗi giá trị cấu hình mang một trong năm nhãn
+
+Chương này và Chương 4 nêu hàng chục giá trị cấu hình — chiều, số lớp, ngưỡng, hệ số, số fold. Một
+danh sách giá trị không cho người đọc biết điều quan trọng nhất về chúng: **giá trị đó từ đâu ra.**
+Một chiều chọn theo một công trình đã công bố, một ngưỡng giữ nguyên ở mặc định thư viện, và một hệ
+số do tác giả đặt mà chưa dò tìm là ba loại bằng chứng rất khác nhau, dù in ra thì trông giống
+nhau. Vì vậy mọi giá trị cấu hình trong luận văn được khai kèm **một trong năm nhãn** dưới đây.
+
+  `[quy ước]`           giá trị theo một công trình đã công bố; trích dẫn nêu kèm tại chỗ.
+  `[mặc định thư viện]` giá trị mặc định của thư viện, **không bị chạm tới**; nêu rõ thư viện nào.
+  `[mặc định của mã]`   giá trị do tác giả đặt trong mã và **chưa được dò tìm**; không có bằng
+                        chứng thực nghiệm nào biện hộ cho riêng giá trị đó.
+  `[dò tìm]`            giá trị chọn sau khi so các phương án, có nhật ký làm bằng chứng.
+  `[ràng buộc]`         giá trị bị một ràng buộc bên ngoài ép ra: hợp đồng nhịp, bộ nhớ thiết bị,
+                        hoặc một bất biến của giao thức đánh giá.
+
+Hai quy tắc đi kèm, áp dụng không ngoại lệ trong cả luận văn.
+
+**Quy tắc A — nhãn `[mặc định của mã]` được viết ra, không được che.** Khi một giá trị chưa được dò
+tìm, luận văn nói đúng như vậy. Đặt một lời giải thích nghe hợp lý vào chỗ một giá trị không có
+bằng chứng là làm hỏng chính thứ mà phần còn lại của chương cố gắng bảo vệ: khả năng của người đọc
+phân biệt được điều gì đã được kiểm với điều gì chỉ được chọn.
+
+**Quy tắc B — nhãn nói về xuất xứ, không nói về chất lượng.** Một giá trị `[quy ước]` không vì thế
+mà tốt hơn cho bài toán này; nó chỉ có một tiền lệ. Một giá trị `[mặc định của mã]` không vì thế mà
+sai; nó chỉ chưa được kiểm. Hai nhận định đó phải tách rời, vì các cổng ở mục 3.8 kiểm **kết quả**,
+không kiểm xuất xứ.
+
 ----------------------------------------------------------------------
 3.2. BA ĐỒ THỊ TÍNH TOÁN, BA ĐƠN VỊ ĐO, BA TẬP ĐÁNH GIÁ
 ----------------------------------------------------------------------
@@ -169,6 +197,66 @@ Khối thời gian là một bộ mã hoá Transformer trên dãy trạng thái 
   Vị trí                bảng vị trí thời gian **học được**, 16 khe
   Gộp                   một token **[CLS]** học được, chú ý trên 16 trạng thái khung
 
+Bảng trên là một danh sách giá trị; đoạn dưới đây nói **từng giá trị từ đâu ra**, theo quy ước nhãn
+ở mục 3.1.4. Thứ tự trình bày đi từ giá trị có tiền lệ công bố rõ nhất tới giá trị chỉ là một lựa
+chọn của tác giả, để người đọc thấy ngay phần nào của khối này tựa vào văn liệu và phần nào không.
+
+**Tỉ lệ FFN trên d bằng 2 `[quy ước]`.** Đại lượng đáng nêu ở một khối Transformer không phải chiều
+FFN mà **tỉ lệ** giữa nó và chiều mô hình, vì tỉ lệ đó mới quy định khối dành bao nhiêu phần dung
+lượng cho trộn theo chiều kênh so với trộn theo chiều thời gian. Bộ mã hoá gốc [43] dùng tỉ lệ 4
+(2048 trên 512); các biến thể nhỏ dùng cho video hạ tỉ lệ ấy xuống quãng 2. Luận văn dùng FFN = 256
+trên d = 128, tức tỉ lệ **2**, ở đầu thấp của dải quy ước — phù hợp với một khối chỉ phải trộn mười
+sáu vị trí.
+
+**Dropout bằng 0.1 `[quy ước]`.** Đúng giá trị của bộ mã hoá gốc [43]. Không có phương án nào khác
+được thử ở khối thời gian dùng chung; các bộ mã hoá quan hệ E0–E3 dùng một giá trị khác và lý do
+được nêu riêng ở mục 3.4.3.
+
+**Token [CLS] học được `[quy ước]`.** Gộp chuỗi bằng một token học được thay vì lấy trung bình là
+quy ước từ các bộ mã hoá chuỗi tiền huấn luyện, và nó có một lý do riêng cho bài toán này: cơ chế
+chú ý cho phép khối **hạ trọng số** những khung không mang thông tin, trong khi gộp trung bình buộc
+mọi khung đóng góp bằng nhau. Phải nêu rõ giới hạn của lập luận này: **phép đối chứng trực tiếp
+giữa [CLS] và gộp trung bình không được thực hiện**, nên câu trên là một lý do thiết kế, không phải
+một kết quả.
+
+**Chiều mô hình d = 128 `[ràng buộc]`.** Giá trị này bị trần dung lượng ở mục 3.1.2 ép ra, không
+được chọn theo điểm số. Với 1,100 clip ở làn nhị phân và 516 clip ở làn bốn lớp, mục 3.1.2 đặt
+phần học được trong khoảng một đến bảy trăm nghìn tham số; d = 128 với một lớp thời gian cho đầu B1
+đúng 201,090 tham số, nằm ở đầu thấp của khoảng đó. Hai giá trị lớn hơn **đã** được chạy, nhưng
+không phải để tối đa hoá điểm: d = 192 (B1xl) tồn tại làm đối chứng dung lượng của cổng G18, và
+chiều lớn hơn ở đây là một **biến được khảo sát**, không phải một tham số được tinh chỉnh.
+
+**Số lớp bằng 1 cho B1 `[ràng buộc]`.** Cấu hình triển khai chọn độ sâu nhỏ nhất chạy được, theo
+tiêu chí "dấu chân biên nhỏ nhất" đã ghi ở Bảng 3.2 — không theo độ chính xác. Bản hai lớp không bị
+loại mà được giữ lại làm một mô hình riêng (B1w), đúng để câu "mô hình sâu hơn thì tốt hơn" trở
+thành một giả thuyết **đo được** chứ không phải một phỏng đoán.
+
+**Bảng vị trí thời gian học được, 16 khe `[ràng buộc]`.** Số khe bằng T vì độ dài đầu vào **cố định
+bằng 16** ở cả huấn luyện và triển khai (mục 3.3.4). Chính tính cố định đó làm cho một bảng học
+được là khả dụng: phương án mã hoá vị trí hình sin của [43] tồn tại để tổng quát hoá sang độ dài
+chưa gặp, mà ở đây không có độ dài nào chưa gặp. Phương án hình sin vì vậy bị loại vì **không cần
+đến**, không vì nó kém hơn trong một phép đo nào.
+
+**`norm_first = True` `[mặc định của mã]`.** Chuẩn hoá trước khối con làm cho khối huấn luyện ổn
+định ở độ sâu nhỏ **mà không cần một pha hâm nóng tốc độ học**, và công thức huấn luyện ở mục 3.6
+thực sự không có pha hâm nóng nào. Đây là một lập luận nhất quán nội bộ, không phải một phép đo:
+bản `norm_first = False` không được chạy.
+
+**Kích hoạt GELU `[mặc định của mã]`.** Giá trị mặc định của lớp bộ mã hoá Transformer trong thư
+viện là ReLU, nên GELU là một lựa chọn được đặt tường minh. Lý do: cả tháp ViT của CLIP và xương
+sống VideoMAE của B2 đều dùng GELU, nên đầu thời gian giữ cùng họ kích hoạt với xương sống nó đọc
+đặc trưng từ. Bản ReLU không được chạy.
+
+**Số đầu chú ý bằng 4 `[mặc định của mã]`.** Với d = 128, bốn đầu cho 32 chiều mỗi đầu, bằng một
+nửa giá trị 64 của [43]. Không có giá trị nào khác được thử. Đây là một trong những chỗ mà luận văn
+**không** có bằng chứng cho riêng giá trị đang dùng, và nó được nêu ra ở đây thay vì để trống.
+
+Tổng kết xuất xứ của khối này, nói thẳng để không phải suy diễn: ba giá trị có tiền lệ công bố
+(tỉ lệ FFN, dropout, cơ chế gộp [CLS]), ba giá trị bị ràng buộc ngoài ép ra (d, độ sâu của cấu hình
+triển khai, số khe vị trí), và ba giá trị là mặc định của mã chưa được dò tìm (`norm_first`, GELU,
+số đầu chú ý). **Không giá trị nào trong khối này được chọn bằng cách so điểm trên tập giữ ra** —
+nếu có thì chính các cổng ở mục 3.8 đã mất hiệu lực, vì khi ấy tập giữ ra đã tham gia vào thiết kế.
+
 Khối này có một chi tiết cần nêu vì nó quyết định hành vi ở biên: mặt nạ hợp lệ `valid` đánh dấu
 các khung mang thông tin, và **một clip mà mọi khung đều không hợp lệ sẽ quay về chú ý trên toàn bộ
 các khung** thay vì phát ra NaN. Một hàng softmax bị che hoàn toàn là không xác định; cách xử lý
@@ -243,6 +331,37 @@ lỗi của phép đo, và nó được nêu vì luận văn trích dẫn chính
   Cửa sổ quyết định     48 khung
   Bước nhảy             24 khung
   Lấy mẫu trong cửa sổ  T = 16 khung **cách đều** trên cửa sổ
+
+Xuất xứ của ba giá trị này, theo quy ước nhãn ở mục 3.1.4, khác nhau rõ rệt và vì vậy phải khai
+riêng từng giá trị.
+
+**T = 16 khung cách đều `[quy ước]`.** Mười sáu khung là điểm dừng phổ biến trong nhận dạng hành
+động video: nó là độ dài đầu vào của các cấu hình tiêu biểu trên Kinetics và của bản VideoMAE mà
+luận văn dùng làm đối thủ B2 [11], [12], [15]. Dải quy ước chạy từ 8 khung (chi phí thấp, kém phân
+giải thời gian) tới 32 khung (ngược lại); 16 là điểm giữa. Chọn T theo quy ước có một lợi ích cụ
+thể cho luận văn: B2 chạy ở **đúng độ dài đầu vào mà xương sống của nó được tinh chỉnh**, nên một
+kết quả bất lợi cho B2 không thể giải thích bằng "đầu vào bị đặt sai độ dài".
+
+**Cửa sổ 48 khung `[mặc định của mã]`.** Giá trị này là mặc định của đường triển khai
+(`--window 48`, `deployment/scripts/benchmark-r48-composed-cadence.py:120`, chú thích trong mã ghi
+đúng chữ "demo default"), và **không có phép dò tìm nào trên độ dài cửa sổ**. Lý do thiết kế nêu
+được là: cửa sổ phải dài hơn T để việc lấy mẫu cách đều thực sự phủ một khoảng thời gian chứ không
+chỉ lấy lại các khung liền kề, và 48 cho hệ số phủ bằng 3 khung nguồn trên mỗi khung được lấy. Lý
+do này giải thích **vì sao 48 lớn hơn 16**; nó **không** giải thích vì sao là 48 chứ không phải 40
+hay 64. Phần sau không có bằng chứng và được nêu ra như vậy.
+
+**Bước nhảy 24 khung `[mặc định của mã]`.** Cũng là mặc định của đường triển khai (`--stride 24`,
+cùng tệp, dòng 121). Quan hệ đáng nêu là **bước nhảy bằng một nửa cửa sổ**, nên mỗi khung nguồn
+nằm trong đúng hai cửa sổ quyết định liên tiếp: một hành vi rơi vào ranh giới cửa sổ vẫn được một
+cửa sổ khác nhìn trọn. Đây là lý do của **tỉ lệ** một phần hai, không phải của riêng con số 24; con
+số 24 theo sau khi cửa sổ đã là 48.
+
+Một điều phải nói rõ vì nó liên quan trực tiếp tới cách đọc Chương 6: cửa sổ và bước nhảy **không
+tham gia vào các con số độ chính xác**. Các con số đó đo trên clip đã cắt, nơi T = 16 khung được
+lấy cách đều trên **toàn bộ clip**. Cửa sổ và bước nhảy chỉ chi phối đường triển khai ở Chương 5 và
+hợp đồng nhịp nói ngay dưới đây. Vì vậy việc hai giá trị ấy chưa được dò tìm **không** ảnh hưởng
+tới tính đúng của kết quả đánh giá; nó giới hạn điều luận văn được phép nói về việc **chọn cấu hình
+luồng tối ưu**, và luận văn không nói điều đó ở đâu cả.
 
 Tham số thứ ba là một ràng buộc thiết kế, không phải một lựa chọn cài đặt: **bộ lấy mẫu khi triển
 khai phải trùng với bộ lấy mẫu khi đánh giá.** Nếu khác, con số độ chính xác đo ở Chương 6 không
@@ -329,6 +448,40 @@ những khung ấy. Vì hai nhánh dùng chung một biến, **không thể có 
 khung hơn nhánh kia**. Đây là điều kiện làm cổng G14 trở thành một đối chứng theo cấu trúc chương
 trình (Chương 4, mục 4.3.2).
 
+**Xuất xứ của bốn giá trị tiền xử lý.** Bốn giá trị dùng chung cho cả hai dạng token được khai theo
+quy ước nhãn ở mục 3.1.4, vì không giá trị nào trong số đó hiển nhiên từ bài toán.
+
+  Ngưỡng tin cậy 0.25 `[mặc định thư viện]`. Đây là ngưỡng tin cậy mặc định của thư viện
+  ultralytics và nó **không bị chạm tới** (`build_relation_tokens.py:43`;
+  `build-isafetybench-clip-features.py:147` khai lại cùng giá trị ở mức CLI). Luận văn **không**
+  dò tìm ngưỡng này. Đây là một lựa chọn bảo thủ đúng nghĩa: hạ ngưỡng sẽ đưa thêm hộp nhiễu vào
+  lưới token, nâng ngưỡng sẽ bỏ sót thực thể — và vì cùng một ngưỡng chạy cho **mọi** kiến trúc ở
+  **mọi** cổng, nó không thể là nguồn của một chênh lệch giữa hai kiến trúc.
+
+  N_MAX = 8 thực thể mỗi khung `[mặc định của mã]`. Lưới token có độ rộng cố định nên phải có một
+  trần, và trần đó là 8, cho lưới 16 × 8 = 128 khe mỗi clip. Giá trị 8 **không được dò tìm**. Hệ
+  quả của nó nêu được chính xác: các hộp được xếp theo độ tin cậy giảm dần
+  (`argsort(-conf)[:N_MAX]`), nên ở một khung có hơn tám thực thể, phần bị bỏ là phần **ít tin cậy
+  nhất** — không phải một phần ngẫu nhiên. Mặt nạ `valid` ghi lại số khe thực sự được điền, nên
+  một khung có ít hơn tám thực thể không bị đệm bằng token giả.
+
+  Đệm ngữ cảnh 30% `[mặc định của mã]`. Vùng cắt lấy theo hệ số 1.3 trên mỗi chiều
+  (`build_relation_tokens.py:87-88`, và `build-isafetybench-clip-features.py:85-86` dùng lại đúng
+  quy tắc đó thay vì suy ra lại). Lý do thiết kế đã nêu ở trên — một hộp bó sát xoá mất ngữ cảnh
+  mà quyết định an toàn phụ thuộc vào. Lý do đó biện hộ cho **việc có đệm**; nó không biện hộ cho
+  **mức 30%**, và không có phép so nào giữa 30% với một mức khác.
+
+  Cạnh ảnh đưa vào bộ phát hiện `[ràng buộc]`. Giá trị này **khác nhau giữa hai làn** và vì vậy
+  được khai ở nơi có nhật ký làm bằng chứng: Chương 4 mục 4.3.1 nêu rõ 800 thuộc làn Unsafe-Net
+  và 640 thuộc làn iSafetyBench, kèm dòng nhật ký của từng làn. Hai giá trị đều đúng; đọc hằng số
+  trong mã mà không đọc nhật ký là cách sinh ra nhầm lẫn mà mục đó được viết để ngăn.
+
+Một hệ quả chung của bốn nhãn trên, phải nói ở mục phương pháp vì nó quy định điều Chương 6 được
+phép kết luận: **không giá trị tiền xử lý nào của luận văn được tối ưu hoá.** Vì vậy luận văn không
+ở vị thế nói "đây là cấu hình trích thực thể tốt nhất", và nó không nói câu đó ở đâu cả. Điều nó ở
+vị thế nói là: mọi kiến trúc được so sánh đều đọc **đúng cùng một lưới token** sinh từ **đúng cùng
+bốn giá trị này**, nên các chênh lệch trong Chương 6 không mang theo một khác biệt tiền xử lý nào.
+
 3.4.2. ESTA — chú ý không gian–thời gian phân rã
 
 ESTA (*Entity SpatioTemporal Attention*, 352,258 tham số) là kiến trúc mà cổng G14 kiểm chứng. Nó
@@ -382,7 +535,7 @@ Bảng 3.3 — Thang encoder quan hệ. Số tham số của làn iSafetyBench /
      | khung, gộp mean‖max trên các khung. Là **đường sàn chống  |
      | quá khớp** của thang, và là encoder **tiêu đề** của làn.  |
 
-Hai quyết định phải nêu rõ.
+Ba quyết định phải nêu rõ.
 
 **Quyết định thứ nhất: bảng vị trí 129 khe của E0 là một tiên nghiệm sai, và luận văn đo nó chứ
 không chỉ phát biểu.** Trong E0, chỉ số vị trí đan xen chỉ số khung với **hạng theo độ tin cậy**
@@ -399,6 +552,30 @@ cho độ chính xác cao hơn, điều đó **không** làm nó thành encoder 
 khi đã thấy bảng kết quả chính là hành vi mà toàn bộ giao thức ở mục 3.7 và 3.8 được viết ra để
 chống lại. Hệ quả cụ thể, ghi lại ở đây để Chương 6 không phải biện luận: **E0 không được đề bạt
 làm encoder tiêu đề trong bất kỳ hoàn cảnh nào.**
+
+**Quyết định thứ ba: thang quan hệ dùng một mức điều chuẩn và một độ sâu KHÁC khối thời gian dùng
+chung, và sự khác biệt đó được khai ra chứ không được làm phẳng.** Khối thời gian của đường toàn
+khung dùng một lớp, dropout 0.1 và chuẩn hoá trước khối con (mục 3.3.2). Các encoder quan hệ dùng
+hai lớp và dropout 0.3 (E0, E2: `model_binary_encoders.py:35`, `model_relation_head.py:21-22`),
+hoặc dropout 0.2 ở E1 (`:60`), và **không** đặt chuẩn hoá trước, nên chúng chạy ở chế độ chuẩn hoá
+sau. Ba điểm phải nói về sự khác biệt này.
+
+  (a) **Lý do kỹ thuật nêu được.** Khối toàn khung chú ý trên 16 vị trí; E0 chú ý **phẳng trên 16 ×
+      8 = 128 token** của cùng một clip, trên cùng số clip. Cùng một lượng dữ liệu phải đỡ một lưới
+      token rộng gấp tám lần, nên nguy cơ quá khớp cao hơn hẳn và một mức dropout cao hơn là hợp
+      lý về nguyên tắc.
+
+  (b) **Nhưng xuất xứ của các giá trị cụ thể là `[mặc định của mã]`.** Dropout 0.3, hai lớp, và chế
+      độ chuẩn hoá sau là giá trị mặc định trong hàm khởi tạo của họ encoder này và **không được dò
+      tìm**. Luận văn **không** có một phép đối chứng nào chạy E0 ở dropout 0.1 hay ở một lớp. Lập
+      luận ở (a) giải thích **chiều** của sự khác biệt, không biện hộ cho **độ lớn** của nó.
+
+  (c) **Hệ quả cho việc đọc các đối chứng.** Vì mức điều chuẩn khác nhau, một so sánh **trực tiếp**
+      giữa một encoder quan hệ và khối toàn khung sẽ lẫn hai yếu tố: cơ chế và điều chuẩn. Đây
+      chính là lý do các cổng ở mục 3.8 **không** đặt E0–E3 cạnh B1: phép đối chứng cơ chế hợp lệ
+      của luận văn là **ESTA so với B1**, hai mô hình dùng đúng cùng khối thời gian, cùng độ sâu và
+      cùng dropout (cổng G14). Thang E0–E3 được đọc như một thang **nội bộ**, nơi cả bốn encoder
+      dùng chung đúng một công thức, nên chênh lệch trong thang vẫn quy được cho cơ chế.
 
 3.4.4. TSF — hợp nhất hai luồng
 
@@ -440,6 +617,46 @@ Transformer 4 lớp, 4 đầu, d = 256, FFN 1,024, dropout 0.3, vị trí học 
 MLP hai lớp → logits 4 lớp. Ở mức hệ thống, P1 huấn luyện **năm đầu** (direct4, scenario và bốn đầu
 cặp) rồi hợp nhất bằng xác suất có cổng theo scenario.
 
+**Mạch lập luận sinh ra đồ thị này.** Đoạn đặc tả trên là một danh sách dày, còn mạch lập luận đằng
+sau nó thì ngắn — và mạch ấy phải được nêu ra, vì nếu không thì việc luận văn về sau đổi sang một
+đồ thị khác trông như một thay đổi không có lý do.
+
+Giai đoạn đầu dự án đặt bài toán ở dạng **phân loại hành động bốn lớp trên clip đã cắt**, với một
+xương sống phát hiện đã đóng băng làm nguồn đặc trưng duy nhất. Câu hỏi của nó là: ngoài ngoại hình
+từng khung, còn lấy thêm được gì từ **chuyển động**? Bốn luồng thời gian là câu trả lời trực tiếp:
+luồng thứ nhất giữ ngoại hình thô, hai luồng tiếp theo là sai phân bậc một và bậc hai theo thời
+gian — xấp xỉ rời rạc của vận tốc và gia tốc biểu diễn — và luồng thứ tư là thống kê trên cửa sổ
+ngắn, mang biến động cục bộ mà sai phân từng bước làm mất. MLP cổng tồn tại vì bốn luồng ấy
+**không** đáng tin như nhau ở mọi thời điểm: một đoạn gần như tĩnh thì luồng sai phân chủ yếu mang
+nhiễu, nên trọng số hợp nhất được cho phép thay đổi theo từng bước thời gian thay vì bị ấn định.
+Ba thống kê mean‖std‖max theo trục không gian cũng theo cùng logic ấy ở chiều không gian: lưới
+4 × 4 bị tóm lại thành một vector mà vẫn giữ được "đâu đó trong khung có một đáp ứng mạnh" (max)
+bên cạnh "mức đáp ứng trung bình" (mean) và "độ phân tán" (std).
+
+**Xuất xứ của các giá trị, nói một lần cho toàn bộ đoạn đặc tả: `[mặc định của mã]`.** Lớp 22 của
+xương sống, lưới 4 × 4, T = 32, d = 256, FFN 1,024, bốn lớp, dropout 0.3, độ dài vị trí 32 — không
+giá trị nào trong số đó được dò tìm, và luận văn **không** có nhật ký so chúng với một phương án
+khác. Điều này được nêu thẳng thay vì để người đọc tự suy, và nó có một hệ quả đúng đắn: vì P1
+không sinh ra kết quả tiêu đề nào, luận văn **không** cần biện hộ cho từng giá trị của nó; việc nó
+phải làm là **không trích dẫn P1 như thể các giá trị ấy đã được biện hộ**, và đó là nội dung của ba
+phát biểu phạm vi ngay dưới đây.
+
+**Vì sao P1 thôi là đồ thị được triển khai — và vì sao câu trả lời KHÔNG phải "B1 thắng P1".** Hai
+đồ thị chưa bao giờ được đặt vào một phép so sánh, và không thể: chúng chạy trên **hai kho khác
+nhau**, giải **hai tác vụ khác nhau** (bốn lớp so với nhị phân), và báo **hai đơn vị khác nhau**
+(khung/giây so với quyết định/giây). Một bảng đặt số của hai đồ thị cạnh nhau sẽ là một bảng sai, và
+luận văn không có bảng đó. Hai lý do thật, cả hai độc lập với độ chính xác, là:
+
+  (a) **Cải cách giao thức làm mất giá trị trích dẫn của các kết quả P1.** Giao thức đánh giá ở mục
+      3.7 ràng buộc theo nhóm và cấm chọn mô hình trên tập kiểm thử. Hai kết quả lịch sử của P1 vi
+      phạm đúng hai điều đó và đã bị rút (xem phát biểu (3) dưới đây). Một đồ thị mà kết quả của
+      nó không trích dẫn được thì không thể là đồ thị tiêu đề, bất kể nó mạnh hay yếu.
+
+  (b) **Ràng buộc triển khai chọn đầu nhỏ nhất, không chọn đầu mạnh nhất.** Tiêu chí của cấu hình
+      được triển khai, cố định trước khi có bảng kết quả, là dấu chân biên nhỏ nhất (mục 3.3.3,
+      Bảng 3.2). Một đầu hợp nhất bốn luồng với bộ mã hoá bốn lớp ở d = 256 nằm sai phía của tiêu
+      chí đó, và nó nằm sai phía **theo cấu trúc**, không theo một phép đo.
+
 Phạm vi của đường P1 trong luận văn này, phát biểu dứt khoát:
 
   (1) P1 **không** là đồ thị được triển khai, và **không** sinh ra kết quả độ chính xác tiêu đề.
@@ -458,19 +675,84 @@ Việc giữ lại đặc tả của một đồ thị đã bị thay thế là 
 
 3.6.1. Một công thức cho mọi kiến trúc
 
-Mọi đầu trong luận văn — họ toàn khung, ESTA, TSF và thang encoder quan hệ — dùng **cùng một**
-công thức huấn luyện. Điều này được bảo đảm bằng cách họ ESTA gọi lại chính công thức của các đầu
-quan hệ, chứ không bằng việc hai tệp mã tình cờ ghi cùng các con số.
+Mọi đầu trong luận văn — họ toàn khung, ESTA, TSF và thang encoder quan hệ — dùng **gần như cùng
+một** công thức huấn luyện. Chữ "gần như" là bắt buộc, và mục này nói rõ nó che cái gì.
+
+Công thức tồn tại ở **hai bản cài đặt** chứ không phải một hàm dùng chung. Vòng huấn luyện của làn
+toàn khung/ESTA nằm ở `esta_training.train_one`; vòng của làn encoder quan hệ nằm ở
+`run_relation_transformer.train_one`. Tệp thứ nhất chỉ nhập lại **hai** tiện ích từ tệp thứ hai —
+`class_weights` và `set_seed` (dòng 19) — chứ **không** nhập lại vòng huấn luyện. Vì vậy mọi giá
+trị trùng nhau giữa hai làn là trùng vì được ghi lại giống nhau ở hai nơi, và chỗ nào lệch thì
+lệch thật. Bảng dưới đánh dấu đúng một ô như vậy.
 
   Bộ tối ưu          `AdamW(lr = 1e-3, weight_decay = 0.01)`
   Lịch học           cosine annealing trên toàn bộ số epoch, bước mỗi epoch
   Hàm mất mát chính  `CrossEntropyLoss(weight = w, label_smoothing = 0.05)`
   Trọng số lớp       `w` tỉ lệ nghịch tần suất, tính từ **phần huấn luyện của fold**
-  Chặn gradient      chuẩn tối đa 5.0
+  Chặn gradient      **1.0** ở làn toàn khung/ESTA, **5.0** ở làn encoder quan hệ
   Kích thước lô      32
   Số epoch           60
   Chọn điểm dừng     điểm kiểm tra tại epoch có `val_macro` cao nhất
   Thiết bị           **CPU**
+
+**Xuất xứ của chín giá trị trên.** Theo quy ước nhãn ở mục 3.1.4, công thức này **không** đồng chất
+về xuất xứ, và việc trộn lẫn các mức bằng chứng khác nhau vào một bảng duy nhất là điều đoạn dưới
+đây sửa lại.
+
+  `AdamW(lr = 1e-3, weight_decay = 0.01)` `[quy ước]`. Cặp giá trị này là cấu hình phổ biến khi
+  huấn luyện một đầu nhỏ trên đặc trưng đã trích sẵn; nó không phải một lựa chọn riêng của luận văn.
+
+  Cosine annealing `[quy ước]`, nhưng `T_max` **bằng đúng số epoch** là `[mặc định của mã]`. Điểm
+  thứ hai có một hệ quả cần nêu: vì chu kỳ lịch học gắn cứng vào ngân sách epoch, **đổi số epoch là
+  đổi cả hình dạng lịch học**, không chỉ đổi độ dài huấn luyện. Vì vậy hai ngân sách epoch khác
+  nhau là **hai công thức khác nhau**, không phải một công thức chạy dài hơn (Chương 4, mục 4.5.1).
+
+  Trọng số lớp tỉ lệ nghịch tần suất `[quy ước]`, tính **chỉ từ phần huấn luyện của fold** — điểm
+  thứ hai là `[ràng buộc]` của giao thức: tính trọng số trên toàn bộ kho sẽ cho mô hình biết phân
+  bố nhãn của fold giữ ra.
+
+  Kích thước lô 32 `[quy ước]`.
+
+  `label_smoothing = 0.05` — **lựa chọn của tác giả, chưa dò tìm.** Giá trị quy ước cho làm mượt
+  nhãn là 0.1; luận văn dùng một nửa giá trị đó. Lý do nêu được là cỡ dữ liệu: ở 1,100 và 516 clip,
+  làm mượt mạnh có nguy cơ xoá mất tín hiệu của lớp thiểu số, vốn là lớp mà balanced accuracy đo.
+  Lý do đó biện hộ cho **hướng** của lựa chọn (nhẹ hơn quy ước); nó **không** biện hộ cho riêng giá
+  trị 0.05, và không có phép so nào giữa 0.05 với 0.1 hay với 0.
+
+  Chặn chuẩn gradient `[mặc định của mã]`. Đây là **ô duy nhất trong bảng trên mà hai làn không
+  trùng nhau**: `esta_training.py` dòng 94 cắt ở **1.0**, `run_relation_transformer.py` dòng 150
+  cắt ở **5.0**. Hệ quả phải nói thẳng, vì nó đụng tới con số tiêu đề: 84.2% sinh ra dưới ngưỡng
+  cắt **1.0**, không phải 5.0 — làn toàn khung là làn của Bảng 6.1. **Không tìm thấy tiền lệ công
+  bố** cho riêng một trong hai giá trị trong các công trình video mà luận văn khảo sát. Cả hai là
+  van an toàn chống bước cập nhật đột biến trên lô nhỏ; cả hai đều chưa được dò tìm; và **không**
+  có phép so nào giữa 1.0 với 5.0 trên cùng dữ liệu. Độ lệch này vì vậy được khai ra như một khác
+  biệt **chưa đo được ảnh hưởng**, không phải như một lựa chọn có lý do.
+
+  Số epoch `[mặc định của mã]`. Giá trị 60 là mặc định của trình chạy sinh ra mọi dòng kết quả được
+  công bố; nó chưa được dò tìm, và không có đường cong học theo epoch nào được công bố để biện hộ
+  cho nó. Điều **thay** cho một phép dò tìm là cơ chế chọn điểm dừng ở mục 3.6.2: vì điểm kiểm tra
+  được lấy ở epoch có `val_macro` cao nhất chứ không ở epoch cuối, một ngân sách epoch quá dài gây
+  tốn thời gian chứ không gây quá khớp vào con số được công bố.
+
+  Thiết bị CPU `[ràng buộc]`. Lý do nêu ở đoạn cuối mục này; nó là một ràng buộc về tính đúng của
+  phép cập nhật, không phải một lựa chọn hiệu năng.
+
+**Phạm vi chính xác của câu "một công thức cho mọi kiến trúc".** Trừ ô chặn gradient vừa nêu, câu
+đó đúng cho **mọi dòng kết quả được công bố trong luận văn** ở tám ô còn lại của bảng: tất cả đều
+sinh từ một ngân sách epoch, một số hạt giống và một tỉ lệ cắt validation. Nó **không** đúng theo
+hai nghĩa khác, và cả hai phải được mang theo khi đọc Chương 6.
+
+  Thứ nhất, **ngưỡng chặn gradient khác nhau giữa hai làn**. Không có một ngưỡng duy nhất nào đứng
+  sau toàn bộ Chương 6, nên một so sánh giữa một dòng của làn toàn khung và một dòng của làn
+  encoder quan hệ mang theo đúng một khác biệt tối ưu hoá chưa được đo. Đó là một lý do nữa — bên
+  cạnh lý do kho dữ liệu khác nhau ở mục 3.4.3 — để các cổng tiền đăng ký **không** đặt E0–E3 đối
+  đầu với B1.
+
+  Thứ hai, trong kho mã còn **hai thứ nữa** cũng huấn luyện đầu mô hình: các lần chạy **sàng lọc
+  kiến trúc trên một phép chia đơn**, và lần huấn luyện sinh ra **checkpoint được xuất đi triển
+  khai**. Hai thứ đó dùng tỉ lệ cắt validation và ngân sách epoch khác, và Chương 4 mục 4.5.1 khai
+  đủ ba cấu hình kèm số dòng mã. Điều phải nhớ là: **không dòng kết quả nào trong Chương 6 đến từ
+  hai cấu hình kia.**
 
 Hàm mất mát của làn nhị phân có **ba số hạng**, không phải một:
 
@@ -596,6 +878,39 @@ từng lớp. Lý do: cả hai kho đều lệch lớp, nên độ chính xác t
 iSafetyBench chỉ bằng cách luôn trả lời "bình thường". Các chỉ số phụ được báo cáo cùng BA ở mọi
 bảng: macro-F1, độ nhạy và precision của lớp dương, PR-AUC và ROC-AUC.
 
+**Công thức, viết đúng như mã tính nó.** Gọi K là số lớp **có mặt** trong tập đang được chấm, và
+với mỗi lớp c gọi TP_c, FP_c, FN_c là số clip đúng-dương, dương-giả và âm-giả của lớp đó:
+
+      recall_c     =  TP_c / (TP_c + FN_c)                 độ nhạy của lớp c
+
+      BA           =  (1/K) · Σ_c recall_c                 chỉ số chính của luận văn
+
+      precision_c  =  TP_c / (TP_c + FP_c)
+
+      F1_c         =  2 · precision_c · recall_c / (precision_c + recall_c)
+
+      macro-F1     =  (1/K) · Σ_c F1_c
+
+Cài đặt: `eval_utils/metrics.py` — `per_class_recall` ở dòng 20, `macro_accuracy` ở dòng 33, độ
+chính xác top-1 ở dòng 15. Không có công thức nào trong luận văn được tính bằng một hàm khác với
+các hàm vừa nêu tên.
+
+**Hai công thức trên không phải một, và luận văn báo cáo cả hai.** Hàm `macro_accuracy` là **trung
+bình độ nhạy theo lớp**, **không** phải macro-F1; chính docstring của mô-đun viết điều đó ra
+(`eval_utils/metrics.py` dòng 3) để chặn một nhầm lẫn thường gặp, vì nhiều tài liệu gọi cả hai đại
+lượng là "macro". Hệ quả phải đọc đúng: **BA không trừng phạt báo động giả.** Nó chỉ nhìn phần
+mẫu thật của mỗi lớp được bắt đúng bao nhiêu; precision không xuất hiện trong nó. Một mô hình hạ
+ngưỡng để bắt gần hết lớp nguy hiểm sẽ **tăng** BA và **giảm** macro-F1 cùng lúc. Vì vậy mọi bảng
+ở Chương 6 in BA cạnh macro-F1 và cạnh tỉ lệ báo động giả, và không phát biểu nào được dựng chỉ
+trên BA — đây cũng là lý do mục 6.15.4 báo cáo 82.81% độ nhạy **kèm** 34.43% báo động giả chứ
+không chỉ báo cáo vế thuận lợi.
+
+Chỉ các lớp **có mặt** trong tập đang được chấm mới vào trung bình, chứ không phải toàn bộ lớp của
+kho. Chi tiết này không phải tiểu tiết: ở bootstrap theo cụm, một lần lấy mẫu lại có thể mất hẳn
+một lớp, và khi đó BA bị coi là **không xác định** rồi loại khỏi phân phối bootstrap, thay vì bị
+tính như một recall bằng 0 — một lựa chọn làm khoảng tin cậy **rộng hơn**, không hẹp hơn
+(mục 3.7.4 ngay dưới).
+
 **Đường sàn được đăng ký trước, và nó không phải 50%.** Trước khi encoder nào được huấn luyện trên
 iSafetyBench, một **quy tắc đếm ba đặc trưng** (số người mỗi khung, số vật thể mỗi khung, và tỉ số
 giữa hai lượng đó) được khớp dưới **đúng** bộ fold có ràng buộc nhóm, như một cổng chống lối tắt
@@ -620,8 +935,53 @@ tạo. Các nhật ký đồng thời in cả khoảng ở mức clip kèm nhãn
 được dùng** ở bất kỳ phát biểu nào, và được giữ lại để người đọc thấy chính xác cái giá của việc
 chọn sai đơn vị lấy mẫu.
 
-**Kiểm định ghép đôi là McNemar chính xác** [40] trên các dự đoán theo từng clip của hai mô hình
-được so.
+**Công thức bootstrap theo cụm.** Gọi G = {g_1, …, g_M} là tập nhóm (M = 151 nguồn trên
+iSafetyBench; M = 8 nhóm bối cảnh trên Unsafe-Net), I(g) là tập chỉ số clip thuộc nhóm g, y là
+nhãn thật, ŷ là dự đoán, và m(·,·) là chỉ số cần đo — mặc định là BA ở mục 3.7.3. Với mỗi lần rút
+b = 1…B:
+
+      (a)  rút M nhóm **có hoàn lại** từ G:   g*_1, …, g*_M
+      (b)  ghép chỉ số clip của chúng:        I*_b  =  I(g*_1) ⊎ … ⊎ I(g*_M)
+      (c)  tính lại chỉ số trên đúng tập đó:  θ*_b  =  m( y[I*_b], ŷ[I*_b] )
+
+      khoảng tin cậy  =  [ phân vị thứ 100·α/2 của {θ*_b} ,  phân vị thứ 100·(1−α/2) của {θ*_b} ]
+
+Dấu ⊎ là phép ghép **giữ bản trùng**: một nhóm được rút hai lần thì clip của nó xuất hiện hai lần,
+và đó chính là cơ chế làm khoảng rộng ra đúng mức khi kho có vài nguồn rất lớn. Số nhóm rút ra
+bằng số nhóm gốc (M), không phải số clip.
+
+Dạng **ghép đôi** dùng **cùng một** I*_b cho hai mô hình rồi mới lấy hiệu, nên quan hệ ghép đôi
+được giữ nguyên từng lần rút thay vì bị phá bởi hai lần lấy mẫu độc lập:
+
+      Δ*_b  =  ( m( y[I*_b], ŷ_A[I*_b] )  −  m( y[I*_b], ŷ_B[I*_b] ) ) · 100
+
+Tham số cố định trong mã, không phải lựa chọn theo từng bảng: **B = 5000** lần rút, `seed = 0`,
+**α = 0.05**, và phương pháp **phân vị** (không phải BCa). Cài đặt:
+`eval_utils/cluster_bootstrap.py` — dạng ghép đôi ở dòng 23, dạng một chỉ số ở dòng 52. Mỗi lần
+rút mất hẳn một lớp bị **loại** khỏi phân phối (BA không xác định ở đó), và số lần rút còn sống
+được trả về cùng khoảng để bảng nào cũng nói được khoảng ấy dựng trên bao nhiêu lần rút thực.
+
+Phiên bản lấy mẫu lại **clip** vẫn nằm trong mã (`eval_utils/paired_tests.py` dòng 62, cùng B,
+`seed` và α), và đó đúng là các khoảng mang nhãn `WRONG UNIT` nói ở trên. Giữ cả hai trong cùng
+một kho mã là có chủ ý: khoảng đúng đơn vị và khoảng sai đơn vị in cạnh nhau cho thấy chênh lệch
+là một đại lượng đo được, không phải một lo ngại trên lý thuyết.
+
+**Công thức McNemar chính xác.** Gọi a_i, b_i ∈ {0,1} là biến "mô hình A (tương ứng B) đúng ở clip
+i". Chỉ hai ô **lệch** mang thông tin:
+
+      n_01  =  #{ i : a_i = 0, b_i = 1 }        n_10  =  #{ i : a_i = 1, b_i = 0 }
+
+      n_d   =  n_01 + n_10                      k     =  min(n_01, n_10)
+
+      p     =  min( 1 ,  2 · F(k ; n_d , 1/2) )        F là hàm phân phối tích luỹ nhị thức
+
+Đây là dạng **chính xác** (nhị thức) chứ không phải xấp xỉ chi-bình-phương với hiệu chỉnh liên
+tục, nên nó vẫn hợp lệ khi n_d nhỏ — và n_d nhỏ là trạng thái **thường gặp** ở đây. Cài đặt:
+`eval_utils/paired_tests.py` dòng 17. Mã gắn cờ `underpowered` khi **n_d < 10** (dòng 52); mọi
+phát biểu "không thấy khác biệt" dựa trên một kiểm định bị gắn cờ như vậy được đọc là **thiếu lực
+kiểm định**, không phải bằng chứng cho bằng nhau. Trên kho 64 clip của mục 6.12, n_d điển hình chỉ
+khoảng 6–8, nên ở đó McNemar gần như không có khả năng kết luận và khoảng tin cậy là công cụ duy
+nhất còn dùng được.
 
 **Thứ tự ưu tiên khi hai công cụ trái nhau, cố định trước:** lấy kết luận của **khoảng tin cậy
 theo cụm**. McNemar bỏ qua cấu trúc cụm, nên trong bối cảnh này nó là kiểm định quá dễ dãi.
@@ -633,6 +993,194 @@ cụm trên một cấu trúc như vậy cho khoảng rất rộng. Luận văn 
 vị lấy mẫu để thu hẹp khoảng: đổi sang mức clip sẽ biến một số phán quyết trượt thành phán quyết
 đạt, và đó là lý do nó không được làm.
 
+
+3.7.5. Công thức của các chỉ số phụ, và hai cài đặt song song
+
+Mục 3.7.3 viết công thức của chỉ số chính, mục 3.7.4 viết công thức của khoảng tin cậy và của
+kiểm định ghép đôi. Mục này viết **các công thức còn lại** — những đại lượng được in *cạnh* chỉ
+số chính ở Chương 6 — và viết chúng đúng như mã tính, kèm dòng mã sinh ra từng giá trị.
+
+Trước công thức, một điều về xuất xứ phải nói ra, vì nó quyết định giá trị nào được phép đặt cạnh
+giá trị nào: **luận văn có hai cài đặt song song, và không trộn số của hai cài đặt**.
+
+  (a) Cài đặt numpy/scipy thuần trong `unsafenet/metrics.py` — docstring của mô-đun ghi rõ "no
+      sklearn". Hàm `report()` (dòng 156) tính cả bộ chỉ số một lần, và `eval_utils/suite.py`
+      (dòng 17) gọi đúng hàm đó. Đây là nguồn của **mọi** PR-AUC, ROC-AUC, ECE, Brier, κ và MCC
+      ở làn nhị phân: Bảng 6.1, Bảng 6.5 và thẻ điểm mục 6.15.4.
+
+  (b) Đường scikit-learn trong `run_full_eval.py` (dòng 15–17 nhập hàm). Đây là nguồn của bảy
+      chỉ số thẻ điểm làn bốn lớp ở mục 6.12.4, "tính lại 02/10/2026 bằng scikit-learn".
+
+Hệ quả bất lợi cho cách trình bày gọn, nên phải phát biểu thẳng: PR-AUC 0.880 của mục 6.12.4 và
+một giá trị PR-AUC của Bảng 6.1 **không do cùng một đoạn mã sinh ra**. Hai cài đặt được kiểm tra
+là cùng định nghĩa ở từng công thức dưới đây, nhưng "cùng định nghĩa" không phải "cùng một phép
+đo", và luận văn không đặt hai giá trị ấy cạnh nhau như một so sánh.
+
+**ROC-AUC một-so-với-còn-lại.** Với lớp c, gọi s_i = p_ic là điểm softmax của lớp đó ở clip i,
+y_i = 1[nhãn thật của clip i là c], P là số clip dương, N_âm là số clip âm:
+
+      sắp các clip theo s giảm dần; với j = 1…N:
+
+      TPR_j   =  (1/P) · Σ_{i ≤ j} y_i              TPR tích luỹ sau j clip đầu
+
+      FPR_j   =  (1/N_âm) · Σ_{i ≤ j} (1 − y_i)
+
+      AUC_c   =  diện tích hình thang dưới dãy điểm (FPR_j, TPR_j), thêm hai điểm (0,0) và (1,1)
+
+      ROC-AUC macro  =  trung bình **bỏ NaN** của { AUC_c }
+
+Lớp vắng mặt trong tập đang chấm (P = 0 hoặc N_âm = 0) cho AUC_c = NaN và bị **loại** khỏi trung
+bình, chứ không bị tính như 0 — đúng quy ước đã nêu cho BA ở mục 3.7.3. Cài đặt:
+`unsafenet/metrics.py` dòng 77 (`_roc_auc_binary`) và dòng 101 (phần gộp một-so-với-còn-lại).
+
+Cách đọc đại lượng này: AUC là xác suất một clip dương lấy ngẫu nhiên được xếp **trên** một clip
+âm lấy ngẫu nhiên. Một chi tiết cài đặt phải nêu vì nó là lý do thứ hai để không trộn hai đường
+mã: cài đặt numpy dựng **một điểm đường cong cho mỗi clip**, nên một khối clip trùng điểm hiện ra
+thành bậc thang; scikit-learn gộp các clip trùng điểm thành một mốc rồi mới lấy hình thang, tức
+áp quy tắc "cặp trùng điểm tính nửa cặp". Hai cài đặt cho đúng cùng một số khi không có hai clip
+cùng điểm, và luận văn không khẳng định gì mạnh hơn thế.
+
+Cùng đại lượng ấy, giới hạn lại tập cặp, là phép đo quyết định của mục 6.15.4: **AUC trong cùng
+nhóm bối cảnh** đếm cặp theo dạng Mann–Whitney với cặp trùng điểm tính 0.5
+(`eval_utils/detection_metrics.py` dòng 109), và chỉ nhận các cặp có **cùng** nhóm bối cảnh. Vì
+vậy 0.8485 so với 0.6426 là cùng một đại lượng trên hai tập cặp khác nhau, không phải hai đại
+lượng khác nhau.
+
+**PR-AUC là độ chính xác trung bình (average precision), nội suy bậc thang.** Cùng cách sắp giảm
+dần theo điểm, với TP_j và FP_j là số dương-thật và dương-giả tích luỹ sau j clip đầu:
+
+      precision_j  =  TP_j / (TP_j + FP_j)          recall_j  =  TP_j / P
+
+      AP_c  =  Σ_j ( recall_j − recall_{j−1} ) · precision_j        với recall_0 = 0
+
+Cài đặt: `unsafenet/metrics.py` dòng 88; mã thêm precision_0 = 1 và recall_0 = 0 vào đầu dãy rồi
+mới cộng. Đây là dạng **bậc thang** — mỗi clip một bậc — **không** phải diện tích hình thang dưới
+đường precision–recall, và **không** phải nội suy 11 điểm hay 101 điểm mà các bộ đo phát hiện đối
+tượng dùng. Hệ quả phải nhớ khi đọc luận văn: một giá trị PR-AUC ở Chương 6 và một giá trị mAP ở
+Bảng 4.1 **không cùng công thức**, nên chúng không được so với nhau.
+
+**mAP@50 và mAP@50-95 là số đọc, không phải số luận văn tự cài đặt.** Bảng 4.1 lấy nguyên từ bộ
+kiểm định của ultralytics 8.4.27 (mục 4.2.3). Định nghĩa của đại lượng: với hai vùng A (dự đoán)
+và B (chân lý),
+
+      IoU(A, B)  =  diện tích(A ∩ B) / diện tích(A ∪ B)
+
+một hộp dự đoán **khớp** một hộp chân lý khi IoU ≥ 0.50; việc ghép đi theo thứ tự điểm tin cậy
+giảm dần và mỗi hộp chân lý chỉ được ghép một lần. AP của một lớp là diện tích dưới đường
+precision–recall của lớp đó; **mAP@50** là trung bình AP trên 6 lớp **có instance** trong tập
+kiểm định (mục 4.2.3 giải thích vì sao không phải 8 lớp); **mAP@50-95** lấy trung bình thêm trên
+mười ngưỡng IoU 0.50, 0.55, …, 0.95. Cách nội suy đường precision–recall nằm *bên trong* con số
+ấy là một giá trị **`[mặc định thư viện]`**: luận văn không cài đặt lại nó và không khẳng định nó
+trùng với dạng bậc thang ở trên. IoU không xuất hiện trong bất kỳ công thức nào khác của luận
+văn — làn nhị phân và làn bốn lớp chấm theo clip, không theo hộp.
+
+**Sai số hiệu chuẩn kỳ vọng (ECE) và sai số hiệu chuẩn lớn nhất (MCE), 15 bin đều bề rộng trên độ
+tin cậy lớn nhất.** Với hàng softmax p_i của clip i:
+
+      conf_i   =  max_c p_ic                correct_i  =  1[ argmax_c p_ic = nhãn thật của i ]
+
+      bin b    =  { i : lo_b < conf_i ≤ hi_b },   lo_b = (b−1)/15,  hi_b = b/15,  b = 1…15
+                  (bin đầu lấy cả mốc dưới: điều kiện của nó là conf_i ≥ 0)
+
+      acc(b)   =  trung bình correct trên bin b      conf(b)  =  trung bình conf trên bin b
+
+      ECE      =  Σ_b ( |b| / N ) · | acc(b) − conf(b) |        chỉ cộng các bin không rỗng
+
+      MCE      =  max_b | acc(b) − conf(b) |
+
+Hai cài đặt, **cùng một định nghĩa từng dòng**: `eval_utils/calibration.py` dòng 30 (đường
+scikit-learn dùng, qua `run_full_eval.py` dòng 113) và `unsafenet/metrics.py` dòng 109 (làn nhị
+phân dùng). Số bin **15** là một giá trị **`[quy ước]`** lấy theo công trình hiệu chuẩn [38], chứ
+không phải một giá trị được dò.
+
+Nhược điểm của ECE phải nêu cạnh giá trị của nó, vì luận văn dùng chính giá trị ấy làm căn cứ cho
+một khuyến nghị triển khai (mục 7.9.1). Thứ nhất, **ECE không phải một đại lượng xác định duy
+nhất**: đổi số bin hoặc đổi cách chia bin thì đổi con số, nên "ECE = 0.097" chỉ có nghĩa khi đi
+kèm "15 bin, đều bề rộng, trên độ tin cậy lớn nhất" — và luận văn luôn in kèm cụm đó. Thứ hai,
+trên tập 64 clip của mục 6.12.4 và tập 125 clip của mục 6.15.4, một bin có thể chỉ chứa vài clip,
+nên acc(b) của nó rất nhiễu và không có khoảng tin cậy nào được dựng cho ECE. Thứ ba, ECE **không
+phải một quy tắc chấm điểm chính đáng**: một bộ dự báo có thể có ECE nhỏ mà vẫn dự báo kém, vì nó
+chỉ so trung bình độ tin cậy với trung bình độ chính xác trong từng bin. Đó là lý do Brier được
+in cạnh ECE chứ không thay nó.
+
+**Brier đa lớp, dạng tổng bình phương theo lớp.**
+
+      BS  =  (1/N) · Σ_i Σ_c ( p_ic − 1[ nhãn thật của i là c ] )²
+
+Cài đặt: `unsafenet/metrics.py` dòng 125. Một lưu ý về **thang đo**, vì đây là chỗ dễ đọc sai
+nhất của cả mục: dạng tổng theo lớp này nhận giá trị trong **[0, 2]**, không phải [0, 1]. Giá trị
+**0.338** ở mục 6.15.4 vì vậy phải đọc trên thang 0–2, và **không** được đọc như "33.8%" của bất
+cứ thứ gì. Dạng chia đôi (hoặc dạng nhị phân chỉ lấy một vế) cho đúng một nửa con số; luận văn
+không dùng dạng đó ở bất kỳ bảng nào.
+
+**Hệ số κ của Cohen.** Gọi cm là ma trận nhầm lẫn, hàng_c là tổng hàng c (số clip **thật** thuộc
+lớp c), cột_c là tổng cột c (số clip **bị dự đoán** là lớp c), N là tổng số clip:
+
+      p_o  =  (1/N) · Σ_c cm_cc                       tỉ lệ đồng thuận quan sát được
+
+      p_e  =  (1/N²) · Σ_c ( hàng_c · cột_c )         tỉ lệ đồng thuận do tình cờ
+
+      κ    =  ( p_o − p_e ) / ( 1 − p_e )
+
+Cài đặt: `unsafenet/metrics.py` dòng 69. Hàm `cohen_kappa_score` của scikit-learn gọi ở
+`run_full_eval.py` dòng 97 là dạng **không trọng số**, tức đúng công thức này. Khi p_e = 1 mã trả
+về 0.0 — một giá trị **`[mặc định của mã]`**, không phải một phép đo.
+
+Công thức này xuất hiện ở hai chỗ trong luận văn với **hai đối tượng khác nhau**, và hai chỗ ấy
+không được lẫn: κ = 0.775 ở mục 6.12.4 là độ đồng thuận giữa **mô hình và nhãn**; còn κ = 0.65
+(mục 4.2.4) là độ đồng thuận giữa **hai người gán nhãn** trên 100 clip. Cùng công thức, khác đầu
+vào, khác ý nghĩa — và chỉ giá trị thứ hai mới là trần chất lượng nhãn.
+
+**MCC đa lớp, dạng Gorodkin, tính thẳng từ ma trận nhầm lẫn.** Với t_c = hàng_c, q_c = cột_c,
+n = N và c = Σ_c cm_cc (số clip đúng):
+
+      MCC  =  ( n·c − Σ_c t_c q_c ) / sqrt( ( n² − Σ_c t_c² ) · ( n² − Σ_c q_c² ) )
+
+Cài đặt: `unsafenet/metrics.py` dòng 61. Ở làn nhị phân, công thức này về đúng hệ số phi của bảng
+2×2. Khi mẫu số bằng 0 — xảy ra khi một bộ dự đoán trả **cùng một lớp** cho mọi clip — mã trả
+về 0.0, cũng là một **`[mặc định của mã]`**.
+
+**Khoảng Wilson cho một tỉ lệ k/n.** Với z = Φ⁻¹(1 − α/2) và p̂ = k/n:
+
+      D     =  1 + z²/n
+
+      tâm   =  ( p̂ + z²/(2n) ) / D
+
+      nửa độ rộng  =  z · sqrt( p̂(1 − p̂)/n + z²/(4n²) ) / D
+
+α = 0.05 là **`[quy ước]`**. Cài đặt: `unsafenet/metrics_stats.py` dòng 19, và `wilson_ci` trong
+`eval_utils/paired_tests.py`. **Cảnh báo đơn vị lấy mẫu của mục 3.7.4 áp dụng nguyên vào đây**:
+Wilson là khoảng ở **mức clip**, nên mỗi lần nó xuất hiện trên một tập mà các clip chia sẻ nguồn
+hoặc chia sẻ nhóm bối cảnh, nó mang đúng khuyết điểm đã nêu. Vì vậy mục 6.15.4 in khoảng Wilson
+[66.10, 81.24] **cạnh** bootstrap theo nhóm chứ không thay nó, và phán quyết lấy theo bootstrap
+theo nhóm. Mã còn tính khoảng nhị thức chính xác Clopper–Pearson (`metrics_stats.py` dòng 10,
+đảo hàm phân phối nhị thức qua phân phối beta), nhưng **không** giá trị nào trong luận văn được
+trích từ đó.
+
+**Kiểm định t ghép đôi có hiệu chỉnh Nadeau–Bengio [45].** Gọi d_i là hiệu giữa hai mô hình ở
+fold i (i = 1…n), d̄ là trung bình, s² là phương sai mẫu (ddof = 1):
+
+      t  =  d̄ / sqrt( s² · ( 1/n + n_test / n_train ) )
+
+      p  =  2 · ( 1 − F( |t| ; t-Student với n − 1 bậc tự do ) )
+
+Số hạng n_test/n_train chính là phần **hiệu chỉnh**: n fold dùng các tập huấn luyện **chồng lấn**
+nhau, nên một t-test ghép đôi thường đánh giá **thấp** sai số chuẩn. Cài đặt: `run_kfold_eval.py`
+dòng 73; n_train và n_test truyền vào là **trung bình** kích thước tập huấn luyện và tập kiểm tra
+trên các fold (dòng 142). Khi s² = 0 mã trả về (t = 0, p = 1).
+
+Tác dụng đo được của hiệu chỉnh này không phải chuyện lý thuyết. Ở mục 6.12.2, nó nâng sai số
+chuẩn lên **2.12 pp**, tức lớn hơn 3.7 lần giá trị ngây thơ, và một biên từng trông như có ý
+nghĩa thống kê trở thành không có. Ở mục 6.8, với E3 trên Unsafe-Net, nó nới sai số chuẩn 1.66
+thành 2.49, rộng thêm 50%. Cả hai lần, công cụ đúng làm phát biểu của luận văn **yếu đi**, không
+mạnh lên; đó là tiêu chí đã dùng để chọn nó.
+
+**Ba đại lượng được tính mà không được trích, và một kiểm định bị cấm.** Hàm `report()` còn trả về
+MCE, NLL (log-likelihood âm trung bình) và khoảng Clopper–Pearson. **Không** phát biểu nào của
+luận văn dựa trên ba giá trị đó; chúng nằm trong tạo tác để người đọc kiểm tra, và điều này được
+nói ra để không ai nhầm "có trong tạo tác" thành "đã được dùng". Riêng kiểm định z hai tỉ lệ
+(`two_proportion_z`) thì bị **cấm** làm căn cứ phán quyết, vì nó giả định hai mẫu độc lập trong
+khi mọi so sánh ở đây chạy trên **cùng một tập clip**; lệnh cấm ấy được ghi và thực thi ở mục 6.8.
 ----------------------------------------------------------------------
 3.8. TÁM CỔNG TIỀN ĐĂNG KÝ VÀ MỘT ĐỐI CHỨNG
 ----------------------------------------------------------------------
@@ -763,7 +1311,6 @@ Bảng 3.4 — Tập cổng tiền đăng ký. Mọi cổng dùng giao thức c�
   Nếu trượt    Luồng thực thể **không thêm gì kể cả như một góc nhìn bổ sung**; luận văn lấy
                B1/B1w làm tiêu đề, và vai trò của YOLO là **định vị** cộng với chương triển
                khai biên. **Không bậc thứ ba được phát minh về sau.**
-       |              | Kèm **đối chứng dung lượng B1xl** (mục 3.3.3).    | phát minh về sau.**
 
 Hai tính chất của bảng này đáng được nêu thành lời.
 
@@ -942,6 +1489,18 @@ là có chủ ý.
 [8]  Y. Zhao, W. Lv, S. Xu, J. Wei, G. Wang, Q. Dang, Y. Liu, J. Chen, "DETRs Beat YOLOs on
      Real-time Object Detection," CVPR 2024. arXiv:2304.08069.
 
+[11] J. Carreira, A. Zisserman, "Quo Vadis, Action Recognition? A New Model and the Kinetics
+     Dataset," Proc. IEEE Conf. Computer Vision and Pattern Recognition (CVPR), 2017,
+     tr. 4724–4733. arXiv:1705.07750. DOI: 10.1109/CVPR.2017.502.
+
+[12] C. Feichtenhofer, H. Fan, J. Malik, K. He, "SlowFast Networks for Video Recognition," Proc.
+     IEEE/CVF Int. Conf. Computer Vision (ICCV), 2019, tr. 6202–6211. arXiv:1812.03982.
+     DOI: 10.1109/ICCV.2019.00630.
+
+[15] Z. Tong, Y. Song, J. Wang, L. Wang, "VideoMAE: Masked Autoencoders are Data-Efficient
+     Learners for Self-Supervised Video Pre-Training," Advances in Neural Information Processing
+     Systems (NeurIPS), tập 35, 2022, tr. 10078–10093. arXiv:2203.12602.
+
 [17] O. Önal, E. Dandıl, "Unsafe-Net: YOLO v4 and ConvLSTM based computer vision system for
      real-time detection of unsafe behaviours in workplace," Multimedia Tools and Applications,
      tập 84, số 29, tr. 34967–34993, 2024. DOI: 10.1007/s11042-024-19276-8.
@@ -952,7 +1511,17 @@ là có chủ ý.
 [28] A. Radford và cộng sự, "Learning Transferable Visual Models From Natural Language
      Supervision," ICML 2021. arXiv:2103.00020.
 
+[38] C. Guo, G. Pleiss, Y. Sun, K. Q. Weinberger, "On Calibration of Modern Neural Networks,"
+     Proc. 34th Int. Conf. Machine Learning (ICML), 2017. arXiv:1706.04599.
+
 [39] B. Efron, R. J. Tibshirani, "An Introduction to the Bootstrap," Chapman & Hall, 1993.
 
 [40] Q. McNemar, "Note on the sampling error of the difference between correlated proportions or
      percentages," Psychometrika, tập 12, số 2, tr. 153–157, 1947. DOI: 10.1007/BF02295996.
+
+[43] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, L. Kaiser,
+     I. Polosukhin, "Attention Is All You Need," Advances in Neural Information Processing
+     Systems (NeurIPS), tập 30, 2017. arXiv:1706.03762.
+
+[45] C. Nadeau, Y. Bengio, "Inference for the Generalization Error," Machine Learning, tập 52,
+     số 3, tr. 239–281, 2003. DOI: 10.1023/A:1024068626366.

@@ -712,6 +712,66 @@ Quy ước: các giá trị trong cột "Đã rút" được in ra **để nhậ
   mAP@50 / mAP@50-95 = 0.966 / 0.975  | **giá trị tạm**, chưa đối chiếu tạo tác
   (bộ phát hiện làn nhị phân)         |
 
+Bảng trên là một **danh sách**, và một danh sách không tự giải thích điều gì. Phần dưới đây là
+phần phải đọc cùng nó: bốn nhóm không khác nhau ở mức độ nghiêm trọng mà khác nhau ở **chỗ sai
+nằm đâu trong chuỗi từ phép đo tới câu văn**, và chính chỗ đó quyết định loại kiểm tra nào bắt
+được chúng.
+
+  Nhóm A (9 hàng) — **phép đo đúng, tên gọi sai**: con số được tính đúng như mã của nó, nhưng
+  đại lượng được trình bày không phải đại lượng đã được đo.
+
+  Nhóm B (5 hàng) — **điểm ước lượng đúng, độ bất định sai**: con số giữ nguyên, phần bị rút là
+  khoảng tin cậy hoặc giá trị p dựng trên một đơn vị độc lập sai.
+
+  Nhóm C (7 hàng) — **bản thân con số sai**: hằng số mã hoá cứng, cặp lớp gán lệch, mẫu số tính
+  trên một tập khác.
+
+  Nhóm D (9 hàng) — **không có gì sai**; phần bị rút là **phạm vi được dẫn**, không phải giá trị.
+
+**Thứ tự nguy hiểm không trùng thứ tự liệt kê, và nhóm A đứng đầu.** Lý do là một tính chất kiểm
+tra được, không phải một cảm nhận. Một lỗi nhóm C **để lại dấu vết khi chạy lại**: mã cho ra một
+con số khác con số đã in, nên bản thân việc đo lại đã là báo động — đó là cách hàng mAP của nhóm
+C được đóng lại (mục 7.7.1(a)). Một lỗi nhóm B bị bắt bởi một lần rà **đơn vị lấy mẫu**
+(mục 3.7.4). Nhưng một lỗi nhóm A **tái lập hoàn hảo**: chạy lại cho ra đúng con số cũ, vì
+phép tính không sai — chỉ câu văn quanh nó sai. Không script nào hỏi "con số này đo cái gì"; chỉ
+một người đọc hỏi câu đó, và đó là lý do nhóm A sống lâu nhất qua các bản thảo.
+
+**Hai mươi mốt lần rút của ba nhóm A–C cũng không rải đều trên các làn.** Toàn bộ 9 hàng nhóm A
+thuộc làn triển khai biên, cộng 2 hàng của nhóm C cũng thuộc làn ấy: 11 trong 21 lần rút đến từ
+một chương duy nhất, trong khi hai làn độ chính xác đóng góp phần còn lại và gần như **không**
+đóng góp hàng nào vào nhóm A. Cách giải thích đúng không phải "phần triển khai được làm cẩu thả
+hơn", mà là một khác biệt về **cấu trúc tạo tác**: một tạo tác nhịp mang nhiều trường tên gần
+giống nhau — `decisions_per_sec_p50`, `*_with_stream_decode`,
+`throughput_decisions_per_sec_naive` — nên trích sai trường là lỗi dễ xảy ra và tái lập hoàn hảo.
+Hai làn độ chính xác thì đi qua **một** hàm chỉ số duy nhất cho mỗi đại lượng (mục 3.7.3 và
+mục 3.7.5) và một tạo tác cho mỗi lần chạy, nên lỗi ở đó hiện ra thành **con số sai** — tức thành
+nhóm C — và bị phép đo lại bắt được. Hệ quả cho người đọc: phần nhịp và công suất của luận văn
+cần đọc kỹ **tên trường**, không chỉ giá trị; đây cũng là lý do mục 7.5 tồn tại.
+
+**Mỗi nhóm sinh ra một quy tắc, và các quy tắc ấy đang có hiệu lực ở chỗ khác trong luận văn.** Đó
+là lý do bảng này nằm trong một chương phân tích chứ không nằm trong một phụ lục:
+
+  - Nhóm A → **mỗi con số kết quả khai báo đại lượng và giao thức của nó**. Dạng gọn là bốn thuộc
+    tính ở quy tắc trình bày mục 7.8; dạng đầy đủ là Bảng 6.1b, khai thêm vật so sánh kèm trị số
+    và nguồn của vật so sánh (mục 6.1.6); và mục 3.7.5 chỉ thẳng **hàm cùng dòng mã** tính từng
+    đại lượng phụ, để "đại lượng" không còn là một từ mà là một địa chỉ.
+  - Nhóm B → **đơn vị lấy mẫu là nhóm**, và khoảng ở mức clip chỉ được in kèm nhãn `WRONG UNIT`
+    (mục 3.7.4). Quy tắc này làm mọi biên của luận văn **rộng ra**, không hẹp lại.
+  - Nhóm C → **mỗi con số phải truy được về một tạo tác và phải đo lại được**. Toàn bộ Chương 6
+    được tổ chức quanh nguyên tắc đó, và mục 6.12.4 ghi lại lý do cụ thể của nó.
+  - Nhóm D → **một con số đúng chưa phải một con số được phép dẫn**. Chín hàng của nhóm này tồn
+    tại để chặn đúng bước suy luận đó, và ba trong số chúng là lệnh cấm còn hiệu lực (G18-a,
+    G18-b, G18-c).
+
+**Một điều bất lợi về chính sổ đăng ký này, phải nói ra: nó chỉ liệt kê những gì đã được tìm ra.**
+Có ít nhất một khuyết điểm không rơi vào bốn nhóm trên. Mục 4.5.6 cho thấy con số tiêu đề chỉ tái
+lập được trong một dải **1.46 pp** khi thay đổi duy nhất là số luồng CPU, trong khi phép đo, đơn
+vị thống kê và giá trị đều không sai, và con số công bố nằm **giữa** dải ấy. Nó **không** phải một
+lần rút, và không hàng nào của Bảng 7.2 phải thêm vào vì nó. Nhưng bốn nhóm trên cũng không có
+chỗ cho nó, vì cả bốn đều giả định một con số **xác định** rồi mới hỏi nó đúng hay sai. Một sổ
+đăng ký đầy đủ hơn sẽ cần một nhóm thứ năm — *con số đúng, nhưng chỉ xác định tới một dải* — và
+luận văn chọn nêu điều đó ra ở đây thay vì mở rộng bảng sau ngày đóng băng số liệu.
+
 ----------------------------------------------------------------------
 7.7. KHUYẾT ĐIỂM XUẤT XỨ: SỐ ĐÚNG, BẰNG CHỨNG THIẾU
 ----------------------------------------------------------------------

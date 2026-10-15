@@ -214,12 +214,92 @@ thức đánh giá tạo ra, tái lập trên hai kho độc lập; và **(ii) m
 đo trên chính thiết bị**, với nhịp quyết định, năng lượng và bộ nhớ đo thực. Độ chính xác được
 trình bày trung thực như **bằng chứng cho phép đo**, không như một tuyên bố cạnh tranh.
 
+1.4.3. Giả thuyết nghiên cứu, và nơi từng giả thuyết bị phán quyết
+
+Ba mục tiêu ở trên nói luận văn **làm gì**. Mục này nói luận văn **khẳng định điều gì có thể sai**,
+vì đó mới là phần kiểm chứng được. Mỗi giả thuyết dưới đây được phát biểu kèm ba thứ: mô hình được
+nêu tên, vật bị trừ, và ngưỡng — cả ba **đăng ký trước khi con số tồn tại** (Bảng 3.4, mục 3.8.2) —
+rồi kèm phán quyết và nơi đọc bằng chứng. Tám cổng tiền đăng ký G10-G18 kiểm ba giả thuyết này;
+cách nhóm tám cổng về ba câu hỏi là của mục 6.13, không phải một phép gộp mới ở đây.
+
+  **H1 (phương pháp) — Giao thức đánh giá, chứ không chỉ mô hình, sinh ra một phần độ chính xác
+  báo cáo được; và một bộ mã hoá thời gian học được nhiều hơn một quy tắc đếm.** Hai cổng:
+
+    - **G12**: cùng token, cùng bộ mã hoá, cùng 10 fold, cùng số epoch; thay đổi duy nhất là fold
+      được dựng bỏ qua định danh nguồn. Ngưỡng đăng ký trước: Δ ≥ 5 pp cho ít nhất một bộ mã hoá.
+      **ĐẠT**: +15.4 pp, CI theo cụm [+10.6, +21.5], McNemar p = 3.58e-45 (mục 6.5 và 6.13).
+    - **G10**: bộ mã hoá E3 trừ **đường sàn quy tắc đếm** tính lại trên cùng 1,100 clip và cùng bộ
+      fold. **ĐẠT**: +8.0 pp, CI [+1.9, +13.5], p = 1.02e-05 (mục 6.6.1 và 6.13).
+
+  H1 là giả thuyết **còn đứng**, và vì vậy nó là kết luận tiêu đề của luận văn.
+
+  **H2 (kiến trúc) — Biểu diễn phân rã theo thực thể (token sinh từ bộ phát hiện) đạt độ chính xác
+  cao hơn một biểu diễn toàn khung khớp dung lượng, ở cùng xương sống.** Đây là giả thuyết mà đề
+  cương đã duyệt dựa trên. Nó được hỏi **năm lần**, có chủ ý, ở năm cấu hình khác nhau — G11 (xương
+  sống MobileNetV3, đầu DeepSets), G14 (xương sống CLIP, chú ý phân rã; **cổng trung tâm**), G15
+  (cắt bỏ thành phần), G16 (đối thủ VideoMAE-base đã tinh chỉnh trên Kinetics) và G18 (thêm cơ chế
+  hợp nhất hai luồng) — để một kết luận theo chiều nào cũng không quy được về một lựa chọn cài đặt
+  đơn lẻ. **TRƯỢT cả năm** (0/5, mục 6.13): −0.5 pp ở G14, −0.3 pp ở G18, +1.1 pp ở G11, và ở G15
+  cùng G16 thì biên có dấu đúng nhưng khoảng tin cậy ở độ phân giải nhóm chứa 0.
+
+  Hệ quả **đã nhận trước** trong Bảng 3.4 được thi hành đúng như đã viết, không được thương lượng
+  lại sau khi biết kết quả: luận văn **không** phát biểu rằng bộ phát hiện thêm độ chính xác trên
+  các kho này; cấu hình tiêu đề chuyển sang CLIP ViT-B/32 toàn khung; làn YOLO vẫn được xây, vẫn
+  được đo trên thiết bị và vẫn được báo cáo bằng số của chính nó (Chương 5). Năm lần trượt nhất
+  quán của cùng một giả thuyết là một **kết quả âm đã tái lập**, không phải năm lần thất bại rời
+  rạc — về bằng chứng nó mạnh hơn một bảng thắng-thua lẫn lộn.
+
+  Phản biện hiển nhiên nhất với H2 — rằng phân rã thực thể thua vì **bộ phát hiện sinh token** quá
+  cũ, không vì ý tưởng sai — đã được **đăng ký trước** thành đối chứng **G17** ngày 29/09/2026,
+  trước khi đặc trưng YOLO26 tồn tại, kèm điều khoản rằng bộ phát hiện tiêu đề **vẫn là YOLOv11s
+  bất kể kết quả**. Số liệu đi **ngược** phản biện: thế hệ mới hơn cho kết quả **thấp hơn 2.2 pp**
+  (mục 6.2.4), và đối chứng G20 — cùng câu hỏi khi **cả hai** bộ phát hiện đều được tinh chỉnh,
+  chạy sau mốc đóng băng số — trả về "không phân biệt được" ở cả hai làn (mục 6.14). Nâng thế hệ
+  bộ phát hiện vì vậy không phải lối ra cho H2; và hệ thống được triển khai ở Chương 5 **không
+  chứa bộ phát hiện nào**, nên phép nâng đó cũng không dịch được con số tiêu đề theo chiều nào.
+
+  **H3 (dung lượng) — Độ chính xác cân bằng tăng đơn điệu theo chiều ẩn của đầu phân loại trên
+  iSafetyBench, trong khi thang tương ứng trên Unsafe-Net phẳng.** Một cổng, **G13**, và cổng này
+  **không có ngưỡng điểm phần trăm**: nó đòi **hình dạng** của thang, nên nó trượt vì hình dạng chứ
+  không vì độ lớn một biên. **TRƯỢT**: E1 d96 thấp hơn E1 d64 **1.1 pp** (mục 6.10 và 6.13), nên
+  phát biểu bất biến theo kiến trúc (R47) bị thu hẹp về **chỉ** kho Unsafe-Net, và lợi thế của E0
+  được báo cáo như một hiệu ứng **chưa giải thích được**.
+
+Hai điều phải nói thẳng về danh sách này.
+
+**Giả thuyết dẫn tới đề cương là giả thuyết bị bác bỏ.** H2 trượt năm lần; H1 đạt hai lần. Đó chính
+là lý do định vị ở mục 1.4.2 nói đóng góp của luận văn là một **phép đo phương pháp luận** cộng một
+hệ thống biên đã đo thực, chứ không phải một cơ chế kiến trúc mới. Thứ tự nhân quả là: cổng trượt
+trước, định vị đổi sau — không phải ngược lại.
+
+**Trụ triển khai biên KHÔNG có cổng tiền đăng ký.** Không giả thuyết nào ở trên nói về độ trễ, nhịp
+hay năng lượng. Các phát biểu của Chương 5 được đối chiếu với **hợp đồng thời gian thực** phát biểu
+ở mục 1.2.1 và với tạo tác đo của chính thiết bị, chứ không với một cổng đã đăng ký; và điều kiện
+để một con số nhịp được trích dẫn thì nằm ở mục 5.2, không ở Bảng 3.4. Đây là một khác biệt về
+mức độ chặt chẽ giữa hai trụ, và luận văn nêu nó ra chứ không làm phẳng nó.
+
 ----------------------------------------------------------------------
 1.5. ĐÓNG GÓP
 ----------------------------------------------------------------------
 
 Các đóng góp được trình bày theo thứ tự tầm quan trọng mà mục 1.4.2 đã khai báo. Con số dẫn ở đây
 là dạng tóm lược; nguồn đầy đủ nằm ở chương tương ứng và ở Phụ lục A.
+
+**Mỗi con số kết quả của luận văn đi kèm bốn thứ, và một bảng duy nhất khai báo cả bốn cho toàn bộ
+kết quả.** Bốn thứ đó là: (i) **đại lượng** cùng định nghĩa của nó, (ii) **giao thức và tập đo**,
+(iii) **vật so sánh kèm trị số** — không phải một đường cơ sở nói miệng, mà một con số, và (iv)
+**nguồn** của trị số đó, mang một trong ba nhãn `[ĐO]` (luận văn tự đo trên cùng tập đo), `[ĐỌC]`
+(đọc từ bảng của công trình gốc, không chạy lại được) hoặc `[SỐ HỌC]` (suy ra từ tỉ lệ lớp, không
+phải một mô hình). Khai báo đầy đủ cho **mười hai** con số kết quả nằm ở **Bảng 6.1b, mục 6.1.6**;
+câu hỏi "con số này so với ai" nên được kiểm ở bảng đó trước, rồi mới đọc mục kết quả tương ứng.
+
+Cũng ở đó, luận văn phân biệt **ba** loại vật so sánh và không cho phép gọi lẫn nhau: **đường sàn**
+là mức mà một phép tắt tự đạt được trên cùng tập đo; **đối chứng** là một bộ dự đoán cụ thể chạy để
+kiểm một giả thuyết cạnh tranh; **tham chiếu tài liệu** là con số đọc từ bài báo khác và **không**
+phải đường cơ sở, vì không chạy lại được trên tập đo của luận văn. Vì phân biệt này, con số 95.81%
+macro của công trình gốc không bao giờ bị trừ trực tiếp với con số của luận văn (mục 6.12.5). Một
+hàng của Bảng 6.1b còn khai báo thẳng rằng nó **không có** đường cơ sở: đếm 2/8 cổng tiền đăng ký
+là một phép đếm phán quyết, không phải một độ chính xác (mục 6.13).
 
 **(1) Lượng hoá lạm phát giao thức, và tái lập nó trên hai kho dữ liệu độc lập.** Đây là đóng góp
 chính. Trên iSafetyBench, bốn bộ mã hoá quan hệ cho cùng một hướng và cùng một bậc độ lớn: bộ mã

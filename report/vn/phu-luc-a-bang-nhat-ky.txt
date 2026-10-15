@@ -11,6 +11,11 @@ về nhật ký, không phải một chỗ bỏ trống của luận văn. Một
 một nhật ký nào in nó** và nó được tính lại từ dự đoán ngoài-fold đã lưu; với những giá trị ấy,
 tạo tác ngoài-fold là nguồn trích dẫn sơ cấp, không phải nhật ký.
 
+Hai chữ viết tắt giao thức dùng trong phụ lục này, viết đủ một lần ở đây và dùng dạng viết tắt về
+sau: **LSO** = *leave-source-out*, giữ ra toàn bộ một nguồn video (151 nguồn trên iSafetyBench);
+**LCO** = *leave-context-out*, giữ ra toàn bộ một **nhóm bối cảnh** (8 nhóm trên Unsafe-Net, sinh
+bằng KMeans trên mô tả nền tĩnh — một proxy, không phải siêu dữ liệu camera; mục A.6).
+
 ----------------------------------------------------------------------
 A.1. CÁCH ĐỌC PHỤ LỤC NÀY
 ----------------------------------------------------------------------

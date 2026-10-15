@@ -268,6 +268,26 @@ Cùng cách đọc ấy áp cho **trọng số** bộ phát hiện, và ở đâ
 hai làn: lần dựng token Unsafe-Net ngày 16/09/2026 dùng `yolo26_best.pt`, còn lần dựng làn bốn lớp
 dùng `detector_best.pt`. Bảng xuất xứ ở mục 4.2.3 ghi trọng số nào sinh ra token nào.
 
+**Ba tham số suy luận mà luận văn chưa bao giờ chọn.** Bảng trên liệt kê những giá trị *được viết
+ra* trong mã. Có một nhóm giá trị thứ hai, ảnh hưởng trực tiếp tới việc những thực thể nào tồn tại
+trong một token, mà mã **không** viết ra: lời gọi `det.predict(...)` ở `build_relation_tokens.py`
+dòng 211 chỉ truyền `imgsz`, `conf`, `verbose` và `device`. Ba tham số hậu xử lý còn lại vì vậy giữ
+nguyên mặc định của thư viện Ultralytics, nhãn `[mặc định thư viện]`:
+
+  Ngưỡng IoU của NMS   `iou = 0.7`         quyết định hai hộp chồng nhau bao nhiêu thì bị gộp
+  Số hộp tối đa/ảnh    `max_det = 300`     trần của NMS, trước bước cắt N_MAX của luận văn
+  NMS bất biến lớp     `agnostic_nms = False`   NMS chạy riêng trong từng lớp COCO
+
+Giá trị đọc từ `ultralytics/cfg/default.yaml` của phiên bản 8.4.27 trong môi trường ảo của kho mã.
+Hai điều phải nói kèm. Thứ nhất, `max_det = 300` **không** có tác dụng thực tế ở đây, vì luận văn
+đã sắp các hộp theo độ tin cậy giảm dần rồi cắt còn `N_MAX = 8` (dòng 219): trần 300 nằm cao hơn
+ngưỡng cắt của luận văn hai bậc độ lớn. Thứ hai, `iou = 0.7` thì **có** tác dụng và nó chưa được
+dò tìm: ở một ngưỡng IoU chặt hơn, hai người đứng chồng nhau một phần sẽ bị gộp thành một hộp, tức
+một thực thể biến mất khỏi token trước khi mô hình quan hệ nhìn thấy nó. Hướng ảnh hưởng nêu được;
+**độ lớn thì không**, vì không có lần chạy nào ở ngưỡng IoU khác để so. Đây là một giá trị `[mặc
+định thư viện]` theo đúng nghĩa của mục 3.1.4: nó không được luận văn chọn, và việc nó chưa được
+chọn được khai ra chứ không được che bằng một lý do sinh sau.
+
 4.3.2. Hai nhánh CLIP từ MỘT lần giải mã — phép đối chứng công bằng của cổng G14
 
 Làn tiêu biểu của luận văn so sánh **nhánh thực thể** (phân rã cảnh thành tối đa 8 thực thể, mỗi
@@ -506,7 +526,7 @@ trong tập huấn luyện. Hai con số thuộc hai bộ ước lượng khác 
 phép so sánh.
 
 Cuối cùng, số fold thực sự chạy được ở giao thức LCO nhỏ hơn 8 khi một nhóm giữ ra làm cho tập huấn
-luyện thoái hoá: `run_kfold_relation.py:173-174` bỏ qua fold khi tập huấn luyện còn **ít hơn hai
+luyện thoái hoá: `run_kfold_relation.py:187-188` bỏ qua fold khi tập huấn luyện còn **ít hơn hai
 lớp**, và in dòng `held-out group {g}: skipped (degenerate train pool)`. Việc này xảy ra vì ba
 trong tám nhóm chỉ mang một lớp duy nhất (mục 4.2.2).
 
@@ -516,21 +536,84 @@ trong tám nhóm chỉ mang một lớp duy nhất (mục 4.2.2).
 
 4.5.1. Siêu tham số
 
-Mọi đầu quan hệ và mọi mô hình làn CLIP trong luận văn dùng **cùng một cấu hình huấn luyện**, không
-tinh chỉnh riêng cho từng kiến trúc. Đây là một lựa chọn phương pháp có chủ ý: khi so sánh chín
-kiến trúc, việc tinh chỉnh riêng từng kiến trúc sẽ khiến chênh lệch đo được lẫn giữa "kiến trúc tốt
-hơn" và "được tinh chỉnh nhiều hơn". Giá phải trả là **không kiến trúc nào đạt hiệu năng tối đa của
-nó**; đổi lại, các chênh lệch giữa chúng quy được cho kiến trúc.
+Nguyên tắc phương pháp là **không tinh chỉnh riêng cho từng kiến trúc**, và nguyên tắc đó có lý do
+nêu được: khi so sánh chín kiến trúc, việc tinh chỉnh riêng từng kiến trúc sẽ khiến chênh lệch đo
+được lẫn giữa "kiến trúc tốt hơn" và "được tinh chỉnh nhiều hơn". Giá phải trả là **không kiến trúc
+nào đạt hiệu năng tối đa của nó**; đổi lại, các chênh lệch giữa chúng quy được cho kiến trúc.
 
-Cấu hình, đọc từ `run_relation_transformer.py:156-171`:
+Nguyên tắc đó được giữ **trong từng làn**. Nó **không** được giữ **giữa các làn**, và mục này khai
+ra chỗ lệch thay vì tuyên bố một cấu hình duy nhất. Lý do kỹ thuật của việc lệch là có hai vòng
+huấn luyện riêng biệt trong kho mã, không phải một hàm dùng chung: `run_relation_transformer`
+dòng 156-181 cho làn encoder quan hệ, và `esta_training.train_one` dòng 100-119 cho làn toàn
+khung/ESTA. Tệp thứ hai chỉ nhập lại hai tiện ích `class_weights` và `set_seed` từ tệp thứ nhất
+(dòng 19), chứ không nhập lại vòng huấn luyện.
 
-  Bộ tối ưu           `AdamW(lr = 1e-3, weight_decay = 0.01)`
-  Lịch học            `CosineAnnealingLR(opt, epochs)` — bước mỗi epoch
-  Hàm mất mát chính   `CrossEntropyLoss(weight = w, label_smoothing = 0.05)`
-  Trọng số lớp        `w = class_weights(y_fit, k)` — tính từ phần huấn luyện của fold
-  Chặn gradient       `clip_grad_norm_(params, 5.0)`  (dòng 150)
-  Kích thước lô       32   (`run_epoch`, tham số `bs`, dòng 117)
-  Số epoch            60   (mặc định `--epochs`, `run_kfold_relation.py:239`)
+Sáu giá trị **thật sự dùng chung** cho mọi dòng kết quả được công bố, kèm nhãn xuất xứ theo quy ước
+ở Chương 3 mục 3.1.4:
+
+  Bộ tối ưu          `AdamW(lr = 1e-3, weight_decay = 0.01)`     `[quy ước]`
+                     `run_relation_transformer.py:166` · `esta_training.py:104`
+  Lịch học           `CosineAnnealingLR(opt, epochs)`            `[quy ước]`; riêng `T_max`
+                     `run_relation_transformer.py:167` · `esta_training.py:105`
+                     là `[mặc định của mã]`
+  Làm mượt nhãn      `label_smoothing = 0.05`                    lựa chọn tác giả, chưa dò tìm
+                     `run_relation_transformer.py:169` · `esta_training.py:106`
+  Kích thước lô      32                                          `[quy ước]`
+                     `run_relation_transformer.py:117` · `esta_training.py:22`
+  Số epoch           60                                          `[mặc định của mã]`
+                     `run_kfold_relation.py:253` · `esta_training.py:23`
+  Thiết bị           CPU                                         `[ràng buộc]` (mục 4.5.5)
+
+Bốn giá trị **khác nhau giữa các làn**. Bảng dưới là bảng phải đọc trước khi đặt một dòng của làn
+này cạnh một dòng của làn kia:
+
+  Giá trị              | Làn nhị phân E0–E3     | Làn bốn lớp LCO        | Làn toàn khung/ESTA
+  ---------------------+------------------------+------------------------+-----------------------
+  Chặn chuẩn gradient  | 5.0                    | 5.0                    | **1.0**
+                       | `run_relation_         | cùng vòng              | `esta_training.py:94`
+                       | transformer.py:150`    |                        |
+  Trọng số lớp         | có, tỉ lệ nghịch tần   | **không có**           | có, tỉ lệ nghịch tần
+                       | suất (`use_cw=True`,   | (`use_cw=False`,       | suất
+                       | `run_kfold_            | `run_lco_eval.py:174`) | `esta_training.py:106`
+                       | relation.py:193`)      |                        |
+  Số hạng mất mát      | **ba**: chính          | **hai**: chính         | **một** (TSF thêm 0.3
+                       | + 0.3·lớp con          | + 0.5·mức khung        | cho mỗi đầu phụ luồng,
+                       | + 0.5·mức khung        | (`aux_w = 0.5`)        | `esta_training.py:26`)
+  Số hạt giống         | 3 (`--seeds`,          | **5**                  | 3 (`--seeds`,
+                       | `run_kfold_            | (`run_lco_eval.py`     | `run-esta-lso.py:101`)
+                       | relation.py:252`)      | dòng 27 và 105)        |
+
+Ba hệ quả phải nói thẳng, vì cả ba đụng tới cách đọc Chương 6.
+
+  Thứ nhất, con số tiêu đề **84.2%** sinh ra dưới ngưỡng chặn gradient **1.0**, không phải 5.0:
+  nó thuộc làn toàn khung. Mọi con số của E0–E3 sinh ra dưới ngưỡng 5.0. Không có phép so nào giữa
+  hai ngưỡng trên cùng dữ liệu, nên ảnh hưởng của độ lệch này **chưa được đo**.
+
+  Thứ hai, làn bốn lớp — làn sinh ra **81.2% macro** và biên **+16.9 pp** ở mục 6.12.1 — huấn luyện
+  **không có trọng số lớp**, trong khi đại lượng được báo cáo của nó là macro accuracy, tức đại
+  lượng coi mọi lớp ngang nhau. Đây là một điểm không ăn khớp giữa mất mát huấn luyện và phép đo
+  báo cáo. Nó không làm con số sai — con số vẫn là macro accuracy đo trên dự đoán out-of-fold —
+  nhưng nó có nghĩa là làn bốn lớp **chưa bao giờ được huấn luyện để tối ưu đại lượng mà nó bị
+  chấm bằng**, và không có lần chạy đối chứng `use_cw=True` nào để biết điều đó đáng bao nhiêu.
+
+  Thứ ba, số hạt giống khác nhau (3 so 5) nên **độ rộng tập hợp seed không như nhau giữa hai làn**.
+  Một tập hợp 5 seed trung bình hoá nhiễu khởi tạo nhiều hơn một tập hợp 3 seed. Đây là một lý do
+  nữa để không trừ chéo con số của hai làn — bên cạnh lý do hai kho dữ liệu khác nhau.
+
+Ngoài ba làn công bố ở trên, kho mã còn **hai cấu hình nữa** cũng huấn luyện đầu mô hình, và không
+dòng kết quả nào của Chương 6 đến từ chúng:
+
+  Sàng lọc kiến trúc trên **một phép chia đơn**: `run_relation_transformer.py` với mặc định
+  `--epochs 120` (dòng 290), `--seeds 5` (dòng 287) và `test_size=0.18` (dòng 231, 234, 320).
+
+  Huấn luyện **checkpoint xuất đi triển khai**: `deployment/scripts/train-binary-head-checkpoint.py`
+  với `--epochs 60` (dòng 41), `--seeds 1` (dòng 42) và `test_size=0.18` (dòng 59, 62). Đây là
+  checkpoint được xuất sang ONNX ở Chương 5; nó **không** là nguồn của bất kỳ con số độ chính xác
+  nào trong Chương 6.
+
+Vì `CosineAnnealingLR` nhận `T_max` bằng đúng ngân sách epoch, 60 và 120 không phải "một công thức
+chạy dài hơn" mà là **hai hình dạng lịch học khác nhau**. Đó là lý do hai cấu hình trên được tính
+là hai cấu hình riêng chứ không phải cùng một cấu hình với thời lượng khác.
 
 Hàm mất mát của làn nhị phân có **ba số hạng**, không phải một (dòng 127-137):
 
@@ -554,10 +637,10 @@ giữa hai làn**, và một người đọc so sánh hai làn cần biết đi�
 
 Đây là điểm dễ sai nhất trong một quy trình k-fold, và luận văn nêu rõ cách làm để phản biện kiểm
 tra được. Mô hình **không** được chọn ở epoch cuối; nó được chọn ở epoch có `val_macro` cao nhất
-(`run_relation_transformer.py:177-180`, lưu `state_dict` sâu rồi nạp lại). Vì vậy câu hỏi quyết
+(`run_relation_transformer.py:178-180`, lưu `state_dict` sâu rồi nạp lại). Vì vậy câu hỏi quyết
 định là: **tập validation đó lấy từ đâu?**
 
-Câu trả lời, ở `run_kfold_relation.py:175` và `:300`, giống nhau cho cả hai giao thức:
+Câu trả lời, ở `run_kfold_relation.py:189` và `:317`, giống nhau cho cả hai giao thức:
 
   fit, val = train_test_split(tr, test_size = 0.15, stratify = yn[tr], random_state = 0)
 
@@ -578,16 +661,22 @@ Vì vậy quy tắc đang có hiệu lực: **`val_macro` = 89.15% (E3) và 90.9
 nhưng không bao giờ được trình bày như độ chính xác trên tập test.** Chúng là tiêu chí chọn mô
 hình, không phải kết quả.
 
+Quy tắc chọn epoch này có một cái giá đo được, và cái giá ấy không nhỏ: vì `val_macro` đã bão hoà
+quanh 98%, nhiều epoch cho đúng cùng một giá trị, và mã chốt epoch **đầu tiên** đạt giá trị đó.
+Mục 4.5.6 đo hậu quả: hàng tiêu đề chỉ tái lập được đến khoảng ±0.7 điểm phần trăm, và một fold
+riêng lẻ trải 10.4 điểm phần trăm khi chỉ đổi số luồng CPU.
+
 4.5.3. Seed và tổ hợp seed
 
   Hàm gieo      `set_seed(s)` = `np.random.seed(s); torch.manual_seed(s)`  (dòng 107-108)
-  Tập seed      `range(args.seeds)` với `--seeds 3` nên seed = **0, 1, 2**
+  Tập seed      `range(args.seeds)`; với `--seeds 3` thì seed = **0, 1, 2**. Làn bốn lớp LCO chạy
+                `--seeds 5`, tức seed = **0, 1, 2, 3, 4** (mục 4.5.1)
   Gieo ở đâu    đầu `train_one()`, trước khi khởi tạo mô hình — nên khởi tạo trọng số, thứ tự xáo
                 trộn lô và mọi nguồn ngẫu nhiên khác đều xác định theo seed
 
 Một điểm phải nêu rõ vì nó ảnh hưởng cách đọc mọi con số của Chương 6: **các con số công bố là của
-một TỔ HỢP ba seed, không phải của một mô hình đơn lẻ.** Mã ở `run_kfold_relation.py:301-307` cộng
-softmax của ba seed rồi chia ba:
+một TỔ HỢP ba seed, không phải của một mô hình đơn lẻ.** Mã ở `run_kfold_relation.py:191-197` cho
+làn nhị phân, và `:319-328` cho làn bốn lớp, cộng softmax của từng seed rồi chia cho số seed:
 
   soft = 0;  for s in range(seeds):  soft += softmax(predict(model_s, X[te], M[te]))
   rel_soft[te] = soft / seeds;  rel[te] = argmax(rel_soft[te])
@@ -595,7 +684,8 @@ softmax của ba seed rồi chia ba:
 Nghĩa là dự đoán của một clip là `argmax` của xác suất trung bình trên ba seed. Điều này có hai hệ
 quả. Thứ nhất, phương sai theo seed **không xuất hiện** trong con số công bố — nó đã bị tổ hợp làm
 phẳng, nên luận văn không báo độ lệch chuẩn theo seed cho các con số tiêu biểu. Thứ hai, chi phí
-huấn luyện của mỗi dòng bảng là 10 fold x 3 seed = **30 lần huấn luyện**.
+huấn luyện của mỗi dòng bảng là 10 fold x 3 seed = **30 lần huấn luyện** ở hai làn nhị phân, và
+8 nhóm x 5 seed ở làn bốn lớp LCO — trừ các fold bị bỏ vì tập huấn luyện thoái hoá (mục 4.4.5).
 
 Ba kiến trúc là ngoại lệ và phải đọc kèm cảnh báo: ESTA, ESTA trên đặc trưng YOLO26s, và TSF được
 chạy **chia mảnh** (nhật ký của chúng mang `folds=2` và `folds=3` thay vì `folds=10`), nên nhật ký
@@ -697,6 +787,53 @@ này được đọc lại ngày 10/10/2026:
          `colab/train_yolo26_detector_kaggle.ipynb` (`/kaggle/input`, `/kaggle/working/data.yaml`,
          `runs26`, `yolo26s`) — cả hai khai đúng bộ siêu tham số ở bảng trên.
 
+**Xuất xứ của chín siêu tham số ở bảng trên.** Bảng vừa rồi nói các giá trị ấy *là gì* và chứng
+minh chúng *đến từ đâu*; đoạn này nói giá trị nào do luận văn chọn và giá trị nào không. Mốc so
+sánh là `ultralytics/cfg/default.yaml`, nên mỗi dòng dưới đây kiểm tra lại được.
+
+  Giữ nguyên mặc định thư viện, nhãn `[mặc định thư viện]` — luận văn **không** chọn ba giá trị
+  này: `epochs = 100`, `batch = 16`, `seed = 0`. Cả ba trùng đúng mặc định của thư viện.
+
+  Khác mặc định, nên là **lựa chọn của tác giả**, và phải nói rõ lý do nêu được tới đâu:
+
+    `imgsz = 800` (mặc định 640) `[ràng buộc]`. Đây là giá trị duy nhất trong nhóm có lý do
+    cứng: nó phải trùng hằng số `IMGSZ = 800` mà `build_relation_tokens.py` dùng khi gọi bộ phát
+    hiện (mục 4.3.1). Huấn luyện ở một cạnh ảnh rồi suy luận ở cạnh khác là một lệch phân phối
+    tự gây ra. Ràng buộc quyết định giá trị; phép dò tìm thì không.
+
+    `optimizer = SGD` (mặc định `auto`) — tác giả khai báo tường minh thay vì để thư viện tự
+    chọn. Lợi ích nêu được là tính tái lập: `auto` có thể chọn bộ tối ưu khác nhau theo cỡ dữ
+    liệu và số epoch, nên hai lần chạy "cùng cấu hình" có thể không cùng bộ tối ưu. Không có
+    phép so SGD với Adam/AdamW trên tập ảnh này.
+
+    `lr0 = 0.001` (mặc định cho SGD là 0.01) — **chưa dò tìm.** Giá trị bằng một phần mười mặc
+    định. Lý do nêu được chỉ biện hộ cho **hướng**: đây là giai đoạn 2 tinh chỉnh từ một giai
+    đoạn 1 đã đóng băng, nên bước học nhỏ hơn mặc định là quy ước khi tinh chỉnh. Nó **không**
+    biện hộ cho riêng con số, và không có lần chạy nào ở bước học khác để so.
+
+    `patience = 30` (mặc định 100) — **chưa dò tìm**, và đây là điểm phải đọc kỹ nhất trong cả
+    mục, vì nó là chỗ bộ phát hiện **khác hẳn** mọi đầu mô hình của luận văn. Với `epochs = 100`
+    và `patience = 30`, bộ phát hiện **có dừng sớm**: nó dừng sau 30 epoch không cải thiện trên
+    tập val. Mọi đầu mô hình ở mục 4.5.1 thì **không có dừng sớm nào** — chúng chạy đủ ngân sách
+    epoch và chỉ giữ lại điểm kiểm tra ở epoch có `val_macro` cao nhất. Hai cơ chế chọn điểm
+    dừng khác nhau, và một người đọc mang cơ chế của mục 4.5.1 sang đây sẽ đọc sai. Hệ quả kèm
+    theo: vì có dừng sớm, **số epoch thực sự đã chạy không suy ra được từ `epochs = 100`**, và
+    nhật ký theo epoch thì không còn (đoạn cuối mục này) — nên con số ấy hiện không biết được.
+
+    `freeze = 0` (mặc định để trống) — khai báo tường minh rằng ở giai đoạn 2 **không** tầng nào
+    bị đóng băng. Giá trị này mang thông tin thiết kế chứ không phải một mức cần dò: nó là nửa
+    sau của sơ đồ hai giai đoạn `stage1_frozen` → `stage2_finetune`, và việc để trống hay ghi 0
+    cho cùng một hành vi.
+
+  Sơ đồ **hai giai đoạn** (đóng băng xương sống rồi tinh chỉnh toàn mạng) là lựa chọn thiết kế của
+  tác giả, và là lựa chọn duy nhất trong mục này có bằng chứng nội tại: `results.csv` của giai
+  đoạn `stage1_frozen` còn trong kho mã và chỉ đạt mAP@50 **0.462** (mục 4.2.3), so với 0.9695 sau
+  giai đoạn 2. Con số 0.462 vì vậy là một đường cơ sở có thật cho giai đoạn 1, chứ không phải một
+  hằng số bỏ đi — nó đo chính phần mà giai đoạn 2 thêm vào.
+
+  **Không giá trị nào trong chín giá trị trên được chọn bằng cách so mAP trên tập kiểm định 343
+  ảnh.** Tập đó chỉ được dùng để đo, một lần, sau khi trọng số đã có.
+
 Bảng này buộc sửa hai điều, cho phép xác nhận một điều, và vẫn để hở một điều.
 
   (1) **Nền tảng bị quy sai.** Bản ghi trước quy **cả hai** trọng số cho Kaggle. Đường dẫn nhúng
@@ -726,6 +863,103 @@ nên siêu dữ liệu nhúng ở bảng trên hiện chỉ kiểm được trê
 đồng không mở ra xem được từ kho mã như đang có. Riêng `yolo26_best.pt` còn nặng hơn một bậc, vì
 nó là trọng số đã dựng token cho làn Unsafe-Net nhị phân, tức cho bộ mã hoá tiêu đề E3, mà **chưa**
 có phép đo lại trên CPU tương đương Bảng 4.1.
+
+4.5.6. Cái giá đo được của việc chọn điểm kiểm tra bằng một đại lượng đã bão hoà
+
+Mục 4.5.2 khai báo quy tắc chọn điểm kiểm tra. Mục này đo **cái giá** của quy tắc đó, vì phép đo
+ấy mới làm được sau khi số liệu đã đóng băng, và vì nó đổi cách phải đọc chữ số thập phân của mọi
+con số trong Chương 6. Kết quả ngắn gọn: hàng tiêu đề tái lập được **đến khoảng ±0.7 điểm phần
+trăm**, không đến chữ số thập phân, và nguyên nhân nằm ở đúng dòng mã mà mục 4.5.2 đã trích.
+
+**Phép thử.** Chạy lại đúng lệnh đã sinh ra hàng tiêu đề, `run-esta-lso.py --model B1 --seeds 3`,
+**không sửa một dòng mã nào**, trên **cùng tệp đặc trưng đã cache** (`feats_isbclip_all.pt`, không
+đổi từ 29/09), cùng 10 fold, cùng ba hạt giống:
+
+  Tạo tác công bố 29/09    BA = 84.17%   top-1 = 84.09%    <- hàng tiêu đề 84.2% của luận văn
+  Chạy lại 14/10           BA = 83.25%   top-1 = 83.00%    <- lệch 24/1,100 clip
+  Bộ dò độ nhạy, hàng
+  đối chứng cùng ngày      BA = 83.25%   top-1 = 83.00%    <- trùng 1,100/1,100 clip với dòng trên
+
+Hai lần chạy ngày 14/10 trùng nhau **từng clip một** và trùng **từng fold một**, nên khác biệt so
+với tạo tác công bố không phải chuyện đổi cách chia fold: cả hai bên đều có f1 n=144, f2–f3 n=107,
+f4–f10 n=106, với cùng bộ thành viên. Đã loại trừ thêm: đổi tệp đặc trưng, đổi phiên bản thư viện
+(torch 2.11.0, numpy 2.4.3, cài 24–25/03, trước cả lần chạy 29/09), và đổi `in_dim` (B1 dùng 512
+ở cả hai đường chạy).
+
+Tạo tác của ba hàng trên, theo đúng quy ước mỗi con số kèm tạo tác ở mục 6.1.6 — và kèm luôn vì
+chính ba hàng này là phép đo duy nhất của luận văn sinh ra **sau** ngày đóng băng mà vẫn nói về
+hàng tiêu đề:
+
+  Chạy lại 14/10        `sweep_results/relation_tokens/enc_isbclip_B1_REPROCHECK_lso-1100_headline-none_oof.json`
+                        kèm `lco_oof_softmax_isbclip_binary_B1_REPROCHECK_none.pt` (softmax từng clip)
+  Hàng đối chứng 4 luồng  `sweep_results/posthoc_sensitivity/B1_published_config_threads4_oof.json`
+  Hàng 1 luồng            `sweep_results/posthoc_sensitivity/B1_published_config_threads1_oof.json`
+
+Hậu tố `_REPROCHECK` trong tên tệp là có chủ ý: nó giữ cho tạo tác kiểm tra tái lập **không** bao
+giờ bị đọc lẫn với tạo tác công bố 29/09, vì hai tệp chỉ khác nhau ở đúng hậu tố ấy.
+
+**Nguyên nhân, đã dò chứ không suy đoán.** Thủ phạm là bước **chọn epoch**, không phải bước huấn
+luyện. Giữ nguyên tất cả, **chỉ đổi số luồng CPU** mà thư viện dùng để cộng dồn tensor, rồi huấn
+luyện riêng fold 6 — fold yếu nhất của làn này. Cột giữa là **top-1** của fold, đúng đại lượng mà
+nhật ký huấn luyện in ra, **không** phải BA của fold (lưu ý bắt buộc ở mục 6.2.1(1)):
+
+  Số luồng CPU   top-1 fold 6 epoch được chốt (hạt giống 0/1/2)   `val_macro` tương ứng
+  -------------+------------+-----------------------------------+--------------------------------
+  1              67.0%        4 / 9 / 36                          98.5852 / 98.2456 / 98.2456
+  4 (mặc định)   56.6%        4 / 10 / 11                         98.5852 / 98.5852 / 98.5852
+  8              63.2%        4 / 12 / 3                          98.5852 / 99.1228 / 98.0475
+
+Một fold, một công thức, **dải 10.4 điểm phần trăm**. Phép dò khớp đúng với lần chạy đầy đủ: ở 4
+luồng cả hai cho fold 6 = 56.6%, ở 1 luồng cả hai cho 67.0%. Tạo tác công bố cho fold 6 = 62.3%.
+
+Cơ chế gồm ba mắt, và cả ba đều đọc được từ mã:
+
+  (1) `val_macro` đã **bão hoà**: nó ở 98.0–99.1% trên tập validation 15% cắt từ phần huấn luyện,
+      trong khi đại lượng cần dự đoán — BA trên fold giữ ra — chỉ ở 57–67%. Mục 4.5.2 đã nói vì
+      sao `val_macro` lạc quan; đây là hệ quả định lượng của tính lạc quan ấy.
+  (2) Vì bão hoà, nhiều epoch cho **đúng cùng một giá trị val**. Ở 4 luồng, cả ba hạt giống chốt
+      ở đúng con số 98.5852 nhưng tại ba epoch khác nhau (4, 10, 11).
+  (3) Mã phá trùng điểm bằng "**epoch đầu tiên đạt max**": `if vm > best['val_macro']`
+      (`esta_training.py:116`, và cùng một dòng ở `run_relation_transformer.py:178`). Với dấu `>`
+      chứ không phải `>=`, một sai số dấu phẩy động cỡ 1e-7 — sinh ra vì thứ tự cộng dồn khác
+      nhau khi số luồng khác nhau — đủ để đổi epoch được chốt. Và đổi epoch thì đổi **toàn bộ**
+      dự đoán của fold đó.
+
+Số luồng CPU là một giá trị `[mặc định thư viện]` theo nghĩa mục 3.1.4: nó **không** xuất hiện
+trong bất kỳ tạo tác nào của luận văn, kể cả tạo tác công bố 29/09, nên môi trường chạy của lần đó
+không truy lại được. Đây là một khuyết điểm của quy ước ghi tạo tác, và luận văn ghi nó ra ở đây.
+
+**Dải đo được, và nó đổi gì.** Cùng một công thức, cùng một bộ fold, ba môi trường chạy:
+
+  Môi trường            BA (LSO-1100)
+  --------------------+---------------
+  1 luồng               84.71%
+  tạo tác công bố       84.17%   <- hàng tiêu đề
+  4 luồng               83.25%
+
+Dải là **1.46 điểm phần trăm**, và con số công bố nằm **giữa** dải, không ở biên trên. Ba hệ quả:
+
+  - Hàng tiêu đề **không đổi**. 84.2% là giá trị của tạo tác đã đóng băng ngày 05/10 và vẫn là con
+    số được công bố; mục này không thay nó, chỉ khai báo độ chính xác của chữ số thập phân.
+  - **Không một kết luận nào đổi dấu.** Biên so với sàn đếm tiền đăng ký 63.3% đi từ +20.9 xuống
+    +19.95 điểm phần trăm ở đầu dưới của dải, vẫn cùng dấu và cùng bậc. Lạm phát giao thức — 97.7%
+    dưới chia ngẫu nhiên so với mức LSO — cũng vậy. Về tám cổng tiền đăng ký, mục này **không**
+    phán quyết lại cổng nào: phán quyết ở mục 6.13 thuộc về các tạo tác đã đóng băng. Điều nói
+    được là biên tiền đăng ký **nhỏ nhất** trong Bảng 3.4 là 2.0 điểm phần trăm (G18b, mục 3.8.2),
+    lớn hơn dải 1.46 điểm phần trăm, nên riêng độ trôi môi trường không đủ đưa một biên qua ngưỡng
+    của nó; còn điều kiện thứ hai — khoảng tin cậy loại trừ 0 — thì luận văn không khẳng định là
+    bất biến với độ trôi này, vì chưa chạy lại bootstrap ở từng môi trường.
+  - **Mọi phép đo thêm sau đóng băng phải cố định số luồng, và phải so với hàng đối chứng chạy
+    cùng môi trường.** Một khác biệt 1.46 điểm phần trăm sinh ra từ môi trường chạy sẽ lớn hơn
+    phần lớn khác biệt siêu tham số mà một bộ dò muốn đo, nên so một hàng mới với 84.2% là so hai
+    thứ khác nhau. Hàng đối chứng dùng cho việc đó là **83.25% ở 4 luồng**.
+
+**Vì sao luận văn nêu khuyết điểm này mà không sửa nó.** Cách sửa đúng là chọn điểm kiểm tra bằng
+một đại lượng chưa bão hoà (hàm mất mát trên validation), hoặc trung bình trọng số nhiều epoch,
+hoặc ít nhất phá trùng điểm một cách tất định. Cả ba đều sinh **một bộ số thứ hai** cho toàn bộ
+Chương 6 sau ngày đóng băng, tức đổi hàng công bố của mọi bảng để đổi lấy một cải thiện mà luận
+văn **chưa đo được là có hay không**. Vì vậy quy tắc hiện hành ở mục 4.5.2 được giữ nguyên, và
+khuyết điểm được ghi thành một hạn chế có số đo kèm theo, thay vì một câu nhận xét không số.
 
 ----------------------------------------------------------------------
 4.6. PHẦN CỨNG VÀ MÔI TRƯỜNG
@@ -778,6 +1012,11 @@ Mọi con số triển khai của Chương 5 và mọi con số nhịp của Ch�
 
   Nguồn: trường `device_state` của mỗi tạo tác đo, ví dụ
   `deployment/artifacts/jetson-measurements/p3-composed-cadence-fp16-pinned-free-1_te10-20261003T174352.json`.
+
+Lý do lớp thiết bị là một SoC biên của NVIDIA chạy TensorRT — và lý do **bo mạch cụ thể** chỉ là
+một ràng buộc thiết bị có sẵn chứ không phải một lựa chọn có luận chứng — được viết ở mục 2.5,
+cùng với hai điều mà phép đo về sau nói ngược lại một lời tự khen: 8GB không phải ràng buộc tới
+hạn (mục 5.7.2), và bộ giải mã cứng của bo mạch không được dùng (điểm (1) ngay dưới đây).
 
 Ba điều trong khối trên ảnh hưởng trực tiếp tới cách đọc kết quả.
 
@@ -832,6 +1071,72 @@ ngoài đều được tính.** Đây là công cụ duy nhất được dùng �
 **cổng nhiệt** (nhiệt độ junction lúc vào <= 56 °C, tải <= 0.60, chờ ổn định 180 giây), N = 1 luồng,
 480 khung, 3 đoạn test, FP16, MAXN_SUPER. Phiên này **chỉ đo thời gian, không đọc nhãn**, nên nó
 **không tiêu một lần chạm tập test nào** (mục 4.9).
+
+**Xuất xứ của từng tham số trong phiên đo đó.** Các con số trên không phải một tập cấu hình "tự
+nghĩ ra": bốn trong số chúng bị ràng buộc bởi engine đã xuất, hai là mặc định của mã, và phần còn
+lại là lựa chọn của tác giả có lý do nêu kèm. Bảng dưới ghi từng giá trị với nhãn xuất xứ
+(mục 3.1.4 của Chương 3), kèm dòng mã đọc ra nó:
+
+  Tham số          | Giá trị  | Nhãn xuất xứ        | Đọc từ đâu, và vì sao là giá trị đó
+  -----------------|----------|---------------------|-------------------------------------------
+  `imgsz`          | 800      | `[ràng buộc]`       | shape đầu vào của engine bộ phát hiện
+                   |          |                     | (`jetson-p3-decision-utils.py:146`)
+  `crop_px`        | 224      | `[ràng buộc]`       | shape đầu vào của engine ngoại hình (`:147`)
+  `t_window`       | 16       | `[ràng buộc]`       | shape đầu vào của engine đầu E3 (`:148`)
+  `n_max`          | 8        | `[ràng buộc]`       | `BRT.N_MAX`; engine bị **từ chối** nếu lệch
+                   |          |                     | (`:143-145`)
+  `conf`           | 0.25     | `[mặc định thư viện]`| `BRT.CONF`, tức ngưỡng predict của
+                   |          |                     | ultralytics (mục 4.3.1)
+  `--mode`         | fp16     | `[mặc định của mã]` | `jetson-p3-multi-stream.py:144`
+  `emit_every`     | 8        | `[quy ước]`         | `stream-pipeline-utils.py:27`; hợp đồng 3.0
+                   |          |                     | quyết định/giây = 24 fps / 8 khung
+  `--max-frames`   | 480      | `[quy ước]`         | mặc định là **240** (`:142`); nhân đôi để mỗi
+                   |          |                     | luồng cho 59 quyết định thay vì 29
+  `--streams`      | 1        | `[quy ước]`         | mặc định là **[1, 2, 3]** (`:140`); chỉ N=1
+                   |          |                     | được chạy, nên luận văn **không** phát biểu
+                   |          |                     | gì về nhịp đa luồng từ phiên này
+  `--fps`          | 1000     | `[ràng buộc]`       | mặc định là **24.0** (`:143`); nhánh tự do
+                   | (và 24)  |                     | đặt 1000 để **vô hiệu hoá** bộ điều nhịp
+                   |          |                     | cộng thêm ở điều kiện đọc (1); nhánh hợp
+                   |          |                     | đồng giữ 24
+  Hâm nóng bỏ đi   | N=1,     | `[quy ước]`         | `:173-176`; lý do viết ngay trong mã: thiết
+                   | 24 khung |                     | lập ngữ cảnh TRT, bộ cấp phát CUDA và sườn
+                   |          |                     | dốc DVFS nếu không sẽ dồn hết vào N chạy đầu
+
+Bốn giá trị mang nhãn `[ràng buộc]` không phải lựa chọn tại thời điểm đo chút nào: mã **đọc chúng
+ra từ shape đầu vào của engine** và dừng với lỗi nếu engine không khớp (`:143-145`). Nghĩa là
+không có cách nào đo cấu hình này ở một cửa sổ thời gian hay một hạn mức đối tượng khác mà không
+xuất lại engine — và đó là một hạn chế của thiết kế đo, nên nó được nêu ra thay vì được trình bày
+như một lựa chọn đã cân nhắc.
+
+**Cổng nhiệt là một thủ tục của người đo, không phải một điều kiện mà mã kiểm tra.** Ba con số của
+cổng — tj lúc vào <= 56 °C, tải <= 0.60, chờ ổn định 180 giây — **không nằm trong tệp mã nào**, và
+mức độ chúng được kiểm chứng lại từ tám tạo tác thì khác nhau ở từng con số:
+
+  (1) **Nhiệt độ không có trong tạo tác.** Tám tệp `p3-composed-cadence-fp16-*.json` **không có
+      trường nhiệt độ nào**; `device_state` của chúng chỉ ghi `nvpmodel`, nhịp CPU/GPU,
+      `load_average`, `competing_processes` và `quiet`. Số đọc tj duy nhất của ngày 03/10 nằm
+      trong tạo tác hâm nhiệt bộ phát hiện (`thermal-soak-p3-detector-fp16-20261003T163622.json`),
+      nơi dòng `tegrastats` thô lúc 16:06:23 ghi `tj@56.593C` rồi leo tới khoảng 70.7 °C lúc
+      16:36 — tức **kết thúc chừng 57 phút trước** phiên nhịp lúc 17:33. Giá trị "56 °C" vì vậy là
+      **mức nền của thiết bị ngày hôm đó**, không phải một phép đo lúc vào của tám lần chạy nhịp.
+
+  (2) **Điều kiện tải chỉ đúng ở hai trong tám tạo tác** nếu kiểm lại bằng `load_average[0]` (tải
+      trung bình 1 phút): 0.117 (ghim, tự do, 1_te10) và 0.161 (DVFS, tự do, 1_te10) thoả <= 0.60;
+      sáu tạo tác còn lại ghi 0.771, 0.774, 1.135, 1.334, 1.345 và 1.632. Cách đọc đúng là: tám
+      lần chạy đi liên tiếp cách nhau vài phút, nên tải 1 phút của một lần chạy **mang theo chính
+      lần chạy trước nó** trong cùng phiên. Bằng chứng cho điều đó là `competing_processes` **rỗng**
+      và `quiet = true` ở **cả tám** tạo tác: không có tiến trình lạ nào, chỉ có dư âm của phép đo
+      liền trước. Luận văn vì vậy phát biểu điều kiện tải theo `quiet`, và **không** phát biểu
+      rằng cả tám lần chạy vào ở tải <= 0.60.
+
+  (3) **Ảnh hưởng của cổng đã được đo, và nó nhỏ.** Trên làn tổng-giai-đoạn DVFS, trung vị **có**
+      cổng nhiệt là 421.52 ms so với **không** cổng 422.82 ms, lệch **0.31%** — nên giả thuyết
+      "phân tán DVFS do nhiệt" đã **bị bác bỏ**, và nguyên nhân là bộ điều tốc tự dốc tần số
+      trong lúc chạy (mục 4.6.2(2) và mục 7.5). Kết luận cần rút: ba con số của cổng **chưa bao
+      giờ được dò tìm**, nhưng phép so sánh duy nhất tồn tại cho thấy cổng **không phải** một lựa
+      chọn gánh kết quả. Đó là lý do luận văn giữ cổng như một thủ tục đo vệ sinh chứ không trình
+      bày nó như một đóng góp phương pháp.
 
 4.7.3. Quy ước đại lượng và ba điều kiện đọc
 

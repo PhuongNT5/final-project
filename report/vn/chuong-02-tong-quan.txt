@@ -135,6 +135,78 @@ luận văn quy bài toán iSafetyBench về nhị phân thì nó tiến gần t
 của bài báo gốc. Vì vậy một hướng phát triển nêu ở Chương 8 là đánh giá trực tiếp các đường cơ sở
 WS-VAD dưới đúng giao thức leave-source-out mà luận văn dùng.
 
+2.2.6. Luận văn chọn họ nào trong bốn họ, theo tiêu chí nào, và phần nào của lựa chọn ấy đã được đo
+
+Bốn mục trên liệt kê bốn họ mô hình thời gian. Mục này nói **vì sao** luận văn chọn một bộ mã hoá
+thời gian kiểu chú ý tự thân, và — quan trọng hơn với một hội đồng — **phần nào của lựa chọn đó là
+một phép đo của luận văn, phần nào chỉ là một lập luận**. Hai phần ấy không được trình bày lẫn nhau.
+
+**Ba tiêu chí, cố định bởi thiết kế triển khai chứ không bởi sở thích.** Luận văn không chọn mô hình
+thời gian trong chân không: xương sống bị **đóng băng** (mục 3.4), nên đầu vào của khối thời gian đã
+là một **chuỗi vector đã gộp không gian**, dài **16 khe**; việc huấn luyện phải chạy trên **CPU**
+(mục 4.5.5); và đồ thị phải xuất được sang môi trường chạy biên của Chương 5. Ba ràng buộc đó đọc
+thành ba tiêu chí:
+
+  (i)   khối thời gian phải nhận được một **chuỗi vector đã gộp**, không cần tensor không gian;
+  (ii)  phải huấn luyện xong trong ngân sách CPU của luận văn — đơn vị thực tế là **phút trên một
+        cấu hình**, vì mỗi dòng bảng là 10 fold x 3 hạt giống (mục 4.5.3);
+  (iii) phải xuất được sang ONNX và chạy được trên thiết bị biên ở nhịp quyết định của mục 2.5.
+
+**Bốn họ chiếu qua ba tiêu chí.**
+
+  Họ                         | Tiêu chí (i)              | Vị thế trong luận văn
+  ---------------------------+---------------------------+----------------------------------------
+  hai luồng + ConvLSTM       | **không khớp**: tính chất | là **đường cơ sở của kho**, không phải
+  (mục 2.2.1)                | riêng của ConvLSTM là giữ | một ứng viên. Luận văn có một ConvLSTM
+                             | cấu trúc không gian trong | của riêng mình, nhưng nó sống ở làn
+                             | trạng thái ẩn — thứ mà    | Unsafe-Net trên một lát val, và mục
+                             | vector CLIP đã gộp đã bỏ  | 6.1 cấm so chéo làn
+  tích chập ba chiều         | **không khớp**: cần tensor| **không chạy**. Lý do: không tương
+  (mục 2.2.2)                | clip đầy đủ và huấn luyện | thích với thiết kế đặc trưng đóng băng
+                             | xương sống, trái tiêu chí | và ngân sách CPU; chưa từng được chuẩn
+                             | (i) và (ii)               | hoá đo trên Unsafe-Net (mục 2.2.2)
+  Transformer cho video      | khớp                      | **đã đo**: VideoMAE-base đóng băng cho
+  (mục 2.2.3)                |                           | 81.5% so với 84.4% của tháp CLIP cộng
+                             |                           | đầu thời gian, khoảng tin cậy chứa 0
+                             |                           | (Bảng 6.2, mục 6.2.3)
+  lai bộ phát hiện +         | khớp                      | **đã đo và trượt cổng**: làn bộ mã hoá
+  Transformer (mục 2.2.4)    |                           | quan hệ E0–E3; cổng G11 cho phán quyết
+                             |                           | **trượt**, công bố trước mọi con số E0
+                             |                           | (mục 6.13, quy ước 3.8.1(3))
+
+**Điều phải nói thẳng: hai dòng đầu bị loại bằng lập luận, không bằng phép đo của luận văn.** Luận
+văn **không** chạy một đầu ConvLSTM hay một đầu tích chập ba chiều trên làn nhị phân iSafetyBench
+dưới giao thức leave-source-out, nên nó **không** phát biểu rằng chú ý tự thân thắng hồi quy trên
+lớp bài toán này. Phát biểu được bảo vệ hẹp hơn: với đầu vào là chuỗi 16 vector đã gộp, tính chất
+phân biệt của ConvLSTM — trạng thái ẩn có cấu trúc không gian — **không còn gì để tác động lên**,
+và ở độ dài 16 thì ưu thế chi phí của chú ý so với hồi quy cũng không phải ràng buộc quyết định.
+Đây là một lập luận thiết kế, và nó được ghi là một hạn chế: một đầu hồi quy trên **cùng** đặc
+trưng, **cùng** 10 fold và **cùng** ba hạt giống là một phép đo còn thiếu, thuộc các lượt sau.
+
+**Vì sao lựa chọn họ không phải chỗ quyết định kết quả — và điều này thì đã đo.** Trong cùng một
+họ, việc tăng dung lượng của **khối thời gian** mua được rất ít: đầu được triển khai (201,090 tham
+số) cho 84.2%, còn biến thể rộng hơn 1.66 lần (333,570 tham số) cho 84.4%, tức **+0.2 điểm phần
+trăm** (mục 6.2.1). Và một xương sống video đã tiền huấn luyện ở quy mô **87,849,216** tham số cũng
+không tách khỏi đầu 333,570 tham số ấy, khoảng tin cậy theo cụm chứa 0 (mục 2.2.3, Bảng 6.2). Phép
+đo nói thẳng hơn nữa nằm ở mục 6.2.6: kết quả dương duy nhất đo được của làn tiêu đề đến từ **đổi
+xương sống**, không từ thiết kế đầu — đầu của cấu hình thắng còn **nhỏ hơn** đầu của cấu hình nó
+vượt qua (201,090 so với 298,118 tham số). Vì vậy trần kết quả ở lớp bài toán này không nằm ở năng
+lực biểu diễn của khối thời gian, và đó là lý do luận văn đặt đóng góp chính ở mục 2.4 — chỗ đo
+giao thức — chứ không ở việc đề xuất một khối thời gian mới.
+
+Một điều **không** được dùng để đỡ lập luận trên, dù nó hay bị đọc lẫn: dải 1.4 điểm phần trăm của
+thang bốn bộ mã hoá quan hệ là dải **dưới phép chia ngẫu nhiên**. Dưới leave-source-out, chính
+thang ấy trải **5.1 điểm phần trăm** với khoảng tin cậy loại trừ 0 (mục 6.6.2). Nghĩa là giao thức
+rò rỉ nguồn mới là thứ xoá khả năng phân biệt kiến trúc; giao thức đúng thì **vẫn** phân biệt được.
+
+**Còn vì sao vẫn giữ nhánh phân rã theo thực thể (mục 2.2.4) sau khi G11 trượt.** Vì nhánh đó không
+còn phục vụ mục đích ban đầu (một biểu diễn tốt hơn) mà phục vụ một mục đích thứ hai, và mục đích
+thứ hai **thành công**: nó là **biểu diễn thứ hai, độc lập**, để kiểm xem lạm phát giao thức có tái
+lập hay không. Bốn bộ mã hoá quan hệ cho cùng dấu và cùng bậc độ lớn với nhánh toàn khung (mục 6.6),
+nên kết luận tiêu đề không phụ thuộc vào một cách biểu diễn duy nhất. Một phán quyết trượt ở cổng
+năng lực vì vậy vẫn để lại một đóng góp dùng được — và luận văn công bố nó đúng theo thứ tự ấy:
+phán quyết trượt trước, công dụng còn lại sau.
+
 ----------------------------------------------------------------------
 2.3. KHO DỮ LIỆU VÀ HỆ THỐNG GIÁM SÁT AN TOÀN CÔNG NGHIỆP
 ----------------------------------------------------------------------
@@ -280,6 +352,45 @@ cho làn bốn lớp và dùng chính giá trị đó làm căn cứ cho một k
 chuẩn lại tại hiện trường, ngưỡng cảnh báo phải đặt theo **thứ hạng**, không theo giá trị xác suất
 tuyệt đối (Chương 7, mục 7.9.1).
 
+2.4.5. Đại lượng báo cáo: vì sao độ chính xác cân bằng, và nhược điểm đã biết của nó
+
+Một khảo sát về rò rỉ và thiên lệch bối cảnh sẽ không trọn nếu không nói **đo bằng gì**, vì chọn
+sai đại lượng cũng làm một bảng kết quả mất nghĩa đúng như chọn sai cách chia fold. Luận văn báo
+cáo **độ chính xác cân bằng** (balanced accuracy, BA) làm đại lượng chính ở mọi làn; công thức viết
+đúng như mã tính nó nằm ở mục 3.7.3. Ba lý do, theo thứ tự quan trọng:
+
+  (1) **Cả hai kho đều lệch lớp.** Trên iSafetyBench, một bộ phân loại chỉ cần luôn trả lời "bình
+      thường" là đạt **61.8%** top-1 (mục 6.1.2). BA — trung bình độ nhạy theo từng lớp — đưa đúng
+      bộ phân loại ấy về **50.0%**, nên nó không thưởng cho việc đoán lớp đa số.
+  (2) **Nó là đại lượng mà công trình gốc đã dùng.** Cột "Overall (%)" của bài báo Unsafe-Net [17]
+      là trung bình macro của các độ nhạy theo lớp (mục 2.2.1), tức **cùng** định nghĩa với BA của
+      luận văn ở K = 4. So sánh với một con số đã công bố chỉ có nghĩa khi hai bên đo cùng một đại
+      lượng; chọn một đại lượng khác sẽ làm chính phép so sánh ấy mất hiệu lực.
+  (3) **Nó không đổi theo kích thước lớp**, nên một con số BA của fold này so được với fold khác
+      dù hai fold có tỉ lệ lớp khác nhau — điều kiện bắt buộc khi mỗi fold là một tập nguồn khác.
+
+**Nhược điểm của BA phải nói ra, vì tác vụ nhị phân của luận văn là một mục tiêu phát hiện.** BA
+**đối xứng**: nó định giá một clip không an toàn bị bỏ sót đúng bằng một báo động giả trên clip an
+toàn, trong khi ở hiện trường hai chi phí ấy không bằng nhau — bỏ sót là tai nạn, báo động giả là
+chi phí vận hành. Hệ quả kỹ thuật: hạ ngưỡng thì **BA tăng** trong khi macro-F1 giảm, nên một con
+số BA đứng một mình có thể che một mức báo động giả không chấp nhận được. Luận văn xử lý điều này
+bằng ba quy ước, chứ không bằng cách đổi đại lượng:
+
+  - BA được in **kèm** macro-F1, vì hai đại lượng này lệch nhau theo ngưỡng theo hai chiều ngược
+    nhau, và ở làn nhị phân còn kèm **mức báo động giả** tại điểm hoạt động được chốt (mục 3.7.3);
+  - cùng một lượt chạy được đo lại một lần nữa theo đúng mục tiêu phát hiện — độ nhạy lớp dương
+    tại một mức báo động giả — và kết quả ấy được công bố đầy đủ (mục 6.15.4);
+  - đại lượng tiêu đề **không** được đổi sau khi đã thấy số. Tác giả chốt giữ BA, với lý do
+    phương pháp luận: phép đo theo mục tiêu phát hiện cho một đại lượng **trông** đẹp hơn nhưng
+    **không đổi phán quyết**, nên đổi đại lượng lúc đó sẽ là chọn đại lượng theo kết quả (mục
+    8.3.9).
+
+Hướng đúng cho các lượt sau cũng đã được ghi kèm ràng buộc, không bỏ lửng: ngân sách báo động phải
+viết trước khi đo, phải kèm sàn độ nhạy **theo từng loại hành vi** — vì ở ngân sách báo động chặt,
+mô hình của luận văn bỏ trắng trọn một loại — và ứng viên đại lượng đáng mang sang là **AUC điều
+kiện trong cùng nhóm bối cảnh**, đại lượng duy nhất đã đo trực tiếp phần phân biệt không đến từ
+nền (mục 8.3.9).
+
 ----------------------------------------------------------------------
 2.5. TRIỂN KHAI BIÊN CHO MÔ HÌNH VIDEO HỌC SÂU
 ----------------------------------------------------------------------
@@ -316,6 +427,46 @@ trạng thái xung nhịp: tổng giai đoạn cao hơn thực 7.98% khi xung nh
 39.3% khi để bộ điều tốc tự do. Vì vậy nó không phải chặn trên, cũng không phải chặn dưới, và không
 hệ số hiệu chỉnh nào cứu được nó. Hệ quả phương pháp luận: mọi phán quyết nhịp trong luận văn được
 lấy từ **vòng lặp tổ hợp đo thực**, không từ tổng các giai đoạn.
+
+**Vì sao thiết bị đo thuộc họ Jetson, và vì sao đúng bo mạch này thì KHÔNG phải một lựa chọn có
+luận chứng.** Hai mức quyết định phải tách rời, vì chỉ mức thứ nhất được biện luận.
+
+Ở **mức lớp thiết bị**, bốn đích triển khai xuất hiện trong chính danh sách trên, và ba trong bốn
+bị loại trước khi có bất kỳ phép đo nào — vì những lý do không liên quan tới tốc độ:
+
+  - **GPU trung tâm dữ liệu** bị loại vì nó phủ định một thuộc tính mà luận văn tính là đóng góp:
+    khung hình không bao giờ rời thiết bị (mục 5.8.1). Quyết định trên máy chủ nghĩa là gửi khung
+    đi, nên lựa chọn này không phải "chậm hơn" mà là **giải một bài toán khác**.
+  - **Bộ thực thi CoreML** bị loại **bằng phép đo của chính luận văn**, không bằng suy đoán: các
+    đầu Transformer rơi về CPU và chi phí chuyển dữ liệu giữa hai thiết bị làm đường này chậm hơn
+    đường CPU thuần (đoạn trên). Đây là một kết quả phủ định, và nó được báo cáo như vậy.
+  - **ONNX Runtime trên CPU thuần** không bị loại khỏi luận văn — nó vẫn là đường xuất và lượng
+    tử hoá trên máy chủ — nhưng không dùng được làm đích biên ở đây, vì bước **tương đương FP16**
+    (mục 5.3), điều kiện tiên quyết của mọi con số độ trễ, sẽ không có gì để kiểm trên một hộp
+    chỉ có FP32.
+
+Còn lại TensorRT trên một SoC biên của NVIDIA. Ngoài tốc độ, có một lý do thứ hai: tài liệu tham
+chiếu sẵn có cho lớp bài toán này báo cáo thông lượng trên **đúng họ thiết bị đó** [21]. Chọn một
+lớp SoC khác thì Chương 5 sẽ không có giá trị đã công bố nào để đọc cạnh, trong khi quy tắc ở
+mục 6.1.6 buộc mọi con số kết quả phải khai báo giá trị đối chiếu và nguồn của nó. Phải nói ngay
+rằng tham chiếu này **yếu**: 25-60 khung/giây là đơn vị khung, và theo đúng khoảng trống thứ nhất ở
+trên, nó không quy đổi được sang nhịp quyết định. Nó chỉ cố định được bậc độ lớn của phần thị
+giác. Đó là lý do Chương 5 phát biểu biên so với **hợp đồng thời gian thực** của chính nó chứ
+không phát biểu một phép so sánh với tài liệu.
+
+Ở **mức bo mạch cụ thể**, không có luận chứng nào: Orin Nano Super 8GB là thiết bị **có sẵn** để
+đo, và luận văn không chạy một phép so sánh giữa các bo mạch. Đây là một `[ràng buộc]` theo nghĩa
+ở mục 3.1.4, không phải một tối ưu; Chương 1 vì vậy đặt AGX Orin và Orin NX **ngoài phạm vi**.
+Dải giá 249-499 USD là giá niêm yết **đọc từ nhà sản xuất**, dùng để nêu lớp chi phí, và không có
+phép so sánh chi phí nào giữa các bo mạch được đo.
+
+Phép đo về sau nói hai điều về lựa chọn này, và cả hai đều ngược chiều với một lời tự khen.
+Thứ nhất, **8GB không phải ràng buộc tới hạn** của bất kỳ pipeline nào: engine lớn nhất chiếm
+khoảng 2.3% bộ nhớ hợp nhất của bo mạch (mục 5.7.2), nên số liệu của luận văn **không** chứng
+minh rằng cần tới 8GB. Thứ hai, bản OpenCV trên thiết bị không liên kết GStreamer, nên **bộ giải
+mã cứng của bo mạch không được dùng** và chi phí giải mã trong mọi bảng nhịp là chi phí CPU
+(mục 4.6.2). Nghĩa là bo mạch **không** được dùng ở điểm tốt nhất của nó, và luận văn không phát
+biểu ngược lại.
 
 ----------------------------------------------------------------------
 2.6. ĐỊNH VỊ CỦA LUẬN VĂN
