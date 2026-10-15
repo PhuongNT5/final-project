@@ -1,0 +1,42 @@
+B1_PUBLISHED_29-09 (frozen, 1 thread era)  BA= 84.17 [77.40,89.96]  AUROC= 89.66  AP= 79.18  R@FAR5= 55.24  F2= 82.75  BA*= 84.29
+B1_published_config                        BA= 83.25 [75.87,89.44]  AUROC= 90.35  AP= 79.51  R@FAR5= 45.48  F2= 82.13  BA*= 84.67
+B1_published_config_threads1               BA= 84.71 [78.34,90.08]  AUROC= 89.35  AP= 79.95  R@FAR5= 56.43  F2= 83.29  BA*= 84.94
+B1_published_config_threads4               BA= 83.25 [75.87,89.44]  AUROC= 90.35  AP= 79.51  R@FAR5= 45.48  F2= 82.13  BA*= 84.67
+depth_2layer                               BA= 83.85 [76.99,89.68]  AUROC= 88.56  AP= 82.86  R@FAR5= 49.05  F2= 82.71  BA*= 84.64
+depth_3layer                               BA= 84.65 [78.45,89.80]  AUROC= 89.69  AP= 84.13  R@FAR5= 40.71  F2= 83.53  BA*= 84.99
+dropout_0.0                                BA= 84.43 [78.03,89.90]  AUROC= 90.17  AP= 80.65  R@FAR5= 47.14  F2= 82.36  BA*= 84.51
+dropout_0.2                                BA= 82.63 [75.90,88.47]  AUROC= 89.46  AP= 80.62  R@FAR5= 52.14  F2= 80.89  BA*= 83.60
+dropout_0.3                                BA= 83.59 [76.39,89.71]  AUROC= 88.58  AP= 75.75  R@FAR5= 32.38  F2= 82.44  BA*= 83.61
+epochs_120                                 BA= 82.51 [75.16,88.76]  AUROC= 90.33  AP= 78.21  R@FAR5= 43.57  F2= 80.69  BA*= 84.71
+epochs_30                                  BA= 82.86 [75.27,89.22]  AUROC= 89.03  AP= 79.59  R@FAR5= 34.76  F2= 81.67  BA*= 83.68
+ffn_ratio_1x                               BA= 84.66 [78.37,90.00]  AUROC= 91.51  AP= 84.63  R@FAR5= 49.29  F2= 83.14  BA*= 85.30
+ffn_ratio_4x                               BA= 84.73 [78.47,90.08]  AUROC= 91.24  AP= 86.72  R@FAR5= 61.90  F2= 83.18  BA*= 85.18
+gradclip_5.0                               BA= 83.56 [77.09,88.99]  AUROC= 90.23  AP= 81.22  R@FAR5= 64.76  F2= 81.50  BA*= 84.27
+heads_2                                    BA= 82.88 [75.40,89.03]  AUROC= 88.08  AP= 76.19  R@FAR5= 24.52  F2= 81.94  BA*= 83.48
+heads_8                                    BA= 84.41 [78.19,89.80]  AUROC= 89.95  AP= 76.66  R@FAR5= 26.67  F2= 83.14  BA*= 85.18
+lr_3e-3                                    BA= 83.53 [76.85,89.10]  AUROC= 90.04  AP= 84.40  R@FAR5= 51.67  F2= 81.62  BA*= 84.63
+lr_3e-4                                    BA= 85.55 [79.35,91.00]  AUROC= 92.14  AP= 87.05  R@FAR5= 66.43  F2= 84.27  BA*= 85.68
+smoothing_0.0                              BA= 84.33 [78.05,89.79]  AUROC= 90.42  AP= 86.48  R@FAR5= 55.24  F2= 82.44  BA*= 84.43
+smoothing_0.1                              BA= 83.77 [77.08,89.43]  AUROC= 89.76  AP= 82.46  R@FAR5= 42.86  F2= 82.01  BA*= 83.84
+wd_0.0                                     BA= 82.00 [74.44,88.32]  AUROC= 89.86  AP= 76.87  R@FAR5= 55.48  F2= 80.43  BA*= 82.82
+wd_0.1                                     BA= 84.26 [77.86,89.74]  AUROC= 89.96  AP= 78.96  R@FAR5= 44.29  F2= 82.40  BA*= 84.79
+width_d192                                 BA= 83.09 [76.35,88.85]  AUROC= 88.96  AP= 80.61  R@FAR5= 34.76  F2= 81.39  BA*= 84.61
+width_d64                                  BA= 84.99 [78.85,90.31]  AUROC= 91.09  AP= 81.07  R@FAR5= 50.71  F2= 83.84  BA*= 85.02
+arch_bigru                                 BA= 84.76 [78.18,90.39]  AUROC= 91.63  AP= 84.83  R@FAR5= 64.29  F2= 84.11  BA*= 84.83
+arch_gru                                   BA= 84.27 [77.93,89.84]  AUROC= 91.02  AP= 85.71  R@FAR5= 60.48  F2= 83.72  BA*= 84.39
+arch_meanpool                              BA= 84.89 [78.43,90.42]  AUROC= 91.39  AP= 87.57  R@FAR5= 61.90  F2= 84.57  BA*= 85.11
+arch_tcn                                   BA= 84.67 [78.43,90.04]  AUROC= 89.15  AP= 81.79  R@FAR5= 53.10  F2= 84.45  BA*= 84.79
+control_round2                             BA= 83.25 [75.87,89.44]  AUROC= 90.35  AP= 79.51  R@FAR5= 45.48  F2= 82.13  BA*= 84.67
+seeds_10                                   BA= 83.64 [76.88,89.48]  AUROC= 90.64  AP= 80.88  R@FAR5= 49.29  F2= 82.21  BA*= 84.84
+seeds_1                                    BA= 83.37 [75.94,89.37]  AUROC= 88.08  AP= 77.38  R@FAR5= 38.57  F2= 82.99  BA*= 84.14
+seeds_5                                    BA= 84.38 [77.62,90.28]  AUROC= 91.26  AP= 81.49  R@FAR5= 48.81  F2= 83.26  BA*= 84.75
+sel_last_max                               BA= 83.48 [76.02,89.68]  AUROC= 87.70  AP= 72.90  R@FAR5= 13.10  F2= 82.52  BA*= 83.81
+sel_swa10                                  BA= 84.61 [78.49,89.86]  AUROC= 88.19  AP= 80.66  R@FAR5= 41.43  F2= 82.31  BA*= 85.10
+sel_top3_ens                               BA= 83.95 [76.97,89.93]  AUROC= 90.53  AP= 79.03  R@FAR5= 47.86  F2= 82.64  BA*= 84.65
+sel_val_loss                               BA= 82.82 [75.41,89.05]  AUROC= 88.74  AP= 80.16  R@FAR5= 63.33  F2= 81.51  BA*= 84.10
+towerL_arch_meanpool                       BA= 88.58 [84.19,92.41]  AUROC= 94.62  AP= 89.86  R@FAR5= 75.71  F2= 87.21  BA*= 89.66
+towerL_control_round2                      BA= 87.42 [82.24,91.72]  AUROC= 93.96  AP= 90.53  R@FAR5= 76.19  F2= 85.80  BA*= 87.93
+towerVMAE_arch_meanpool                    BA= 80.62 [75.29,85.75]  AUROC= 88.14  AP= 77.40  R@FAR5= 39.29  F2= 78.92  BA*= 81.66
+towerVMAE_control_round2                   BA= 80.87 [75.13,86.29]  AUROC= 86.76  AP= 74.95  R@FAR5= 43.10  F2= 78.91  BA*= 81.36
+
+wrote sweep_results/posthoc_sensitivity/asymmetric_measures.json

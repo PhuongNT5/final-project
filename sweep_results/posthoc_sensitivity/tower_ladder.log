@@ -1,0 +1,104 @@
+=== tower towerL_  sweep_results/relation_tokens/feats_isbclipL_all.pt
+[load] sweep_results/relation_tokens/feats_isbclipL_all.pt: no entity arm -- whole-frame only
+[posthoc round 2] 2 configs, 10 LSO folds, 1100 clips. NOT a pre-registered gate.
+
+=== [1/2] control_round2  {}
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  1/10 n=144 acc= 98.6%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  2/10 n=107 acc= 88.8%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  3/10 n=107 acc= 82.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  4/10 n=106 acc= 81.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  5/10 n=106 acc= 79.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  6/10 n=106 acc= 84.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  7/10 n=106 acc= 96.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  8/10 n=106 acc= 92.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  9/10 n=106 acc= 89.6%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold 10/10 n=106 acc= 79.2%
+  [towerL_control_round2] in_dim=768 T=16 arch=transformer sel=first_max seeds=3 params=233,858 BA=87.42% top1=87.55% (9.8 min)
+
+=== [2/2] arch_meanpool  {'arch': 'meanpool'}
+Traceback (most recent call last):
+  File "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_b1_round2_experiments.py", line 269, in <module>
+    main()
+    ~~~~^^
+  File "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_b1_round2_experiments.py", line 265, in main
+    run_config(name, GRID[name], feats, y, clip_ids, folds, args.seeds, args.feats)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_b1_round2_experiments.py", line 197, in run_config
+    cfg = dict(BASE, arch='transformer', sel='first_max', **over)
+TypeError: dict() got multiple values for keyword argument 'arch'
+=== tower towerVMAE_  sweep_results/relation_tokens/feats_isbvmae_all.pt
+[posthoc round 2] 2 configs, 10 LSO folds, 1100 clips. NOT a pre-registered gate.
+
+=== [1/2] control_round2  {}
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  1/10 n=144 acc= 81.9%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  2/10 n=107 acc= 81.3%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  3/10 n=107 acc= 81.3%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  4/10 n=106 acc= 79.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  5/10 n=106 acc= 74.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  6/10 n=106 acc= 59.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  7/10 n=106 acc= 87.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  8/10 n=106 acc= 93.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  9/10 n=106 acc= 88.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold 10/10 n=106 acc= 81.1%
+  [towerVMAE_control_round2] in_dim=768 T=8 arch=transformer sel=first_max seeds=3 params=233,858 BA=80.87% top1=80.91% (7.1 min)
+
+=== [2/2] arch_meanpool  {'arch': 'meanpool'}
+Traceback (most recent call last):
+  File "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_b1_round2_experiments.py", line 269, in <module>
+    main()
+    ~~~~^^
+  File "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_b1_round2_experiments.py", line 265, in main
+    run_config(name, GRID[name], feats, y, clip_ids, folds, args.seeds, args.feats)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_b1_round2_experiments.py", line 197, in run_config
+    cfg = dict(BASE, arch='transformer', sel='first_max', **over)
+TypeError: dict() got multiple values for keyword argument 'arch'
+=== tower ladder done

@@ -1,0 +1,373 @@
+[posthoc round 2] 12 configs, 10 LSO folds, 1100 clips. NOT a pre-registered gate.
+
+=== [1/12] control_round2  {}
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  1/10 n=144 acc= 84.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  2/10 n=107 acc= 87.9%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  3/10 n=107 acc= 79.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  4/10 n=106 acc= 75.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  5/10 n=106 acc= 81.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  6/10 n=106 acc= 56.6%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  7/10 n=106 acc= 97.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  8/10 n=106 acc= 96.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  9/10 n=106 acc= 84.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold 10/10 n=106 acc= 86.8%
+  [control_round2] arch=transformer sel=first_max seeds=3 params=201,090 BA=83.25% top1=83.00% (9.7 min)
+
+=== [2/12] sel_last_max  {'sel': 'last_max'}
+Traceback (most recent call last):
+  File "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_b1_round2_experiments.py", line 263, in <module>
+    for i, name in enumerate(names, 1):
+    ^^^^^^
+  File "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_b1_round2_experiments.py", line 259, in main
+    in enumerate(ISB.folds(y, groups, n_splits=10, seed=0))]
+  File "/Users/nguyenthiphuong/Learning/Proposal/project/my-project/run_b1_round2_experiments.py", line 196, in run_config
+    def run_config(name, over, feats, y, clip_ids, folds, default_seeds, feats_path=''):
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: dict() got multiple values for keyword argument 'sel'
+[posthoc round 2] 11 configs, 10 LSO folds, 1100 clips. NOT a pre-registered gate.
+
+=== [1/11] sel_last_max  {'sel': 'last_max'}
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  1/10 n=144 acc= 84.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  2/10 n=107 acc= 86.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  3/10 n=107 acc= 79.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  4/10 n=106 acc= 76.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  5/10 n=106 acc= 81.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  6/10 n=106 acc= 57.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  7/10 n=106 acc= 99.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  8/10 n=106 acc= 96.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  9/10 n=106 acc= 84.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold 10/10 n=106 acc= 86.8%
+  [sel_last_max] in_dim=512 T=16 arch=transformer sel=last_max seeds=3 params=201,090 BA=83.48% top1=83.18% (5.0 min)
+
+=== [2/11] sel_val_loss  {'sel': 'val_loss'}
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  1/10 n=144 acc= 85.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  2/10 n=107 acc= 86.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  3/10 n=107 acc= 79.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  4/10 n=106 acc= 74.5%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  5/10 n=106 acc= 81.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  6/10 n=106 acc= 54.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  7/10 n=106 acc= 96.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  8/10 n=106 acc= 96.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  9/10 n=106 acc= 84.9%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold 10/10 n=106 acc= 86.8%
+  [sel_val_loss] in_dim=512 T=16 arch=transformer sel=val_loss seeds=3 params=201,090 BA=82.82% top1=82.64% (5.8 min)
+
+=== [3/11] sel_swa10  {'sel': 'swa10'}
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  1/10 n=144 acc= 85.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  2/10 n=107 acc= 86.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  3/10 n=107 acc= 79.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  4/10 n=106 acc= 77.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  5/10 n=106 acc= 80.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  6/10 n=106 acc= 73.6%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  7/10 n=106 acc= 99.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  8/10 n=106 acc= 96.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  9/10 n=106 acc= 83.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold 10/10 n=106 acc= 88.7%
+  [sel_swa10] in_dim=512 T=16 arch=transformer sel=swa10 seeds=3 params=201,090 BA=84.61% top1=84.91% (5.7 min)
+
+=== [4/11] sel_top3_ens  {'sel': 'top3_ens'}
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  1/10 n=144 acc= 85.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  2/10 n=107 acc= 86.9%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  3/10 n=107 acc= 79.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  4/10 n=106 acc= 78.3%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  5/10 n=106 acc= 80.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  6/10 n=106 acc= 61.3%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  7/10 n=106 acc= 98.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  8/10 n=106 acc= 96.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  9/10 n=106 acc= 84.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold 10/10 n=106 acc= 87.7%
+  [sel_top3_ens] in_dim=512 T=16 arch=transformer sel=top3_ens seeds=3 params=201,090 BA=83.95% top1=83.82% (5.7 min)
+
+=== [5/11] arch_meanpool  {'arch': 'meanpool'}
+    fold  1/10 n=144 acc= 91.0%
+    fold  2/10 n=107 acc= 83.2%
+    fold  3/10 n=107 acc= 79.4%
+    fold  4/10 n=106 acc= 77.4%
+    fold  5/10 n=106 acc= 81.1%
+    fold  6/10 n=106 acc= 65.1%
+    fold  7/10 n=106 acc= 98.1%
+    fold  8/10 n=106 acc= 94.3%
+    fold  9/10 n=106 acc= 84.9%
+    fold 10/10 n=106 acc= 86.8%
+  [arch_meanpool] in_dim=512 T=16 arch=meanpool sel=first_max seeds=3 params=132,354 BA=84.89% top1=84.36% (1.5 min)
+
+=== [6/11] arch_gru  {'arch': 'gru'}
+    fold  1/10 n=144 acc= 86.1%
+    fold  2/10 n=107 acc= 86.0%
+    fold  3/10 n=107 acc= 79.4%
+    fold  4/10 n=106 acc= 78.3%
+    fold  5/10 n=106 acc= 80.2%
+    fold  6/10 n=106 acc= 62.3%
+    fold  7/10 n=106 acc= 96.2%
+    fold  8/10 n=106 acc= 95.3%
+    fold  9/10 n=106 acc= 86.8%
+    fold 10/10 n=106 acc= 86.8%
+  [arch_gru] in_dim=512 T=16 arch=gru sel=first_max seeds=3 params=165,506 BA=84.27% top1=83.82% (4.0 min)
+
+=== [7/11] arch_bigru  {'arch': 'bigru'}
+    fold  1/10 n=144 acc= 89.6%
+    fold  2/10 n=107 acc= 84.1%
+    fold  3/10 n=107 acc= 79.4%
+    fold  4/10 n=106 acc= 77.4%
+    fold  5/10 n=106 acc= 79.2%
+    fold  6/10 n=106 acc= 69.8%
+    fold  7/10 n=106 acc= 91.5%
+    fold  8/10 n=106 acc= 96.2%
+    fold  9/10 n=106 acc= 86.8%
+    fold 10/10 n=106 acc= 87.7%
+  [arch_bigru] in_dim=512 T=16 arch=bigru sel=first_max seeds=3 params=265,090 BA=84.76% top1=84.36% (6.9 min)
+
+=== [8/11] arch_tcn  {'arch': 'tcn'}
+    fold  1/10 n=144 acc= 89.6%
+    fold  2/10 n=107 acc= 83.2%
+    fold  3/10 n=107 acc= 77.6%
+    fold  4/10 n=106 acc= 78.3%
+    fold  5/10 n=106 acc= 77.4%
+    fold  6/10 n=106 acc= 64.2%
+    fold  7/10 n=106 acc= 99.1%
+    fold  8/10 n=106 acc= 95.3%
+    fold  9/10 n=106 acc= 86.8%
+    fold 10/10 n=106 acc= 87.7%
+  [arch_tcn] in_dim=512 T=16 arch=tcn sel=first_max seeds=3 params=164,994 BA=84.67% top1=84.09% (11.8 min)
+
+=== [9/11] seeds_1  {'seeds': 1}
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  1/10 n=144 acc= 91.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  2/10 n=107 acc= 85.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  3/10 n=107 acc= 79.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  4/10 n=106 acc= 72.6%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  5/10 n=106 acc= 77.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  6/10 n=106 acc= 55.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  7/10 n=106 acc= 99.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  8/10 n=106 acc= 96.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  9/10 n=106 acc= 80.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold 10/10 n=106 acc= 88.7%
+  [seeds_1] in_dim=512 T=16 arch=transformer sel=first_max seeds=1 params=201,090 BA=83.37% top1=82.82% (2.0 min)
+
+=== [10/11] seeds_5  {'seeds': 5}
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  1/10 n=144 acc= 84.7%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  2/10 n=107 acc= 88.8%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  3/10 n=107 acc= 79.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  4/10 n=106 acc= 77.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  5/10 n=106 acc= 82.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  6/10 n=106 acc= 62.3%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  7/10 n=106 acc= 99.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  8/10 n=106 acc= 96.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  9/10 n=106 acc= 83.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold 10/10 n=106 acc= 88.7%
+  [seeds_5] in_dim=512 T=16 arch=transformer sel=first_max seeds=5 params=201,090 BA=84.38% top1=84.18% (9.8 min)
+
+=== [11/11] seeds_10  {'seeds': 10}
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  1/10 n=144 acc= 85.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  2/10 n=107 acc= 86.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  3/10 n=107 acc= 79.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  4/10 n=106 acc= 77.4%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  5/10 n=106 acc= 81.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  6/10 n=106 acc= 66.0%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  7/10 n=106 acc= 95.3%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  8/10 n=106 acc= 96.2%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold  9/10 n=106 acc= 81.1%
+/Users/nguyenthiphuong/Learning/Proposal/project/my-project/model_entity_spatiotemporal.py:48: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.norm_first was True
+  self.enc = nn.TransformerEncoder(_encoder_layer(d, heads, ff, dropout), layers)
+    fold 10/10 n=106 acc= 86.8%
+  [seeds_10] in_dim=512 T=16 arch=transformer sel=first_max seeds=10 params=201,090 BA=83.64% top1=83.55% (19.3 min)
+=== round 2 head families done
+=== tower towerL_ meanpool floor
+[load] sweep_results/relation_tokens/feats_isbclipL_all.pt: no entity arm -- whole-frame only
+[posthoc round 2] 1 configs, 10 LSO folds, 1100 clips. NOT a pre-registered gate.
+
+=== [1/1] arch_meanpool  {'arch': 'meanpool'}
+    fold  1/10 n=144 acc= 91.7%
+    fold  2/10 n=107 acc= 88.8%
+    fold  3/10 n=107 acc= 87.9%
+    fold  4/10 n=106 acc= 89.6%
+    fold  5/10 n=106 acc= 80.2%
+    fold  6/10 n=106 acc= 84.9%
+    fold  7/10 n=106 acc= 99.1%
+    fold  8/10 n=106 acc= 96.2%
+    fold  9/10 n=106 acc= 85.8%
+    fold 10/10 n=106 acc= 81.1%
+  [towerL_arch_meanpool] in_dim=768 T=16 arch=meanpool sel=first_max seeds=3 params=165,122 BA=88.58% top1=88.64% (1.6 min)
+=== tower towerVMAE_ meanpool floor
+[posthoc round 2] 1 configs, 10 LSO folds, 1100 clips. NOT a pre-registered gate.
+
+=== [1/1] arch_meanpool  {'arch': 'meanpool'}
+    fold  1/10 n=144 acc= 75.7%
+    fold  2/10 n=107 acc= 87.9%
+    fold  3/10 n=107 acc= 82.2%
+    fold  4/10 n=106 acc= 77.4%
+    fold  5/10 n=106 acc= 74.5%
+    fold  6/10 n=106 acc= 60.4%
+    fold  7/10 n=106 acc= 86.8%
+    fold  8/10 n=106 acc= 93.4%
+    fold  9/10 n=106 acc= 86.8%
+    fold 10/10 n=106 acc= 82.1%
+  [towerVMAE_arch_meanpool] in_dim=768 T=8 arch=meanpool sel=first_max seeds=3 params=165,122 BA=80.62% top1=80.55% (1.2 min)
+=== all done
