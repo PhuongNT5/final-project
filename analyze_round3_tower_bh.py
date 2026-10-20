@@ -13,9 +13,10 @@ Three disclosures the numbers cannot carry on their own
 -------------------------------------------------------
 1. DENOMINATOR. The pre-registration names ten tower rows, two of them controls, so the family is
    EIGHT non-control towers -- the document's own sentence says "7", which was a miscount, and the
-   larger, more conservative figure is the one used here. `eva02B16` never loaded, so only seven
-   p-values exist; the missing one enters BH as p = 1. Both choices make the test harder to pass,
-   never easier, so neither can be a post-hoc convenience.
+   larger, more conservative figure is the one used here. All eight towers, including `eva02B16`,
+   loaded and produced real round-2 OOF predictions, so all eight p-values below are measured, none
+   is a placeholder. The larger denominator makes the test harder to pass, never easier, so it
+   cannot be a post-hoc convenience.
 2. ONE ROW PER TOWER. Each tower was trained with two heads. Using both would silently double the
    family after the fact. The primary row is the TRANSFORMER head, because that is the deployed B1
    graph of the thesis and the only choice that holds the architecture identical to the published
@@ -44,8 +45,8 @@ OUT = f'{POSTHOC}/round3_tower_bh.json'
 DRIFT_BAND_PP = 1.46
 Q = 0.05
 
-# Fixed before any tower ran: eight non-control towers. `eva02B16` has no row (it never loaded) and
-# is carried as p = 1. tag -> (pre-registered name, role)
+# Fixed before any tower ran: eight non-control towers, all eight measured.
+# tag -> (pre-registered name, role)
 FAMILY = {
     'towerB16':   ('clipB16', 'same training data, patch 16 instead of 32'),
     'towerDC1B':  ('openclipB16_dc1b', 'DataComp-1B'),
@@ -54,7 +55,7 @@ FAMILY = {
     'towerMETA':  ('metaclipB16', 'MetaCLIP 400M'),
     'towerL2B':   ('openclipB16_l2b', 'LAION-2B'),
     'towerMOBS1': ('mobileclip_s1', 'SMALLER than the deployed B/32'),
-    'towerEVA02': ('eva02B16', 'NOT MEASURED: open_clip could not load it'),
+    'towerEVA02': ('eva02B16', 'EVA-02, merged-2B data'),
 }
 
 
@@ -164,7 +165,7 @@ def main():
                'multiple_comparisons': {'method': 'Benjamini-Hochberg', 'q': Q,
                                         'm': len(FAMILY),
                                         'denominator_fixed': 'before any tower was run',
-                                        'note': 'eva02B16 never loaded; carried as p=1'},
+                                        'note': 'all eight towers measured; no placeholder p-values'},
                'primary_transformer_head': primary, 'secondary_meanpool_head': second},
               open(OUT, 'w'), indent=1)
     print(f'\nwrote {OUT}')

@@ -19,7 +19,7 @@
   "q": 0.05,
   "m": 8,
   "denominator_fixed": "before any tower was run",
-  "note": "eva02B16 never loaded; carried as p=1"
+  "note": "all eight towers measured; no placeholder p-values"
  },
  "primary_transformer_head": {
   "towerB16": {
@@ -143,7 +143,7 @@
   },
   "towerEVA02": {
    "tower": "eva02B16",
-   "role": "NOT MEASURED: open_clip could not load it",
+   "role": "EVA-02, merged-2B data",
    "measured": true,
    "ba": 83.65,
    "margin_pp_vs_control": 0.41,
@@ -281,7 +281,7 @@
   },
   "towerEVA02": {
    "tower": "eva02B16",
-   "role": "NOT MEASURED: open_clip could not load it",
+   "role": "EVA-02, merged-2B data",
    "measured": true,
    "ba": 84.45,
    "margin_pp_vs_control": 1.2,
