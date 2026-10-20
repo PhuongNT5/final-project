@@ -1,0 +1,89 @@
+{
+  "before": {
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 729600,
+        "cur_khz": 729600,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 729600,
+        "cur_khz": 729600,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 306000000,
+        "cur_hz": 306000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": false,
+      "gpu": false,
+      "any": false
+    },
+    "load_average": [
+      0.02001953125,
+      0.22998046875,
+      0.51123046875
+    ],
+    "competing_processes": [],
+    "quiet": true,
+    "other_repo_processes": [],
+    "gpu_peak_permille": 0,
+    "gpu_load_samples": 6
+  },
+  "after": {
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 729600,
+        "cur_khz": 1728000,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 729600,
+        "cur_khz": 729600,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 306000000,
+        "cur_hz": 1020000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": false,
+      "gpu": false,
+      "any": false
+    },
+    "load_average": [
+      1.27783203125,
+      0.51611328125,
+      0.59912109375
+    ],
+    "competing_processes": [],
+    "quiet": true,
+    "other_repo_processes": [],
+    "gpu_peak_permille": 0,
+    "gpu_load_samples": 6
+  },
+  "cmd": [
+    "python3",
+    "deployment/scripts/benchmark-r48-composed-cadence.py",
+    "--json"
+  ],
+  "returncode": 0,
+  "clean_before": true,
+  "clean_after": true,
+  "dirty_reasons_after": []
+}

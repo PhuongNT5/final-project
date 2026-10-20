@@ -1,0 +1,300 @@
+{
+ "note": "POST-HOC. Not a gate. Margins are against the same-environment 4-thread control (83.25%), never against the published 84.17%.",
+ "control": {
+  "artifact": "sweep_results/posthoc_sensitivity/B1_published_config_oof.json",
+  "ba": 83.25
+ },
+ "drift_band_pp": 1.46,
+ "bootstrap": {
+  "unit": "source video",
+  "B": 5000,
+  "seed": 0,
+  "alpha": 0.05,
+  "kind": "percentile",
+  "paired": true,
+  "p_value": "two-sided achieved significance level of the same draws"
+ },
+ "multiple_comparisons": {
+  "method": "Benjamini-Hochberg",
+  "q": 0.05,
+  "m": 8,
+  "denominator_fixed": "before any tower was run",
+  "note": "eva02B16 never loaded; carried as p=1"
+ },
+ "primary_transformer_head": {
+  "towerB16": {
+   "tower": "clipB16",
+   "role": "same training data, patch 16 instead of 32",
+   "measured": true,
+   "ba": 85.82,
+   "margin_pp_vs_control": 2.58,
+   "cluster_ci_pp": [
+    -2.32,
+    8.51
+   ],
+   "p_bootstrap": 0.3196,
+   "draws": 5000,
+   "clears_drift_band": true,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerDC1B": {
+   "tower": "openclipB16_dc1b",
+   "role": "DataComp-1B",
+   "measured": true,
+   "ba": 84.3,
+   "margin_pp_vs_control": 1.05,
+   "cluster_ci_pp": [
+    -2.6,
+    4.48
+   ],
+   "p_bootstrap": 0.5676,
+   "draws": 5000,
+   "clears_drift_band": false,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerDFN2B": {
+   "tower": "dfn2bB16",
+   "role": "DFN-2B",
+   "measured": true,
+   "ba": 83.68,
+   "margin_pp_vs_control": 0.43,
+   "cluster_ci_pp": [
+    -4.36,
+    6.41
+   ],
+   "p_bootstrap": 0.9524,
+   "draws": 5000,
+   "clears_drift_band": false,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerSIG2": {
+   "tower": "siglip2B16",
+   "role": "SigLIP 2, sigmoid loss, 768-d",
+   "measured": true,
+   "ba": 86.39,
+   "margin_pp_vs_control": 3.14,
+   "cluster_ci_pp": [
+    -1.53,
+    8.98
+   ],
+   "p_bootstrap": 0.222,
+   "draws": 5000,
+   "clears_drift_band": true,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerMETA": {
+   "tower": "metaclipB16",
+   "role": "MetaCLIP 400M",
+   "measured": true,
+   "ba": 86.34,
+   "margin_pp_vs_control": 3.09,
+   "cluster_ci_pp": [
+    -0.86,
+    7.49
+   ],
+   "p_bootstrap": 0.128,
+   "draws": 5000,
+   "clears_drift_band": true,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerL2B": {
+   "tower": "openclipB16_l2b",
+   "role": "LAION-2B",
+   "measured": true,
+   "ba": 84.36,
+   "margin_pp_vs_control": 1.12,
+   "cluster_ci_pp": [
+    -2.59,
+    5.18
+   ],
+   "p_bootstrap": 0.5664,
+   "draws": 5000,
+   "clears_drift_band": false,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerMOBS1": {
+   "tower": "mobileclip_s1",
+   "role": "SMALLER than the deployed B/32",
+   "measured": true,
+   "ba": 83.71,
+   "margin_pp_vs_control": 0.47,
+   "cluster_ci_pp": [
+    -4.71,
+    6.49
+   ],
+   "p_bootstrap": 0.9292,
+   "draws": 5000,
+   "clears_drift_band": false,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerEVA02": {
+   "tower": "eva02B16",
+   "role": "NOT MEASURED: open_clip could not load it",
+   "measured": true,
+   "ba": 83.65,
+   "margin_pp_vs_control": 0.41,
+   "cluster_ci_pp": [
+    -4.33,
+    6.99
+   ],
+   "p_bootstrap": 0.9336,
+   "draws": 5000,
+   "clears_drift_band": false,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  }
+ },
+ "secondary_meanpool_head": {
+  "towerB16": {
+   "tower": "clipB16",
+   "role": "same training data, patch 16 instead of 32",
+   "measured": true,
+   "ba": 85.88,
+   "margin_pp_vs_control": 2.64,
+   "cluster_ci_pp": [
+    -1.49,
+    8.02
+   ],
+   "p_bootstrap": 0.2712,
+   "draws": 5000,
+   "clears_drift_band": true,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerDC1B": {
+   "tower": "openclipB16_dc1b",
+   "role": "DataComp-1B",
+   "measured": true,
+   "ba": 82.86,
+   "margin_pp_vs_control": -0.38,
+   "cluster_ci_pp": [
+    -3.87,
+    3.2
+   ],
+   "p_bootstrap": 0.8416,
+   "draws": 5000,
+   "clears_drift_band": false,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerDFN2B": {
+   "tower": "dfn2bB16",
+   "role": "DFN-2B",
+   "measured": true,
+   "ba": 85.49,
+   "margin_pp_vs_control": 2.25,
+   "cluster_ci_pp": [
+    -2.4,
+    8.35
+   ],
+   "p_bootstrap": 0.4424,
+   "draws": 5000,
+   "clears_drift_band": true,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerSIG2": {
+   "tower": "siglip2B16",
+   "role": "SigLIP 2, sigmoid loss, 768-d",
+   "measured": true,
+   "ba": 87.25,
+   "margin_pp_vs_control": 4.0,
+   "cluster_ci_pp": [
+    -0.57,
+    9.99
+   ],
+   "p_bootstrap": 0.0928,
+   "draws": 5000,
+   "clears_drift_band": true,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerMETA": {
+   "tower": "metaclipB16",
+   "role": "MetaCLIP 400M",
+   "measured": true,
+   "ba": 84.77,
+   "margin_pp_vs_control": 1.52,
+   "cluster_ci_pp": [
+    -1.57,
+    4.91
+   ],
+   "p_bootstrap": 0.3508,
+   "draws": 5000,
+   "clears_drift_band": true,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerL2B": {
+   "tower": "openclipB16_l2b",
+   "role": "LAION-2B",
+   "measured": true,
+   "ba": 85.76,
+   "margin_pp_vs_control": 2.52,
+   "cluster_ci_pp": [
+    -0.88,
+    6.39
+   ],
+   "p_bootstrap": 0.1496,
+   "draws": 5000,
+   "clears_drift_band": true,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerMOBS1": {
+   "tower": "mobileclip_s1",
+   "role": "SMALLER than the deployed B/32",
+   "measured": true,
+   "ba": 83.78,
+   "margin_pp_vs_control": 0.53,
+   "cluster_ci_pp": [
+    -4.55,
+    6.38
+   ],
+   "p_bootstrap": 0.9192,
+   "draws": 5000,
+   "clears_drift_band": false,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  },
+  "towerEVA02": {
+   "tower": "eva02B16",
+   "role": "NOT MEASURED: open_clip could not load it",
+   "measured": true,
+   "ba": 84.45,
+   "margin_pp_vs_control": 1.2,
+   "cluster_ci_pp": [
+    -3.54,
+    7.78
+   ],
+   "p_bootstrap": 0.7072,
+   "draws": 5000,
+   "clears_drift_band": false,
+   "ci_excludes_zero": false,
+   "bh_rejected": false,
+   "survives_preregistered_rule": false
+  }
+ }
+}

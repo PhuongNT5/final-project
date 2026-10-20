@@ -113,6 +113,11 @@ def main():
     ap.add_argument('--mode', default='fp16', choices=['fp32', 'fp16', 'int8'],
                     help='engine precision suffix; --backend tensorrt only')
     ap.add_argument('--engine-dir', default=ENGINE_DIR)
+    # Default is the published B/32 stem, so the no-flag invocation still reproduces the reported
+    # 23.386 ms. A round-3 stem (r48-tower-<name>) swaps ONLY this stage: preprocessing, head and
+    # frame count are untouched, which is what makes the difference a tower effect.
+    ap.add_argument('--tower', default=TOWER[0],
+                    help='vision-tower stem; default = the published CLIP ViT-B/32 tower')
     ap.add_argument('--runs', type=int, default=20)
     ap.add_argument('--warmup', type=int, default=3)
     ap.add_argument('--detector', action='store_true',
@@ -137,8 +142,11 @@ def main():
           + f', {args.runs} runs after {args.warmup} warmups')
     print(f'[config] one decision = {FRAMES} frames, whole-frame (B1 uses NO detector)\n')
 
+    # Parameter counts are quoted only for the two graphs whose counts were audited; a swapped
+    # tower reports None rather than borrowing the B/32 figure.
+    tower = (args.tower, TOWER[1], TOWER[2] if args.tower == TOWER[0] else None, TOWER[3])
     stages = {}
-    for key, (stem, batch, params, note) in (('tower', TOWER), ('head', HEAD)):
+    for key, (stem, batch, params, note) in (('tower', tower), ('head', HEAD)):
         r, path = time_stage(stem, batch, args.backend, args.mode, args.engine_dir,
                              args.runs, args.warmup)
         if r is None:
@@ -150,7 +158,8 @@ def main():
                                 f'1:{batch}:{batch}'))
         r['params'] = params
         stages[key] = r
-        report(f'{stem}, batch {batch}', r, f'({params:,} params)')
+        report(f'{stem}, batch {batch}', r,
+               f'({params:,} params)' if params else '(params not audited for this stem)')
 
     decision = stages['tower']['median_ms'] + stages['head']['median_ms']
     backbone_share = 100 * stages['tower']['median_ms'] / decision
@@ -175,10 +184,20 @@ def main():
         extras['legacy_appearance'] = r
         print(f'\n[reference] {LEGACY[3]}:')
         report(f'MobileNetV3-small appearance, batch {FRAMES}', r, f'({LEGACY[2]:,} params)')
-        print(f'  CLIP costs {stages["tower"]["median_ms"] / r["median_ms"]:.1f}x the appearance '
-              f'backbone it replaced, for +4.0 pp balanced accuracy (cluster CI includes 0).')
+        if args.tower == TOWER[0]:
+            print(f'  CLIP costs {stages["tower"]["median_ms"] / r["median_ms"]:.1f}x the '
+                  f'appearance backbone it replaced, for +4.0 pp balanced accuracy '
+                  f'(cluster CI includes 0).')
+        else:
+            # The +4.0 pp above is the B/32-vs-MobileNetV3 pairing. A swapped tower has its own
+            # margin against its own control, and printing the B/32 sentence here would attach
+            # one tower's accuracy to another tower's cost.
+            print(f'  ratio vs the appearance backbone: '
+                  f'{stages["tower"]["median_ms"] / r["median_ms"]:.1f}x '
+                  f'(accuracy pairing for this stem is in the round-3 table, not here)')
 
     payload = {'backend': args.backend, 'mode': None if host else args.mode, 'frames': FRAMES,
+               'tower_stem': args.tower, 'is_published_tower': args.tower == TOWER[0],
                'stages': stages, 'extras': extras,
                'per_decision_ms': round(decision, 3),
                'decisions_per_sec': round(1000 / decision, 3),

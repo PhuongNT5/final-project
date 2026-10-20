@@ -1,0 +1,155 @@
+{
+ "video": "data/isafetybench/normal/0E-P6HrYYQI_trim_0.mp4",
+ "model": "B1",
+ "ckpt": "sweep_results/relation_tokens/deploy/b1-deploy-3seed.pt",
+ "decision_path": "whole-frame CLIP ViT-B/32 (frozen) -> B1 temporal head, 3-seed ensemble; the detector is localisation only and is not an input",
+ "localisation": {
+  "detector": "yolo11s.pt",
+  "imgsz": 800,
+  "conf": 0.25
+ },
+ "threshold": 0.5,
+ "threshold_note": "fixed at 0.5, never tuned",
+ "window": 48,
+ "stride": 24,
+ "fps": 25.0,
+ "windows": [
+  {
+   "window": 0,
+   "start_frame": 0,
+   "start_sec": 0.0,
+   "prob_unsafe": 0.0367,
+   "per_seed": [
+    0.0099,
+    0.054,
+    0.0462
+   ],
+   "verdict": "normal",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 57,
+    "classes": {
+     "person": 28,
+     "tv": 16,
+     "chair": 8,
+     "refrigerator": 5
+    }
+   }
+  },
+  {
+   "window": 1,
+   "start_frame": 24,
+   "start_sec": 0.96,
+   "prob_unsafe": 0.0194,
+   "per_seed": [
+    0.0054,
+    0.0234,
+    0.0293
+   ],
+   "verdict": "normal",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 67,
+    "classes": {
+     "person": 29,
+     "tv": 22,
+     "refrigerator": 8,
+     "mouse": 3,
+     "laptop": 2
+    }
+   }
+  },
+  {
+   "window": 2,
+   "start_frame": 48,
+   "start_sec": 1.92,
+   "prob_unsafe": 0.0133,
+   "per_seed": [
+    0.0042,
+    0.013,
+    0.0228
+   ],
+   "verdict": "normal",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 98,
+    "classes": {
+     "tv": 33,
+     "person": 29,
+     "chair": 12,
+     "keyboard": 8,
+     "mouse": 7
+    }
+   }
+  },
+  {
+   "window": 3,
+   "start_frame": 72,
+   "start_sec": 2.88,
+   "prob_unsafe": 0.014,
+   "per_seed": [
+    0.0044,
+    0.0141,
+    0.0237
+   ],
+   "verdict": "normal",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 95,
+    "classes": {
+     "tv": 31,
+     "person": 24,
+     "chair": 19,
+     "keyboard": 15,
+     "mouse": 3
+    }
+   }
+  },
+  {
+   "window": 4,
+   "start_frame": 96,
+   "start_sec": 3.84,
+   "prob_unsafe": 0.0153,
+   "per_seed": [
+    0.005,
+    0.0165,
+    0.0244
+   ],
+   "verdict": "normal",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 53,
+    "classes": {
+     "person": 15,
+     "tv": 15,
+     "keyboard": 12,
+     "chair": 7,
+     "book": 3
+    }
+   }
+  },
+  {
+   "window": 5,
+   "start_frame": 102,
+   "start_sec": 4.08,
+   "prob_unsafe": 0.0155,
+   "per_seed": [
+    0.0049,
+    0.017,
+    0.0248
+   ],
+   "verdict": "normal",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 37,
+    "classes": {
+     "keyboard": 11,
+     "person": 10,
+     "tv": 9,
+     "chair": 3,
+     "book": 2
+    }
+   }
+  }
+ ]
+}

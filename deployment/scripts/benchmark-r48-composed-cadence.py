@@ -114,6 +114,14 @@ def probe_idle(tower, x, gap_ms, runs, warmup, pct):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--engine-dir', default=ENGINE_DIR)
+    # Defaults are the published stems, so the no-flag invocation still reproduces the reported
+    # 289.672 ms/decision. --tower swaps only the tower stage; --head exists because a 768-d tower
+    # (SigLIP 2) cannot feed the 512-d published head at all -- the engine's input shape rejects it.
+    ap.add_argument('--tower', default=TOWER,
+                    help='vision-tower stem; default = the published CLIP ViT-B/32 tower')
+    ap.add_argument('--head', default=HEAD,
+                    help='head stem; a cost-only head is REQUIRED when the tower dim is not 512, '
+                         'and its p_unsafe output is then meaningless and must not be read')
     ap.add_argument('--mode', default='fp16', choices=['fp32', 'fp16'])
     ap.add_argument('--data-root', default=DATA_ROOT)
     ap.add_argument('--clips', type=int, default=12)
@@ -138,14 +146,22 @@ def main():
 
     f = np.load(FIXTURE, allow_pickle=True)
     mean, std = f['mean'], f['std']
-    tower = TRU.TRTRunner(trt, cuda, os.path.join(args.engine_dir, f'{TOWER}-{args.mode}.engine'),
+    tower = TRU.TRTRunner(trt, cuda,
+                          os.path.join(args.engine_dir, f'{args.tower}-{args.mode}.engine'),
                           batch=FRAMES)
-    head = TRU.TRTRunner(trt, cuda, os.path.join(args.engine_dir, f'{HEAD}-{args.mode}.engine'),
+    head = TRU.TRTRunner(trt, cuda,
+                         os.path.join(args.engine_dir, f'{args.head}-{args.mode}.engine'),
                          batch=1)
     paths = AGG.pick_clips(args.data_root, args.clips, args.seed)
     print(f'[composed] {len(paths)} clips, window {args.window} stride {args.stride}, '
           f'{args.mode} TRT engines from {args.engine_dir}')
     print('[config] one decision = 16 frames, whole-frame CLIP -> B1; NO detector in this loop')
+    published = args.tower == TOWER and args.head == HEAD
+    print(f'[stems] tower {args.tower}  head {args.head}'
+          + ('' if published else '   <-- NOT the published pair; this is a cost measurement'))
+    if args.head != HEAD:
+        print('[warning] a non-published head carries untrained weights: timings are valid, '
+              'p_unsafe is NOT and no accuracy may be read off this run')
 
     if args.probe_idle:
         cap = cv2.VideoCapture(paths[0])
@@ -175,9 +191,13 @@ def main():
 
     s = AGG.summarise(clips, args.window, args.stride, U.percentiles)
     AGG.report(s)
+    s['tower_stem'], s['head_stem'] = args.tower, args.head
+    s['is_published_pair'] = published
+    s['p_unsafe_is_meaningful'] = args.head == HEAD
     if args.json:
         s['per_clip'] = [{k: v for k, v in c.items() if k != 'decode_ms'} for c in clips]
-        print(f"\n[SAVED] {U.write_json_result(f'r48-composed-cadence-{args.mode}', s, False)}")
+        tag = 'r48-composed-cadence' if published else f'r48-composed-cadence-{args.tower}'
+        print(f"\n[SAVED] {U.write_json_result(f'{tag}-{args.mode}', s, False)}")
 
 
 if __name__ == '__main__':

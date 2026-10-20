@@ -1,0 +1,132 @@
+{
+ "video": "data/isafetybench/hazard/-0zRCAh9_N4_trim_0.mp4",
+ "model": "B1",
+ "ckpt": "sweep_results/relation_tokens/deploy/b1-deploy-3seed.pt",
+ "decision_path": "whole-frame CLIP ViT-B/32 (frozen) -> B1 temporal head, 3-seed ensemble; the detector is localisation only and is not an input",
+ "localisation": {
+  "detector": "yolo11s.pt",
+  "imgsz": 800,
+  "conf": 0.25
+ },
+ "threshold": 0.5,
+ "threshold_note": "fixed at 0.5, never tuned",
+ "window": 48,
+ "stride": 24,
+ "fps": 25.109,
+ "windows": [
+  {
+   "window": 0,
+   "start_frame": 0,
+   "start_sec": 0.0,
+   "prob_unsafe": 0.9508,
+   "per_seed": [
+    0.9153,
+    0.963,
+    0.974
+   ],
+   "verdict": "unsafe",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 128,
+    "classes": {
+     "person": 128
+    }
+   }
+  },
+  {
+   "window": 1,
+   "start_frame": 24,
+   "start_sec": 0.96,
+   "prob_unsafe": 0.951,
+   "per_seed": [
+    0.9207,
+    0.9588,
+    0.9736
+   ],
+   "verdict": "unsafe",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 128,
+    "classes": {
+     "person": 128
+    }
+   }
+  },
+  {
+   "window": 2,
+   "start_frame": 48,
+   "start_sec": 1.91,
+   "prob_unsafe": 0.9493,
+   "per_seed": [
+    0.9165,
+    0.9579,
+    0.9735
+   ],
+   "verdict": "unsafe",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 128,
+    "classes": {
+     "person": 128
+    }
+   }
+  },
+  {
+   "window": 3,
+   "start_frame": 72,
+   "start_sec": 2.87,
+   "prob_unsafe": 0.9529,
+   "per_seed": [
+    0.9176,
+    0.9659,
+    0.9751
+   ],
+   "verdict": "unsafe",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 128,
+    "classes": {
+     "person": 128
+    }
+   }
+  },
+  {
+   "window": 4,
+   "start_frame": 96,
+   "start_sec": 3.82,
+   "prob_unsafe": 0.9534,
+   "per_seed": [
+    0.9149,
+    0.9687,
+    0.9764
+   ],
+   "verdict": "unsafe",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 128,
+    "classes": {
+     "person": 128
+    }
+   }
+  },
+  {
+   "window": 5,
+   "start_frame": 103,
+   "start_sec": 4.1,
+   "prob_unsafe": 0.954,
+   "per_seed": [
+    0.915,
+    0.9702,
+    0.9769
+   ],
+   "verdict": "unsafe",
+   "frames_decoded": 16,
+   "localisation": {
+    "detections": 127,
+    "classes": {
+     "person": 127
+    }
+   }
+  }
+ ]
+}

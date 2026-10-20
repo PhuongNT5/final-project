@@ -1,0 +1,90 @@
+{
+  "backend": "tensorrt",
+  "mode": "fp16",
+  "frames": 16,
+  "tower_stem": "r48-clip-vit-b32-vision",
+  "is_published_tower": true,
+  "stages": {
+    "tower": {
+      "path": "deployment/export/jetson/r48-clip-vit-b32-vision-fp16.engine",
+      "batch": 16,
+      "runs": 20,
+      "median_ms": 31.46,
+      "p95_ms": 35.808,
+      "p99_ms": 35.835,
+      "min_ms": 23.748,
+      "max_ms": 35.841,
+      "params": 87849216
+    },
+    "head": {
+      "path": "deployment/export/jetson/r48-b1-clip-temporal-3seed-fp16.engine",
+      "batch": 1,
+      "runs": 20,
+      "median_ms": 0.475,
+      "p95_ms": 0.538,
+      "p99_ms": 0.553,
+      "min_ms": 0.426,
+      "max_ms": 0.557,
+      "params": 603270
+    }
+  },
+  "extras": {
+    "legacy_appearance": {
+      "path": "deployment/export/jetson/p3-appearance-fp16.engine",
+      "batch": 16,
+      "runs": 20,
+      "median_ms": 11.161,
+      "p95_ms": 11.529,
+      "p99_ms": 11.541,
+      "min_ms": 10.691,
+      "max_ms": 11.544
+    }
+  },
+  "per_decision_ms": 31.935,
+  "decisions_per_sec": 31.314,
+  "backbone_share_pct": 98.51,
+  "is_device_number": true,
+  "git_commit": "5644889",
+  "timestamp": "2026-10-19T23:35:26.918188",
+  "device_state": {
+    "dry_run": false,
+    "nvpmodel_q": "NV Power Mode: MAXN_SUPER\n2",
+    "jetson_clocks_show": null,
+    "platform": "Linux-5.15.185-tegra-aarch64-with-glibc2.35",
+    "python_version": "3.10.12",
+    "cpu_clocks": {
+      "policy0": {
+        "min_khz": 729600,
+        "cur_khz": 1190400,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      },
+      "policy4": {
+        "min_khz": 729600,
+        "cur_khz": 729600,
+        "max_khz": 1728000,
+        "governor": "schedutil"
+      }
+    },
+    "gpu_clocks": {
+      "17000000.gpu": {
+        "min_hz": 306000000,
+        "cur_hz": 510000000,
+        "max_hz": 1020000000,
+        "governor": "nvhost_podgov"
+      }
+    },
+    "clocks_pinned": {
+      "cpu": false,
+      "gpu": false,
+      "any": false
+    },
+    "load_average": [
+      0.13134765625,
+      0.5712890625,
+      0.70263671875
+    ],
+    "competing_processes": [],
+    "quiet": true
+  }
+}
