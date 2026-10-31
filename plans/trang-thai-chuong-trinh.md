@@ -1,7 +1,8 @@
 # Bảng điều khiển chương trình — trạng thái và kết quả
 
 Tệp này là **bảng duy nhất** theo dõi mọi luồng việc của luận văn. Cập nhật tại đây, không mở
-bảng mới ở nơi khác. Mốc cập nhật gần nhất: **2026-10-20**. Nhánh: `next-round`.
+bảng mới ở nơi khác. Mốc cập nhật gần nhất: **2026-10-31**. Nhánh: `next-round` (**đã đẩy**, `898f096`).
+**NGÀY BẢO VỆ: 31/12/2026** — tác giả chốt 31/10. Còn **61 ngày**. Nhánh chiến lược: **C (rộng)**.
 
 Quy ước trạng thái: `ĐANG CHẠY` · `CHỜ NGƯỜI` (chờ tác giả chốt) · `CHỜ THIẾT BỊ` · `XONG` ·
 `ĐÃ LOẠI` (kèm lý do). Mỗi dòng phải có **tệp kết quả** — không có tệp thì không tính là xong.
@@ -88,8 +89,14 @@ VideoMAE **kém** tháp ảnh đông cứng 2.37 pp; (c) `mobileclip_s1` **nhỏ
 
 ## 4. Ràng buộc bất biến — mọi luồng phải tuân
 
-1. `report/vn/` đóng băng 05/10: **chỉ sửa văn bản**. Số mới nằm ở thư mục `plans/`.
-2. Ngân sách chạm tập kiểm thử: **2 đăng ký trước, 1 đã dùng, 1 còn lại**. S3 đang xác minh lại sổ.
+1. `report/vn/` đóng băng: **số chốt 09/10, văn bản chốt 15/10**, kèm **ba ngoại lệ đã khai** tại
+   `report/vn/00-trang-thai-bien-soan.txt:14-50` (G20; G21/G25 ngày 11/10 tiêu một lần chạm gộp;
+   NP-125-D ngày 11/10 tiêu 0 lần). Số mới nằm ở thư mục `plans/`.
+   *(Câu cũ ghi "đóng băng 05/10, chỉ sửa văn bản" — **sai**: phép đo lạm phát giao thức vào
+   `report/vn/` ngày 08/10 tại `9895df4`. Nội dung vẫn đúng và đã khai minh bạch; chỉ nhãn sai.
+   Sửa theo T1-4, phiên 31/10.)*
+2. Ngân sách chạm tập kiểm thử: **2 đăng ký trước, 1 đã dùng (G21+G25, 11/10), 1 còn lại**.
+   S3 đã xác minh qua ba tài liệu độc lập: không có lần chạm nào không ghi sổ.
 3. Không trộn làn A/B/C. Không so chéo iSafetyBench ↔ Unsafe-Net.
 4. Đại lượng đầu bảng là **balanced accuracy** (§8.3.9). Không đổi sau khi thấy số.
 5. So với control **83.25 %**, không bao giờ so 84.2 %. Độ chính xác đi kèm số Jetson là **84.2 %**,
@@ -182,5 +189,36 @@ Luồng E2 đang kiểm xem dữ liệu có đỡ được một **quy luật** 
 | **P1** Q8 ICC theo nguồn | **XONG — kết quả xấu hơn phép chiếu cũ** | ICC 0.43–0.44 (KTC [0.24, 0.57]) vượt ngăn cao nhất của dải tiền đăng ký; cần **458–468 nguồn** cho +5 pp. Không đụng số đóng băng. Xem dòng Q8 mục 2 |
 | **P2** báo cáo kết quả thiết bị | **XONG** | `plans/reports/ket-qua-thiet-bi-2026-10-20-ba-thap-vong-3-tren-jetson.md` (184 dòng) — sáu nhánh, khai báo bốn mục, hai điều kiện ràng buộc của trị số mobileclip, và phần sửa cả bốn luồng E1–E4 |
 
-**Chưa đẩy lên remote.** Commit cục bộ bảo vệ khỏi ghi đè, không bảo vệ khỏi mất đĩa — mà lý do
-gấp của P0 chính là các tạo tác không tái tạo được. Cần một câu cho phép đẩy nhánh `next-round`.
+**ĐÃ ĐẨY 31/10/2026.** `5644889..6a5d01c` rồi `6a5d01c..898f096` lên `origin/next-round`, sau khi
+tác giả cho phép. 86 tệp / 20,290 dòng — gồm 11 JSON đo thiết bị không tái tạo được — không còn
+nằm trên một đĩa. **Lưu ý còn mở:** `report/vn/` vẫn **không tồn tại trên `origin/main`**; hợp
+nhất `next-round` → `main` là việc riêng, chưa làm.
+
+## 11. Hội đồng phản biện & đánh giá khoa học, phiên 31/10 — đã họp, đã tổng hợp
+
+Phiên thứ ba (sau 05/10 và 10/10). 6 phản biện độc lập PB-07…PB-12 + 9 phép tự kiểm chứng của
+chủ tịch tại nguồn. Tệp: `plans/261031-hoi-dong-phan-bien-danh-gia-khoa-hoc/`.
+
+**Phán quyết: ĐẠT CÓ ĐIỀU KIỆN** — giữ mức 05/10, nhưng **ràng buộc quyết định đã dịch từ khoa học
+sang thủ tục và xuất xứ**. Xác suất bảo vệ 55–65 % → 78–85 % chỉ bằng câu chữ + diễn tập.
+
+Phát biểu trung tâm: **bản nộp sạch hơn vùng xung quanh nó** — 11 tệp `report/vn/` không rò rỉ số
+đã rút, 0 vi phạm định dạng, 12/12 hình. Mọi phát hiện nặng nằm **ngoài** bản nộp.
+
+| Mã | Việc sinh ra từ phiên 31/10 | Trạng thái | Ghi chú |
+|---|---|---|---|
+| **R1** | Sửa `README.md` — dòng 20 rút `3.02 dec/s`, dòng 43–44 dùng lại nó | **CHỜ NGƯỜI** | đã lừa được chủ tịch hội đồng; khuyến nghị xoá mục Key Results, trỏ về `report/vn/` |
+| **R2** | **A4** — văn bản GVHD duyệt đổi hướng | **CHỜ NGƯỜI**, treo 3 tuần | hạng mục **duy nhất** cả ba hội đồng nói lật được ĐẠT/KHÔNG ĐẠT; 0 ngày công |
+| **R3** | **κ trên nhãn nhị phân iSafetyBench**, n ≥ 200, hai người gán nhãn độc lập | **CHỜ NGƯỜI** | khuyến nghị số một của phiên 10/10, 3 tuần vẫn 0 bước chuẩn bị. **Không tiêu lần chạm test.** Đường tới hạn 3 tuần ⇒ khởi động 01–07/11 |
+| **R4** | Lời khai xuất xứ tiền đăng ký (1 trang) | CHỜ NGƯỜI | git không chứng minh được phần "tiền": `risks.md` vào git 01/10 **sau** kết quả G14 ngày 29/09; mẫu lặp ở vòng 3. Vá bằng tự khai, không vá được bằng chạy lại |
+| **R5** | Ba vết sửa `report/vn/chuong-05`: `0.49%`→`0.87%`, `vòng lặp tổ hợp`→`tổng giai đoạn`, `53.2%`→`52.6%`; **xoá §5.9(12)** | CHỜ NGƯỜI | §5.9(12) tự khai "hạn chế nghiêm trọng nhất" **không còn tồn tại** — đã track từ `df1dab7` |
+| **R6** | Gắn mốc thời gian cho câu "cả hai lần chạm còn nguyên" (`chuong-04:1261,1276-1279`; `chuong-06:2271-2272`) | CHỜ NGƯỜI | bản chất đúng (1 tiêu / 1 còn), câu chữ tự mâu thuẫn với §6.15 |
+| **R7** | Đoạn giới hạn **hiệu lực cấu trúc**: 0/151 nguồn mang cả hai nhãn | CHỜ NGƯỜI | lỗ hổng khoa học sâu nhất phiên này tìm được; **không cần đo** |
+| **R8** | Viết `§4.5.7` và `§6.1.7` (Q4, Q6) | CHỜ NGƯỜI | hai mục **đang dở**, không phải moot; §6.1.7 nên là mục ba làn + lệnh cấm so làn |
+| **R9** | Diễn tập phản biện có ghi âm, kèm **bảng phát ngôn bị cấm** | CHỜ NGƯỜI | hai buổi: ~22–28/11 và ~24/12 |
+| **R10** | `requirements.txt` / khoá phiên bản + pin revision HF Hub | CHỜ NGƯỜI | khe hở tái lập thật, lớn hơn vấn đề độ dài tệp |
+
+**Quyết định chiến lược: ngừng mua độ chính xác.** Năm phép đo độc lập cùng chỉ một hướng —
+ngưỡng trung thực −0.47 pp, ensemble +0.33 pp, đổi đầu ≤ 0, đổi tháp **0/8 sống sót BH**, thêm
+nguồn cần **3.0×** kho hiện có (ICC 0.43–0.44 ⇒ 458–468 nguồn). Hướng "nâng 84.2 %" **ĐÃ ĐÓNG,
+có căn cứ số**. Mọi runner nhằm tăng số → dừng hoặc hạ xuống sau bảo vệ.

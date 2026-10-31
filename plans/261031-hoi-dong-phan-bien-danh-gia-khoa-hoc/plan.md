@@ -25,11 +25,17 @@ bảng theo dõi, dấu thời gian xuất xứ, thủ tục hành chính.
 | [reports/phan-bien-11-van-ban-va-truy-xuat-tuyen-bo.md](reports/phan-bien-11-van-ban-va-truy-xuat-tuyen-bo.md) | rà soát văn bản, rò rỉ số đã rút, định dạng |
 | [reports/phan-bien-12-dien-tap-phan-bien-gay-gat.md](reports/phan-bien-12-dien-tap-phan-bien-gay-gat.md) | diễn tập hỏi–đáp gay gắt, bảng phát ngôn bị cấm |
 
-## Ba việc chặn — hôm nay, ~1 giờ
+## Ba việc chặn — trạng thái 31/10
 
-1. `git push origin next-round` — luận văn **không tồn tại trên `origin/main`**; 86 tệp/20,290 dòng trên một đĩa, gồm 11 JSON đo Jetson **không tái tạo được**. *Chờ một câu cho phép của tác giả.*
-2. Sửa `README.md` — dòng 20 rút `3.02 dec/s`, dòng 43–44 dùng lại nó. Tạo tác này đã lừa được chủ tịch hội đồng.
-3. Ghi **ngày bảo vệ** + trạng thái **A4** vào `plans/trang-thai-chuong-trinh.md` — ngày bảo vệ là biến quyết định nhánh chiến lược, hiện không ghi ở đâu.
+1. ~~`git push origin next-round`~~ **XONG 31/10** — `898f096`. 86 tệp/20,290 dòng, gồm 11 JSON đo Jetson không tái tạo được, không còn trên một đĩa. *Còn mở: `report/vn/` vẫn không có trên `origin/main`.*
+2. **Sửa `README.md`** — **CÒN MỞ**. Dòng 20 rút `3.02 dec/s`, dòng 43–44 dùng lại nó làm kết quả tiêu đề. Tạo tác này đã lừa được chủ tịch hội đồng với kho mở trước mặt. Việc chặn duy nhất còn lại.
+3. ~~Ghi ngày bảo vệ~~ **XONG** — **31/12/2026**, còn 61 ngày ⇒ **nhánh C**. A4 vẫn chưa có văn bản.
+
+## Lịch — bảo vệ 31/12/2026 (61 ngày, nhánh C)
+
+Tuần 01–07/11 là tuần quyết định: **A4** và **khởi động κ** đều phụ thuộc người khác nên không
+hoãn được. Chuỗi κ dài 3 tuần là đường tới hạn duy nhất. **Đóng băng lần hai 17/12** — sau mốc đó
+chỉ diễn tập, không sửa. Lịch đầy đủ ở §6 của kế hoạch chiến lược.
 
 ## Ba đòn bẩy cao nhất
 

@@ -23,20 +23,23 @@ và diễn tập (0 phép đo mới), → **85–90 %** nếu thêm **một** ph
 
 ---
 
-## 1. BIẾN QUYẾT ĐỊNH NHÁNH: NGÀY BẢO VỆ
+## 1. NHÁNH ĐÃ CHỐT: **C — RỘNG**
 
-**Không ghi ở đâu trong kho.** Toàn bộ phân nhánh dưới đây treo vào biến này. Việc đầu tiên của
-tác giả: xác định ngày, ghi vào `plans/trang-thai-chuong-trinh.md`.
+**Ngày bảo vệ: 31/12/2026** (tác giả chốt 31/10). Còn **61 ngày**. Nhánh đã đẩy (`898f096`).
 
-| Nhánh | Điều kiện | Phạm vi |
+| Nhánh | Điều kiện | Trạng thái |
 |---|---|---|
-| **A — Gấp** | bảo vệ ≤ 10 ngày | Chỉ Hạng mục 0 + Hạng mục 1. Không đo gì. Không sửa số. |
-| **B — Vừa** | 10–30 ngày | 0 + 1 + κ nhị phân (Hạng mục 2.1) + hai mục văn bản Q4/Q6 |
-| **C — Rộng** | > 30 ngày hoặc đã bảo vệ | 0 + 1 + 2 + 3 (công bố, khoá phiên bản, báo lỗi upstream) |
+| A — Gấp | ≤ 10 ngày | không áp dụng |
+| B — Vừa | 10–30 ngày | không áp dụng |
+| **C — Rộng** | **> 30 ngày** | **ĐANG ÁP DỤNG** — toàn bộ Hạng mục 0, 1, 2, 3 trong phạm vi |
 
-Nếu không biết ngày: **thực hiện nhánh A ngay hôm nay**, vì mọi việc trong A đều nằm trong B và C.
+**61 ngày không phải lý do để giãn việc.** Ba hệ quả của việc có nhiều thời gian:
 
----
+1. **T2-1 (κ) phải khởi động trong tuần đầu, không phải tuần cuối.** Nó phụ thuộc **người thứ hai** — người gán nhãn độc lập. Phụ thuộc người là loại rủi ro không nén được bằng nỗ lực. Bắt đầu muộn = không có κ.
+2. **Phải có mốc đóng băng thứ hai: 17/12 — hai tuần trước bảo vệ.** Sau mốc đó **không sửa gì nữa**, chỉ diễn tập. Lý do rút từ chính lịch sử dự án này: mốc đóng băng 05/10 đã bị tràn tới 15/10 vì không có vùng đệm.
+3. **Thời gian dư đi vào diễn tập, không đi vào số.** Hai buổi diễn tập cách nhau (một sớm để lộ lỗ hổng còn kịp vá, một sát ngày để luyện phản xạ) đáng hơn mọi phép đo thêm — căn cứ §0.
+
+**Rủi ro lớn nhất của nhánh C: dùng 61 ngày để mở lại hướng tăng độ chính xác.** Xem §0 và §7.3.
 
 ## 2. HẠNG MỤC 0 — CHẶN, LÀM TRONG HÔM NAY (~1 giờ)
 
@@ -184,41 +187,50 @@ nguồn là **trần thật**. Ghi vào bảng theo dõi là **đã đóng, có 
 
 ---
 
-## 6. THỨ TỰ THỰC HIỆN
+## 6. LỊCH THỰC HIỆN — mốc thật, bảo vệ 31/12
 
-```
-Hôm nay      0.1 push  →  0.2 README  →  0.3 ghi ngày bảo vệ
-Ngày 1       T1-1 A4 (gặp GVHD)  ∥  T1-3 ba vết sửa  ∥  T1-4 nhãn đóng băng
-Ngày 2       T1-2 lời khai xuất xứ  →  T1-5 đoạn hiệu lực cấu trúc
-Ngày 3       T1-6 diễn tập (bảng phát ngôn bị cấm + 5 câu trả lời chuẩn bị)
-─── hết nhánh A ───────────────────────────────────────────────
-Ngày 4-5     T2-1 κ nhị phân (tiền đăng ký trước, commit riêng)
-Ngày 6       T2-2 §4.5.7 + §6.1.7  ∥  T2-3 trích dẫn
-─── hết nhánh B ───────────────────────────────────────────────
-Sau bảo vệ   T3-1 công bố (Q1-2027)  ·  T3-2 lock  ·  T3-3 upstream  ·  T3-4 đóng hướng
-```
+| Tuần | Mốc | Việc | Vì sao ở đây |
+|---|---|---|---|
+| **Hôm nay** 31/10 | — | ~~0.1 push~~ **XONG** · **0.2 README** · ~~0.3 ghi ngày bảo vệ~~ **XONG** | 0.2 là tạo tác đã lừa được hội đồng, còn mở |
+| **T1** 01–07/11 | **gặp GVHD** | **T1-1 A4** · **T2-1 khởi động: tiền đăng ký κ + tìm người gán nhãn thứ hai** · T1-3 ba vết sửa Ch5 · T1-4 nhãn đóng băng *(đã làm trong bảng theo dõi)* | A4 và κ đều **phụ thuộc người khác** ⇒ phải vào tuần đầu. Mọi thứ còn lại tôi/tác giả tự làm được nên hoãn được, hai việc này thì không |
+| **T2** 08–14/11 | | T1-2 lời khai xuất xứ · T1-5 đoạn hiệu lực cấu trúc · T2-3 15 trích dẫn thống kê · **T2-1 gán nhãn** | việc viết, không phụ thuộc ai |
+| **T3** 15–21/11 | | **T2-1 chốt κ** · T2-2 viết §4.5.7 + §6.1.7 · (nếu hạn CVPR 2027 còn: đề xuất workshop **04/11** — đã quá, bỏ) | κ phải xong trước khi viết §6.1.7 vì nó có thể đổi câu "sát trần nhãn" |
+| **T4** 22–28/11 | | **T1-6 diễn tập lần 1** — có ghi âm, có người hỏi thật | sớm **5 tuần** trước bảo vệ ⇒ lỗ hổng phát hiện ra còn kịp vá |
+| **T5–T6** 29/11–12/12 | | vá những gì diễn tập lần 1 làm lộ ra · T3-2 khoá phiên bản · (tuỳ sức) T3-3 báo lỗi TensorRT | vùng đệm thật, không phải vùng đệm trên giấy |
+| **17/12** | **ĐÓNG BĂNG LẦN HAI** | **ngừng sửa mọi thứ.** Không sửa văn bản, không đo, không chạm kho | lịch sử dự án: mốc 05/10 tràn 10 ngày vì không có mốc này |
+| **T7–T9** 18–30/12 | | **chỉ diễn tập.** T1-6 lần 2 (~24/12) · học bảng phát ngôn bị cấm · 5 câu trả lời chuẩn bị | hai tuần cuối chuyển hoàn toàn từ *làm* sang *trình bày* |
+| **31/12** | **BẢO VỆ** | | |
+| Sau 31/12 | | T3-1 công bố (Q1-2027) · T3-3 upstream · T3-4 đóng hướng mở rộng nguồn | không việc nào trong số này ảnh hưởng kết quả bảo vệ |
 
 Ba việc có đòn bẩy cao nhất, nếu chỉ làm được ba: **T1-1 (A4)** · **T1-6 (diễn tập)** · **T2-1 (κ)**.
+Hai trong ba phụ thuộc người khác ⇒ **cả hai nằm ở tuần 01–07/11**.
 
----
+**Đường tới hạn (critical path):** A4 → (không có) · κ: tìm người gán nhãn → tiền đăng ký → gán
+n ≥ 200 → tính κ → viết §6.1.7 → diễn tập lần 1. Chuỗi κ dài **3 tuần** với một mắt phụ thuộc
+người; đó là chuỗi duy nhất có thể trượt lịch, nên nó quyết định mốc khởi động.
 
 ## 7. ĐIỀU KHÔNG ĐƯỢC LÀM
 
 1. **Không chạm test set.** Còn **1 lần** trong ngân sách 2 (1 đã tiêu cho G21+G25, 11/10). T2-1 không tiêu lần nào.
 2. **Không sửa số trong `report/vn/`.** Đóng băng còn hiệu lực; mọi việc ở Hạng mục 1 là câu chữ, nhãn, và đoạn giới hạn.
-3. **Không mở lại hướng tăng độ chính xác** trước bảo vệ (căn cứ §0).
+3. **Không mở lại hướng tăng độ chính xác** trước bảo vệ (căn cứ §0). 61 ngày **không** đổi kết
+   luận này: ICC vẫn đòi 3.0× kho dữ liệu, BH vẫn 0/8 sống sót. Thời gian dư không mua được
+   dữ liệu không tồn tại.
 4. **Không so làn.** 84.2 % (iSafetyBench, nhị phân, có giám sát) không bao giờ đứng cạnh 95.81 % (Unsafe-Net, 4 lớp) hay bảng zero-shot 165 lớp.
 5. **Không đẩy nhánh mà không có câu cho phép của tác giả** (0.1 đang chờ).
 6. **Không commit thông tin bí mật** (khoá API, dotenv, thông tin đăng nhập).
+7. **Không sửa gì sau 17/12.** Mốc đóng băng lần hai là ràng buộc, không phải gợi ý.
 
 ---
 
 ## 8. CÂU HỎI CHƯA GIẢI QUYẾT
 
-1. **Ngày bảo vệ?** — chặn việc chọn nhánh A/B/C. Không ai ngoài tác giả trả lời được.
+1. ~~**Ngày bảo vệ?**~~ **ĐÃ TRẢ LỜI 31/10: 31/12/2026** ⇒ nhánh **C**. Xem §1 và §6.
 2. **A4 bị chặn bởi lịch GVHD, hay bị quên?** Nếu bị chặn, chặn ở đâu.
 3. Có **bằng chứng ngoài git** nào xác nhận thời điểm chốt 8 cổng và luật vòng 3 (email/tin nhắn GVHD)? Nếu có → T1-2 rút ngắn còn một đoạn và vấn đề §2.1 **đóng hẳn**.
-4. Có **người gán nhãn thứ hai** cho T2-1 không? Nếu không, κ không đo được và lập luận "sát trần nhãn" phải nói là chưa đo — vẫn tốt hơn suy diễn.
+4. Có **người gán nhãn thứ hai** cho T2-1 không? **Câu hỏi khẩn nhất còn lại** — nó nằm trên đường
+   tới hạn dài 3 tuần (§6). Nếu không có người: κ không đo được, lập luận "sát trần nhãn" phải nói
+   thẳng là chưa đo (vẫn tốt hơn suy diễn), và tuần 01–07/11 chuyển sang T1-2/T1-5.
 5. Tài liệu gốc về cách iSafetyBench thu thập theo nguồn — cần để khép câu hỏi hiệu lực cấu trúc; nguồn công khai **không nêu** cách chia.
 6. Có khôi phục được diff của `6319b21-dirty` lúc đo không?
 7. Được phép mở `plans/` trước hội đồng, hay chỉ trả lời bằng lời?
