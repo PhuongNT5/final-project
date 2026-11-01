@@ -124,6 +124,12 @@ cache_r2/
 # subdirectory still matches as an entry, so the real worker frames stay ignored.
 annotation_guide/*
 !annotation_guide/frame_manifest.csv
+# Kappa label-ceiling study. The directory is negated so the rule above stops blocking its
+# contents; key.json is then re-ignored BY NAME because it maps K-id -> gold label, and the one
+# person who must not see it is the annotator who works in this repo. It is regenerable
+# byte-for-byte from tools/sample-kappa-clips.py, so nothing is lost by keeping it out of git.
+!annotation_guide/kappa-isb-binary/
+annotation_guide/kappa-isb-binary/key.json
 # Kaggle upload staging - real frames of identifiable workers, never commit.
 # (the old rule named unsafe-net-detector-dataset.zip; the actual file is unsafenet-detector.zip)
 kaggle-detector-retrain/upload/
