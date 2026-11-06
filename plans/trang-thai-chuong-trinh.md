@@ -208,7 +208,7 @@ Phát biểu trung tâm: **bản nộp sạch hơn vùng xung quanh nó** — 11
 | Mã | Việc sinh ra từ phiên 31/10 | Trạng thái | Ghi chú |
 |---|---|---|---|
 | **R1** | Sửa `README.md` — dòng 20 rút `3.02 dec/s`, dòng 43–44 dùng lại nó | **CHỜ NGƯỜI** | đã lừa được chủ tịch hội đồng; khuyến nghị xoá mục Key Results, trỏ về `report/vn/` |
-| **R2** | **A4** — văn bản GVHD duyệt đổi hướng | **CHỜ NGƯỜI**, treo 3 tuần | hạng mục **duy nhất** cả ba hội đồng nói lật được ĐẠT/KHÔNG ĐẠT; 0 ngày công |
+| **R2** | **A4** — văn bản GVHD duyệt đổi hướng | **ĐÃ ĐỒNG Ý** — tác giả báo GVHD chốt ok 06/11/2026 | hạng mục cả ba hội đồng nói lật được ĐẠT/KHÔNG ĐẠT, nay đã gỡ. Còn một việc nhỏ: **lưu tạo tác kiểm chứng được** (email có dấu thời gian, hoặc biên bản có chữ ký) vào `plans/` để phiên bảo vệ không phải dựa vào lời kể |
 | **R3** | **κ trên nhãn nhị phân iSafetyBench** — tổng điều tra 151 nguồn, 1 clip/nguồn, **n = 150** sau khi loại K096 | **SẴN SÀNG GẮN NHÃN** | công cụ + sổ tay + tiền đăng ký đã commit **trước clip đầu tiên** ('90f8852', 01/11) — vá lỗ hổng xuất xứ §2.1 bằng hành động. Hội đồng nêu n ≥ 200; 151 là trần thật dưới ràng buộc độc lập, và ở ICC 0.43 thì mạnh hơn n=200 có cặp (cỡ hiệu dụng ≈ 140). **Tiêu 0 lần chạm test. Bảng cổng không đổi.** Còn chờ người: 3 phiên gắn nhãn (~2–3 giờ), đọc danh sách lớp bài báo iSafetyBench trước khi chốt sổ tay, và quyết có người gán nhãn thứ hai hay không. Kế hoạch: [phase-01](261031-hoi-dong-phan-bien-danh-gia-khoa-hoc/phase-01-do-tran-nhan-kappa.md) |
 | **R4** | Lời khai xuất xứ tiền đăng ký (1 trang) | CHỜ NGƯỜI | git không chứng minh được phần "tiền": `risks.md` vào git 01/10 **sau** kết quả G14 ngày 29/09; mẫu lặp ở vòng 3. Vá bằng tự khai, không vá được bằng chạy lại |
 | **R5** | Ba vết sửa `report/vn/chuong-05`: `0.49%`→`0.87%`, `vòng lặp tổ hợp`→`tổng giai đoạn`, `53.2%`→`52.6%`; **xoá §5.9(12)** | CHỜ NGƯỜI | §5.9(12) tự khai "hạn chế nghiêm trọng nhất" **không còn tồn tại** — đã track từ `df1dab7` |
@@ -222,3 +222,11 @@ Phát biểu trung tâm: **bản nộp sạch hơn vùng xung quanh nó** — 11
 ngưỡng trung thực −0.47 pp, ensemble +0.33 pp, đổi đầu ≤ 0, đổi tháp **0/8 sống sót BH**, thêm
 nguồn cần **3.0×** kho hiện có (ICC 0.43–0.44 ⇒ 458–468 nguồn). Hướng "nâng 84.2 %" **ĐÃ ĐÓNG,
 có căn cứ số**. Mọi runner nhằm tăng số → dừng hoặc hạ xuống sau bảo vệ.
+
+### Quyết định của tác giả, 06/11/2026
+
+- **GVHD đã đồng ý** đổi hướng (A4 gỡ). Cần lưu tạo tác kiểm chứng được.
+- **Tạp chí đích: Tạp chí Phát triển Khoa học và Công nghệ (ĐHQG-HCM).** Ràng buộc riêng ghi đè Điều 6.1: **IMRaD bắt buộc**, tóm tắt **150–250 từ**, từ khoá **3–5** (bản thảo đang **7** ⇒ phải cắt), đơn vị công tác phải là **trường thành viên ĐHQG**, phải **chỉ rõ tác giả liên hệ chính**, trích dẫn **IEEE** (đúng chuẩn đang dùng cho khối kỹ thuật), và **§Giới thiệu phải kết bằng mục tiêu nghiên cứu, không tóm tắt cấu trúc bài**.
+- **Dòng ESTA @ YOLO26s giữ ở Phụ lục A.3**, không nâng thành dòng 7 Bảng 3 — nó là đối chứng đổi bộ phát hiện, không cùng họ so sánh.
+- R4 (lời khai xuất xứ) và R8 (§4.5.7/§6.1.7): **tác giả tự viết**.
+- Kiểm tra trùng lặp (Điều 5.1): **tác giả tự kiểm**, chưa chạy.
