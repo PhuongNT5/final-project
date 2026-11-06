@@ -1,3 +1,31 @@
+> ## ⛔ SUPERSEDED — HISTORICAL LOG, 2026-07 ROUND 0–2. DO NOT CITE.
+>
+> **Status as of 2026-11-01: this file is a dated experiment log, not a statement of results.**
+> The thesis does **not** stand behind the numbers below. Several of them are on the README's
+> explicit withdrawn list and appear here **as live claims**, which is the defect this banner
+> exists to fix:
+>
+> - **"56/64 = 87.50 % top-1 / 89.28 % macro"** and the whole `52 → 56/64` ladder — withdrawn.
+>   This file's own §"The two results that matter" already says why: val macro does not predict
+>   test macro (Pearson r = −0.066, p = 0.71), so the ladder is resampling inside a ±11 pp
+>   bootstrap band, not progress.
+> - **"+3.50 pp on macro"** vs the ConvLSTM-only baseline — withdrawn; the README names
+>   "any '+3.5 pp macro win'" as a number not to cite from anywhere, including from here.
+> - **"57/64"** as a paper baseline — withdrawn by the README for the same reason.
+> - The 8-class / 4-class `N = 64` framing throughout: the thesis's headline lane is now
+>   **iSafetyBench binary, 1,100 clips / 151 sources, leave-source-out**. These are different
+>   corpora, tasks and metrics, and **cross-lane comparison is forbidden** (thesis §6.1.1) —
+>   nothing in this file may be averaged against or set beside an iSafetyBench number.
+>
+> **Authoritative sources instead of this file:** `README.md` (withdrawn-number notice),
+> `report/vn/` (the 11 submission files, numbers frozen 2026-10-05), and
+> `report/vn/00-trang-thai-bien-soan.txt` (freeze discipline and the four recorded post-freeze
+> exceptions). Where this file and `report/vn/` disagree, `report/vn/` is correct.
+>
+> Kept unedited below — except this banner and three marked corrections — because the record of
+> what was tried, and of what was believed at the time, is itself part of the thesis's account
+> of its own method.
+
 # Experiment Progress — YOLO-Transformer Unsafe Behavior Detection
 
 ## Target
@@ -66,7 +94,11 @@ The paper's YOLO v4 was trained with **per-frame bounding box annotations** on U
 Our YOLO v11 uses COCO weights → generic features. Even YOLO-World (open-vocabulary, 99% person detection) cannot distinguish WHICH restricted zone the person is in.
 
 ### To beat 95.81%:
-- **Done**: Manual bbox annotation — 2,262 labeled frames across 8 classes (1,901 train / 343 val) (`annotation_guide/`)
+- **Done**: Manual bbox annotation across 8 classes (`annotation_guide/`). **CORRECTION 2026-11-01:**
+  the two counts printed here do not reconcile — 1,901 + 343 = 2,244, not 2,262 (18 frames), and the
+  directory itself holds 1,919 train + 343 val images = 2,262 with 1,902 train label files. Which
+  count is the annotation set is **open and assigned to the author** (Q7,
+  `plans/trang-thai-chuong-trinh.md`); no number here should be cited until it closes.
 - Fine-tune YOLOv11 on behavior-specific detection → Transformer temporal fusion
 - Expected: 96-98%
 
@@ -110,7 +142,8 @@ Our YOLO v11 uses COCO weights → generic features. Even YOLO-World (open-vocab
 - Real-time demonstration
 
 ### Future Work (Bbox Annotations)
-- Manual annotation complete: 2,262 labeled frames across 8 classes (1,901 train / 343 val) (`annotation_guide/`)
+- Manual annotation complete across 8 classes (`annotation_guide/`) — counts unreconciled, see the
+  correction above (Q7, open)
 - Fine-tune YOLOv11 for behavior-specific detection
 - Expected: 96-98% accuracy (matching/exceeding paper)
 
@@ -156,7 +189,8 @@ box-context question is settled by ablation instead of assumption.
 
 ```
 my-project/
-├── BASELINE.md                # Paper baseline reference
+├── (BASELINE.md, GAP_ANALYSIS.md — listed in the 2026-07 tree, do not exist in the repo; see banner)
+├── docs/                      # Project documentation (added after this tree was written)
 ├── PROGRESS.md                # This file
 ├── PROPOSAL.txt               # Thesis proposal
 ├── README.md                  # Project overview (needs update)

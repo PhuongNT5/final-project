@@ -39,10 +39,12 @@ This project develops an end-to-end unsafe-behaviour detection system on the **U
 ### Key Results
 
 > **Honest headline.** This thesis is **deployment-led**: the delivered contribution is a
-> measured, open-source, real-time **edge system** (M3 + Jetson, **P1 pipeline**). P3 is now measured
-> on the device too (2026-09-29, TRT FP16): it sits **on** the 3.0 dec/s cadence boundary — 3.02-3.04
-> dec/s at the median crop load, 2.60-2.72 above it — so "real-time" may be claimed for P1 and only
-> with that qualification for P3. On accuracy, the best zero-bbox
+> measured, open-source, real-time **edge system** (M3 + Jetson, **P1 pipeline**). P3 has been
+> measured on the device (2026-09-29, TRT FP16), but that composed measurement is clip- **and**
+> clock-dependent, so it supports **no single cadence verdict** for P3 — see the withdrawn-numbers
+> notice above, which this block previously contradicted by reusing the 3.02-3.04 dec/s figures.
+> "Real-time" is therefore claimed for **P1 only**; P3 is reported as measured but not certified.
+> On accuracy, the best zero-bbox
 > configuration — **hybrid (frozen ⊕ detection-finetuned) features + YOLO frame-gate** — reaches
 > **macro parity-to-advantage over the published no-bbox baseline even under the blind protocol**.
 
