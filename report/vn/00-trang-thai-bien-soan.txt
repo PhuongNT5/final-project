@@ -51,6 +51,66 @@ HAI QUYẾT ĐỊNH CỦA TÁC GIẢ, 11/10/2026, đi kèm ngoại lệ thứ ba
       recall-ở-ngân-sách-báo-động. Đổi đại lượng tiêu đề sau khi đã thấy số là chọn đại lượng
       theo kết quả. Ghi ở mục 8.3.9; câu hỏi 4 trong báo cáo phán quyết NP-125-D vì vậy ĐÃ ĐÓNG.
 
+NGOẠI LỆ THỨ TƯ ĐÃ GHI NHẬN, 01/11/2026: tác giả cho phép sửa **năm lỗi câu chữ, dấu và quy gán**
+đã được xác nhận bằng tạo tác, với ràng buộc tuyệt đối **KHÔNG thêm một số đo mới nào** vào báo
+cáo. Đây là ngoại lệ về **câu chữ**, không phải về **số**: không lượt huấn luyện nào chạy lại,
+không tập kiểm thử nào bị chạm, ngân sách chạm tập kiểm thử tiêu **không lần nào** và vẫn còn
+**một lần**. Bảng cổng không đổi: vẫn **tám cổng, hai đạt, sáu trượt**; không phán quyết nào đảo
+chiều; không con số nào trong Bảng 6.1 hay Chương 5 bị thay giá trị trừ hai lỗi số học ở mục (4)
+và (5) dưới đây, cả hai là **sai số in** của những con số đã có, không phải phép đo mới.
+
+  Năm chỗ đã sửa:
+
+  (1) **Lỗi dấu G17** — `chuong-06-danh-gia.txt` dòng 424, 454, 477–482, 1753. Bản đóng băng in
+      Δ = **−2.2 pp** cho *ESTA @ YOLOv11s − ESTA @ YOLO26s*, trong khi hai toán hạng in ngay
+      cạnh nó là 83.8% và 81.6%, trừ ra **+2.2**, và câu diễn giải ("bộ phát hiện MỚI HƠN cho kết
+      quả THẤP HƠN") cũng đòi dấu dương. Đã sửa thành **+2.2 pp** ở cả bốn chỗ. Chú thích (ii)
+      ở mục 6.2.5 — vốn bào chữa rằng CI được in theo chiều ngược lại — **sai** và đã viết lại:
+      cả Δ và CI [−1.7, +6.0] đều theo chiều *v11s − 26s*. Hai toán hạng, CI và p **giữ nguyên**;
+      G17 vẫn là **đối chứng không phán quyết** và CI vẫn chứa 0 dưới cả hai dấu, nên không có
+      hệ quả nào lên bảng cổng. Kiểm độc lập: `sweep_results/review_261101/
+      detector-number-provenance.json`, khối `sign_audit` (toán hạng đo lại 83.834% và 81.618%,
+      hiệu +2.2164 pp).
+
+  (2) **Phát biểu "không có phép so nào giữa ngưỡng cắt 1.0 với 5.0 trên cùng dữ liệu"** —
+      `chuong-03-phuong-phap.txt` mục 3.6 và `chuong-04-chi-tiet-thuc-nghiem.txt` mục 4.6. Phát
+      biểu đó **không còn đúng trên kho mã như hiện trạng**: `sweep_results/posthoc_sensitivity/
+      gradclip_5.0_oof.json` (ghi 14/10/2026, tức **sau** đóng băng và **trước** lần commit cuối
+      của hai chương này) là đúng phép so ấy — cùng đặc trưng, cùng fold, cùng công thức, chỉ
+      đổi ngưỡng cắt. Câu chữ đã sửa thành: trong **tập số đã đóng băng** không có phép so nào,
+      một phép so **có** tồn tại ngoài tập số ấy, và biên của nó nằm **trong dải tái lập 1.46 pp**
+      của mục 4.5.6 — nên phát biểu đúng là "ảnh hưởng **chưa tách được khỏi dao động môi
+      trường**", không phải "chưa có phép so nào". **Không** nhập giá trị BA của hàng đó vào báo
+      cáo (làm vậy mới là thêm số đo mới). Nguồn: `sweep_results/review_261101/
+      posthoc-sensitivity-full-table.json`, khối `gradclip_1v5_contradiction_check`.
+
+  (3) **Quy gán sai 2,262 hộp** — `chuong-06-danh-gia.txt` mục 6.12.5. Bản đóng băng viết công
+      trình gốc dùng "bộ phát hiện huấn luyện trên **2,262 hộp**". Quy gán ấy **sai và tự mâu
+      thuẫn với chính báo cáo**: Chương 2 mục 2.3 và Chương 3 mục 3.1 đều nói chú giải hộp của
+      công trình gốc **không được công bố**, nên quy mô bộ chú giải của họ không thể biết được.
+      2,262 là quy mô bộ chú giải **của chính luận văn** (`annotation_guide/dataset`). Con số đã
+      bị bỏ khỏi câu nói về công trình gốc và giữ nguyên ở nơi nó thuộc về. Kết luận của mục
+      6.12.5 **không đổi**: luận văn vẫn không đạt 95.81% và vẫn không tuyên bố đạt. Phần **chưa
+      giải quyết** và đã dẫn ra tại chỗ: con số chính xác của bộ chú giải luận văn vẫn chờ tác
+      giả chốt (Q7 — 2,262 so với 1,901 + 343; lệch 18 khung).
+
+  (4) **Sai số học phân tán ở xung nhịp ghim** — `chuong-05-trien-khai-bien.txt` mục 5.5. In
+      **0.49%** cho dải 309.08–311.78 ms; giá trị đúng là (311.78 − 309.08)/309.08 = **0.87%**.
+      Hai đầu mút dải **không đổi**; chỉ phần trăm dẫn xuất đã in sai. Kết luận không đổi và còn
+      được giữ nguyên chiều: phân tán ở xung nhịp ghim (0.87%) vẫn nhỏ hơn phân tán dưới DVFS
+      mặc định (20.3%) hơn một bậc độ lớn, và hai tập giá trị vẫn không giao nhau.
+
+  (5) **Lệch nội bộ về tỷ lệ tháp CLIP** — `chuong-05-trien-khai-bien.txt` mục 5.4.7 in
+      **53.2 %** trong khi Bảng 5.2 cùng chương in **52.6 %** cho cùng đại lượng. Đã sửa về
+      **52.6 %** (khớp Bảng 5.2, là bảng có tạo tác). Tỷ lệ 46.8 % đứng cạnh **không** sửa: nó
+      là tỷ trọng **giải mã ở 1080p**, một đại lượng khác, không phải 46.6 % của Bảng 5.2.
+
+  Cái ngoại lệ này KHÔNG cho phép: thêm số đo mới, đảo một phán quyết cổng, trộn hoặc so chéo
+  làn, hồi sinh một con số đã bị thu hồi, hay giải quyết Q7 thay tác giả. Phần công bố bổ sung
+  cho bài báo (khoảng tin cậy theo nguồn, dải tái lập, đối chứng bối cảnh, bộ dò hậu nghiệm,
+  bền vững theo nguồn) **không** vào `report/vn/`: nó vào **bản thảo bài báo** và được dán nhãn
+  HẬU-ĐÓNG-BĂNG tại chỗ, theo Q11 của mục diễn tập phản biện.
+
 ======================================================================
 BẢNG TIẾN ĐỘ
 ======================================================================

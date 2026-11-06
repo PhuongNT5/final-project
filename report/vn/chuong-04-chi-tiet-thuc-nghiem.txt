@@ -586,8 +586,11 @@ này cạnh một dòng của làn kia:
 Ba hệ quả phải nói thẳng, vì cả ba đụng tới cách đọc Chương 6.
 
   Thứ nhất, con số tiêu đề **84.2%** sinh ra dưới ngưỡng chặn gradient **1.0**, không phải 5.0:
-  nó thuộc làn toàn khung. Mọi con số của E0–E3 sinh ra dưới ngưỡng 5.0. Không có phép so nào giữa
-  hai ngưỡng trên cùng dữ liệu, nên ảnh hưởng của độ lệch này **chưa được đo**.
+  nó thuộc làn toàn khung. Mọi con số của E0–E3 sinh ra dưới ngưỡng 5.0. Trong tập số đã đóng
+  băng không có phép so nào giữa hai ngưỡng trên cùng dữ liệu, nên ảnh hưởng của độ lệch này
+  **chưa được đo** ở đây. HIỆU ĐÍNH 01/11/2026 (ngoại lệ #4): một phép so như vậy **có** tồn tại
+  trong bộ dò độ nhạy hậu-đóng-băng, ngoài tập số của báo cáo, và biên của nó nằm trong dải tái
+  lập 1.46 pp của mục 4.5.6; chi tiết và câu chữ đúng ở mục 3.6 của Chương 3.
 
   Thứ hai, làn bốn lớp — làn sinh ra **81.2% macro** và biên **+16.9 pp** ở mục 6.12.1 — huấn luyện
   **không có trọng số lớp**, trong khi đại lượng được báo cáo của nó là macro accuracy, tức đại

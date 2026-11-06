@@ -724,9 +724,20 @@ về xuất xứ, và việc trộn lẫn các mức bằng chứng khác nhau v
   cắt ở **5.0**. Hệ quả phải nói thẳng, vì nó đụng tới con số tiêu đề: 84.2% sinh ra dưới ngưỡng
   cắt **1.0**, không phải 5.0 — làn toàn khung là làn của Bảng 6.1. **Không tìm thấy tiền lệ công
   bố** cho riêng một trong hai giá trị trong các công trình video mà luận văn khảo sát. Cả hai là
-  van an toàn chống bước cập nhật đột biến trên lô nhỏ; cả hai đều chưa được dò tìm; và **không**
-  có phép so nào giữa 1.0 với 5.0 trên cùng dữ liệu. Độ lệch này vì vậy được khai ra như một khác
-  biệt **chưa đo được ảnh hưởng**, không phải như một lựa chọn có lý do.
+  van an toàn chống bước cập nhật đột biến trên lô nhỏ; cả hai đều chưa được dò tìm; và trong
+  **tập số đã đóng băng 05/10** không có phép so nào giữa 1.0 với 5.0 trên cùng dữ liệu.
+
+  HIỆU ĐÍNH 01/11/2026 (ngoại lệ hậu-đóng-băng #4). Bản đóng băng viết ở chỗ này rằng **không**
+  có phép so nào giữa 1.0 với 5.0 trên cùng dữ liệu. Phát biểu đó **không đúng trên kho mã như
+  hiện trạng**: bộ dò độ nhạy hậu-đóng-băng có đúng một hàng như vậy
+  (`sweep_results/posthoc_sensitivity/gradclip_5.0_oof.json`, ghi 14/10/2026 — cùng đặc trưng,
+  cùng fold, cùng công thức, chỉ đổi ngưỡng cắt). Hàng đó **nằm ngoài tập số của báo cáo** và
+  không được dùng để đọc Bảng 6.1; biên của nó rơi **trong dải tái lập 1.46 pp** của mục 4.5.6,
+  nên kết luận vận hành không đổi. Điều phải sửa là câu chữ: đúng hơn phải nói **ảnh hưởng của
+  độ lệch này chưa tách được khỏi dao động môi trường**, chứ không phải chưa có phép so nào.
+
+  Độ lệch này vì vậy được khai ra như một khác biệt **chưa đo được ảnh hưởng** trên mức dao động
+  môi trường, không phải như một lựa chọn có lý do.
 
   Số epoch `[mặc định của mã]`. Giá trị 60 là mặc định của trình chạy sinh ra mọi dòng kết quả được
   công bố; nó chưa được dò tìm, và không có đường cong học theo epoch nào được công bố để biện hộ

@@ -421,7 +421,7 @@ Một phản biện hợp lý với G14 là: ESTA thua vì bộ phát hiện sin
 tưởng phân rã thực thể sai. G17 kiểm tra trực tiếp phản biện đó bằng cách thay bộ phát hiện
 YOLOv11s bằng thế hệ mới hơn YOLO26s và chạy lại ESTA trên đúng bộ fold.
 
-  ESTA @ YOLOv11s 83.8% − ESTA @ YOLO26s 81.6% = **−2.2 pp, tức bộ phát hiện MỚI HƠN cho kết quả
+  ESTA @ YOLOv11s 83.8% − ESTA @ YOLO26s 81.6% = **+2.2 pp, tức bộ phát hiện MỚI HƠN cho kết quả
   THẤP HƠN**; CI 95% [−1.7, +6.0] chứa 0; McNemar b = 75, c = 43, p = 0.00412.
 
   Nguồn: tools/compare-oof-runs.py
@@ -451,7 +451,7 @@ Bảng 6.2 — Các cặp so sánh theo cặp của làn tiêu đề. Mọi kho�
   ESTA − B1w                        | −0.5 pp | [−5.5, +5.0] chứa 0  | b=72  c=78  0.683  | G14  | TRƯỢT
   ESTA − E0                         | +3.5 pp | [−2.3, +10.0] chứa 0 | b=129 c=82  1.48e-3| G15  | TRƯỢT
   ESTA − B2                         | +2.3 pp | [−2.3, +7.5] chứa 0  | b=117 c=91  0.0828 | G16  | TRƯỢT
-  ESTA@v11s − ESTA@26s              | −2.2 pp | [−1.7, +6.0] chứa 0  | b=75  c=43  4.12e-3| G17  | đối chứng
+  ESTA@v11s − ESTA@26s              | +2.2 pp | [−1.7, +6.0] chứa 0  | b=75  c=43  4.12e-3| G17  | đối chứng
   TSF − B1w                         | −0.3 pp | [−3.7, +2.5] chứa 0  | b=22  c=29  0.401  | G18  | TRƯỢT
   TSF − ESTA (nhánh thực thể riêng) | +0.2 pp |          —           | b=81  c=82  1.000  | G18  | TRƯỢT
   ----------------------------------+---------+----------------------+--------------------+------+-----------
@@ -474,10 +474,12 @@ Bảng 6.2 — Các cặp so sánh theo cặp của làn tiêu đề. Mọi kho�
       hiện tượng làm tròn**, biên độ tối đa 0.1 pp, và **không** ảnh hưởng tới bất kỳ phán quyết
       cổng nào — mọi phán quyết trong bảng do khoảng tin cậy quyết định, và không khoảng nào có
       đầu mút nằm trong 0.1 pp của 0.
- (ii) **Quy ước dấu của dòng G17.** Δ = −2.2 pp là hiệu *v11s − 26s*, còn khoảng tin cậy
-      [−1.7, +6.0] do `compare-oof-runs.py` in ra theo chiều ngược lại (*26s − v11s*). Hai con số
-      **không** mâu thuẫn; chúng là cùng một phép so sánh với hai dấu. Phán quyết ("chứa 0") không
-      phụ thuộc vào chiều.
+ (ii) **Quy ước dấu của dòng G17.** Δ = **+2.2 pp** là hiệu *v11s − 26s*: 83.8% − 81.6% = +2.2,
+      cùng chiều với câu diễn giải ("bộ phát hiện mới hơn cho kết quả thấp hơn"), và cùng chiều với
+      khoảng tin cậy [−1.7, +6.0]. Bản trước in Δ = −2.2 pp: đó là **lỗi dấu**, đã sửa ngày
+      01/11/2026 (ngoại lệ hậu-đóng-băng #4, xem 00-trang-thai-bien-soan.txt). Lời giải thích cũ
+      ("CI in theo chiều ngược lại") **không đúng** và đã bỏ. Không số đo nào thay đổi: hai toán
+      hạng, CI và p giữ nguyên, và phán quyết ("đối chứng, chứa 0") không phụ thuộc vào chiều.
 
 **G18 TRƯỢT ở cả hai chiều.** TSF kém B1w 0.3 pp (CI [−3.7, +2.5] chứa 0, p = 0.401) và chỉ hơn
 chính nhánh thực thể của nó 0.2 pp (b = 81, c = 82, **p = 1.000** — tức bảng chéo gần như đối
@@ -1652,8 +1654,19 @@ làn C: không mô hình nào có thể được chứng nhận vượt quá đ�
 
 6.12.5. So với công trình gốc — thiếu hụt có ý nghĩa ở mọi cách chia khả thi
 
-Công trình gốc trên bộ dữ liệu này công bố **95.81% macro** với bộ phát hiện huấn luyện trên 2,262
-hộp giới hạn. Con số đó **không phải phép đo của luận văn**: hệ thống của tác giả khác không thể
+Công trình gốc trên bộ dữ liệu này công bố **95.81% macro** với một bộ phát hiện huấn luyện trên
+chú giải hộp theo từng khung **không được công bố** (mục 2.3, 3.1); quy mô bộ chú giải của họ vì
+vậy không được biết.
+
+  HIỆU ĐÍNH 01/11/2026 (ngoại lệ hậu-đóng-băng #4). Bản đóng băng ghi ở chỗ này "bộ phát hiện
+  huấn luyện trên **2,262 hộp**" và gán con số ấy cho **công trình gốc**. Gán như vậy **sai**:
+  2,262 là quy mô bộ chú giải **của chính luận văn** (`annotation_guide/dataset`, xem mục 3.1),
+  không phải của họ — và chính Chương 2 mục 2.3 đã nói chú giải của họ không được công bố, nên
+  không thể biết họ dùng bao nhiêu hộp. Con số 2,262 giữ nguyên ở nơi nó thuộc về (bộ chú giải
+  của luận văn) và **bị bỏ khỏi câu này**. Số hộp/khung chính xác của bộ chú giải luận văn vẫn
+  đang chờ tác giả chốt (Q7, `plans/trang-thai-chuong-trinh.md`: 2,262 so với 1,901 + 343).
+
+Con số 95.81% đó **không phải phép đo của luận văn**: hệ thống của tác giả khác không thể
 chạy lại vì trọng số và dự đoán theo clip của họ không được công bố. Nó được trích như một tham
 chiếu tài liệu, không như một đường sàn.
 
@@ -1750,7 +1763,7 @@ Bảng 6.8 — Mười một mã cổng: tám cổng phán quyết tiền đăng
   G15  | ESTA hơn encoder thực thể tốt nhất    | ESTA so E0           | +3.5 pp  | [−2.3, +10.0] ⊃0  | 1.48e-03  | TRƯỢT
   G16  | ESTA hơn xương sống video đã          | ESTA so B2           | +2.3 pp  | [−2.3, +7.5] ⊃0   | 0.0828    | TRƯỢT
        |   tiền huấn luyện                     |   (VideoMAE-base)    |          |                   |           |
-  G17  | *(đối chứng, không phán quyết)*       | ESTA @ v11s so 26s   | −2.2 pp  | [−1.7, +6.0] ⊃0   | 4.12e-03  | đối chứng
+  G17  | *(đối chứng, không phán quyết)*       | ESTA @ v11s so 26s   | +2.2 pp  | [−1.7, +6.0] ⊃0   | 4.12e-03  | đối chứng
   G18  | hợp nhất hai luồng hơn luồng          | TSF so B1w           | −0.3 pp  | [−3.7, +2.5] ⊃0   | 0.401     | TRƯỢT
        |   toàn khung đơn lẻ                   |                      |          |                   |           |
   G19  | *(đối chứng, không phán quyết,        | E3 giả dược so       | +13.8 pp | —                 | 0.0476 ‡  | đối chứng

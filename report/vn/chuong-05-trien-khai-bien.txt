@@ -550,7 +550,7 @@ là đại lượng ràng buộc.
 
 **DVFS không phải một điều kiện đo lặp lại được trên thiết bị này, và điều đó giới hạn mọi con số
 DVFS trong chương.** Qua **11 lần chạy trong hai ngày** trên vòng lặp tổ hợp: ở xung nhịp ghim,
-độ trễ mỗi quyết định nằm trong 309.08–311.78 ms — **phân tán 0.49%**; dưới DVFS mặc định, nằm
+độ trễ mỗi quyết định nằm trong 309.08–311.78 ms — **phân tán 0.87%**; dưới DVFS mặc định, nằm
 trong **365.88–440.01 ms — phân tán 20.3%**, và **hai tập giá trị không giao nhau**. Giả thuyết
 nhiệt đã bị **bác bỏ** bằng phép đo: trung vị khi có cổng nhiệt là 421.52 ms so với 422.82 ms khi
 không, lệch 0.31%. Nguyên nhân là bộ điều tốc tự dốc tần số **ngay trong lúc chạy** — `policy0
@@ -1231,7 +1231,7 @@ Con số 3.452 KHÔNG bị rút lại và KHÔNG sai — nó là phép đo đún
 nhánh trước-khi-sửa của phép so sánh A/B. Nhưng nó KHÔNG CÒN LÀ NHỊP ĐÃ TRIỂN KHAI.
 
 Thay đổi cấu trúc quan trọng: sau khi sửa, hạng mục chi phối KHÔNG còn là tiền xử lý.
-Trên kho 720p, tháp CLIP là hạng mục lớn nhất của phần tính toán (53.2 %); ở 1080p,
+Trên kho 720p, tháp CLIP là hạng mục lớn nhất của phần tính toán (52.6 %, khớp Bảng 5.2); ở 1080p,
 GIẢI MÃ là hạng mục chi phối khoảng quyết định (46.8 %). Mọi lập luận về "đòn bẩy tối ưu
 lớn nhất là tiền xử lý" trong chương này phải được viết lại.
 
