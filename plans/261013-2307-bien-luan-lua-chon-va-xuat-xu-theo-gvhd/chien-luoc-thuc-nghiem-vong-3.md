@@ -148,7 +148,9 @@ Ba điều phải khai báo, đã ghim trong docstring của script:
 * **Mẫu số là 8, không phải 7.** Mục 2 viết "7 tháp" nhưng bảng của chính nó liệt kê 10 dòng với 2
   control, tức 8 tháp không-control. Đó là lỗi đếm khi đăng ký. Dùng **8** — lớn hơn, khó vượt hơn.
 * **Một dòng mỗi tháp.** Dòng chính là đầu transformer vì đó là đồ thị đang triển khai, và nó
-  **không** phải đầu tốt hơn ở mọi tháp (meanpool thắng 4/8), nên luật không chọn theo kết quả.
+  **không** phải đầu tốt hơn ở mọi tháp (meanpool thắng **6/8** — bản trước ghi 4/8, đã đếm lại
+  01/11/2026 từ `sweep_results/posthoc_sensitivity/round3_tower_bh.json`), nên luật không chọn
+  theo kết quả.
   Họ meanpool hiệu chỉnh riêng, cũng không ai sống sót.
 * **p lấy từ đúng bộ draw của CI** (`default_rng(0)`, 5000 draw, cùng luật loại draw mất lớp), hai
   phía: `p = 2·min(P(d* ≤ 0), P(d* ≥ 0))`, chặn dưới 1/B.

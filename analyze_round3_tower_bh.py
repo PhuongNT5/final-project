@@ -20,7 +20,7 @@ Three disclosures the numbers cannot carry on their own
 2. ONE ROW PER TOWER. Each tower was trained with two heads. Using both would silently double the
    family after the fact. The primary row is the TRANSFORMER head, because that is the deployed B1
    graph of the thesis and the only choice that holds the architecture identical to the published
-   model; it is not the better head for every tower (meanpool wins on four of seven), so the rule
+   model; it is not the better head for every tower (meanpool wins on six of eight), so the rule
    is not a selection on the outcome. The meanpool rows are corrected separately as a secondary
    family and reported as such.
 3. P-VALUE DEFINITION. The percentile bootstrap gives an interval, not a p-value. The two-sided
