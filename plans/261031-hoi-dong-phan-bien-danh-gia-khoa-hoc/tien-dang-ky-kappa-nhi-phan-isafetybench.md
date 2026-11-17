@@ -128,3 +128,29 @@ Dữ liệu commit **theo từng phiên**, để dấu thời gian độc lập 
 3. Tác giả nhận ra bao nhiêu phần trăm clip? Không biết trước; D4 đã chốt cách xử lý.
 4. Nếu D1 xảy ra (kết quả **bất lợi** cho lập luận hiện tại) — còn 60 ngày tới 31/12, có đủ để viết
    lại §6 theo hướng "còn dư địa" không? Nên trả lời **trước** khi gắn nhãn, không phải sau.
+
+---
+
+## Sửa đổi 1 — 17/11/2026, trước khi gắn clip đầu tiên
+
+**Không có người gán nhãn thứ hai.** Tác giả chốt 07/11. Hệ quả, ghi trước khi có dữ liệu:
+
+1. **Không đo được κ liên-người.** Phép đo duy nhất về độ tin cậy là **κ nội-người** trên 25 clip
+   hiện lại. Đổi tên estimand ở §4 cho đúng: nghiên cứu này đo **độ tái lập của một người gán nhãn
+   so với nhãn của bộ dữ liệu**, không đo **độ đồng thuận giữa những người gán nhãn**.
+2. **D3 trở thành luật chịu lực.** Trước đây κ nội-người là phép kiểm tra phụ; nay nếu nó < 0.80
+   thì không còn phép đo nào đỡ, và theo D3 toàn bộ nghiên cứu không diễn giải được. Hệ quả thực
+   tế: ba phiên ≤ 60 sự kiện và nghỉ ≥ 30 phút không còn là khuyến nghị, mà là điều kiện.
+3. **Giới hạn phải khai trong phụ lục, đúng chữ này**: con số đo được là mức trùng khớp giữa **một**
+   người đọc sổ tay R1–R10 và phân hoạch thư mục của iSafetyBench. Nó **không** là trần nhãn của
+   bộ dữ liệu, và **không** là giới hạn Bayes của bài toán. Phản biện có quyền hỏi "một người thì
+   biết gì về nhiễu nhãn" — câu trả lời đúng là: không biết, và phụ lục nói thẳng như vậy.
+4. **Phát ngôn bị cấm, bổ sung**: "hai người gán nhãn độc lập", "độ đồng thuận giữa các chuyên gia",
+   và mọi cách diễn đạt gợi ý có nhiều hơn một người đọc clip.
+5. Phần còn lại của tiền đăng ký **không đổi**: vẫn tổng điều tra 151 nguồn, vẫn loại K096 ⇒ n = 150,
+   vẫn hai hash đã chốt, vẫn D1–D5, vẫn **tiêu 0 lần chạm test**, vẫn **bảng cổng không đổi —
+   tám cổng, hai đạt, sáu trượt**.
+
+Lý do ghi sửa đổi này thành văn bản thay vì lặng lẽ bỏ qua: hội đồng 10/10 yêu cầu **hai** người.
+Thiết kế nay chỉ còn một. Khai trước khi có dữ liệu là cách duy nhất để sự thu hẹp đó không bị đọc
+thành kết quả bị cắt gọt sau khi đã thấy số.
