@@ -154,3 +154,65 @@ Dữ liệu commit **theo từng phiên**, để dấu thời gian độc lập 
 Lý do ghi sửa đổi này thành văn bản thay vì lặng lẽ bỏ qua: hội đồng 10/10 yêu cầu **hai** người.
 Thiết kế nay chỉ còn một. Khai trước khi có dữ liệu là cách duy nhất để sự thu hẹp đó không bị đọc
 thành kết quả bị cắt gọt sau khi đã thấy số.
+
+---
+
+## Sửa đổi 2 — 17/11/2026, sau khi gắn xong 176 sự kiện, TRƯỚC khi chạy `analyse-kappa.py`
+
+**Điều kiện phiên của Sửa đổi 1 đã KHÔNG đạt.** Đo trực tiếp từ dấu thời gian trong
+`annotations.jsonl`, không phải tự thuật:
+
+| Sửa đổi 1 đặt làm **điều kiện** | Đo được |
+|---|---|
+| 3 phiên, mỗi phiên ≤ 60 sự kiện | **1 phiên, 176 sự kiện** |
+| nghỉ ≥ 30 phút giữa các phiên | **nghỉ dài nhất 1,3 phút**; 0 lần nghỉ ≥ 5 phút |
+| commit theo từng phiên (§8) | 1 commit duy nhất, sau khi xong |
+| — | 26,1 phút tổng ⇒ **8,9 s/sự kiện**; 22/176 dưới 3 giây; dwell trung vị 7,4 s |
+| 25 clip lặp cách ≥ 40 sự kiện | **đạt**: 50–173 sự kiện (trung vị 111) |
+| — | nhưng khoảng cách **thời gian thực** chỉ **8–26 phút** (trung vị 16) |
+
+Toàn vẹn dữ liệu thì **không** có vấn đề: 176/176 cặp (kid, pass) duy nhất, không thiếu, không
+thừa, không dòng ghi đè, `confidence` có ở mọi dòng (3→138, 2→36, 1→2).
+
+### Hệ quả, ghi trước khi thấy bất kỳ số nào
+
+1. **D3 mất một nửa quyền lực, giữ nửa còn lại.** κ nội-người đo trên hai lần gắn cách nhau 8–26
+   phút trong **cùng một lần ngồi** thì phần lớn là **ký ức ngắn hạn**, không phải độ tái lập.
+   Cụ thể, bất đối xứng phải tôn trọng:
+   - κ nội-người **< 0.80** ⇒ D3 vẫn nổ, và nổ **mạnh hơn**: không tái lập được **dù có trợ giúp
+     của ký ức**.
+   - κ nội-người **≥ 0.80** ⇒ D3 **không** nổ, nhưng **không** được đọc thành "độ tin cậy đã
+     được xác nhận". Nó là **chặn trên** của độ tái lập, không phải ước lượng của nó.
+2. **D4 hết tác dụng bảo vệ.** Cờ "nhận ra" bật **1/176 (0,6 %)**, xa ngưỡng 50 %, nên theo đúng
+   chữ thì D4 không nổ. Nhưng với lần lặp cách nhau 8–26 phút, con số gần bằng không **không**
+   chứng minh tác giả thật sự không nhận ra clip — nó chỉ cho thấy tín hiệu đó **không được dùng**.
+   Vì vậy: **cấm** dùng tỉ lệ 0,6 % làm bằng chứng rằng ký ức không can thiệp. Cắt nhóm
+   "nhận ra / không nhận ra" **không báo cáo** (n = 1 < 10, trùng luật n ≥ 10 ở §4).
+3. **Đại lượng CHÍNH không bị thổi phồng.** κ người ↔ nhãn gốc trên n = 150 chỉ dùng pass 1; nén
+   phiên và gấp gáp làm nó **giảm**, không làm nó tăng. Do đó:
+   - κ chính **thấp** ⇒ có **hai** cách giải thích cạnh nhau — nhiễu nhãn thật, **hoặc** 8,9
+     s/sự kiện là quá nhanh. Phải khai cả hai; **không** được chỉ chọn cách có lợi cho §6.
+   - κ chính **cao** ⇒ đọc được, và là phía **thận trọng**: cao *dù* gấp gáp.
+4. **Phát ngôn bị cấm, bổ sung**: "κ nội-người xác nhận độ tin cậy", "đã kiểm chứng độ tái lập",
+   và mọi câu đặt κ nội-người làm bảo đảm chất lượng cho đại lượng chính.
+5. **Không đổi `analyse-kappa.py`.** Luật §4 giữ nguyên: đọc số được đổi **kết luận**, không được
+   đổi **những gì script tính**. Sửa đổi này chỉ đổi cách **diễn giải** đầu ra.
+
+### Khai báo: tôi đã thấy gì trước khi viết phụ lục này
+
+Khi kiểm tra điều kiện thu thập, script đo đã in **mức trùng khớp thô giữa hai lần gắn: 23/25 =
+92,0 %** (2 clip lệch nhãn). **Chưa** có κ nào được tính, **chưa** đọc đại lượng chính, **chưa**
+mở OOF của mô hình. Ghi ra đây vì phụ lục này **không** được viết trong trạng thái mù hoàn toàn,
+và nói thẳng thì rẻ hơn để phản biện phát hiện sau.
+
+### Cách khôi phục điều kiện, nếu tác giả chọn
+
+Gắn lại 25 clip lặp thành **pass 3**, sau **≥ 24 giờ**, phiên riêng, dòng mới append vào cùng tệp.
+Khi đó κ nội-người (pass 1 ↔ pass 3) đo đúng độ tái lập, và D3 lấy lại toàn bộ quyền lực. Chi phí
+≈ 10 phút gắn nhãn. Lựa chọn thuộc về tác giả; tiền-đăng-ký **không** bắt buộc.
+
+### Không đổi
+
+Vẫn tổng điều tra 151 nguồn, vẫn loại K096 ⇒ **n = 150**, vẫn hai hash đã chốt
+(`events_sha256 dfeab129…1009`, `key_sha256 663d6605…ac94`), vẫn **D1–D5 nguyên văn**, vẫn
+**tiêu 0 lần chạm test**, vẫn **bảng cổng không đổi — tám cổng, hai đạt, sáu trượt**.
