@@ -1,0 +1,45 @@
+# Lần chạy duy nhất của tools/analyse-kappa.py theo tiền-đăng-ký §4
+# Thời điểm chạy: 2026-11-17T16:08:07Z UTC
+# Dữ liệu:  commit 0b1252e  (176 sự kiện)
+# Khai báo sai lệch quy trình: commit 8c1de30, đã đẩy TRƯỚC khi chạy
+# Script không đổi từ commit 90f8852 (trước khi có dữ liệu)
+# ---
+== loai tru truoc dang ky: ['K096']
+== n = 150 clip, 75 hazard / 75 normal
+== nhan doc lap: 64 hazard / 86 normal
+
+-- dong thuan nguoi <-> nhan goc iSafetyBench
+agreement tho                                0.8467
+Cohen kappa                                  0.6933  CI95 [0.5745, 0.8001]
+Gwet AC1                                     0.6950  CI95 [0.5760, 0.8046]
+
+-- tran nhan do bang chinh dai luong cua luan van
+balanced accuracy cua NGUOI                  0.8467  CI95 [0.7879, 0.9012]
+balanced accuracy cua MO HINH (cung 151 clip) 0.8533  CI95 [0.7936, 0.9070]
+hieu NGUOI - MO HINH                         -0.0067  CI95 [-0.0851, 0.0706]
+McNemar exact (nguoi vs mo hinh)             p = 1  nguoi dung/mo hinh sai = 18, nguoc lai = 19
+
+-- do tin cay cua chinh nguoi gan nhan (test-retest)
+kappa noi-nguoi tren 25 clip lap             0.8397
+so clip tu doi y                             2/25
+
+-- cat theo bien da tien dang ky
+  kappa | clip NHAN RA (nho tu truoc): n=1 < 10, khong bao cao
+  kappa | clip KHONG nhan ra (n=149)         0.6910
+  kappa | tu tin cao (3) (n=114)             0.8418
+  kappa | tu tin thap (1-2) (n=36)           0.1486
+
+# ======================================================================
+# CHAN DOAN HAU KIEM - KHONG thuoc tien-dang-ky, chay sau khi doc so tren.
+# Muc dich: tach "gap gap" khoi "clip that su nhap nhang", theo yeu cau
+# cua Sua doi 2 muc 3 (phai khai ca HAI cach giai thich).
+# ======================================================================
+dwell < 3 s        n= 18  dung 94.4%
+dwell 3-6 s        n= 29  dung 96.6%
+dwell 6-12 s       n= 72  dung 84.7%
+dwell >= 12 s      n= 31  dung 67.7%
+tu tin = 3         n=114  dung 92.1%   dwell trung vi  6.9s
+tu tin = 2         n= 34  dung 58.8%   dwell trung vi 10.9s
+tu tin = 1         n=  2  dung  100%   dwell trung vi 32.8s
+bo sot (goc hazard -> nguoi normal): 17
+bao dong gia (goc normal -> nguoi hazard): 6
