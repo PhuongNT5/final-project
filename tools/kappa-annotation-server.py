@@ -15,11 +15,14 @@ last line per (kid, pass), and the discarded lines stay on disk as part of the r
 """
 import json, pathlib, re, sys
 from datetime import datetime, timezone
-from http.server import BaseHTTPRequestHandler, HTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 REPO = pathlib.Path(__file__).resolve().parent.parent
 BASE = REPO / 'annotation_guide/kappa-isb-binary'
 PORT = 8765
+# A <video> aborts its own requests constantly -- on replay, seek, reload -- which arrives
+# here as a dead socket mid-write. Normal browser behaviour, not an error.
+ABORT = (BrokenPipeError, ConnectionResetError, TimeoutError)
 SESSION_SOFT_CAP = 60
 
 PAGE = """<!doctype html><title>Gan nhan - nhi phan</title><style>
@@ -64,16 +67,22 @@ load();
 
 
 class H(BaseHTTPRequestHandler):
+    _sent = False      # has a response line already gone out on this connection?
+
     def log_message(self, *a):
         pass
 
     def _j(self, obj, code=200):
         b = json.dumps(obj).encode()
-        self.send_response(code)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', str(len(b)))
-        self.end_headers()
-        self.wfile.write(b)
+        try:
+            self._sent = True
+            self.send_response(code)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(b)))
+            self.end_headers()
+            self.wfile.write(b)
+        except ABORT:
+            pass       # client walked away; there is nobody left to tell
 
     def do_GET(self):
         if self.path == '/':
@@ -92,28 +101,38 @@ class H(BaseHTTPRequestHandler):
                 return
             try:
                 self.serve_clip(REPO / self.server.state.key[kid]['path'])
+            except ABORT:
+                return     # the browser cancelled this video request: nothing is wrong
             except Exception:
-                # never surface the exception: the real path contains the source id AND the
-                # label-bearing folder, so an ordinary traceback is a blinding leak
-                self._j({'error': 'clip unavailable', 'kid': kid}, 500)
+                # Never surface the exception: the path carries the source id and the
+                # label-bearing folder. Answer only if no response line went out yet -- a
+                # second one on the same connection is invalid HTTP and crashed the handler.
+                if not self._sent:
+                    self._j({'error': 'clip unavailable', 'kid': kid}, 500)
         else:
             self._j({'error': 'no'}, 404)
 
     def serve_clip(self, p):
-        data = p.read_bytes()
+        total = p.stat().st_size
         rng = self.headers.get('Range')
-        s, e = 0, len(data) - 1
+        s, e = 0, total - 1
         code = 200
         if rng and (m := re.match(r'bytes=(\d+)-(\d*)', rng)):
             s = int(m.group(1))
             e = int(m.group(2)) if m.group(2) else e
             code = 206
-        chunk = data[s:e + 1]
+        # Clamp: a seek can ask past EOF; the old slice then answered 206 with zero bytes.
+        s = max(0, min(s, total - 1))
+        e = max(s, min(e, total - 1))
+        with p.open('rb') as f:
+            f.seek(s)
+            chunk = f.read(e - s + 1)
+        self._sent = True
         self.send_response(code)
         self.send_header('Content-Type', 'video/mp4')
         self.send_header('Accept-Ranges', 'bytes')
         if code == 206:
-            self.send_header('Content-Range', f'bytes {s}-{e}/{len(data)}')
+            self.send_header('Content-Range', f'bytes {s}-{e}/{total}')
         self.send_header('Content-Length', str(len(chunk)))
         self.end_headers()
         self.wfile.write(chunk)
@@ -157,10 +176,20 @@ class State:
         self.n_this_session += 1
 
 
+class Srv(ThreadingHTTPServer):
+    """Threaded so one abandoned video request cannot stall /next or /save."""
+    daemon_threads = True
+
+    def handle_error(self, request, client_address):
+        # Deliberately no traceback: a FileNotFoundError here would print the clip's real
+        # path, whose parent folder IS the label. Lost detail is the price of blinding.
+        print('  (mot ket noi loi, da bo qua -- phien gan nhan khong anh huong)')
+
+
 def main():
     if not (BASE / 'key.json').exists():
         sys.exit('chay truoc: .venv/bin/python tools/sample-kappa-clips.py --write')
-    srv = HTTPServer(('127.0.0.1', PORT), H)
+    srv = Srv(('127.0.0.1', PORT), H)
     srv.state = State()
     d = len(srv.state.done_set())
     print(f'da gan {d}/{len(srv.state.events)} su kien -> http://127.0.0.1:{PORT}  (ctrl-c de dung)')
