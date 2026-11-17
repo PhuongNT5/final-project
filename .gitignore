@@ -191,3 +191,7 @@ deployment/export/jetson-*/
 # demo/run-unsafe-behavior-demo.py; the per-frame probability timelines next to them are the
 # actual data those two figures plot, are a few KB each, and stay tracked.
 demo/out/*.mp4
+
+# Word lock files: 162-byte temp files Word leaves behind while a document is open.
+# They carry the editing user name and are meaningless outside that session.
+~$*
