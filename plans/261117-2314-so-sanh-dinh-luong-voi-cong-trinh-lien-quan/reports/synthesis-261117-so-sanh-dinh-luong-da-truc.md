@@ -570,3 +570,28 @@ DOI 10.1016/j.dib.2024.110791.
    buộc); có cần đưa κ vào bảng độ chặt thống kê §10 như một dòng nữa không?
 9. **Kiểm tra trùng lặp Điều 5.1, tên tác giả / đơn vị / e-mail chính thức / ORCID, và tên tạp chí
    đích cho quy tắc nội bộ Điều 6.2** — vẫn chưa có, vẫn chặn việc nộp.
+
+---
+
+## 16. Cập nhật 24/11/2026 — câu hỏi 8 đã mất tiền đề
+
+Câu hỏi 8 ở mục 15 được viết ngày 17/11 với tiền đề "κ đã hoàn tất, D2 là phán quyết ràng buộc".
+**Tiền đề đó không còn đúng.** Lần gắn nhãn thứ ba ngày 24/11 cho test-retest κ sau 7 ngày bằng
+**0.5970** (CI95 [0.3755, 0.7910]), dưới ngưỡng 0.80, nên luật D3 của tiền đăng ký đã kích hoạt và
+toàn bộ phép đo κ được tuyên là **không diễn giải được**. Gwet AC1 đồng-chính bằng 0.7160, cũng
+dưới ngưỡng. Phán quyết đầy đủ ở `../../261031-hoi-dong-phan-bien-danh-gia-khoa-hoc/reports/
+phan-quyet-kappa-pass3-24-11.md`.
+
+Hệ quả cho báo cáo này:
+
+1. **Không được thêm một dòng κ vào bảng độ chặt thống kê mục 10** như câu hỏi 8 gợi ý. Một dòng
+   như vậy sẽ hàm ý độ tin cậy nhãn đã được xác nhận, trong khi phép đo đã tự tuyên là không diễn
+   giải được.
+2. **Dòng so sánh đúng thì ngược lại, và vẫn có lợi cho luận văn:** không công trình nào trong 12
+   bài WS-VAD hay 10 hệ giám sát an toàn công nghiệp ở mục 10 và 11 báo cáo **bất kỳ** phép đo độ
+   tin cậy người gắn nhãn nào. Luận văn thực hiện phép đo đó, đăng ký trước luật dừng, và công bố
+   rằng nó trượt. Đó vẫn là một mức độ chặt mà không công trình đối chứng nào đạt tới.
+3. **Mọi phát biểu "mô hình sát trần nhãn"** phải hạ xuống giả thuyết chưa kiểm chứng ở mọi nơi
+   trong luận văn, kể cả khi mục so sánh này được viết.
+4. Các mục 1–14 **không bị ảnh hưởng**: không mục nào trong số đó dùng κ. Con số đầu bài 84.2% BA,
+   dải tái lập 83.25–84.71% và bảng cổng (tám cổng, hai đạt, sáu trượt) đều không đổi.
