@@ -1,0 +1,56 @@
+# Lần chạy pass 3 — tiền-đăng-ký Sửa đổi 3, script commit fc0df3b/019b061 trước khi có dữ liệu
+# Thời điểm chạy: 2026-11-24T05:28:13Z UTC
+# ---
+== pass 1: 17/11/2026   pass 3: 24/11/2026   cach nhau 7 ngay
+== nhom thu nghiem n=36   nhom doi chung n=36
+
+-- E0: phep can thiep co xay ra khong
+dwell trung vi nhom thu nghiem               8.4s   (pass 1: 11.2s, nguong 20.0s)
+  -> phep can thiep                          THAT BAI -- E1/E1b/E2 KHONG ap dung
+dwell trung vi nhom doi chung                6.6s   (pass 1: 7.7s)
+
+-- do chinh xac so voi nhan goc
+thu nghiem  pass 1                           0.6111  (22/36)
+thu nghiem  pass 3                           0.5833  CI95 [0.4167, 0.7222]  (21/36)
+  thay doi L3 - L1                           -0.0278  = -2.8 pp
+doi chung   pass 1                           0.8889  (32/36)
+doi chung   pass 3                           0.9167  CI95 [0.8056, 1.0000]  (33/36)
+  thay doi C3 - C1                           0.0278  = +2.8 pp
+moc tam thuong (tra normal het)              0.5556   (20/36)
+
+-- quy tac mac dinh "khong chac thi chon binh thuong" con khong
+  thu nghiem     goi hazard: pass 1 = 4/36  ->  pass 3 = 5/36
+  doi chung      goi hazard: pass 1 = 18/36  ->  pass 3 = 15/36
+
+-- test-retest 7 ngay (thay cho con so 0.8397 da bi thoi phong)
+kappa pass 1 <-> pass 3, ca 72 clip          0.5970  CI95 [0.3755, 0.7910]
+so clip tu doi y                             12/72
+  rieng nhom doi chung                       0.8333
+  rieng nhom thu nghiem                      -0.1408
+nhan ra clip (recognised)                    0/72
+
+-- kappa so voi nhan goc, tung nhom
+thu nghiem pass 3                            0.0940  CI95 [-0.1576, 0.3600]
+doi chung  pass 3                            0.8333  CI95 [0.6250, 1.0000]
+
+== PHAN QUYET (luat E chot truoc trong Sua doi 3)
+   L3-L1 = -2.8 pp   C3-C1 = +2.8 pp
+   E0 that bai: chua bo duoc ap luc thoi gian. Chi bao cao duoc duoi dang test-retest 7 ngay; E1/E1b/E2 khong ap dung
+
+   D3 NO: kappa test-retest = 0.5970 < 0.80 theo tien-dang-ky muc 5 => TOAN BO phep do tuyen bo KHONG DIEN GIAI DUOC
+
+   Dai luong chinh KHONG doi: Cohen kappa 0.6933 tren n = 150. D2 van hieu luc.
+   Bang cong khong doi: tam cong, hai dat, sau truot.   Cham test: 0 lan.
+
+# ======================================================================
+# CHAN DOAN HAU KIEM - khong thay the phan quyet D3 (D3 noi dich danh "kappa")
+# ======================================================================
+ca 72 clip        trung khop tho 83.3%   kappa +0.5970   AC1 +0.7160
+nhom doi chung    trung khop tho 91.7%   kappa +0.8333   AC1 +0.8345
+nhom thu nghiem   trung khop tho 75.0%   kappa -0.1408   AC1 +0.6800
+  -> AC1 tren 72 clip = 0.7160 VAN duoi 0.80: D3 vung ca duoi thuoc do chong lech ti le
+lech tang: 72 clip co 50% tu tin thap, corpus 150 chi co 24%  -> lech 2.1x
+trung khop tho tai can theo ti le that: 87.7% (tren 72 clip: 83.3%)
+tang tu tin cao (n=114) pass1 vs nhan goc: dung 92.1%  kappa 0.8418
+tang tu tin thap (n=36) pass1 vs nhan goc: dung 61.1%  kappa 0.1486
+mo hinh tren 150 clip: 85.33%
