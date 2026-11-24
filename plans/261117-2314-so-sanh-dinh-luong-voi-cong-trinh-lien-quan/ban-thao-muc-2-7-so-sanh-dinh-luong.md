@@ -223,8 +223,8 @@ Hai kết quả cơ chế mạnh hơn bản thân con số Δ, và cả hai đ�
 
 Kết quả thứ nhất là lý do mục này tồn tại. Nếu phần lớn các bảng trong mảng được chạy dưới chia
 ngẫu nhiên, thì các con số trong chúng không đo khả năng tổng quát hoá sang nguồn mới, và việc đặt
-một con số đo đúng cạnh chúng sẽ phạt chính phép đo đúng. Đây là lập luận định lượng cho việc mục
-2.7.7 từ chối bảy phép so sánh bên dưới.
+một con số đo đúng cạnh chúng sẽ phạt chính phép đo đúng. Đây là lập luận định lượng cho việc
+mục 2.7.7 từ chối bảy phép so sánh bên dưới.
 
 2.7.7. Độ chặt thống kê và báo cáo
 
