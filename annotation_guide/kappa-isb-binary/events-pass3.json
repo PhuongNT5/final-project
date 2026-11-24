@@ -1,0 +1,368 @@
+{
+ "seed": "pass3-20261124",
+ "created": "2026-11-24",
+ "pass": 3,
+ "note": "pass 3: 36 clip tu tin thap + 36 clip doi chung tu tin cao, khong gioi han thoi gian",
+ "events": [
+  {
+   "kid": "K145",
+   "pass": 3,
+   "event": 1
+  },
+  {
+   "kid": "K138",
+   "pass": 3,
+   "event": 2
+  },
+  {
+   "kid": "K026",
+   "pass": 3,
+   "event": 3
+  },
+  {
+   "kid": "K070",
+   "pass": 3,
+   "event": 4
+  },
+  {
+   "kid": "K102",
+   "pass": 3,
+   "event": 5
+  },
+  {
+   "kid": "K068",
+   "pass": 3,
+   "event": 6
+  },
+  {
+   "kid": "K110",
+   "pass": 3,
+   "event": 7
+  },
+  {
+   "kid": "K015",
+   "pass": 3,
+   "event": 8
+  },
+  {
+   "kid": "K075",
+   "pass": 3,
+   "event": 9
+  },
+  {
+   "kid": "K074",
+   "pass": 3,
+   "event": 10
+  },
+  {
+   "kid": "K033",
+   "pass": 3,
+   "event": 11
+  },
+  {
+   "kid": "K133",
+   "pass": 3,
+   "event": 12
+  },
+  {
+   "kid": "K077",
+   "pass": 3,
+   "event": 13
+  },
+  {
+   "kid": "K048",
+   "pass": 3,
+   "event": 14
+  },
+  {
+   "kid": "K050",
+   "pass": 3,
+   "event": 15
+  },
+  {
+   "kid": "K149",
+   "pass": 3,
+   "event": 16
+  },
+  {
+   "kid": "K020",
+   "pass": 3,
+   "event": 17
+  },
+  {
+   "kid": "K018",
+   "pass": 3,
+   "event": 18
+  },
+  {
+   "kid": "K013",
+   "pass": 3,
+   "event": 19
+  },
+  {
+   "kid": "K090",
+   "pass": 3,
+   "event": 20
+  },
+  {
+   "kid": "K055",
+   "pass": 3,
+   "event": 21
+  },
+  {
+   "kid": "K089",
+   "pass": 3,
+   "event": 22
+  },
+  {
+   "kid": "K135",
+   "pass": 3,
+   "event": 23
+  },
+  {
+   "kid": "K112",
+   "pass": 3,
+   "event": 24
+  },
+  {
+   "kid": "K080",
+   "pass": 3,
+   "event": 25
+  },
+  {
+   "kid": "K151",
+   "pass": 3,
+   "event": 26
+  },
+  {
+   "kid": "K058",
+   "pass": 3,
+   "event": 27
+  },
+  {
+   "kid": "K024",
+   "pass": 3,
+   "event": 28
+  },
+  {
+   "kid": "K002",
+   "pass": 3,
+   "event": 29
+  },
+  {
+   "kid": "K114",
+   "pass": 3,
+   "event": 30
+  },
+  {
+   "kid": "K054",
+   "pass": 3,
+   "event": 31
+  },
+  {
+   "kid": "K067",
+   "pass": 3,
+   "event": 32
+  },
+  {
+   "kid": "K137",
+   "pass": 3,
+   "event": 33
+  },
+  {
+   "kid": "K035",
+   "pass": 3,
+   "event": 34
+  },
+  {
+   "kid": "K017",
+   "pass": 3,
+   "event": 35
+  },
+  {
+   "kid": "K136",
+   "pass": 3,
+   "event": 36
+  },
+  {
+   "kid": "K027",
+   "pass": 3,
+   "event": 37
+  },
+  {
+   "kid": "K076",
+   "pass": 3,
+   "event": 38
+  },
+  {
+   "kid": "K051",
+   "pass": 3,
+   "event": 39
+  },
+  {
+   "kid": "K036",
+   "pass": 3,
+   "event": 40
+  },
+  {
+   "kid": "K030",
+   "pass": 3,
+   "event": 41
+  },
+  {
+   "kid": "K071",
+   "pass": 3,
+   "event": 42
+  },
+  {
+   "kid": "K009",
+   "pass": 3,
+   "event": 43
+  },
+  {
+   "kid": "K006",
+   "pass": 3,
+   "event": 44
+  },
+  {
+   "kid": "K049",
+   "pass": 3,
+   "event": 45
+  },
+  {
+   "kid": "K095",
+   "pass": 3,
+   "event": 46
+  },
+  {
+   "kid": "K059",
+   "pass": 3,
+   "event": 47
+  },
+  {
+   "kid": "K142",
+   "pass": 3,
+   "event": 48
+  },
+  {
+   "kid": "K115",
+   "pass": 3,
+   "event": 49
+  },
+  {
+   "kid": "K148",
+   "pass": 3,
+   "event": 50
+  },
+  {
+   "kid": "K085",
+   "pass": 3,
+   "event": 51
+  },
+  {
+   "kid": "K073",
+   "pass": 3,
+   "event": 52
+  },
+  {
+   "kid": "K087",
+   "pass": 3,
+   "event": 53
+  },
+  {
+   "kid": "K004",
+   "pass": 3,
+   "event": 54
+  },
+  {
+   "kid": "K108",
+   "pass": 3,
+   "event": 55
+  },
+  {
+   "kid": "K094",
+   "pass": 3,
+   "event": 56
+  },
+  {
+   "kid": "K123",
+   "pass": 3,
+   "event": 57
+  },
+  {
+   "kid": "K022",
+   "pass": 3,
+   "event": 58
+  },
+  {
+   "kid": "K014",
+   "pass": 3,
+   "event": 59
+  },
+  {
+   "kid": "K010",
+   "pass": 3,
+   "event": 60
+  },
+  {
+   "kid": "K082",
+   "pass": 3,
+   "event": 61
+  },
+  {
+   "kid": "K116",
+   "pass": 3,
+   "event": 62
+  },
+  {
+   "kid": "K139",
+   "pass": 3,
+   "event": 63
+  },
+  {
+   "kid": "K081",
+   "pass": 3,
+   "event": 64
+  },
+  {
+   "kid": "K061",
+   "pass": 3,
+   "event": 65
+  },
+  {
+   "kid": "K040",
+   "pass": 3,
+   "event": 66
+  },
+  {
+   "kid": "K084",
+   "pass": 3,
+   "event": 67
+  },
+  {
+   "kid": "K078",
+   "pass": 3,
+   "event": 68
+  },
+  {
+   "kid": "K079",
+   "pass": 3,
+   "event": 69
+  },
+  {
+   "kid": "K019",
+   "pass": 3,
+   "event": 70
+  },
+  {
+   "kid": "K150",
+   "pass": 3,
+   "event": 71
+  },
+  {
+   "kid": "K052",
+   "pass": 3,
+   "event": 72
+  }
+ ]
+}

@@ -216,3 +216,68 @@ Khi đó κ nội-người (pass 1 ↔ pass 3) đo đúng độ tái lập, và 
 Vẫn tổng điều tra 151 nguồn, vẫn loại K096 ⇒ **n = 150**, vẫn hai hash đã chốt
 (`events_sha256 dfeab129…1009`, `key_sha256 663d6605…ac94`), vẫn **D1–D5 nguyên văn**, vẫn
 **tiêu 0 lần chạm test**, vẫn **bảng cổng không đổi — tám cổng, hai đạt, sáu trượt**.
+
+---
+
+## Sửa đổi 3 — 24/11/2026, TRƯỚC khi gắn clip đầu tiên của pass 3
+
+Tác giả chọn **gắn lại 36 clip tự tin thấp, không giới hạn thời gian**. Phụ lục này chốt thiết kế
+và luật diễn giải **trước khi có dữ liệu pass 3**.
+
+### Khai báo trung thực về tình trạng của phụ lục này
+
+1. **Nhóm 36 clip được chọn SAU KHI đã thấy kết quả** (κ nhóm này = 0,1486). Đây **không** phải
+   phép thử mù. Hệ quả cứng: pass 3 **không được dùng để tính lại đại lượng chính**. κ = 0,6933
+   trên n = 150 **giữ nguyên như đã công bố**. Pass 3 là **phép dò cơ chế trên một nhóm con đã
+   chọn hậu nghiệm**, và phải được gọi đúng tên đó trong luận văn.
+2. **Người gắn nhãn đã bị nhiễm thông tin.** Báo cáo ngày 17/11 đã nói cho tác giả biết chiều của
+   lệch hệ thống (17 bỏ sót vs 6 báo động giả). Vì vậy mức tăng ở nhóm thử nghiệm có **hai** cách
+   giải thích: phân xử được clip, **hoặc** chỉ dịch ngưỡng sang gọi hazard nhiều hơn. **Nhóm đối
+   chứng tồn tại để tách hai cái này** — chúng dự đoán khác nhau về đối chứng (xem E1 vs E1b).
+
+### Thiết kế
+
+| | |
+|---|---|
+| Nhóm **thử nghiệm** | 36 clip có `confidence ∈ {1,2}` ở pass 1. Gốc **16 hazard / 20 normal**. Pass 1: đúng **22/36 = 61,1 %**, gọi hazard **4**, bỏ sót 13, báo động giả 1 |
+| Nhóm **đối chứng** | 36 clip `confidence = 3`, chọn xác định bằng `sha256("pass3-20261124\|" + kid)`. Gốc **18/18**. Pass 1: đúng **32/36 = 88,9 %**, gọi hazard 18, bỏ sót 2, báo động giả 2 |
+| Mốc tầm thường | trả "normal" cả 36 clip thử nghiệm ⇒ đúng **20/36 = 55,6 %**. Mốc so sánh là **55,6 %**, không phải 50 % |
+| Trộn | xen kẽ xác định bằng `sha256(seed\|order\|kid)`; nhóm thử nghiệm rải đều, **không thành khối** ⇒ người gắn không biết clip nào thuộc nhóm nào |
+| Tệp | `events-pass3.json`, 72 sự kiện, `sha256 f2b92b41…464b`, commit **trước** dòng dữ liệu đầu tiên |
+| Khoảng cách | pass 1 là **17/11**, pass 3 là **24/11** ⇒ **7 ngày**. Đây là test-retest **thật**, thay thế con số 0,8397 đã bị thổi phồng |
+| Sổ tay | **đóng băng**, `sha256 dc7784c70fd4c1b0…`, không đổi một chữ. Tác giả **đọc lại y nguyên** R1–R10 trước khi bắt đầu, **không** sửa R4 |
+
+**Vì sao không sửa R4 dù đã biết nó lệch:** sửa định nghĩa sau khi thấy nhãn gốc là **khớp dụng cụ
+đo vào đáp án**. Khoảng lệch định nghĩa vẫn là **giới hạn chưa giải quyết**, khai ở phụ lục, không
+vá bằng cách chỉnh sổ tay.
+
+### E0 — kiểm tra phép can thiệp, xét TRƯỚC mọi luật khác
+
+Dwell trung vị của nhóm thử nghiệm ở pass 1 đã là **11,2 s**. Để kết luận "đã bỏ áp lực thời gian",
+pass 3 phải có **dwell trung vị nhóm thử nghiệm ≥ 20 s**. Nếu không đạt ⇒ phép can thiệp **thất
+bại**, E1/E1b/E2 **không áp dụng**, pass 3 chỉ báo cáo được dưới dạng test-retest 7 ngày.
+
+### Luật diễn giải — chốt TRƯỚC
+
+L₁ = 61,1 % · C₁ = 88,9 %. L₃, C₃ = độ chính xác pass 3 của hai nhóm.
+
+| Mã | Điều kiện | Kết luận **buộc phải** viết |
+|---|---|---|
+| **E1** | L₃ − L₁ ≥ **+15 pp** **và** C₃ ≥ C₁ − 5 pp | **Phân xử thật.** Thời gian/chú ý là nguyên nhân, không phải nhập nhằng. ⇒ **trần nhãn CAO HƠN 84,67 %**, mô hình **còn dư địa**, lập luận "sát trần nhãn" ở §6 **YẾU ĐI và phải viết lại**. *Bất lợi cho luận văn.* |
+| **E1b** | L₃ − L₁ ≥ +15 pp **và** C₃ < C₁ − 5 pp | **Chỉ dịch ngưỡng, không phân xử.** Tăng ở nhóm thử nghiệm đến từ việc gọi hazard nhiều hơn ở mọi nơi. **Không** nâng ước lượng trần nhãn; báo cáo như một minh chứng điểm làm việc của người đọc đã dịch. §6 **không đổi** |
+| **E2** | \|L₃ − L₁\| ≤ 10 pp **và** \|C₃ − C₁\| ≤ 5 pp | **Nhập nhằng thật được xác nhận bằng phép can thiệp.** Thời gian không giới hạn **không** giải được những clip đó ⇒ lập luận "84.2 % sát trần nhãn" **được chống đỡ mạnh**, nay bằng can thiệp chứ không chỉ bằng tương quan |
+| **E4** | C₃ ≤ C₁ − 10 pp | Người đọc đã **trôi** khỏi sổ tay. **Toàn bộ pass 3 không diễn giải được**, kể cả nhóm thử nghiệm |
+| **E3** | mọi trường hợp khác | báo cáo số, **không** nâng thành tuyên bố nào mạnh hơn số cho phép |
+
+### Báo cáo bất kể mã nào nổ
+
+- **κ(pass 1 ↔ pass 3) trên cả 72 clip** — test-retest 7 ngày, là **con số độ tin cậy chính thức**
+  thay cho 0,8397. Nếu **< 0,80** thì **D3 nổ** và áp dụng nguyên văn.
+- **Tỉ lệ gọi hazard** hai nhóm (pass 1: thử nghiệm **4/36**, đối chứng **18/36**) — quy tắc mặc
+  định "không chắc thì chọn bình thường" còn sống dưới thời gian không giới hạn hay không.
+- Dwell trung vị hai nhóm.
+
+### Không đổi
+
+Đại lượng chính **κ = 0,6933 trên n = 150**, **D1–D5 nguyên văn**, **D2 vẫn là phán quyết đang
+hiệu lực**, **tiêu 0 lần chạm test**, và **bảng cổng không đổi — tám cổng, hai đạt, sáu trượt**.

@@ -149,7 +149,7 @@ class H(BaseHTTPRequestHandler):
 class State:
     def __init__(self):
         self.key = json.loads((BASE / 'key.json').read_text())
-        ev = json.loads((BASE / 'events.json').read_text())
+        ev = json.loads((BASE / (sys.argv[1] if len(sys.argv) > 1 else 'events.json')).read_text())
         self.events = ev['events']
         self.log = BASE / 'annotations.jsonl'
         self.n_this_session = 0
