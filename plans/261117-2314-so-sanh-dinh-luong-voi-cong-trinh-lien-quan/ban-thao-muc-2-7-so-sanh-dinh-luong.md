@@ -240,14 +240,14 @@ Bảy phép so sánh dưới đây sẽ làm luận văn trông mạnh hơn, và
       phải khoa học: nó sẽ đưa vào báo cáo các số chưa có trước mốc đóng băng số liệu. Một quy ước
       phải được khai nếu phép so này được thêm ở lượt sau: nhiều công trình đếm phép nhân-cộng
       nhưng ghi nhãn là FLOPs, nên hai con số chỉ đặt cạnh nhau được sau khi nói rõ bên nào là bên
-      nào.
+      nào. Hạng mục này được giữ chỗ ở mục 8.3.10(a).
 
   (6) **Năng lượng của luận văn so với tài liệu.** Các đối chứng khả dụng đo công suất tổng của
       bảng mạch và **không trừ công suất nền**, trên một bảng mạch khác bảng mạch của luận văn. Chỉ
       một phép so hạng (c)/(d) là khả thi, và luận văn chọn không in nó. Hệ quả: các số năng lượng
       của luận văn chỉ được đọc trong phạm vi mục 5.8, và quy tắc mục 5.6.5 vẫn áp nguyên — không
       con số công suất nào được dùng để lập luận về ngân sách năng lượng hay khuyến nghị chế độ
-      nguồn.
+      nguồn. Mục 8.3.10(b) nói rõ vì sao hạng mục này không mở ra được bằng một ngoại lệ.
 
   (7) **Ba làn của luận văn so với nhau.** Tỉ lệ lớp khác nhau, định nghĩa đơn vị nhóm khác nhau,
       nhãn khác bản chất. Một hiệu số giữa hai làn **không ước lượng cho đại lượng nào**, kể cả khi
@@ -353,7 +353,9 @@ bằng. Chi tiết trong mục 13 của báo cáo tổng hợp.
 
 1. **Không cần ngoại lệ hậu-đóng-băng.** Mọi số đều đã công bố. Đây là lý do hai mục con tính toán
    và năng lượng bị bỏ, và lý do điều (5) và (6) của mục 2.7.5 nói thẳng rằng hai phép so ấy không
-   được in — điều (5) nêu rõ lý do là thủ tục, không phải khoa học, để lượt sau có thể thêm.
+   được in — điều (5) nêu rõ lý do là thủ tục, không phải khoa học, để lượt sau có thể thêm. Hai
+   mục con ấy nay có chỗ đi: **mục 8.3.10**, bản thảo riêng ở
+   `ban-thao-muc-8-3-10-hai-phep-so-sanh-chua-in.md` cùng thư mục này.
 2. **Không lặp lại Chương 2.** Bảng B1w–B2 (mục 2.2.3), số WS-VAD (mục 2.2.5) và kết quả dung lượng
    (mục 2.2.6) chỉ được dẫn chiếu. Mục 2.7.3 và 2.7.5(2) cộng thêm vào các mục ấy, không thay.
 3. **Không đặt 84.2% cạnh 95.81%.** So sánh với công trình gốc đã tồn tại ở mục 6.12.5 và 6.15 với
@@ -389,5 +391,5 @@ quả có gồm nhánh văn bản, việc phải làm là **sửa lời khai cho
 1. Phát biểu "trong phạm vi tìm được" đã dùng ở ba chỗ thay cho "không công trình nào", vì một
    lượt tìm có hạn không chứng minh được mệnh đề phủ định toàn xưng. Mức hạ cấp này có đủ với bạn
    không?
-2. Hai mục con bị bỏ (tính toán lý thuyết, năng lượng) có nên vào **Chương 8** như hướng phát triển
-   thay vì mất hẳn? Điều (5) của mục 2.7.5 đã mở cửa cho chúng, nhưng chưa trỏ tới chỗ nào.
+2. ~~Hai mục con bị bỏ vào Chương 8?~~ **Tác giả chốt 24/11: có.** Đã soạn mục 8.3.10 thành bản
+   thảo riêng, và điều (5), (6) của mục 2.7.5 nay trỏ tới nó.
