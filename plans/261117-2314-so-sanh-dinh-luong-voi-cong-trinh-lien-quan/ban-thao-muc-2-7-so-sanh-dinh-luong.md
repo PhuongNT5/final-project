@@ -76,12 +76,23 @@ một điểm trên thang đó, và cần được đọc như vậy.
   Vita-CLIP                              |      38.88 M       |  45.3%
   Tinh chỉnh toàn phần (TimeSformer)     |  85.87 – 121.57 M  | 100 – 142%
 
+  Nguồn: STA-VPT [46], ST-Adapter [47], EVL [48], AIM [49], Vita-CLIP [50], TimeSformer [13]; con
+  số 4.68 triệu của VPT-deep lấy từ bảng VIII của [46], không từ bài VPT gốc.
+
 Hai cột mang hai nhãn khác nhau. Cột **tham số huấn luyện** mang nhãn (a): số tham số được cập nhật
 là một đại lượng xác định, không phụ thuộc kho, chỉ số hay giao thức chia, nên các hàng so trực
-tiếp được. Cột **phần trăm** mang nhãn (a*): mẫu số "tinh chỉnh toàn phần" khác nhau giữa các công
-trình — 85.87 triệu cho một tháp ViT-B/32, 121.57 triệu cho TimeSformer — nên tỉ lệ chỉ đọc được
-sau khi khai mẫu số, và hàng cuối vượt 100% chính vì mẫu số của nó không phải mẫu số của các hàng
-trên.
+tiếp được. Cột **phần trăm** mang nhãn (a*) và phải khai mẫu số: cột này quy hết về **một mẫu số
+chung 85.87 triệu** để các hàng đọc được cạnh nhau, nên nó không phải tỉ lệ mà từng công trình tự
+báo. AIM tự báo tổng 97 triệu, tức theo mẫu số của chính nó tỉ lệ là 11.3% chứ không phải 12.8%.
+Hàng cuối vượt 100% vì mẫu số của nó là TimeSformer 121.57 triệu.
+
+Một khác biệt nữa áp cho cả bảng: hàng của luận văn đo trên **CLIP ViT-B/32**, mọi hàng ngoài đều đo
+trên **ViT-B/16** — trong phạm vi tìm được, không nguồn nào công bố thang này trên B/32. Hai tháp
+cùng chiều rộng 768 và cùng 12 lớp, nên số tham số của một mô-đun thích nghi gần như không đổi giữa
+chúng và cột (a) vẫn đọc được; nhưng đây là phép so **cùng họ, khác độ phân giải vá**. Hai hàng
+mang thêm bất định: STA-VPT không nói độ phân giải vá, chỉ nói "CLIP-ViT-B"; và Vita-CLIP không nói
+con số 38.88 triệu của nó có gồm nhánh văn bản hay không, trong khi phương pháp ấy học prompt ở
+**cả hai** bộ mã hoá — nếu có gồm thì hàng ấy không còn so trực tiếp được với một đầu chỉ-thị-giác.
 
 Đầu được triển khai, ở 0.23% tham số, nằm giữa "chỉ đầu" và "đầu dò tuyến tính", tức thuộc **nhóm
 rẻ nhất** của thang đã công bố: rẻ hơn VPT-deep khoảng 23 lần, rẻ hơn AIM khoảng 55 lần, rẻ hơn
@@ -116,6 +127,8 @@ Dải tham chiếu cho chi phí đóng băng, toàn bộ nhãn (d), phải đọ
   Chỉ đầu dò tuyến tính, không module       |       +5.1 … +43.1 pp         | B1 KHÔNG thuộc đây
   Chỉ prompt, dữ liệu rất ít (ViFi-CLIP K=2)|       +9.3 / +17.5 pp         | phản ví dụ
 
+  Nguồn: ViFi-CLIP [51]; hai dải trên là tổng hợp qua [47]–[52], không phải số của một công trình.
+
 Cách đọc đúng: B1 thuộc **chế độ thứ nhất**, nơi việc đóng băng thường không gây lỗ và đôi khi còn
 lãi — AIM lãi 8.9 pp so với tinh chỉnh toàn phần ở 1% dữ liệu Kinetics-400. Dải +5.1 … +43.1 pp của
 chế độ thứ hai **không được mượn** để nói B1 lỗ nhiều, vì B1 có một lớp Transformer thời gian và vị
@@ -127,11 +140,12 @@ liệu thì đóng băng thắng" không phải một quy luật; nó phụ thu�
 hội đồng hỏi "sao không tinh chỉnh toàn phần" phải nhận được dải ba chế độ này, kèm câu trả lời
 thẳng rằng luận văn chưa đo nhánh ấy.
 
-Chiều của hiệu số đo được ở mục 2.2.3 cũng cần một đối chứng từ tài liệu: VideoGLUE báo đầu dò
-xương sống ảnh đóng băng vượt xương sống video đóng băng trên Kinetics-400 (75.2 so với 65.1), và
-**đổi chiều** trên các tác vụ nặng chuyển động (Something-Something v2 41.0 so với 53.9; Diving48
-44.1 so với 59.5). Điều này củng cố đúng cách đọc thận trọng mà mục 2.2.3 đã chọn: hiệu số nghiêng
-về tháp hình ảnh ở lớp bài toán này, và tài liệu cho biết đó không phải một quy luật phổ quát.
+Chiều của hiệu số đo được ở mục 2.2.3 cũng cần một đối chứng từ tài liệu: VideoGLUE [52] báo đầu
+dò xương sống ảnh đóng băng vượt xương sống video đóng băng trên Kinetics-400 (75.2 so với 65.1),
+và **đổi chiều** trên các tác vụ nặng chuyển động (Something-Something v2 41.0 so với 53.9;
+Diving48 44.1 so với 59.5). Điều này củng cố đúng cách đọc thận trọng mà mục 2.2.3 đã chọn: hiệu
+số nghiêng về tháp hình ảnh ở lớp bài toán này, và tài liệu cho biết đó không phải một quy luật
+phổ quát.
 
 2.7.4. Lạm phát do giao thức chia dữ liệu, so với các ngành khác
 
@@ -151,16 +165,19 @@ lượng. Vì vậy ba hàng đầu mang nhãn làn, không mang nhãn so sánh 
   **Luận văn, làn Unsafe-Net** | video an toàn       | bối cảnh      | **+13.0 … +21.8 pp**  | làn
   UniqueShip, DeepShip         | âm dưới nước        | bản ghi nguồn | +10.2 … +12.2 pp      | (a*)
   UniqueShip, VTUAD            | âm dưới nước        | bản ghi nguồn | +47.2 … +47.6 pp      | (a*)
-  Tổng hợp EEG                 | EEG                 | đối tượng     | +21.5 … +31 pp        | (a*)
-  Zhu 2015                     | EEG                 | đối tượng     | +26.15 pp             | (a*)
+  Sidharth 2023, SEED          | EEG                 | đối tượng     | +21.5 pp              | (a*)
+  Li 2018, SEED                | EEG                 | đối tượng     | +26.15 pp             | (a*)
   Ploton 2020                  | sinh khối viễn thám | không gian    | R² 0.53 xuống 0.14    | (d)
   Tampu 2022                   | OCT                 | bệnh nhân     | MCC +0.07 … +0.43     | (d)
-  Peptide MS                   | protein             | —             | +1.8 pp (chiều ngược) | (a*)
+  PepSpecBench 2026            | protein             | —             | PCC 0.910 xuống 0.892 | (d)
+
+  Nguồn: UniqueShip [53], chứa cả DeepShip và VTUAD; Sidharth 2023 [55]; Li 2018 [54];
+  Ploton 2020 [56]; Tampu 2022 [57]; PepSpecBench [58]. Ba hàng đầu là phép đo của luận văn.
 
 Nhãn (a*) ở bảng này mang nghĩa thứ hai của thang: **cùng một đại lượng trên quần thể khác.** Độ
 lạm phát là hiệu của hai độ chính xác dưới hai giao thức chia, đo bằng điểm phần trăm, nên không
 cần quy đổi đơn vị; cái khác là lĩnh vực và đơn vị nhóm. Vì vậy dải này là một dải tham chiếu về
-**độ lớn**, không phải một bảng xếp hạng, và hai hàng đổi chỉ số (R², MCC) thì tụt xuống nhãn (d).
+**độ lớn**, không phải một bảng xếp hạng, và ba hàng đổi chỉ số (R², MCC, PCC) tụt xuống nhãn (d).
 
 Câu trả lời: **không bất thường** — và phải phát biểu theo từng làn, không phát biểu gộp. Mỗi làn,
 đọc riêng, nằm ở giữa-dưới dải đã công bố: cùng băng với DeepShip, thấp hơn EEG và viễn thám. Việc
@@ -245,22 +262,92 @@ và không thói quen công bố khoảng tin cậy. Mục 2.7.4 cho con số ch
 
 ---
 
-## Mười lăm mục phải thêm vào TÀI LIỆU THAM KHẢO
+## Mười ba mục phải thêm vào TÀI LIỆU THAM KHẢO — đã kiểm độc lập 24/11
 
-Danh mục hiện có 45 mục. Năm mục con này viện đến 15 công trình **chưa** xuất hiện ở đâu trong
-`report/vn/` — tôi đã kiểm từng tên, tất cả đều 0 lượt.
+Danh mục hiện có 45 mục, nên các mục mới chạy từ [46]. **Không phải 15 mục như bản thảo trước ghi.**
+Hai cái bị đếm nhầm thành công trình riêng: CLIP-LoRA là một hàng trong bảng của VideoGLUE, không
+phải một bài, và thân mục 2.7.3 không gọi tên nó; VPT gốc cũng không phải nguồn riêng, vì con số
+4.68 triệu của VPT-deep lấy từ bảng VIII của STA-VPT. CLIP đã có sẵn ở mục [28], không cần thêm.
 
-  Mục con | Công trình phải thêm
-  --------+----------------------------------------------------------------------------
-  2.7.2   | STA-VPT · VPT · ST-Adapter · EVL · AIM · Vita-CLIP
-  2.7.3   | ViFi-CLIP · VideoGLUE · CLIP-LoRA
-  2.7.4   | UniqueShip (chứa cả DeepShip và VTUAD) · tổng hợp EEG · Zhu 2015 ·
-          | Ploton 2020 · Tampu 2022 · peptide MS
+Mười ba mục dưới đây đã đối chiếu từng mã với trang nguồn. Chép thẳng được:
 
-Chi tiết thư mục của 15 mục này nằm trong `research/researcher-02-frozen-vs-finetune-gap.md` và
-`research/researcher-05-lam-phat-giao-thuc-chia-du-lieu.md`, **và phải được kiểm lại trước khi
-chép**: đợt khảo sát đã phát hiện hai mã arXiv sai trong chính danh mục hiện tại, nên không mã nào
-trong hai báo cáo ấy được tin mà không đối chiếu.
+```
+[46] W. Pei, T. Xia, Q. Tan, J. Tian, G. Lu, J. Yu, "STA-VPT: SpatioTemporally Aligned Visual
+     Prompt Tuning," arXiv:2312.10376, 2026. Bản mở rộng của công trình AAAI 2024.
+[47] J. Pan, Z. Lin, X. Zhu, J. Shao, H. Li, "ST-Adapter: Parameter-Efficient Image-to-Video
+     Transfer Learning," trong Advances in Neural Information Processing Systems (NeurIPS),
+     tập 35, 2022. arXiv:2206.13559.
+[48] Z. Lin và cộng sự, "Frozen CLIP Models are Efficient Video Learners," trong European
+     Conference on Computer Vision (ECCV), 2022. arXiv:2208.03550.
+[49] T. Yang, Y. Zhu, Y. Xie, A. Zhang, C. Chen, M. Li, "AIM: Adapting Image Models for
+     Efficient Video Action Recognition," trong International Conference on Learning
+     Representations (ICLR), 2023. arXiv:2302.03024.
+[50] S. T. Wasim, M. Naseer, S. Khan, F. S. Khan, M. Shah, "Vita-CLIP: Video and Text Adaptive
+     CLIP via Multimodal Prompting," trong IEEE/CVF Conference on Computer Vision and Pattern
+     Recognition (CVPR), 2023. arXiv:2304.03307.
+[51] H. Rasheed, M. U. Khattak, M. Maaz, S. Khan, F. S. Khan, "Fine-Tuned CLIP Models Are
+     Efficient Video Learners," trong IEEE/CVF Conference on Computer Vision and Pattern
+     Recognition (CVPR), 2023. arXiv:2212.03640.
+[52] L. Yuan và cộng sự, "VideoGLUE: Video General Understanding Evaluation of Foundation
+     Models," Transactions on Machine Learning Research (TMLR), 2024. arXiv:2307.03166.
+[53] C. Hashemi, T. Stout, A. Hoogs, J. Parham, "Mitigating Data Leakage in Acoustic Ship
+     Classification Benchmark Datasets," trong OCEANS 2026, 2026. arXiv:2609.13659.
+[54] X. Li, D. Song, P. Zhang, Y. Zhang, Y. Hou, B. Hu, "Exploring EEG Features in
+     Cross-Subject Emotion Recognition," Frontiers in Neuroscience, tập 12, bài 162, 2018.
+     DOI: 10.3389/fnins.2018.00162.
+[55] S. Sidharth, A. A. Samuel, Ranjana H, J. T. Panachakel, S. Parveen K, "Emotion Detection
+     from EEG using Transfer Learning," arXiv:2306.05680, 2023.
+[56] P. Ploton và cộng sự, "Spatial validation reveals poor predictive performance of
+     large-scale ecological mapping models," Nature Communications, tập 11, bài 4540, 2020.
+     DOI: 10.1038/s41467-020-18321-y.
+[57] I. E. Tampu, A. Eklund, N. Haj-Hosseini, "Inflation of test accuracy due to data leakage
+     in deep learning-based classification of OCT images," Scientific Data, tập 9, bài 580,
+     2022. DOI: 10.1038/s41597-022-01618-6. Tiền ấn bản: arXiv:2202.12267.
+[58] Z. Yang, P. Liu, Y. Li, Y. Zhong, J. Xia, "PepSpecBench: A Unified Evaluation Benchmark
+     for Peptide Tandem Mass Spectrometry Prediction," trong Advances in Neural Information
+     Processing Systems (NeurIPS), 2026. arXiv:2605.01945.
+```
+
+### Hai lỗi đợt kiểm này bắt được trong chính bản thảo, đã sửa
+
+**Quy kết sai nguồn, hàng EEG.** Bản thảo trước ghi hàng "Zhu 2015" cho mức tụt 90.97% xuống 64.82%
+(hiệu 26.15 điểm). Hai con số ấy **là phép đo của chính Li và cộng sự 2018**, nằm ngay trong tóm
+tắt bài ấy, không phải của Zhu 2015 — báo cáo khảo sát đã đọc chúng qua phần mở đầu của bài 2018 rồi
+gán cho nguồn được dẫn lại. Zhu 2015 vì vậy rời khỏi danh mục, và hàng này lên hạng từ "thứ cấp,
+chưa đọc bản gốc" thành nguồn sơ cấp đã đối chiếu. Hàng "tổng hợp EEG" cũng đã tách: dải "+21.5 …
++31" gộp một phép đo đọc được với một bài điểm luận không xác minh được, nên nay chỉ còn phép đo
+xác minh được là +21.5 điểm của Sidharth và cộng sự 2023, đứng thành hàng riêng.
+
+**Sai chiều, hàng peptide.** Bản thảo trước ghi "+1.8 pp (chiều ngược)", tức đọc thành chia khó lại
+cho điểm cao hơn — một ngoại lệ đáng chú ý. Đọc lại bài: chia ngẫu nhiên cho PCC 0.9099, chia tách
+theo khung xương cho 0.8921. **Chia dễ cao hơn, đúng chiều thông thường**, không có ngoại lệ nào.
+Thêm nữa PCC là một chỉ số khác hẳn độ chính xác, nên hàng ấy đã hạ xuống nhãn (d) cùng R² và MCC.
+
+### Năm con số trong bản thảo vẫn chưa đọc được tận bảng
+
+Mã, tiêu đề, tác giả, năm và nơi công bố của cả 13 mục đều đã đối chiếu. Nhưng năm *giá trị* dưới
+đây chỉ đọc được qua bản kết xuất HTML hoặc qua tóm tắt phần đuôi trang, chưa đọc verbatim trong
+bảng gốc. Không cái nào chặn việc chép, vì cả năm đều nằm ở hàng tham chiếu chứ không ở hàng của
+luận văn, nhưng nên soát lại khi có bản PDF:
+
+  Con số                                   | Nguồn            | Tình trạng
+  -----------------------------------------+------------------+---------------------------------
+  Vita-CLIP 38.88 triệu                    | bảng 5           | tóm tắt; thành phần không khai
+  STA-VPT 0.07 và VPT-deep 4.68 triệu      | bảng VIII        | tóm tắt; độ phân giải vá không khai
+  Ploton R² 0.53 xuống 0.14                | toàn văn         | tóm tắt khớp chiều và độ lớn
+  Tampu MCC +0.07 … +0.43                  | toàn văn         | chưa xác nhận
+  PepSpecBench PCC 0.910 và 0.892          | mục 4.2          | tóm tắt; chiều đã xác nhận
+
+Ngược lại, hai chỗ báo cáo khảo sát treo cờ "chưa xác minh" thì nay **đã xác minh**: AIM huấn luyện
+11 triệu trên tổng 97 triệu với tháp ViT-B/16, lấy verbatim từ mục 4.2.1 và bảng 2 của bài; và tác
+giả UniqueShip là Hashemi, Stout, Hoogs, Parham — các bài dẫn lại ghi "Hashemi và cộng sự" chỗ này,
+"Parham" chỗ khác, cả hai đều đúng một nửa. Quy mô đúng là 2.460 giờ và 4.218 tàu; biến thể 2.474
+giờ / 4.222 tàu lưu hành ở các bài dẫn lại **không** có trong bài gốc.
+
+**Một lỗi trong danh mục hiện tại, không liên quan mục 2.7 nhưng cùng khu vực và nên sửa cùng lượt:**
+mục [24] (MSL) đang mang mã arXiv `2104.04527`, là một bài vật lý. Mục đúng là DOI
+`10.1609/aaai.v36i2.20028`. Mã sai thứ hai là `1807.08362`, thực tế là một bài về định nghĩa công
+bằng. Chi tiết trong mục 13 của báo cáo tổng hợp.
 
 **Một lỗi trong danh mục hiện tại, không liên quan mục 2.7 nhưng cùng khu vực và nên sửa cùng lượt:**
 mục [24] (MSL) đang mang mã arXiv `2104.04527`, là một bài vật lý. Mục đúng là DOI
@@ -291,9 +378,13 @@ bằng. Chi tiết trong mục 13 của báo cáo tổng hợp.
 
 ## Câu hỏi chưa giải quyết
 
-1. **Chi tiết thư mục của 15 mục mới chưa được kiểm độc lập.** Đây là việc còn lại duy nhất chặn
-   việc chép. Tôi có thể kiểm từng mục nếu bạn muốn, nhưng ba công cụ tra cứu đều trả 403 trong đợt
-   khảo sát trước, nên có thể phải tra tay.
+1. **Hàng Vita-CLIP: giữ hay bỏ?** Đây là chỗ duy nhất trong năm trị số chưa đọc verbatim mà có
+   thể làm đổi một phát biểu. Bài ấy học prompt ở *cả hai* bộ mã hoá nhưng không khai con số 38.88
+   triệu có gồm nhánh văn bản hay không. Nếu có gồm, hàng ấy không so trực tiếp được với một đầu
+   chỉ-thị-giác, và hàng áp chót của thang PEFT mất căn cứ. Ba lựa chọn: giữ kèm lời khai như hiện
+   tại; bỏ hàng và để thang dừng ở EVL bốn lớp; hoặc chờ đọc được bảng 5 trong bản PDF. Tôi
+   nghiêng về **giữ kèm lời khai**, vì con số 427 lần so với tinh chỉnh toàn phần không đi qua
+   hàng này.
 2. Phát biểu "trong phạm vi tìm được" đã dùng ở ba chỗ thay cho "không công trình nào", vì lý do
    vừa nêu. Mức hạ cấp này có đủ với bạn không?
 3. Hai mục con bị bỏ (tính toán lý thuyết, năng lượng) có nên vào **Chương 8** như hướng phát triển
