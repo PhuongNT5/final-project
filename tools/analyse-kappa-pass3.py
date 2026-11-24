@@ -85,7 +85,7 @@ def main():
     line('thu nghiem  pass 1', L1, extra=f'({int(L1*36)}/36)')
     line('thu nghiem  pass 3', l3, boot_ci(lambda g, a: (a == g).mean(), gl, l3a),
          f'({int((l3a == gl).sum())}/{len(kl)})')
-    line('  thay doi L3 - L1', l3 - L1, extra='pp' if False else f'= {(l3-L1)*100:+.1f} pp')
+    line('  thay doi L3 - L1', l3 - L1, extra=f'= {(l3-L1)*100:+.1f} pp')
     line('doi chung   pass 1', C1, extra=f'({int(C1*36)}/36)')
     line('doi chung   pass 3', c3, boot_ci(lambda g, a: (a == g).mean(), gc, c3a),
          f'({int((c3a == gc).sum())}/{len(kc)})')
