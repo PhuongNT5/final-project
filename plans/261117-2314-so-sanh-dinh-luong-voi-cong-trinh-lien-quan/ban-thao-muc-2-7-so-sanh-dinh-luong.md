@@ -349,11 +349,6 @@ mục [24] (MSL) đang mang mã arXiv `2104.04527`, là một bài vật lý. M�
 `10.1609/aaai.v36i2.20028`. Mã sai thứ hai là `1807.08362`, thực tế là một bài về định nghĩa công
 bằng. Chi tiết trong mục 13 của báo cáo tổng hợp.
 
-**Một lỗi trong danh mục hiện tại, không liên quan mục 2.7 nhưng cùng khu vực và nên sửa cùng lượt:**
-mục [24] (MSL) đang mang mã arXiv `2104.04527`, là một bài vật lý. Mục đúng là DOI
-`10.1609/aaai.v36i2.20028`. Mã sai thứ hai là `1807.08362`, thực tế là một bài về định nghĩa công
-bằng. Chi tiết trong mục 13 của báo cáo tổng hợp.
-
 ## Những chỗ bản thảo này cố ý không làm
 
 1. **Không cần ngoại lệ hậu-đóng-băng.** Mọi số đều đã công bố. Đây là lý do hai mục con tính toán
@@ -376,16 +371,23 @@ bằng. Chi tiết trong mục 13 của báo cáo tổng hợp.
    "khoảng tin cậy nới 2.9 lần", mệnh đề này không tồn tại trong `report/vn/`, và `researcher-05`
    ghi rõ rằng ρ thực tế chưa được kiểm.
 
+## Quyết định của tác giả, 24/11: giữ hàng Vita-CLIP kèm lời khai
+
+Hàng Vita-CLIP ở thang chi phí thích nghi **được giữ**, và lời khai đi kèm nó là bắt buộc, không
+phải tuỳ chọn. Bài ấy học prompt ở *cả hai* bộ mã hoá nhưng không khai con số 38.88 triệu có gồm
+nhánh văn bản hay không; nếu có gồm thì hàng ấy không so trực tiếp được với một đầu chỉ-thị-giác.
+Câu khai ấy đã nằm sẵn trong thân mục 2.7.2 và phải được chép cùng bảng — tách bảng ra khỏi lời
+khai là làm hỏng chính điều quyết định này chấp nhận.
+
+Lý do giữ: hàng này định vị độ lớn chứ không gánh phát biểu nào. Con số 427 lần so với tinh chỉnh
+toàn phần đi qua hàng cuối (85.87–121.57 triệu), không qua hàng này; bỏ nó đi thì thang mất một
+nấc mà không phát biểu nào được củng cố. Nếu lượt sau đọc được bảng 5 trong bản PDF và con số ấy
+quả có gồm nhánh văn bản, việc phải làm là **sửa lời khai cho đúng**, không phải rút hàng.
+
 ## Câu hỏi chưa giải quyết
 
-1. **Hàng Vita-CLIP: giữ hay bỏ?** Đây là chỗ duy nhất trong năm trị số chưa đọc verbatim mà có
-   thể làm đổi một phát biểu. Bài ấy học prompt ở *cả hai* bộ mã hoá nhưng không khai con số 38.88
-   triệu có gồm nhánh văn bản hay không. Nếu có gồm, hàng ấy không so trực tiếp được với một đầu
-   chỉ-thị-giác, và hàng áp chót của thang PEFT mất căn cứ. Ba lựa chọn: giữ kèm lời khai như hiện
-   tại; bỏ hàng và để thang dừng ở EVL bốn lớp; hoặc chờ đọc được bảng 5 trong bản PDF. Tôi
-   nghiêng về **giữ kèm lời khai**, vì con số 427 lần so với tinh chỉnh toàn phần không đi qua
-   hàng này.
-2. Phát biểu "trong phạm vi tìm được" đã dùng ở ba chỗ thay cho "không công trình nào", vì lý do
-   vừa nêu. Mức hạ cấp này có đủ với bạn không?
-3. Hai mục con bị bỏ (tính toán lý thuyết, năng lượng) có nên vào **Chương 8** như hướng phát triển
+1. Phát biểu "trong phạm vi tìm được" đã dùng ở ba chỗ thay cho "không công trình nào", vì một
+   lượt tìm có hạn không chứng minh được mệnh đề phủ định toàn xưng. Mức hạ cấp này có đủ với bạn
+   không?
+2. Hai mục con bị bỏ (tính toán lý thuyết, năng lượng) có nên vào **Chương 8** như hướng phát triển
    thay vì mất hẳn? Điều (5) của mục 2.7.5 đã mở cửa cho chúng, nhưng chưa trỏ tới chỗ nào.
